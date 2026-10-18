@@ -1,0 +1,93 @@
+/**
+ * 第三层：主题覆盖（只覆盖语义层）
+ *
+ * 这是三级架构真正兑现的地方：暗色**只动语义令牌**，一行都不用碰原始层。
+ * 圆角、间距、字号、动效在暗色下完全不变——它们本来也不该变。
+ *
+ * 一个容易搞反的点：暗色下「状态色」的角色会反转。
+ * 浅色主题里 green-500 是**填充色**（按钮底），对比度只要 ≥3:1；
+ * 暗色主题里同一个色相变成**文字色**（暗底上亮字），对比度要求 ≥4.5:1。
+ * 所以下面的 -text / -bg 是两套独立的值，不是同一套换个位置。
+ *
+ * 已知偏差：下面带「原值」注释的颜色来自 naive-ui 的暗色调色板，不是本品牌色阶
+ * 推出来的。保留原值是为了零视觉回归——把借来的调色板一次性换成本品牌色阶
+ * 属于视觉改版，不应该夹在令牌重构里偷偷做。清理时机见 README「已知偏差」。
+ */
+
+html[data-fbk-theme='dark'],
+.fbk-theme-dark {
+  /* ===== 主色 ===== */
+  --fbk-color-primary: #5c8bff; /* 原值 */
+  --fbk-color-primary-hover: #7ba3ff; /* 原值 */
+  --fbk-color-primary-active: #2f6bff; /* 原值 */
+  --fbk-color-primary-text: var(--fbk-blue-400);
+  --fbk-color-primary-bg: #1a2340;
+  --fbk-color-primary-bg-hover: #1f2a4d;
+  --fbk-color-primary-border: #2d3f6b;
+  /* 暗色下 primary 是**浅**蓝（#5c8bff），白字压上去只有 3.19:1，不达 AA。
+     所以这里的 onPrimary 反过来用深墨色：实测 4.95:1。 */
+  --fbk-color-on-primary: var(--fbk-gray-900);
+  /* 承上：底色浅、文字深，hover 就得把底色推**更浅**（远离文字色），
+     与浅色主题方向相反。实测 gray-900 在 blue-400 上 6.41:1、在 blue-300 上 9.09:1。 */
+  --fbk-color-primary-fill-hover: var(--fbk-blue-400);
+  --fbk-color-primary-fill-active: var(--fbk-blue-300);
+
+  /* ===== 状态色：填充态（原值）===== */
+  --fbk-color-success: #63e2b7; /* 原值 */
+  --fbk-color-warning: #f2c97d; /* 原值 */
+  --fbk-color-danger: #e88080; /* 原值 */
+  --fbk-color-info: #70c0e8; /* 原值 */
+
+  /* ===== 状态色：文字态 =====
+     暗色下直接用填充态作文字即可，实测在卡片底上分别是
+     11.04:1 / 11.32:1 / 6.60:1 / 8.76:1，全部超过 AA 正文标准。
+     这正是「角色的反转」：浅色主题里需要更深的一档，暗色主题里不需要。 */
+  --fbk-color-success-text: #63e2b7; /* 原值 */
+  --fbk-color-warning-text: #f2c97d; /* 原值 */
+  --fbk-color-danger-text: #e88080; /* 原值 */
+  --fbk-color-info-text: #70c0e8; /* 原值 */
+
+  /* ===== 状态色：浅底 =====
+     新增。暗色下的「浅底」必须是暗而带色相的表面，直接复用浅色主题的
+     green-50 会得到一块刺眼的白斑。配上面的文字态实测 6.2:1 ~ 10.1:1。 */
+  --fbk-color-success-bg: #14261f;
+  --fbk-color-warning-bg: #2a2113;
+  --fbk-color-danger-bg: #2b191c;
+  --fbk-color-info-bg: #131f2b;
+
+  /* ===== 文字 ===== */
+  --fbk-color-text: #e5eaf3; /* 原值 */
+  --fbk-color-text-secondary: #a3a6ad; /* 原值 */
+  --fbk-color-text-tertiary: var(--fbk-gray-500);
+  --fbk-color-text-disabled: #6b6f76; /* 原值 */
+  --fbk-color-text-inverse: var(--fbk-gray-900);
+
+  /* ===== 背景 ===== */
+  --fbk-color-bg: #101014; /* 原值 */
+  --fbk-color-bg-container: #18181c; /* 原值 */
+  --fbk-color-bg-elevated: #1f1f24; /* 原值 */
+  --fbk-color-bg-sunken: #131317;
+  --fbk-color-overlay: rgba(0, 0, 0, 0.62);
+
+  /* ===== 边框 ===== */
+  --fbk-color-border: #2d2d33; /* 原值 */
+  --fbk-color-border-light: #26262b; /* 原值 */
+  --fbk-color-border-strong: var(--fbk-gray-700);
+
+  /* ===== 填充 ===== */
+  --fbk-color-fill: #222227; /* 原值 */
+  --fbk-color-fill-hover: #2a2a30;
+
+  /* ===== 焦点环 =====
+     暗底上焦点环要更亮才看得见：blue-400 在卡片底（#18181c）上是 7.19:1。
+     浅色主题那个 blue-600 在暗底上只有 3.94:1——刚过 WCAG 1.4.11 的 3:1 底线，
+     不算不合格，但在暗色下确实不够醒目，所以这里换更亮的一档。 */
+  --fbk-color-focus-ring: var(--fbk-blue-400);
+  --fbk-shadow-focus-ring: 0 0 0 3px rgba(123, 163, 255, 0.32);
+
+  /* ===== 阴影 =====
+     暗色下阴影要更重才有效果——黑底上的浅阴影等于没有。 */
+  --fbk-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4); /* 原值 */
+  --fbk-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5); /* 原值 */
+  --fbk-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+}

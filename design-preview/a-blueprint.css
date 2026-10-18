@@ -1,0 +1,184 @@
+/* ============================================================
+   方向 A · Blueprint（工程图）
+
+   关键词：精密、紧凑、等宽、无阴影。
+   假设：FBK 的用户是后台系统开发者，一屏想看到尽可能多的数据，
+        审美偏好接近 Linear / Stripe 文档 —— 克制、有网格感、不装饰。
+
+   具体取舍：
+   - 圆角趋近直角（3/5/7px）。圆角越小，界面越像「工具」而非「产品」。
+   - 一律 1px 实线，**完全不用阴影**。阴影在密集表格里会糊成一团。
+   - 表头文字拉字距、用三级灰，视觉上退到数据后面去。
+   - 单号、金额、代码全部等宽字。数据要对齐才能扫读。
+   - 用 3px 主色短竖线做点缀，呼应品牌标识「一横杠 + 三立柱」的构成。
+   ============================================================ */
+
+:root {
+  --fbk-radius-2: 3px;
+  --fbk-radius-6: 5px;
+  --fbk-radius-10: 7px;
+}
+
+/* ---------- 数据表格：紧凑、等宽、无外框 ---------- */
+.fbk-pro-table {
+  box-shadow: none;
+}
+
+.fbk-pro-table .el-table {
+  font-size: var(--fbk-fs-13);
+}
+
+.fbk-pro-table .el-table th.el-table__cell {
+  padding: 8px 0;
+}
+
+.fbk-pro-table .el-table td.el-table__cell {
+  padding: 8px 0;
+}
+
+/* 表头退后：小一号字 + 字距。它是标签，不是内容。
+
+   颜色用 secondary（gray-600，5.45:1）而不是 tertiary（gray-500）。
+   第一版用的 tertiary，实测只有 3.43:1 —— 低于 AA 正文的 4.5:1。
+   12px 的次要文字**没有**「小字可以放宽」这回事，反而更容易读不清。
+   退后靠字号和字距就够了，不需要牺牲对比度。 */
+.fbk-pro-table .el-table th.el-table__cell .cell {
+  font-size: var(--fbk-fs-12);
+  font-weight: var(--fbk-font-weight-medium);
+  color: var(--fbk-color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+/* 单号这类标识列走等宽。用 nth-child 是因为列由 demo 定义，
+   发布形态下应当由 column.valueType 决定，这里只演示效果。 */
+.fbk-pro-table .el-table td.el-table__cell:first-child .cell {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-12);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-pro-table .el-table td.el-table__cell:nth-child(3) .cell {
+  font-family: var(--fbk-font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.fbk-pro-table__toolbar {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+}
+
+.fbk-pro-table__pagination {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+}
+
+/* ---------- 标签：方角、小一号，像状态码而不是药丸 ---------- */
+.el-tag {
+  height: 20px;
+  padding: 0 6px;
+  font-size: var(--fbk-fs-12);
+  line-height: 20px;
+  border-radius: var(--fbk-radius-2);
+}
+
+/* ---------- 文档站：标题左对齐、正文收窄，像一份规格书 ---------- */
+.vp-doc h1 {
+  font-size: var(--fbk-fs-30);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.vp-doc h2 {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-20);
+  letter-spacing: -0.01em;
+}
+
+/* 标题前缀用短竖线，不用 `##` —— 那个符号在文档里会读成「markdown 没渲染」。
+   padding-top 改成 margin-top：内边距算在盒子内部，绝对定位的竖线会跟着
+   顶部内边距一起下移、跑到文字上方去。换成外边距后盒子高度就等于行高，
+   top:50% + translateY 才能对准文字中线。 */
+.vp-doc h2 {
+  position: relative;
+  padding-top: 0;
+  padding-left: var(--fbk-spacing-md);
+  margin-top: var(--fbk-spacing-xxl);
+}
+
+.vp-doc h2::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0.75em;
+  content: '';
+  background: var(--fbk-color-primary);
+  border-radius: 1px;
+  transform: translateY(-50%);
+}
+
+.fbk-demo {
+  border-radius: var(--fbk-radius-10);
+  box-shadow: none;
+}
+
+.fbk-demo__header {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+}
+
+.fbk-demo__title {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-13);
+  font-weight: var(--fbk-font-weight-medium);
+}
+
+.fbk-demo__preview {
+  padding: var(--fbk-spacing-lg);
+  /* 点阵底，暗示「这是一块画布」。第一版用了 12px 实线网格，
+     密度太高，表格一放上去满屏都是线，反而干扰读数据 —— 改成 16px 点阵。 */
+  background-image: radial-gradient(var(--fbk-gray-300) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.fbk-api__caption {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-font-size-md);
+}
+
+.fbk-api table {
+  font-size: var(--fbk-fs-13);
+}
+
+.fbk-api tbody td {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+}
+
+.fbk-api thead th .cell,
+.fbk-api thead th {
+  font-size: var(--fbk-fs-12);
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Playground ---------- */
+.playground__header {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-lg);
+}
+
+.playground__brand {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-14);
+  letter-spacing: -0.01em;
+}
+
+.playground__field select,
+.playground__toggle {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-12);
+}
+
+.demo-block__title {
+  font-family: var(--fbk-font-family-mono);
+  font-size: var(--fbk-fs-16);
+}
+
+.playground__body {
+  padding: var(--fbk-spacing-xl) var(--fbk-spacing-lg);
+}

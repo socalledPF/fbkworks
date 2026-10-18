@@ -1,0 +1,182 @@
+/**
+ * vant 适配器样式：卡片列表、选择器、弹窗、标签。
+ *
+ * vant 没有 Table，DataGrid 渲染成卡片列表。卡片的视觉全部来自
+ * 组件令牌 --fbk-pro-table-*，所以同一个 ProTable 在三个适配器下
+ * 的密度、圆角、标签尺寸是一致的 —— 变的只有信息布局。
+ */
+.fbk-vant-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-sm);
+  padding: var(--fbk-spacing-sm);
+}
+
+.fbk-vant-grid__card {
+  position: relative;
+  padding: var(--fbk-spacing-md);
+  background: var(--fbk-pro-table-bg);
+  border-radius: var(--fbk-pro-table-radius);
+  box-shadow: var(--fbk-pro-table-shadow);
+}
+
+/* rowClickable 的卡片会被加上 tabindex，这时才有点击反馈与焦点环。
+   用 [tabindex] 而不是直接写 :hover/:focus-visible，是因为不可点击的卡片
+   压根不该看起来可以点。 */
+.fbk-vant-grid__card[tabindex] {
+  cursor: pointer;
+}
+
+.fbk-vant-grid__card[tabindex]:hover {
+  background: var(--fbk-pro-table-row-hover-bg);
+}
+
+.fbk-vant-grid__card[tabindex]:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.fbk-vant-grid__check {
+  position: absolute;
+  top: var(--fbk-spacing-md);
+  right: var(--fbk-spacing-md);
+}
+
+.fbk-vant-grid__title {
+  padding-right: 32px;
+  margin-bottom: var(--fbk-spacing-sm);
+  font-size: var(--fbk-pro-table-cell-font-size);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-pro-table-cell-fg);
+}
+
+/* 数值字段用等宽数字，和表格里的金额列保持同一种读法 */
+.fbk-vant-grid__field[data-numeric] dd {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-variant-numeric: var(--fbk-pro-table-numeric-font-variant);
+}
+
+.fbk-vant-grid__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  margin: 0;
+}
+
+.fbk-vant-grid__field {
+  display: flex;
+  gap: var(--fbk-spacing-xs);
+  min-width: 0;
+  font-size: var(--fbk-font-size-sm);
+}
+
+.fbk-vant-grid__field dt {
+  flex: none;
+  color: var(--fbk-descriptions-label-fg);
+}
+
+.fbk-vant-grid__field dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--fbk-pro-table-cell-fg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fbk-vant-grid__loading {
+  padding: var(--fbk-spacing-md);
+  text-align: center;
+}
+
+/* ============================================================
+   标签
+
+   vant 的 --van-* 定义在 :root，可以覆盖；但它自己也用 .van-tag--warning
+   这类类选择器设 --van-tag-text-color，所以必须叠一层类选择器才赢。
+
+   文字一律用 *-text 档。vant 默认的「白字 + 填充色」在 amber 上是
+   2.14:1 —— 那是填充色的设计用途，不是文字色。
+   ============================================================ */
+.van-tag {
+  padding: 0 var(--fbk-tag-padding-x);
+  font-size: var(--fbk-tag-font-size);
+  font-weight: var(--fbk-tag-font-weight);
+  line-height: var(--fbk-tag-height);
+  border-radius: var(--fbk-tag-radius);
+}
+
+/* 三档都要写：vant 自己的 .van-tag--warning 只设 background，
+   文字色继承自 .van-tag 的 --van-tag-text-color，所以 color 必须显式覆盖。
+   再叠一个状态类提高特异性，压过 vant 的 .van-tag--* 规则。 */
+.van-tag.van-tag--success { color: var(--fbk-color-success-text); background: var(--fbk-color-success-bg); }
+.van-tag.van-tag--warning { color: var(--fbk-color-warning-text); background: var(--fbk-color-warning-bg); }
+.van-tag.van-tag--danger  { color: var(--fbk-color-danger-text);  background: var(--fbk-color-danger-bg); }
+.van-tag.van-tag--primary { color: var(--fbk-color-primary-text); background: var(--fbk-color-primary-bg); }
+.van-tag.van-tag--default { color: var(--fbk-color-text-secondary); background: var(--fbk-color-fill); }
+
+/* 分页活动项：vant 默认是「白字 + primary 底」，白字在 #2f6bff 上 4.4988:1，
+   差 0.0012 过不了 AA。改用主按钮的底色（blue-700，6.61:1），
+   顺带让分页和按钮用同一种主色。 */
+.van-pagination__item--active {
+  color: var(--fbk-button-primary-fg);
+  background: var(--fbk-button-primary-bg);
+}
+
+.fbk-vant-select__actions {
+  padding: var(--fbk-spacing-md);
+}
+
+.fbk-vant-select__actions button {
+  width: 100%;
+  padding: var(--fbk-spacing-md);
+  color: var(--fbk-button-primary-fg);
+  background: var(--fbk-button-primary-bg);
+  border: 0;
+  border-radius: var(--fbk-button-radius);
+  transition: var(--fbk-transition-color);
+}
+
+/* 交互态全部走组件令牌，浅色/暗色方向相反这件事由 components.css 处理。
+   用 primary-fill-* 而不是 primary-hover：后者比主色浅，压在实色底上
+   会把 onPrimary 文字打到 3.19:1，达不到 AA。 */
+.fbk-vant-select__actions button:hover {
+  background: var(--fbk-button-primary-bg-hover);
+}
+
+.fbk-vant-select__actions button:active {
+  background: var(--fbk-button-primary-bg-active);
+}
+
+/* 触屏设备上 :hover 会「粘住」——点完仍保持 hover 态，看着像没松开 */
+@media (hover: none) {
+  .fbk-vant-select__actions button:hover {
+    background: var(--fbk-button-primary-bg);
+  }
+}
+
+/* 键盘焦点环。移动端虽然少见键盘，但外接键盘与无障碍开关的用户必须有可见焦点。 */
+.fbk-vant-select__actions button:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.fbk-vant-dialog__title {
+  padding: var(--fbk-spacing-lg) var(--fbk-spacing-lg) var(--fbk-spacing-sm);
+  font-size: var(--fbk-font-size-lg);
+  font-weight: 600;
+  text-align: center;
+}
+
+.fbk-vant-dialog__body {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-lg);
+}
+
+.fbk-vant-dialog__footer {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-lg) var(--fbk-spacing-lg);
+}
+
+.fbk-form-item__help {
+  margin-top: var(--fbk-form-item-gap);
+  color: var(--fbk-form-item-help-fg);
+  font-size: var(--fbk-form-item-help-font-size);
+}

@@ -1,0 +1,138 @@
+/**
+ * PageContainer 的头部 / 主体 / 底部三段式布局。
+ *
+ * 窄屏折叠用容器查询而不是 JS 判断窗口宽度：组件嵌在抽屉、分栏、
+ * 微前端容器里时，窗口宽度和它实际占的宽度是两回事。
+ */
+.fbk-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-page-container-gap);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--fbk-page-container-max-width);
+  padding: var(--fbk-page-container-padding);
+  margin: 0 auto;
+  /* 容器查询的宿主。缺了这一行，下面的 @container 永远不匹配 ——
+     而且不报错，只是静默失效。 */
+  container-type: inline-size;
+}
+
+.fbk-page-container__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-page-container-header-gap);
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: var(--fbk-page-container-header-padding-bottom);
+  border-bottom: 1px solid var(--fbk-page-container-header-border-color);
+}
+
+.fbk-page-container--fixed .fbk-page-container__header {
+  position: sticky;
+  top: 0;
+  z-index: var(--fbk-z-index-sticky, 10);
+  background: var(--fbk-color-bg);
+}
+
+.fbk-page-container__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-xs);
+  min-width: 0;
+}
+
+.fbk-page-container__back {
+  align-self: flex-start;
+  padding: 0;
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.fbk-page-container__back:hover {
+  color: var(--fbk-color-text);
+}
+
+.fbk-page-container__back:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-page-container__breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  font-size: var(--fbk-page-container-breadcrumb-size);
+  color: var(--fbk-page-container-breadcrumb-fg);
+}
+
+/* 链接文字用 primary-text 而不是 primary：后者是填充色，白底上 4.499:1
+   正好压 AA 线，而 primary-text 有 6.61:1，给正文留出余量。 */
+.fbk-page-container__breadcrumb-link {
+  color: var(--fbk-page-container-breadcrumb-link-fg);
+  text-decoration: none;
+}
+
+.fbk-page-container__breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+/* 下划线是 hover 的反馈，键盘用户拿不到，用焦点环补齐 */
+.fbk-page-container__breadcrumb-link:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--fbk-radius-sm);
+  text-decoration: underline;
+}
+
+.fbk-page-container__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  align-items: baseline;
+}
+
+.fbk-page-container__title {
+  margin: 0;
+  font-size: var(--fbk-page-container-title-size);
+  font-weight: var(--fbk-page-container-title-weight);
+  color: var(--fbk-page-container-title-fg);
+}
+
+.fbk-page-container__subtitle {
+  margin: 0;
+  font-size: var(--fbk-page-container-subtitle-size);
+  color: var(--fbk-page-container-subtitle-fg);
+}
+
+.fbk-page-container__extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+}
+
+.fbk-page-container__body {
+  min-width: 0;
+}
+
+.fbk-page-container__footer {
+  padding-top: var(--fbk-page-container-footer-padding-top);
+  border-top: 1px solid var(--fbk-page-container-footer-border-color);
+}
+
+/* 窄屏下 extra 折叠到标题下方 */
+@container (max-width: 640px) {
+  .fbk-page-container__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fbk-page-container__extra {
+    justify-content: flex-start;
+  }
+}

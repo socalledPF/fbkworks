@@ -1,0 +1,201 @@
+/**
+ * element-plus 适配器样式。
+ *
+ * 职责：把组件令牌（--fbk-pro-table-* / --fbk-tag-*）翻译成 element-plus 的
+ * 内部变量与选择器。**只有适配器可以选 .el-* 类名** —— 组件层不许碰，
+ * 否则 element-plus 小版本升级就会碎。
+ */
+
+/* 表单帮助文字 */
+.fbk-form-item__help {
+  margin-top: var(--fbk-form-item-gap);
+  color: var(--fbk-form-item-help-fg);
+  font-size: var(--fbk-form-item-help-font-size);
+}
+
+/* 加载指示器 */
+.fbk-spin__indicator {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  justify-content: center;
+  padding: var(--fbk-spacing-md);
+}
+
+.fbk-spin__dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--fbk-color-border);
+  border-top-color: var(--fbk-color-primary);
+  border-radius: 50%;
+  animation: fbk-spin-rotate 0.8s linear infinite;
+}
+
+.fbk-spin__description {
+  color: var(--fbk-color-text-secondary);
+  font-size: var(--fbk-font-size-sm);
+}
+
+@keyframes fbk-spin-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   表格
+
+   两个必须知道的事实，否则这段代码看起来对、跑起来无效：
+
+   a) element-plus 在 `.el-table` **元素自己身上**重新声明了
+      --el-table-bg-color / --el-table-header-bg-color 等。写在 :root 上
+      特异性不够，永远到不了表格。必须用 .el-table 选择器。
+
+   b) 行高 / 内边距 / 字号**没有 CSS 变量**。它们由
+      `.el-table--default .el-table__cell { padding: 8px 0 }` 和
+      `.el-table .cell { padding: 0 12px }` 两条固定规则决定，
+      所以改密度只能覆盖选择器，不能只设变量。
+   ============================================================ */
+.fbk-pro-table .el-table {
+  --el-table-bg-color: var(--fbk-pro-table-bg);
+  --el-table-tr-bg-color: var(--fbk-pro-table-bg);
+  --el-table-header-bg-color: var(--fbk-pro-table-header-bg);
+  --el-table-header-text-color: var(--fbk-pro-table-header-fg);
+  --el-table-text-color: var(--fbk-pro-table-cell-fg);
+  --el-table-border-color: var(--fbk-pro-table-border-color);
+  --el-table-row-hover-bg-color: var(--fbk-pro-table-row-hover-bg);
+  --el-table-current-row-bg-color: var(--fbk-pro-table-row-selected-bg);
+  --el-table-fixed-box-shadow: var(--fbk-shadow-sm);
+
+  width: 100%;
+  font-size: var(--fbk-pro-table-cell-font-size);
+}
+
+/* 列宽必须铺满。
+
+   列定义给了 width: 160/120/120/100/180（合计 680），element-plus 会写成
+   <col width="160">，表体表格就只有 680px，而表头容器有 1166px ——
+   表头横跨整个容器、表体缩在左边，两者列不对齐，最后一列被裁。
+
+   只加 width:100% 就够。**不要**同时把 <col> 改成 auto：那样所有列会等宽
+   （实测五列各 234px），窄列被撑得和宽列一样，白白浪费空间。
+   保留 <col> 的像素值让浏览器按比例拉伸，实测 275/206/206/172/309，
+   列宽的相对关系还是作者定义的 —— width 从「绝对宽度」变成了「宽度权重」。 */
+.fbk-pro-table .el-table table {
+  width: 100% !important;
+}
+
+.fbk-pro-table .el-table__header,
+.fbk-pro-table .el-table__body {
+  width: 100% !important;
+}
+
+.fbk-pro-table .el-table th.el-table__cell {
+  height: var(--fbk-pro-table-header-height);
+  font-size: var(--fbk-pro-table-header-font-size);
+  font-weight: var(--fbk-pro-table-header-font-weight);
+  letter-spacing: var(--fbk-pro-table-header-letter-spacing);
+}
+
+.fbk-pro-table .el-table td.el-table__cell {
+  height: var(--fbk-pro-table-row-height);
+}
+
+.fbk-pro-table .el-table .cell {
+  padding: 0 var(--fbk-pro-table-cell-padding-x);
+}
+
+/* 数字列用等宽数字。类名由 el-table-column 的 className 加在 **<td>** 上
+   （不是 .cell 上，实测过），所以选择器要落在 td。右对齐不在这里做 ——
+   那是列定义（column.align）的职责，一个金额列想左对齐是合法的。 */
+.fbk-pro-table .el-table td.fbk-numeric {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-variant-numeric: var(--fbk-pro-table-numeric-font-variant);
+}
+
+/* 圆角：外层容器已经用 overflow: hidden 裁过，但表头有背景色，
+   圆角处会露出表头的直角。给首/尾表头单元格补圆角。 */
+.fbk-pro-table .el-table__header-wrapper thead tr:first-child th:first-child {
+  border-top-left-radius: var(--fbk-pro-table-radius);
+}
+
+.fbk-pro-table .el-table__header-wrapper thead tr:first-child th:last-child {
+  border-top-right-radius: var(--fbk-pro-table-radius);
+}
+
+/* 行交互：可点击的行必须能 Tab 到（tabindex 由适配器加），
+   这里只负责视觉反馈。 */
+.fbk-pro-table .el-table__row[tabindex] {
+  cursor: pointer;
+}
+
+.fbk-pro-table .el-table__row:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: -2px;
+}
+
+/* 只过渡背景色。element-plus 的 `transition: all` 会让行高变化也做动画 ——
+   切密度时整张表会「长大」。 */
+.fbk-pro-table .el-table__body td.el-table__cell {
+  transition: background-color var(--fbk-duration-fast) var(--fbk-easing-standard);
+}
+
+/* ============================================================
+   标签
+
+   element-plus 读的是 --el-tag-text-color / --el-tag-bg-color，
+   不是 color / background。而且它自己的 .el-tag--warning 在同等特异性下会赢，
+   所以要叠一层类选择器。
+
+   文字一律用 *-text 档：填充色是为「压在白色上的色块」设计的，
+   当文字必然不够（primary 在白色上只有 4.499:1）。
+   ============================================================ */
+.el-tag {
+  --el-tag-bg-color: transparent;
+  --el-tag-border-color: transparent;
+  height: var(--fbk-tag-height);
+  padding: 0 var(--fbk-tag-padding-x);
+  font-size: var(--fbk-tag-font-size);
+  font-weight: var(--fbk-tag-font-weight);
+  border-radius: var(--fbk-tag-radius);
+}
+
+.el-tag.el-tag--success { --el-tag-text-color: var(--fbk-color-success-text); }
+.el-tag.el-tag--warning { --el-tag-text-color: var(--fbk-color-warning-text); }
+.el-tag.el-tag--danger  { --el-tag-text-color: var(--fbk-color-danger-text); }
+.el-tag.el-tag--info    { --el-tag-text-color: var(--fbk-color-info-text); }
+.el-tag.el-tag--primary { --el-tag-text-color: var(--fbk-color-primary-text); }
+
+/* ============================================================
+   分页
+
+   活动页码用 primary-text 而非 primary：后者在白色上是 4.499:1，
+   四舍五入到 4.50 但仍在 AA 线下。
+
+   下面的文字颜色重绑是暗色的兜底。真正的修复在 theme.ts ——
+   它此前把浅色令牌写成行内变量，暗色下 html.dark 永远赢不了。
+   修好之后这里仍然保留，因为它同时负责「分页用语义文字色而不是
+   element-plus 的默认灰」，属于适配器应有的样式决策。
+   ============================================================ */
+.fbk-pro-table .el-pagination {
+  --el-text-color-primary: var(--fbk-color-text);
+  --el-text-color-regular: var(--fbk-color-text-secondary);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-pro-table .el-pagination .number.is-active {
+  color: var(--fbk-color-primary-text);
+}
+
+.fbk-pro-table .el-pagination .number:not(.is-active),
+.fbk-pro-table .el-pagination .btn-prev,
+.fbk-pro-table .el-pagination .btn-next {
+  color: var(--fbk-color-text);
+}
+
+.fbk-pro-table .el-pagination .el-select__wrapper,
+.fbk-pro-table .el-pagination .el-input__wrapper {
+  --el-input-text-color: var(--fbk-color-text);
+  --el-input-border-color: var(--fbk-color-border);
+  --el-input-bg-color: var(--fbk-color-bg-container);
+}

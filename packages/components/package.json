@@ -1,0 +1,85 @@
+{
+  "name": "@fbk/components",
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./pro-table": {
+      "types": "./dist/pro-table/index.d.ts",
+      "import": "./dist/pro-table/index.mjs"
+    },
+    "./pro-table/style.css": "./dist/pro-table/style.css",
+    "./query-form": {
+      "types": "./dist/query-form/index.d.ts",
+      "import": "./dist/query-form/index.mjs"
+    },
+    "./query-form/style.css": "./dist/query-form/style.css",
+    "./form-generator": {
+      "types": "./dist/form-generator/index.d.ts",
+      "import": "./dist/form-generator/index.mjs"
+    },
+    "./form-generator/style.css": "./dist/form-generator/style.css",
+    "./page-container": {
+      "types": "./dist/page-container/index.d.ts",
+      "import": "./dist/page-container/index.mjs"
+    },
+    "./page-container/style.css": "./dist/page-container/style.css",
+    "./descriptions": {
+      "types": "./dist/descriptions/index.d.ts",
+      "import": "./dist/descriptions/index.mjs"
+    },
+    "./descriptions/style.css": "./dist/descriptions/style.css",
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build && node ../../scripts/copy-css.mjs src dist && node ../../scripts/bundle-css.mjs src/styles/index.css dist/style.css"
+  },
+  "dependencies": {
+    "@fbk/adapter-core": "workspace:^",
+    "@fbk/shared": "workspace:^",
+    "@fbk/tokens": "workspace:^"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Vue 3 business components (ProTable, QueryForm, FormGenerator, PageContainer, Descriptions) that work with element-plus, vant and naive-ui through a UI adapter.",
+  "keywords": [
+    "vue",
+    "vue3",
+    "pro-table",
+    "query-form",
+    "form-generator",
+    "business-components",
+    "component-library"
+  ],
+  "license": "MIT",
+  "author": "54356",
+  "homepage": "https://github.com/54356/frontend-business-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/54356/frontend-business-kit.git",
+    "directory": "packages/components"
+  },
+  "bugs": {
+    "url": "https://github.com/54356/frontend-business-kit/issues"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

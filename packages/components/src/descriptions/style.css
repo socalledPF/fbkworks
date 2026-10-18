@@ -1,0 +1,82 @@
+/**
+ * Descriptions 的栅格与边框。
+ *
+ * 纯展示组件：不经过适配层，只用组件令牌 + CSS Grid。
+ * 列数解析与 QueryForm / FormGenerator 同构。
+ */
+.fbk-descriptions {
+  --fbk-cols-base: var(--fbk-descriptions-columns);
+  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
+  display: grid;
+  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
+  gap: var(--fbk-descriptions-row-gap) var(--fbk-descriptions-column-gap);
+  margin: 0;
+  font-size: var(--fbk-descriptions-size);
+}
+
+@media (min-width: 640px) {
+  .fbk-descriptions {
+    --fbk-cols-resolved: var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)));
+  }
+}
+
+@media (min-width: 960px) {
+  .fbk-descriptions {
+    --fbk-cols-resolved: var(
+      --fbk-cols-md,
+      var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)))
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .fbk-descriptions {
+    --fbk-cols-resolved: var(
+      --fbk-cols-lg,
+      var(--fbk-cols-md, var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base))))
+    );
+  }
+}
+
+.fbk-descriptions__item {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  min-width: 0;
+}
+
+.fbk-descriptions__label {
+  flex: none;
+  min-width: var(--fbk-descriptions-label-width);
+  color: var(--fbk-descriptions-label-fg);
+}
+
+.fbk-descriptions__value {
+  min-width: 0;
+  margin: 0;
+  color: var(--fbk-descriptions-value-fg);
+  word-break: break-word;
+}
+
+.fbk-descriptions--vertical .fbk-descriptions__item {
+  flex-direction: column;
+  gap: var(--fbk-spacing-xs);
+}
+
+.fbk-descriptions--bordered {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--fbk-descriptions-border-color);
+  border-radius: var(--fbk-descriptions-radius);
+}
+
+.fbk-descriptions--bordered .fbk-descriptions__item {
+  padding: var(--fbk-descriptions-cell-padding);
+  border-right: 1px solid var(--fbk-descriptions-border-color);
+  border-bottom: 1px solid var(--fbk-descriptions-border-color);
+}
+
+.fbk-descriptions--bordered .fbk-descriptions__label {
+  padding-right: var(--fbk-spacing-md);
+  font-weight: var(--fbk-font-weight-medium);
+  background: var(--fbk-descriptions-label-bg);
+}

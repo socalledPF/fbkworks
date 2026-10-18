@@ -1,0 +1,146 @@
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vitepress'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import { withMermaid } from 'vitepress-plugin-mermaid'
+
+const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
+
+export default withMermaid(
+  defineConfig({
+  title: 'FBK',
+  description: 'Vue 3 企业级业务组件库：一套业务组件，三种 UI 适配器',
+  lang: 'zh-CN',
+  cleanUrls: true,
+  lastUpdated: true,
+
+  // favicon 由 apps/docs/scripts/sync-brand.mjs 从 assets/brand/ 同步而来
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['meta', { name: 'theme-color', content: '#2f6bff' }],
+  ],
+
+  themeConfig: {
+    // 明暗两套标识：<img> 无法继承 currentColor，只能给两份文件
+    logo: { light: '/fbk-mark.svg', dark: '/fbk-mark-dark.svg', alt: 'FBK' },
+
+    nav: [
+      { text: '指南', link: '/guide/introduction' },
+      { text: '组件', link: '/components/pro-table' },
+      { text: '适配器', link: '/adapters/overview' },
+    ],
+
+    sidebar: {
+      '/guide/': [
+        {
+          text: '指南',
+          items: [
+            { text: '为什么需要适配层', link: '/guide/introduction' },
+            { text: '快速开始', link: '/guide/getting-started' },
+            { text: '架构总览（含设计图）', link: '/guide/architecture-diagrams' },
+            { text: '架构与依赖规则', link: '/guide/architecture' },
+            { text: '主题与暗色模式', link: '/guide/theming' },
+          ],
+        },
+      ],
+      '/components/': [
+        {
+          text: '业务组件',
+          items: [
+            { text: 'ProTable 高级表格', link: '/components/pro-table' },
+            { text: 'QueryForm 查询表单', link: '/components/query-form' },
+            { text: 'FormGenerator 表单生成器', link: '/components/form-generator' },
+            { text: 'PageContainer 页面容器', link: '/components/page-container' },
+            { text: 'Descriptions 描述列表', link: '/components/descriptions' },
+          ],
+        },
+      ],
+      '/adapters/': [
+        {
+          text: '适配器',
+          items: [
+            { text: '能力矩阵', link: '/adapters/overview' },
+            { text: '编写自定义适配器', link: '/adapters/custom' },
+          ],
+        },
+      ],
+    },
+
+    socialLinks: [{ icon: 'github', link: 'https://example.com/fbk' }],
+
+    outline: { level: [2, 3] },
+
+    search: { provider: 'local' },
+  },
+
+  vite: {
+    // 适配器是 TSX 写的，文档站直接编译源码时必须启用 JSX 转换，
+    // 否则 h() 调用会被当成 React.createElement。
+    plugins: [vueJsx()],
+
+    // dev 模式下 Vite 只从 index.html 做依赖发现，element-plus / naive-ui 这些
+    // 被间接 import 的 CJS 包（dayjs 等）不会被预打包，浏览器按 ESM 解析就会报
+    // "does not provide an export named 'default'"。构建时 Rollup 会处理互操作，
+    // 所以只有 dev 白屏。显式列出，保证 dev 与 build 行为一致。
+    optimizeDeps: {
+      include: [
+        'dayjs',
+        'dayjs/plugin/customParseFormat',
+        'dayjs/plugin/advancedFormat',
+        'dayjs/plugin/localeData',
+        'dayjs/plugin/weekOfYear',
+        'dayjs/plugin/weekYear',
+        'dayjs/plugin/dayOfYear',
+        'dayjs/plugin/isSameOrAfter',
+        'dayjs/plugin/isSameOrBefore',
+        'element-plus',
+        'naive-ui',
+        'vant',
+        'mermaid',
+      ],
+    },
+
+    resolve: {
+      alias: [
+        // 文档站直接编译源码，改组件无需先 build
+        { find: /^@fbk\/tokens\/css$/, replacement: r('../../../packages/tokens/src/css/tokens.css') },
+        { find: /^@fbk\/tokens\/dark\.css$/, replacement: r('../../../packages/tokens/src/css/dark.css') },
+        { find: /^@fbk\/tokens$/, replacement: r('../../../packages/tokens/src/index.ts') },
+        { find: /^@fbk\/shared$/, replacement: r('../../../packages/shared/src/index.ts') },
+        { find: /^@fbk\/adapter-core$/, replacement: r('../../../packages/adapter-core/src/index.ts') },
+        {
+          find: /^@fbk\/adapter-element-plus$/,
+          replacement: r('../../../packages/adapters/element-plus/src/index.ts'),
+        },
+        {
+          find: /^@fbk\/adapter-vant$/,
+          replacement: r('../../../packages/adapters/vant/src/index.ts'),
+        },
+        {
+          find: /^@fbk\/adapter-naive-ui$/,
+          replacement: r('../../../packages/adapters/naive-ui/src/index.ts'),
+        },
+        // CSS 子路径必须排在通配规则前面
+        { find: /^@fbk\/components\/(.*\.css)$/, replacement: r('../../../packages/components/src/$1') },
+        { find: /^@fbk\/components$/, replacement: r('../../../packages/components/src/index.ts') },
+        {
+          find: /^@fbk\/components\/(.*)$/,
+          replacement: r('../../../packages/components/src/$1/index.ts'),
+        },
+        { find: /^@fbk\/demos$/, replacement: r('../../../packages/internal/demos/src/index.ts') },
+      ],
+    },
+  },
+}),
+  {
+    // 架构图用 Mermaid 渲染；关闭全站 zoom，避免与文档滚动冲突
+    mermaid: {
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'inherit',
+        primaryColor: '#eef3ff',
+        primaryBorderColor: '#2f6bff',
+        lineColor: '#8a94a6',
+      },
+    },
+  },
+)

@@ -1,0 +1,6 @@
+@import '@fbk/tokens/css';
+@import '../page-container/style.css';
+@import '../query-form/style.css';
+@import '../form-generator/style.css';
+@import '../pro-table/style.css';
+@import '../descriptions/style.css';

@@ -1,0 +1,85 @@
+import { computed, defineComponent, type PropType } from 'vue'
+import { ElTable, ElTableColumn } from 'element-plus'
+import {
+  renderCell,
+  type DataGridColumn,
+  type DataGridProps,
+  type SortState,
+} from '@fbk/adapter-core'
+import { getRowKey } from '@fbk/shared'
+
+export const DataGrid = defineComponent({
+  name: 'FbkElDataGrid',
+  inheritAttrs: false,
+  props: {
+    columns: { type: Array as PropType<DataGridColumn<any>[]>, default: () => [] },
+    data: { type: Array as PropType<any[]>, default: () => [] },
+    rowKey: { type: [String, Function] as PropType<DataGridProps['rowKey']>, default: 'id' },
+    loading: Boolean,
+    presentation: { type: String as PropType<DataGridProps['presentation']>, default: 'auto' },
+    selectionEnabled: Boolean,
+    selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
+    sort: { type: Object as PropType<SortState | null>, default: null },
+    emptyText: String,
+    rowClickable: Boolean,
+    size: { type: String, default: 'md' },
+  },
+  emits: ['update:selectedKeys', 'update:sort', 'row-click'],
+  setup(props, { attrs, emit, slots }) {
+    const rowKeyOf = (row: any, index: number) => getRowKey(row, index, props.rowKey)
+
+    const elementSize = computed(() =>
+      props.size === 'sm' ? 'small' : props.size === 'lg' ? 'large' : 'default',
+    )
+
+    return () => (
+      <ElTable
+        {...attrs}
+        data={props.data}
+        rowKey={props.rowKey as any}
+        size={elementSize.value}
+        emptyText={props.emptyText ?? '暂无数据'}
+        defaultSort={props.sort ? { prop: props.sort.field, order: props.sort.order === 'asc' ? 'ascending' : 'descending' } : undefined}
+        onSelection-change={(rows: any[]) =>
+          emit('update:selectedKeys', rows.map((row) => rowKeyOf(row, props.data.indexOf(row))))
+        }
+        onSort-change={({ prop, order }: { prop: string | null; order: string | null }) =>
+          emit(
+            'update:sort',
+            order && prop ? { field: prop, order: order === 'ascending' ? 'asc' : 'desc' } : null,
+          )
+        }
+        onRow-click={(row: any, _column: any, event: Event) => {
+          if (!props.rowClickable) return
+          emit('row-click', row, props.data.indexOf(row), event)
+        }}
+      >
+        {props.selectionEnabled ? (
+          <ElTableColumn type="selection" width="48" reserveSelection />
+        ) : null}
+        {props.columns.map((column) => (
+          <ElTableColumn
+            key={column.key}
+            prop={column.dataIndex as string | undefined}
+            label={column.title}
+            width={column.width}
+            minWidth={column.minWidth}
+            fixed={column.fixed}
+            align={column.align}
+            sortable={column.sortable ? 'custom' : false}
+            showOverflowTooltip={column.ellipsis}
+            /* 数值列加 .fbk-numeric，由适配器样式给等宽数字。
+               className 是 el-table-column 的官方 prop（落在 <td> 上），
+               比自己拼 class 稳。 */
+            className={column.numeric ? 'fbk-numeric' : undefined}
+            v-slots={{
+              default: ({ row, $index }: { row: any; $index: number }) =>
+                slots[`cell-${column.key}`]?.({ row, index: $index, value: renderCell(column, row, $index) }) ??
+                renderCell(column, row, $index),
+            }}
+          />
+        ))}
+      </ElTable>
+    )
+  },
+})

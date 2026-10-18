@@ -1,0 +1,243 @@
+/* ============================================================
+   方向 C · Editorial（文档优先）
+
+   关键词：留白、大圆角、无边框、靠阴影分层。
+   假设：文档站是要被「读」的，不是被「扫」的。组件预览应当是页面上的插图，
+        而不是嵌在页面里的一个面板。
+
+   具体取舍：
+   - 大圆角（6/10/16px）。圆角越大越柔和，也越不像「后台」。
+   - **容器不用边框**，只用两层柔和阴影。边界由光而不是线来定义。
+   - 行高大幅放宽（单元格 15px 内边距）。表格变慢但变好读。
+   - 去掉表体的行分隔线，靠行高和 hover 区分行 —— 只有在行足够高时才敢这么做。
+   - 字号整体上调一档，标题和正文的对比拉开。
+   ============================================================ */
+
+:root {
+  --fbk-radius-2: 6px;
+  --fbk-radius-6: 10px;
+  --fbk-radius-10: 16px;
+  --fbk-shadow-1: 0 1px 2px rgba(31, 35, 41, 0.04), 0 2px 8px rgba(31, 35, 41, 0.04);
+  --fbk-shadow-2: 0 8px 24px rgba(31, 35, 41, 0.07), 0 2px 6px rgba(31, 35, 41, 0.04);
+  --fbk-shadow-3: 0 16px 48px rgba(31, 35, 41, 0.1);
+}
+
+/* ---------- 数据表格：去线、加高、靠留白分行 ---------- */
+.fbk-pro-table {
+  border-color: transparent;
+  box-shadow: var(--fbk-shadow-2);
+}
+
+.fbk-pro-table .el-table {
+  font-size: var(--fbk-font-size-md);
+}
+
+.fbk-pro-table .el-table th.el-table__cell {
+  padding: 14px 0;
+  background: transparent;
+}
+
+.fbk-pro-table .el-table td.el-table__cell {
+  padding: 15px 0;
+  /* 第一版把 border-bottom 设成 transparent，结果每条行线只在有内容的
+     单元格下面出现、单元格之间的缝隙处断开，渲染成一截截断线。
+     正确做法是**真的去掉**边框，而不是把它变透明。 */
+  border-bottom: 0;
+}
+
+/* 去掉边框后 element-plus 仍会在 tbody 末尾留一条底线，一并清掉 */
+.fbk-pro-table .el-table__body-wrapper .el-table__body {
+  border-bottom: 0;
+}
+
+/* 同 A：表头用小一号字 + 字距退后，但颜色必须留在 secondary。
+   实测 tertiary（gray-500）在卡片白底上只有 3.43:1，AA 不及格。 */
+.fbk-pro-table .el-table th.el-table__cell .cell {
+  font-size: var(--fbk-fs-12);
+  font-weight: var(--fbk-font-weight-medium);
+  color: var(--fbk-color-text-secondary);
+  letter-spacing: 0.06em;
+}
+
+/* 表头下压一条线，把「标题层」和「数据层」分开。
+   表体不画线，但表头必须有。 */
+.fbk-pro-table .el-table th.el-table__cell {
+  border-bottom: 1px solid var(--fbk-color-border-light) !important;
+}
+
+.fbk-pro-table .el-table td.el-table__cell:nth-child(3) .cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.fbk-pro-table .el-table__body tr:hover > td.el-table__cell {
+  background: var(--fbk-color-bg-sunken);
+}
+
+.fbk-pro-table__toolbar {
+  padding: var(--fbk-spacing-lg) var(--fbk-spacing-xl);
+  border-bottom-color: transparent;
+}
+
+.fbk-pro-table__pagination {
+  padding: var(--fbk-spacing-lg) var(--fbk-spacing-xl);
+  border-top-color: transparent;
+}
+
+/* ---------- 标签：去底、只留色点，最轻的一档 ----------
+
+   这里有个必须一起改的东西：文字色。
+
+   element-plus 的标签达标（4.68:1）靠的是**浅底**：
+   warning-text(#9a6614) 压在 warning-bg(#fef9f2) 上。
+   一旦把底去掉、文字直接落在白卡上，同样的文字只剩 4.28:1 —— 低于 AA。
+   所以去底必须同时把文字加深（amber-800 在白底上是 4.90:1）。
+
+   两个坑，都是实测踩出来的：
+   1. 标签的底色/文字色不是直接读 background / color，而是读内部变量
+      --el-tag-bg-color / --el-tag-text-color。写 background 无效。
+   2. element-plus 自己就有 `.el-tag--warning { --el-tag-text-color: … }`，
+      同特异性下谁后加载谁赢。必须用 `.el-tag.el-tag--*` 提一级才稳定压过。 */
+.el-tag {
+  height: 22px;
+  padding: 0 2px;
+  font-size: var(--fbk-fs-13);
+  line-height: 22px;
+}
+
+/* 底色同样得提特异性：element-plus 在 .el-tag--warning 上设了
+   --el-tag-bg-color，写在 .el-tag 上会被它压掉（实测变量仍是 #fef9f2）。 */
+.el-tag.el-tag--success,
+.el-tag.el-tag--warning,
+.el-tag.el-tag--danger,
+.el-tag.el-tag--info {
+  --el-tag-bg-color: transparent;
+  --el-tag-border-color: transparent;
+}
+
+.el-tag.el-tag--success {
+  --el-tag-text-color: var(--fbk-color-success-text);
+}
+
+.el-tag.el-tag--warning {
+  --el-tag-text-color: var(--fbk-amber-800);
+}
+
+.el-tag.el-tag--danger {
+  --el-tag-text-color: var(--fbk-color-danger-text);
+}
+
+.el-tag.el-tag--info {
+  --el-tag-text-color: var(--fbk-color-info-text);
+}
+
+.el-tag::before {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  content: '';
+  border-radius: 50%;
+}
+
+.el-tag--success::before {
+  background: var(--fbk-green-500);
+}
+
+.el-tag--warning::before {
+  background: var(--fbk-amber-500);
+}
+
+.el-tag--danger::before {
+  background: var(--fbk-red-500);
+}
+
+.el-tag--info::before {
+  background: var(--fbk-cyan-500);
+}
+
+/* ---------- 文档站：正文更宽更松，标题更大 ---------- */
+.vp-doc h1 {
+  font-size: var(--fbk-fs-30);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.vp-doc h2 {
+  padding-top: var(--fbk-spacing-xxl);
+  margin-top: var(--fbk-spacing-xxl);
+  font-size: var(--fbk-fs-24);
+}
+
+.vp-doc p,
+.vp-doc li {
+  line-height: var(--fbk-leading-relaxed);
+}
+
+.fbk-demo {
+  border-color: transparent;
+  border-radius: var(--fbk-radius-10);
+  box-shadow: var(--fbk-shadow-1);
+}
+
+.fbk-demo__header {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-xl);
+  background: transparent;
+  border-bottom-color: var(--fbk-color-border-light);
+}
+
+.fbk-demo__title {
+  font-size: var(--fbk-font-size-lg);
+}
+
+.fbk-demo__preview {
+  padding: var(--fbk-spacing-xxl);
+  background: var(--fbk-color-bg-container);
+}
+
+/* 同上：demo 卡片已经提供边界，里面的组件不要再套一层 */
+.fbk-demo__preview .fbk-pro-table {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.fbk-api table {
+  border-color: transparent;
+  box-shadow: var(--fbk-shadow-1);
+}
+
+.fbk-api thead th {
+  font-size: var(--fbk-fs-12);
+  letter-spacing: 0.06em;
+  background: transparent;
+  border-bottom: 1px solid var(--fbk-color-border) !important;
+}
+
+.fbk-api tbody td {
+  padding: var(--fbk-spacing-lg) var(--fbk-spacing-md);
+  border-top: 0;
+}
+
+/* 行线只画在行与行之间，且必须画在 <tr> 上而不是 <td> 上：
+   画在 td 上会在单元格缝隙处断开（同表格里那个问题的成因）。 */
+.fbk-api tbody tr + tr td {
+  border-top: 1px solid var(--fbk-color-border-light);
+}
+
+/* ---------- Playground ---------- */
+.playground__header {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-xxl);
+  background: var(--fbk-color-bg-container);
+  border-bottom-color: transparent;
+  box-shadow: var(--fbk-shadow-1);
+}
+
+.playground__body {
+  padding: var(--fbk-spacing-xxl);
+}
+
+.playground__field select,
+.playground__toggle {
+  padding: 8px 14px;
+  border-color: var(--fbk-color-border-light);
+}

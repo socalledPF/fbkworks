@@ -1,0 +1,67 @@
+/**
+ * ProTable 的布局与容器。
+ *
+ * 表头、行高、单元格内边距**不在这里** —— 那些是 UI 库内部 DOM，
+ * 由各适配器的 style.css 消费 --fbk-pro-table-* 令牌来实现。
+ * 组件层只负责「外壳」：容器、工具栏、分页槽位。
+ *
+ * 所有数值都来自 packages/tokens/src/css/components.css，
+ * 这里不出现字面量像素（1px 边框除外）。
+ */
+.fbk-pro-table {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--fbk-pro-table-bg);
+  border: 1px solid var(--fbk-pro-table-border-color);
+  border-radius: var(--fbk-pro-table-radius);
+  box-shadow: var(--fbk-pro-table-shadow);
+}
+
+/* 圆角靠 overflow: hidden 裁，但**卡片模式绝对不能加**。
+   vant 的 van-list 用 IntersectionObserver 判断是否触底加载；
+   父级一旦 overflow 不是 visible，它就变成滚动容器，observer 失效 ——
+   实测卡片直接渲染 0 个。卡片模式由适配器给每张卡加下边框来分层。 */
+.fbk-pro-table:not(.fbk-pro-table--cards) {
+  overflow: hidden;
+}
+
+.fbk-pro-table__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--fbk-pro-table-toolbar-padding);
+  border-bottom: 1px solid var(--fbk-pro-table-toolbar-border-color);
+}
+
+/* toolbar 默认 true，但没有插槽时会渲染一个空 div。
+   没有这条 :empty 兜底，容器化后的 padding + 边框会变成一条空白带。 */
+.fbk-pro-table__toolbar:empty {
+  display: none;
+}
+
+.fbk-pro-table__pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--fbk-pro-table-pagination-padding);
+  border-top: 1px solid var(--fbk-pro-table-pagination-border-color);
+}
+
+.fbk-pro-table--cards .fbk-pro-table__pagination {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .fbk-pro-table__pagination {
+    justify-content: center;
+  }
+}
+
+/* 高对比度模式：边框会被系统覆盖，但阴影不会，主动去掉避免脏边 */
+@media (forced-colors: active) {
+  .fbk-pro-table {
+    box-shadow: none;
+  }
+}

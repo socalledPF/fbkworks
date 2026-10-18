@@ -1,0 +1,84 @@
+/**
+ * FormGenerator 的分组、栅格与操作区。
+ *
+ * 列数解析与 QueryForm 同构（见 query-form/style.css 的说明）。
+ * 两个组件共用同一套 --fbk-cols-* 变量名，所以消费方不用记两套约定。
+ */
+
+.fbk-form-generator {
+  --fbk-cols-base: var(--fbk-form-generator-columns);
+  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-form-generator-gap);
+}
+
+@media (min-width: 640px) {
+  .fbk-form-generator {
+    --fbk-cols-resolved: var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)));
+  }
+}
+
+@media (min-width: 960px) {
+  .fbk-form-generator {
+    --fbk-cols-resolved: var(
+      --fbk-cols-md,
+      var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)))
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .fbk-form-generator {
+    --fbk-cols-resolved: var(
+      --fbk-cols-lg,
+      var(--fbk-cols-md, var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base))))
+    );
+  }
+}
+
+.fbk-form-generator__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-form-generator-group-gap);
+}
+
+.fbk-form-generator__group-title {
+  margin: 0;
+  font-size: var(--fbk-form-generator-group-title-size);
+  font-weight: var(--fbk-form-generator-group-title-weight);
+  color: var(--fbk-form-generator-group-title-fg);
+}
+
+.fbk-form-generator__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
+  gap: var(--fbk-form-generator-row-gap) var(--fbk-form-generator-column-gap);
+  align-items: start;
+}
+
+/* 视图模式不是「禁用输入框」，是纯文本 —— 禁用的控件仍然占着表单的视觉重量 */
+.fbk-form-generator__view {
+  display: inline-block;
+  padding: var(--fbk-spacing-xs) 0;
+  color: var(--fbk-color-text);
+  word-break: break-word;
+}
+
+.fbk-form-generator__actions {
+  display: flex;
+  gap: var(--fbk-form-generator-actions-gap);
+  justify-content: flex-end;
+  padding-top: var(--fbk-form-generator-actions-padding-top);
+  border-top: 1px solid var(--fbk-form-generator-actions-border-color);
+}
+
+@media (max-width: 639px) {
+  .fbk-form-generator__actions {
+    justify-content: stretch;
+  }
+
+  .fbk-form-generator__actions > * {
+    flex: 1 1 0;
+  }
+}

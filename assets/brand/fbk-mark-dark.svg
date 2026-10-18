@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="FBK">
+  <title>FBK</title>
+  <!--
+    暗色主题版：几何与 fbk-mark.svg 完全一致，只换主色（对应语义令牌 color.primary 的暗色值）。
+    注意：XML 注释里不能出现连续两个连字符，所以 CSS 变量名不能按原样写进来。
+  -->
+  <g fill="#5c8bff">
+    <rect x="4" y="5" width="24" height="6" rx="2" />
+    <rect x="4" y="17" width="6" height="10" rx="1.5" />
+    <rect x="13" y="17" width="6" height="10" rx="1.5" />
+    <rect x="22" y="17" width="6" height="10" rx="1.5" />
+  </g>
+</svg>

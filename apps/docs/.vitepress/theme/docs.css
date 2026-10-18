@@ -1,0 +1,128 @@
+/* 文档站样式：只使用 --fbk-* 令牌与 .fbk-* 类名，不碰任何 UI 库内部类 */
+@import '../../../../packages/tokens/src/css/tokens.css';
+@import '../../../../packages/tokens/src/css/dark.css';
+@import '../../../../packages/adapters/element-plus/src/style.css';
+@import '../../../../packages/adapters/vant/src/style.css';
+@import '../../../../packages/adapters/naive-ui/src/style.css';
+@import '../../../../packages/components/src/page-container/style.css';
+@import '../../../../packages/components/src/query-form/style.css';
+@import '../../../../packages/components/src/form-generator/style.css';
+@import '../../../../packages/components/src/pro-table/style.css';
+@import '../../../../packages/components/src/descriptions/style.css';
+
+.fbk-docs-switcher {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--fbk-color-text-secondary);
+  background: var(--fbk-color-bg-elevated);
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-md);
+  box-shadow: var(--fbk-shadow-md);
+}
+
+.fbk-docs-switcher__select {
+  padding: 2px 6px;
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg-container);
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-demo {
+  margin: 16px 0;
+  overflow: hidden;
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-lg);
+}
+
+.fbk-demo__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--fbk-color-bg-container);
+  border-bottom: 1px solid var(--fbk-color-border);
+}
+
+.fbk-demo__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-demo__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.fbk-demo__button {
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-demo__button:hover {
+  color: var(--fbk-color-primary);
+  border-color: var(--fbk-color-primary);
+}
+
+.fbk-demo__preview {
+  padding: 16px;
+  background: var(--fbk-color-bg);
+}
+
+.fbk-demo__source {
+  max-height: 480px;
+  overflow: auto;
+  background: var(--fbk-color-bg-elevated);
+  border-top: 1px solid var(--fbk-color-border);
+}
+
+.fbk-demo__source pre {
+  margin: 0;
+  padding: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.fbk-demo__missing {
+  margin: 0;
+  color: var(--fbk-color-danger);
+}
+
+.fbk-api {
+  margin: 16px 0;
+}
+
+.fbk-api__caption {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-api__type {
+  font-size: 12px;
+  white-space: normal;
+}
+
+.fbk-api__empty {
+  color: var(--fbk-color-text-secondary);
+}
+
+/* VitePress 暗色模式下同步组件令牌 */
+html.dark {
+  color-scheme: dark;
+}

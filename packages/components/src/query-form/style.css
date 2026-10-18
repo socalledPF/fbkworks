@@ -1,0 +1,86 @@
+/**
+ * QueryForm 的容器与栅格。
+ *
+ * 列数解析：组件把 columns 展开成 --fbk-cols-base / --fbk-cols-xs|sm|md|lg
+ * 行内变量（见 @fbk/shared 的 resolveColumns），这里按断点挑一个。
+ *
+ * 为什么用 var() 回退链而不是每档写一条媒体查询：
+ * 媒体查询只能表达「这个断点是多少列」，表达不了「没传就沿用更小的断点」。
+ * var() 回退链天然支持后者，而且数字形式（columns={3}）写 --fbk-cols-base
+ * 就能和对象形式共用同一条解析路径。
+ */
+
+/* 链的终点：组件令牌里的默认列数。
+   行内样式优先级高于这里，所以：
+     columns={3}       → 行内 --fbk-cols-base=3
+     columns={{md:3}}  → 行内 --fbk-cols-md=3，xs/sm 沿链回退到 base
+     不传              → 回退到 --fbk-query-form-columns（默认 3） */
+.fbk-query-form {
+  --fbk-cols-base: var(--fbk-query-form-columns);
+  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
+}
+
+@media (min-width: 640px) {
+  .fbk-query-form {
+    --fbk-cols-resolved: var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)));
+  }
+}
+
+@media (min-width: 960px) {
+  .fbk-query-form {
+    --fbk-cols-resolved: var(
+      --fbk-cols-md,
+      var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)))
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .fbk-query-form {
+    --fbk-cols-resolved: var(
+      --fbk-cols-lg,
+      var(--fbk-cols-md, var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base))))
+    );
+  }
+}
+
+.fbk-query-form {
+  padding: var(--fbk-query-form-padding);
+  background: var(--fbk-query-form-bg);
+  border: 1px solid var(--fbk-query-form-border-color);
+  border-radius: var(--fbk-query-form-radius);
+}
+
+.fbk-query-form__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
+  gap: var(--fbk-query-form-row-gap) var(--fbk-query-form-column-gap);
+  align-items: start;
+}
+
+.fbk-query-form__control {
+  width: 100%;
+  min-width: 0;
+}
+
+.fbk-query-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-query-form-actions-gap);
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: var(--fbk-query-form-actions-padding-top);
+  margin-top: var(--fbk-query-form-actions-padding-top);
+  border-top: 1px solid var(--fbk-query-form-actions-border-color);
+}
+
+/* 移动端操作按钮铺满：拇指点击区 44px 才够，右对齐的窄按钮在手机上最难按 */
+@media (max-width: 639px) {
+  .fbk-query-form__actions {
+    justify-content: stretch;
+  }
+
+  .fbk-query-form__actions > * {
+    flex: 1 1 0;
+  }
+}

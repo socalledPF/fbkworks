@@ -1,0 +1,4 @@
+/* vant 4 暗色主题变量由 ConfigProvider 注入，这里只兜底全局背景 */
+html[data-fbk-theme='dark'] body {
+  background: var(--fbk-color-bg);
+}

@@ -1,0 +1,47 @@
+{
+  "name": "@fbk/resolver",
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "unbuild"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "unplugin-vue-components resolver for the FBK Vue 3 business component kit.",
+  "keywords": [
+    "vue",
+    "vue3",
+    "unplugin",
+    "resolver",
+    "auto-import"
+  ],
+  "license": "MIT",
+  "author": "54356",
+  "homepage": "https://github.com/54356/frontend-business-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/54356/frontend-business-kit.git",
+    "directory": "packages/resolver"
+  },
+  "bugs": {
+    "url": "https://github.com/54356/frontend-business-kit/issues"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

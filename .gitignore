@@ -1,0 +1,11 @@
+node_modules
+dist
+.turbo
+coverage
+*.log
+.DS_Store
+.vite
+apps/docs/.vitepress/dist
+apps/docs/.vitepress/cache
+apps/docs/.vitepress/theme/generated
+tests/visual/__screenshots__/**/diff*

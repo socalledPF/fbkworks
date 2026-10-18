@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [
+    [
+      "@fbk/tokens",
+      "@fbk/shared",
+      "@fbk/adapter-core",
+      "@fbk/adapter-element-plus",
+      "@fbk/adapter-vant",
+      "@fbk/adapter-naive-ui",
+      "@fbk/components",
+      "@fbk/resolver"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@fbk/docs",
+    "@fbk/playground",
+    "@fbk/adapter-conformance",
+    "@fbk/test-utils",
+    "@fbk/build-config",
+    "@fbk/demos"
+  ]
+}

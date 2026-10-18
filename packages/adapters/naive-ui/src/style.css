@@ -1,0 +1,79 @@
+/**
+ * naive-ui 适配器样式。
+ *
+ * naive-ui 是 CSS-in-JS：每个组件实例在运行时生成自己的 --n-* 变量，
+ * 并以**行内样式**挂在组件元素上。所以：
+ *   · 能覆盖的：尺寸、圆角、间距这类全局统一的属性（用 !important）
+ *   · 覆盖不了的：按状态变化的颜色 —— NTag 不输出状态 class，
+ *     所有状态的 class 都只是 `n-tag`，颜色只能靠 themeOverrides。
+ */
+
+.fbk-form-item__help {
+  margin-top: var(--fbk-form-item-gap);
+  color: var(--fbk-form-item-help-fg);
+  font-size: var(--fbk-form-item-help-font-size);
+}
+
+/* ============================================================
+   表格
+
+   naive 的 DataTable 同样用 CSS-in-JS，但**表头/单元格的颜色**
+   可以通过 themeOverrides 之外的一条路径覆盖：naive 把 --n-th-color 等
+   声明在 DataTable 的根元素上，所以选择器命中组件根节点即可。
+   尺寸（行高、内边距）naive 也是内联的，同样只能 !important。
+
+   注意：这里的颜色覆盖与 theme.ts 的 themeOverrides 是**互补**的，
+   不是二选一 —— themeOverrides 负责 naive 自己的组件（Button/Tag 等），
+   这里负责 DataTable 里由我们渲染的单元格。
+   ============================================================ */
+.fbk-pro-table .n-data-table {
+  --n-th-color: var(--fbk-pro-table-header-bg) !important;
+  --n-th-text-color: var(--fbk-pro-table-header-fg) !important;
+  --n-td-color: var(--fbk-pro-table-bg) !important;
+  --n-td-text-color: var(--fbk-pro-table-cell-fg) !important;
+  --n-merged-border-color: var(--fbk-pro-table-border-color) !important;
+  --n-td-color-hover: var(--fbk-pro-table-row-hover-bg) !important;
+  --n-td-color-modal: var(--fbk-pro-table-row-selected-bg) !important;
+  border-radius: var(--fbk-pro-table-radius) !important;
+}
+
+.fbk-pro-table .n-data-table-th {
+  height: var(--fbk-pro-table-header-height) !important;
+  font-size: var(--fbk-pro-table-header-font-size) !important;
+  font-weight: var(--fbk-pro-table-header-font-weight) !important;
+  letter-spacing: var(--fbk-pro-table-header-letter-spacing) !important;
+}
+
+.fbk-pro-table .n-data-table-td {
+  height: var(--fbk-pro-table-row-height) !important;
+  padding: 0 var(--fbk-pro-table-cell-padding-x) !important;
+  font-size: var(--fbk-pro-table-cell-font-size) !important;
+}
+
+/* 数值列等宽数字。类名由 DataGrid 按 column.numeric 加上。 */
+.fbk-pro-table .n-data-table-td.fbk-numeric {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-variant-numeric: var(--fbk-pro-table-numeric-font-variant);
+}
+
+.fbk-pro-table .n-data-table-tr[tabindex] {
+  cursor: pointer;
+}
+
+.fbk-pro-table .n-data-table-tr:focus-visible {
+  outline: 2px solid var(--fbk-color-focus-ring);
+  outline-offset: -2px;
+}
+
+/* ============================================================
+   标签尺寸
+
+   只能改尺寸。颜色改不了 —— 见文件头与 README 的说明。
+   ============================================================ */
+.n-tag {
+  --n-height: var(--fbk-tag-height) !important;
+  --n-padding: 0 var(--fbk-tag-padding-x) !important;
+  --n-border-radius: var(--fbk-tag-radius) !important;
+  --n-font-size: var(--fbk-tag-font-size) !important;
+  font-weight: var(--fbk-tag-font-weight);
+}

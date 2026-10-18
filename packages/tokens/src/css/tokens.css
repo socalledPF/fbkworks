@@ -1,0 +1,156 @@
+/**
+ * 第二层：语义令牌（Semantic）
+ *
+ * 唯一的对外契约层。组件只认这里的名字；换主题、换品牌色，改的也只有这一层
+ * （暗色覆盖见 dark.css）。
+ *
+ * 命名约定：数字结尾 = 原始令牌，语义名 = 语义令牌。
+ * 所以 --fbk-space-8 是原语，--fbk-spacing-sm 是语义，看一眼就知道该用哪个。
+ *
+ * 改造前存在过的名字**全部保留**，值也逐字节没动。这不是保守——
+ * primaryHover 会被适配器映射到 element-plus 的 --el-color-primary-light-3，
+ * 改一个色值就是一次全站视觉回归。三级架构的意义是让老名字有出处，不是把它们删掉。
+ */
+
+@import './primitives.css';
+@import './components.css';
+
+:root {
+  /* ===== 主色 ===== */
+  --fbk-color-primary: var(--fbk-blue-600);
+  --fbk-color-primary-hover: var(--fbk-blue-500);
+  --fbk-color-primary-active: var(--fbk-blue-700);
+  /* 主色作为「文字/图标」出现时的颜色（链接、可点击文本）。
+     与填充色分开是因为对比度要求不同，见文件末尾的对比度说明。 */
+  --fbk-color-primary-text: var(--fbk-blue-700);
+  /* 主色的浅底：选中行、柔和标签、hover 背景 */
+  --fbk-color-primary-bg: var(--fbk-blue-50);
+  --fbk-color-primary-bg-hover: var(--fbk-blue-100);
+  --fbk-color-primary-border: var(--fbk-blue-300);
+  /* 实色主色底上的文字色。单独起名是为了让「白字压在主色上」变成显式决定，
+     而不是每个组件各自写 #fff。 */
+  --fbk-color-on-primary: #ffffff;
+
+  /* ===== 实色主色底的交互态 =====
+     注意这跟上面的 primary-hover / primary-active 不是一回事，方向甚至相反：
+       primary-hover（#5c8bff）比主色**浅**，用于描边、浅底、图标这类场合；
+       而实色底上压着 onPrimary 文字时，变浅会让文字对比度掉到 3.19:1（AA 不及格）。
+     所以实色底的 hover 必须**变深**：实测 4.50 → 6.61（hover）→ 9.67（active），越按越清楚。
+     一句话规则：hover 把底色推离文字色。 */
+  --fbk-color-primary-fill-hover: var(--fbk-blue-700);
+  --fbk-color-primary-fill-active: var(--fbk-blue-800);
+
+  /* ===== 状态色：填充态 =====
+     用于描边、图标、进度条、实色标签底。这些场合对对比度要求较低（≥3:1）。 */
+  --fbk-color-success: var(--fbk-green-500);
+  --fbk-color-warning: var(--fbk-amber-500);
+  --fbk-color-danger: var(--fbk-red-500);
+  --fbk-color-info: var(--fbk-cyan-500);
+
+  /* ===== 状态色：文字态 =====
+     用于状态文字、浅底标签文字。必须比填充态深，否则白底上读不清。
+     实测：green-500 白底 3.38:1、amber-500 白底 2.15:1，都不达 WCAG AA 正文标准；
+     换成下面这三档后分别到 6.16:1 / 4.90:1 / 8.37:1。 */
+  --fbk-color-success-text: var(--fbk-green-700);
+  --fbk-color-warning-text: var(--fbk-amber-800);
+  --fbk-color-danger-text: var(--fbk-red-700);
+  --fbk-color-info-text: var(--fbk-cyan-700);
+
+  /* ===== 状态色：浅底 =====
+     浅底 + 深字是标签类组件唯一能同时满足美观与对比度的组合。 */
+  --fbk-color-success-bg: var(--fbk-green-50);
+  --fbk-color-warning-bg: var(--fbk-amber-50);
+  --fbk-color-danger-bg: var(--fbk-red-50);
+  --fbk-color-info-bg: var(--fbk-cyan-50);
+
+  /* ===== 文字 ===== */
+  --fbk-color-text: var(--fbk-gray-900);
+  --fbk-color-text-secondary: var(--fbk-gray-600);
+  /* 三级文字：改造前只有二级，导致「表头说明」「辅助提示」只能借用二级色，
+     信息层级被压平。 */
+  --fbk-color-text-tertiary: var(--fbk-gray-500);
+  --fbk-color-text-disabled: var(--fbk-gray-400);
+  /* 反色文字：用于深色底、图片遮罩 */
+  --fbk-color-text-inverse: var(--fbk-gray-0);
+
+  /* ===== 背景 ===== */
+  --fbk-color-bg: var(--fbk-gray-50);
+  --fbk-color-bg-container: var(--fbk-gray-0);
+  --fbk-color-bg-elevated: var(--fbk-gray-0);
+  /* 沉底区：表头、禁用输入框、代码块 */
+  --fbk-color-bg-sunken: var(--fbk-gray-100);
+  /* 遮罩层：弹窗背后的压暗。原来没有这个令牌，适配器各自写 rgba。 */
+  --fbk-color-overlay: rgba(31, 35, 41, 0.45);
+
+  /* ===== 边框 ===== */
+  --fbk-color-border: var(--fbk-gray-300);
+  --fbk-color-border-light: var(--fbk-gray-200);
+  /* 强边框：表单校验失败、聚焦中的输入框 */
+  --fbk-color-border-strong: var(--fbk-gray-400);
+
+  /* ===== 填充 ===== */
+  --fbk-color-fill: var(--fbk-gray-100);
+  --fbk-color-fill-hover: var(--fbk-gray-200);
+
+  /* ===== 焦点环 =====
+     改造前全套组件没有任何 :focus-visible 样式，键盘用户看不到光标在哪。
+     这是一个可访问性缺陷，不只是美观问题。 */
+  --fbk-color-focus-ring: var(--fbk-blue-600);
+  --fbk-shadow-focus-ring: 0 0 0 3px rgba(47, 107, 255, 0.28);
+
+  /* ===== 圆角 ===== */
+  --fbk-radius-sm: var(--fbk-radius-2);
+  --fbk-radius-md: var(--fbk-radius-6);
+  --fbk-radius-lg: var(--fbk-radius-10);
+  --fbk-radius-round: var(--fbk-radius-full);
+
+  /* ===== 字体 ===== */
+  --fbk-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* 等宽：单号、ID、金额、代码。中文字体不含等宽字形，所以拉丁等宽要排在前面。 */
+  --fbk-font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+  --fbk-font-size-sm: var(--fbk-fs-12);
+  --fbk-font-size-md: var(--fbk-fs-14);
+  --fbk-font-size-lg: var(--fbk-fs-16);
+  --fbk-font-size-xl: var(--fbk-fs-20);
+  --fbk-font-line-height: var(--fbk-leading-normal);
+  /* 表格/密集表单用紧凑行高，一屏能多放两行 */
+  --fbk-font-line-height-tight: var(--fbk-leading-tight);
+  --fbk-font-weight-medium: var(--fbk-fw-medium);
+  --fbk-font-weight-semibold: var(--fbk-fw-semibold);
+
+  /* ===== 间距 ===== */
+  --fbk-spacing-xs: var(--fbk-space-4);
+  --fbk-spacing-sm: var(--fbk-space-8);
+  --fbk-spacing-md: var(--fbk-space-12);
+  --fbk-spacing-lg: var(--fbk-space-16);
+  --fbk-spacing-xl: var(--fbk-space-24);
+  --fbk-spacing-xxl: var(--fbk-space-32);
+
+  /* ===== 阴影 ===== */
+  --fbk-shadow-sm: var(--fbk-shadow-1);
+  --fbk-shadow-md: var(--fbk-shadow-2);
+  --fbk-shadow-lg: var(--fbk-shadow-3);
+
+  /* ===== 动效 =====
+     注意：时长与层级**没有**语义别名，组件直接用第一层的
+     --fbk-duration-* / --fbk-easing-* / --fbk-z-index-*。
+     原因很简单：给它们起语义名只会得到 `--fbk-duration-fast: var(--fbk-duration-fast)`
+     这种自引用——同名变量自我赋值在计算值阶段直接失效，静默不报错。
+     这类"值本身就是语义"的刻度，多一层没有收益只有风险。 */
+  /* 状态反馈的复合过渡：hover / active / focus 用它，避免每个组件各写一遍 */
+  --fbk-transition-color: color var(--fbk-duration-fast) var(--fbk-easing-standard),
+    background-color var(--fbk-duration-fast) var(--fbk-easing-standard),
+    border-color var(--fbk-duration-fast) var(--fbk-easing-standard);
+  --fbk-transition-shadow: box-shadow var(--fbk-duration-fast) var(--fbk-easing-standard);
+}
+
+/* 作用域容器：只设字体与前景色，具体排版交给组件 */
+.fbk-scope,
+.fbk-root {
+  color: var(--fbk-color-text);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+}

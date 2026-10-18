@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="FBK">
+  <title>FBK</title>
+  <!--
+    应用图标 / favicon。
+    与 fbk-mark.svg 的几何同源，但标识放大到 0.75 倍并铺满底色：
+    小尺寸下留白会吃掉像素，favicon 的规则与品牌版相反——宁可满，不要空。
+    圆角 7.5 = 32 的 23.4%，与 iOS squircle 比例一致。
+
+    位移是按缩放后的 bbox 反算的，不是估的：
+    标识 bbox 24×22，缩 0.75 → 18×16.5，居中留白各 7 / 7.75；
+    把 bbox 左上角 (4,5) 映射到 (7,7.75)，即 translate = (7,7.75) − (4,5)×0.75 = (4,4)。
+    改了标识几何就要重算这两个数，否则图标会偏心。
+  -->
+  <rect width="32" height="32" rx="7.5" fill="#2f6bff" />
+  <g transform="translate(4 4) scale(0.75)" fill="#ffffff">
+    <rect x="4" y="5" width="24" height="6" rx="2" />
+    <rect x="4" y="17" width="6" height="10" rx="1.5" />
+    <rect x="13" y="17" width="6" height="10" rx="1.5" />
+    <rect x="22" y="17" width="6" height="10" rx="1.5" />
+  </g>
+</svg>

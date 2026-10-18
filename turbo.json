@@ -1,0 +1,35 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "tsconfig.base.json",
+    "pnpm-lock.yaml",
+    ".npmrc"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "FBK_DOCS_USE_DIST"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "!dist/**/*.map"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "docs:build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".vitepress/dist/**"
+      ]
+    }
+  }
+}

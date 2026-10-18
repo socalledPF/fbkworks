@@ -1,0 +1,166 @@
+/**
+ * 第一层：原始令牌（Primitives）
+ *
+ * 只放"是什么"，不放"用来干什么"。这一层几乎不变，主题切换不应该动它。
+ * 组件**不许**直接用这里的变量，只能通过 tokens.css 的语义层间接使用——
+ * 否则换主题时你要挨个改组件，三级架构就白做了。
+ *
+ * 色阶的推导方式是"锚定 + 插值"，不是凭空生成：
+ * 下面的灰阶全部来自项目原本就在用的颜色，蓝阶里的 500/600/700 也是，
+ * 所以这一层落地时视觉零变化。中间步用线性插值补齐，改了算得出来。
+ */
+
+:root {
+  /* ========== 中性色阶（灰）==========
+     锚点直接取自改造前的 token，一个都没改：
+       0   = 容器白
+       50  = --fbk-color-bg
+       100 = --fbk-color-fill
+       200 = --fbk-color-border-light
+       300 = --fbk-color-border
+       400 = --fbk-color-text-disabled
+       600 = --fbk-color-text-secondary
+       900 = --fbk-color-text
+     500 / 700 / 800 是插值补齐的缺口。色相 216°、低饱和，
+     偏冷以呼应蓝色主色，这是企业后台的正确选择——纯灰会显脏。 */
+  --fbk-gray-0: #ffffff;
+  --fbk-gray-50: #f5f6f7;
+  --fbk-gray-100: #f0f1f2;
+  --fbk-gray-200: #e8eaed;
+  --fbk-gray-300: #dee0e3;
+  --fbk-gray-400: #a8abb2;
+  --fbk-gray-500: #868b93;
+  --fbk-gray-600: #646a73;
+  --fbk-gray-700: #4d525a;
+  --fbk-gray-800: #363a41;
+  --fbk-gray-900: #1f2329;
+
+  /* ========== 主色阶（蓝）==========
+     500 / 600 / 700 是改造前就在用的值：
+       500 = 浅色主题的 primary-hover（也映射到 element-plus --el-color-primary-light-3）
+       600 = 品牌主色
+       700 = primary-active
+     步号是内部实现，改步号不影响任何对外契约——对外只有语义层。 */
+  --fbk-blue-50: #f5f8ff;
+  --fbk-blue-100: #eaf0ff;
+  --fbk-blue-200: #d3e0ff;
+  --fbk-blue-300: #acc4ff;
+  --fbk-blue-400: #7ba3ff;
+  --fbk-blue-500: #5c8bff;
+  --fbk-blue-600: #2f6bff;
+  --fbk-blue-700: #1f52d0;
+  --fbk-blue-800: #173d9a;
+  --fbk-blue-900: #102968;
+
+  /* ========== 状态色阶 ==========
+     green / amber / red / cyan 各 8 步，由单一锚点（500）向白、向黑插值。
+     500 步就是改造前的状态色本身。 */
+  --fbk-green-50: #f1f9f5;
+  --fbk-green-100: #e1f3e9;
+  --fbk-green-200: #c1e5d2;
+  --fbk-green-300: #97d4b4;
+  --fbk-green-400: #62be8d;
+  --fbk-green-500: #18a058;
+  --fbk-green-600: #158d4d;
+  --fbk-green-700: #11703e;
+  --fbk-green-800: #0d5630;
+
+  --fbk-amber-50: #fef9f2;
+  --fbk-amber-100: #fdf3e2;
+  --fbk-amber-200: #fbe5c3;
+  --fbk-amber-300: #f8d49b;
+  --fbk-amber-400: #f5be67;
+  --fbk-amber-500: #f0a020;
+  --fbk-amber-600: #d38d1c;
+  --fbk-amber-700: #a87016;
+  --fbk-amber-800: #9a6614;
+
+  --fbk-red-50: #fcf3f5;
+  --fbk-red-100: #f9e4e8;
+  --fbk-red-200: #f2c7d0;
+  --fbk-red-300: #eaa2b0;
+  --fbk-red-400: #df7288;
+  --fbk-red-500: #d03050;
+  --fbk-red-600: #b72a46;
+  --fbk-red-700: #922238;
+  --fbk-red-800: #771c2e;
+
+  --fbk-cyan-50: #f2f7fe;
+  --fbk-cyan-100: #e2eefd;
+  --fbk-cyan-200: #c3ddfb;
+  --fbk-cyan-300: #9bc6f8;
+  --fbk-cyan-400: #67a9f5;
+  --fbk-cyan-500: #2080f0;
+  --fbk-cyan-600: #1c71d3;
+  --fbk-cyan-700: #165aa8;
+  --fbk-cyan-800: #124a8a;
+
+  /* ========== 间距 ==========
+     变量名就是像素值，省得再去查表。基准 4px，密度偏紧凑——
+     企业后台一屏要塞很多信息，宽松的间距是浪费。 */
+  --fbk-space-2: 2px;
+  --fbk-space-4: 4px;
+  --fbk-space-6: 6px;
+  --fbk-space-8: 8px;
+  --fbk-space-12: 12px;
+  --fbk-space-16: 16px;
+  --fbk-space-20: 20px;
+  --fbk-space-24: 24px;
+  --fbk-space-32: 32px;
+  --fbk-space-40: 40px;
+  --fbk-space-48: 48px;
+
+  /* ========== 字号 ==========
+     命名用像素值：12/14/16 是中文界面的实际可用下限，
+     比 0.75rem/0.875rem 更不容易在评审时算错。 */
+  --fbk-fs-12: 12px;
+  --fbk-fs-13: 13px;
+  --fbk-fs-14: 14px;
+  --fbk-fs-16: 16px;
+  --fbk-fs-20: 20px;
+  --fbk-fs-24: 24px;
+  --fbk-fs-30: 30px;
+
+  --fbk-fw-normal: 400;
+  --fbk-fw-medium: 500;
+  --fbk-fw-semibold: 600;
+
+  /* 行高：紧凑用于表格/表单这类扫描型内容，宽松用于长文 */
+  --fbk-leading-tight: 1.25;
+  --fbk-leading-normal: 1.5;
+  --fbk-leading-relaxed: 1.7;
+
+  /* ========== 圆角 ========== */
+  --fbk-radius-0: 0;
+  --fbk-radius-2: 2px;
+  --fbk-radius-4: 4px;
+  --fbk-radius-6: 6px;
+  --fbk-radius-10: 10px;
+  --fbk-radius-full: 999px;
+
+  /* ========== 动效 ==========
+     改造前整套组件没有任何 transition，交互状态是硬切的。
+     这里补上刻度，让"该不该有动画"变成有依据的判断：
+     状态反馈用 fast，展开收起用 normal，浮层进出用 slow。
+     超过 300ms 用户就会觉得卡，所以没有更长的档。 */
+  --fbk-duration-instant: 0ms;
+  --fbk-duration-fast: 100ms;
+  --fbk-duration-normal: 160ms;
+  --fbk-duration-slow: 240ms;
+  /* 标准缓动：快出慢入，适合绝大多数状态变化 */
+  --fbk-easing-standard: cubic-bezier(0.2, 0, 0.2, 1);
+  --fbk-easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --fbk-easing-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ========== 层级 ==========
+     只管 FBK 组件内部的层叠。浮层/弹窗/提示的层级归适配器管，
+     因为那由底层 UI 库自己的 z-index 体系决定，两边抢会打架。 */
+  --fbk-z-index-base: 0;
+  --fbk-z-index-sticky: 10;
+  --fbk-z-index-dropdown: 100;
+
+  /* ========== 阴影 ========== */
+  --fbk-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --fbk-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --fbk-shadow-3: 0 8px 32px rgba(0, 0, 0, 0.14);
+}

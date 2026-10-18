@@ -1,0 +1,130 @@
+/* ============================================================
+   方向 B · Console（控制台）
+
+   关键词：分区、清晰、克制的中等密度、一层柔和阴影。
+   假设：这是最贴近「企业后台」主流审美的方向 —— Ant Design Pro / Arco Design 那一支。
+        不追求个性，追求「一看就懂、不会出错」。
+
+   具体取舍：
+   - 圆角中等（4/8/12px），控件和容器拉开一档，层级靠圆角大小也能读出来。
+   - 容器用「1px 边框 + 一层极淡阴影」。有边界感，但不厚重。
+   - 表头用沉底灰 + 深色半粗字，明确「这是表头」而不是装饰。
+   - 行分隔线保留但改成很浅的一档，扫读时有引导又不吵。
+   - 每个区（工具栏 / 表格 / 分页）都有自己的一条分隔线，像面板被切开。
+   ============================================================ */
+
+:root {
+  --fbk-radius-2: 4px;
+  --fbk-radius-6: 8px;
+  --fbk-radius-10: 12px;
+  --fbk-shadow-1: 0 1px 2px rgba(31, 35, 41, 0.04), 0 1px 6px rgba(31, 35, 41, 0.04);
+  --fbk-shadow-2: 0 4px 12px rgba(31, 35, 41, 0.08), 0 1px 3px rgba(31, 35, 41, 0.04);
+}
+
+/* ---------- 数据表格：分层清晰，行高舒展一档 ---------- */
+.fbk-pro-table {
+  box-shadow: var(--fbk-shadow-1);
+}
+
+.fbk-pro-table .el-table {
+  font-size: var(--fbk-font-size-md);
+}
+
+.fbk-pro-table .el-table th.el-table__cell {
+  padding: 10px 0;
+}
+
+.fbk-pro-table .el-table td.el-table__cell {
+  padding: 11px 0;
+}
+
+.fbk-pro-table .el-table th.el-table__cell .cell {
+  font-size: var(--fbk-fs-13);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+}
+
+.fbk-pro-table .el-table td.el-table__cell:nth-child(3) .cell {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 悬停整行：底色 + 左侧主色指示条，鼠标在哪一行一目了然 */
+.fbk-pro-table .el-table__body tr:hover > td.el-table__cell {
+  background: var(--fbk-blue-50);
+}
+
+.fbk-pro-table__toolbar {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-lg);
+}
+
+/* ---------- 标签：药丸形，浅底深字 ---------- */
+.el-tag {
+  height: 24px;
+  padding: 0 10px;
+  font-size: var(--fbk-fs-12);
+  line-height: 24px;
+  border-radius: var(--fbk-radius-round);
+}
+
+/* ---------- 文档站 ---------- */
+.vp-doc h1 {
+  font-size: var(--fbk-fs-30);
+  font-weight: 700;
+}
+
+.vp-doc h2 {
+  padding-bottom: var(--fbk-spacing-sm);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.fbk-demo {
+  border-radius: var(--fbk-radius-10);
+  box-shadow: var(--fbk-shadow-1);
+}
+
+.fbk-demo__header {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-lg);
+  background: var(--fbk-color-bg-sunken);
+}
+
+.fbk-demo__preview {
+  padding: var(--fbk-spacing-xl);
+  background: var(--fbk-color-bg-container);
+}
+
+/* Demo 里的组件不要再自带外框 —— 外框已经由 demo 卡片提供了，
+   否则就是卡片套卡片，两层边界打架。 */
+.fbk-demo__preview .fbk-pro-table {
+  border-color: var(--fbk-color-border-light);
+  box-shadow: none;
+}
+
+.fbk-api__caption {
+  font-size: var(--fbk-font-size-lg);
+}
+
+.fbk-api thead th {
+  font-size: var(--fbk-fs-13);
+  letter-spacing: 0;
+}
+
+/* ---------- Playground ---------- */
+.playground__header {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-xl);
+  box-shadow: var(--fbk-shadow-1);
+  border-bottom: 0;
+}
+
+.playground__brand {
+  font-size: var(--fbk-font-size-lg);
+}
+
+.playground__field select,
+.playground__toggle {
+  padding: 7px 12px;
+  background: var(--fbk-color-bg-container);
+}
+
+.playground__body {
+  padding: var(--fbk-spacing-xxl) var(--fbk-spacing-xl);
+}

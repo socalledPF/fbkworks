@@ -1,0 +1,5 @@
+/* naive-ui 暗色由 NConfigProvider 注入，这里只兜底页面背景 */
+html[data-fbk-theme='dark'] body {
+  background: var(--fbk-color-bg);
+  color: var(--fbk-color-text);
+}

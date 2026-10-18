@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  verify:
+    name: verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # 组件库的构建脚本在 Windows 上最容易踩坑（路径分隔符、.cmd shim），
+        # 因此三平台都跑，而不是只在 Linux 上跑。
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint (含架构边界)
+        run: pnpm lint
+
+      - name: 依赖方向
+        run: pnpm lint:deps
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+      - name: 公开类型面
+        run: pnpm check:surface
+
+      - name: publint
+        run: pnpm check:packages
+
+      - name: attw
+        run: pnpm check:types
+
+      - name: 消费者烟雾测试
+        run: pnpm check:consumer
+
+      - name: Docs
+        run: pnpm docs:build
+
+  compat:
+    name: 最小 peer 版本兼容
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # 防止"只在最新版能跑"：用 peerDependencies 声明的最低版本重跑契约测试。
+      - name: 安装最小 peer 版本
+        run: |
+          pnpm add -w -D element-plus@2.8.0 vant@4.9.0 naive-ui@2.40.0
+
+      - name: 契约测试
+        run: pnpm test

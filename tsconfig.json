@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.vue",
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "apps/**/*.vue",
+    "scripts/**/*.mts",
+    "scripts/**/*.mjs"
+  ],
+  "exclude": ["**/node_modules", "**/dist", "apps/docs/.vitepress/cache"]
+}

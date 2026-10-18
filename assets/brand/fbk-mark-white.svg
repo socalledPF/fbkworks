@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="FBK">
+  <title>FBK</title>
+  <!-- 反白版：用于主色底、深色底。几何与 fbk-mark.svg 完全一致。 -->
+  <g fill="#ffffff">
+    <rect x="4" y="5" width="24" height="6" rx="2" />
+    <rect x="4" y="17" width="6" height="10" rx="1.5" />
+    <rect x="13" y="17" width="6" height="10" rx="1.5" />
+    <rect x="22" y="17" width="6" height="10" rx="1.5" />
+  </g>
+</svg>

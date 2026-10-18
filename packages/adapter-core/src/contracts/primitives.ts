@@ -1,0 +1,123 @@
+export type Size = 'sm' | 'md' | 'lg'
+
+export type Status = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
+
+export type ButtonVariant = 'primary' | 'default' | 'dashed' | 'text' | 'link'
+
+export interface ButtonProps {
+  variant?: ButtonVariant
+  status?: Status
+  size?: Size
+  disabled?: boolean
+  loading?: boolean
+  block?: boolean
+  nativeType?: 'button' | 'submit' | 'reset'
+}
+
+export interface InputProps {
+  modelValue?: string | number
+  type?: 'text' | 'textarea' | 'password' | 'number' | 'email' | 'tel'
+  placeholder?: string
+  disabled?: boolean
+  readonly?: boolean
+  clearable?: boolean
+  rows?: number
+  size?: Size
+}
+
+export interface SelectOption<V = string | number> {
+  label: string
+  value: V
+  disabled?: boolean
+}
+
+export interface SelectProps<V = string | number> {
+  modelValue?: V | V[] | null
+  options: SelectOption<V>[]
+  multiple?: boolean
+  filterable?: boolean
+  clearable?: boolean
+  placeholder?: string
+  /** 移动端 picker 的标题 */
+  title?: string
+  size?: Size
+  disabled?: boolean
+  loading?: boolean
+}
+
+export interface TagProps {
+  status?: Status
+  size?: Size
+  closable?: boolean
+  bordered?: boolean
+}
+
+export interface EmptyProps {
+  description?: string
+}
+
+export interface SpinProps {
+  loading?: boolean
+  size?: Size
+  description?: string
+}
+
+export interface DialogProps {
+  modelValue?: boolean
+  title?: string
+  width?: string | number
+  /** 移动端是否使用底部弹出 */
+  placement?: 'center' | 'bottom'
+  closeOnClickModal?: boolean
+  showClose?: boolean
+}
+
+export interface PaginationProps {
+  page: number
+  pageSize: number
+  total: number
+  pageSizes?: number[]
+  showTotal?: boolean
+  showJumper?: boolean
+  size?: Size
+  disabled?: boolean
+}
+
+export interface FormItemProps {
+  label?: string
+  prop?: string
+  required?: boolean
+  rules?: import('./form').FbkRule[]
+  help?: string
+  /** 同 FormProps.labelWidth，条目级覆盖表单级 */
+  labelWidth?: string | number
+  span?: number
+}
+
+export interface FormProps {
+  model: Record<string, any>
+  rules?: Record<string, import('./form').FbkRule[]>
+  /**
+   * 标签宽度。
+   *
+   * 传 `'auto'` 表示「按本表单里最宽的标签统一」——这是让控件左边缘对齐的
+   * 唯一可移植写法。不传时各 UI 库行为不同：element-plus / naive-ui 会
+   * 让标签按内容收缩，于是「状态」和「负责人」下面的输入框宽度不一样；
+   * vant 则是固定 6.2em。
+   *
+   * 适配器必须把 `'auto'` 翻译成自己的等价能力；没有该能力的库应退回
+   * 自己的固定宽度，而不是写成 `width: auto`（那会让标签重新按内容收缩）。
+   */
+  labelWidth?: string | number
+  labelPosition?: 'left' | 'right' | 'top'
+  disabled?: boolean
+  size?: Size
+  scrollToError?: boolean
+}
+
+export interface FormExpose {
+  validate: () => Promise<true>
+  validateField?: (prop: string | string[]) => Promise<true>
+  resetFields: () => void
+  clearValidate: (props?: string | string[]) => void
+}
