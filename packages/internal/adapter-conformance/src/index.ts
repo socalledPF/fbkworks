@@ -113,12 +113,22 @@ export function runAdapterConformance(options: ConformanceOptions): void {
 
     it('Checkbox 实现 v-model 布尔值', async () => {
       const wrapper = mount(p.Checkbox, { modelValue: false })
-      const input = wrapper.find('input[type="checkbox"]')
-      expect(input.exists()).toBe(true)
 
-      const element = input.element as HTMLInputElement
-      element.checked = true
-      element.dispatchEvent(new Event('change', { bubbles: true }))
+      // 控件的形态因库而异，契约只要求「点击能翻转并发出布尔值」：
+      //   element-plus 用真实 <input type="checkbox">
+      //   vant / naive-ui 是 div[role="checkbox"] 的自定义控件，没有原生 input
+      // 所以这里两种形态都找，与下面 DataGrid 选择列的写法保持一致。
+      const native = wrapper.find('input[type="checkbox"]')
+      const custom = wrapper.find('[role="checkbox"]')
+      expect(native.exists() || custom.exists(), 'Checkbox 必须渲染原生 input 或 role="checkbox"').toBe(true)
+
+      if (native.exists()) {
+        const element = native.element as HTMLInputElement
+        element.checked = true
+        element.dispatchEvent(new Event('change', { bubbles: true }))
+      } else {
+        await custom.trigger('click')
+      }
       await flushPromises()
 
       const emitted = wrapper.findComponent(p.Checkbox).emitted('update:modelValue')

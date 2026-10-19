@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { NCheckbox } from 'naive-ui'
-import type { CheckboxProps, Size } from '@fbk/adapter-core'
+import type { Size } from '@fbk/adapter-core'
 
 /**
  * 布尔开关。
