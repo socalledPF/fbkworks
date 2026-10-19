@@ -6,6 +6,11 @@ import type { ProTableColumn } from './types'
 interface RendererContext {
   /** 适配器提供的 Tag 原语。显式传入而不是从适配器上下文里取，方便单测。 */
   Tag: any
+  /**
+   * 数字/日期的格式化 locale，来自 `useFbkTheme().locale`。
+   * L1 是纯函数层，不读注入上下文，所以由这里显式传下去。
+   */
+  locale?: string
 }
 
 /**
@@ -59,16 +64,18 @@ function renderByValueType(
   const { value, column } = ctx
   const proColumn = column as ProTableColumn<any>
   const valueEnum = proColumn.valueEnum
+  // 调用方没给 locale 时用 L1 的默认值（zh-CN），保持既有行为
+  const locale = components.locale
 
   switch (proColumn.valueType) {
     case 'number':
-      return formatNumber(value)
+      return formatNumber(value, undefined, locale)
     case 'money':
-      return formatMoney(value)
+      return formatMoney(value, 2, locale)
     case 'date':
-      return formatDate(value, 'date')
+      return formatDate(value, 'date', locale)
     case 'datetime':
-      return formatDate(value, 'datetime')
+      return formatDate(value, 'datetime', locale)
     case 'enum': {
       const item = valueEnum?.[value as string | number]
       if (!item) return value === null || value === undefined ? '-' : String(value)

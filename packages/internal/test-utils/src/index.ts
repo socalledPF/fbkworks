@@ -10,6 +10,8 @@ export interface MountWithAdapterOptions {
   props?: Record<string, any>
   slots?: Record<string, any>
   attachTo?: Element | string
+  /** 注入上下文的 locale，用于断言格式化是否跟随语言设置 */
+  locale?: string
 }
 
 /**
@@ -21,7 +23,7 @@ export function mountWithAdapter(
   options: MountWithAdapterOptions = {},
 ) {
   const adapter = options.adapter ?? createMockAdapter()
-  const ctx = createAdapterContext({ adapter })
+  const ctx = createAdapterContext({ adapter, locale: options.locale })
 
   // 直接挂载被测组件：这样 wrapper.emitted() 能读到组件自身的事件
   return mount(component, {

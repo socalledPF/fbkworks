@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useSlots, watch } from 'vue'
 import type { Slots } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
+import { useAdapter, useFbkTheme } from '@fbk/adapter-core'
 import type { SortState } from '@fbk/adapter-core'
 import type { Key } from '@fbk/shared'
 import type { ProTableColumn, ProTableExpose, ProTableProps } from './types'
@@ -40,6 +40,7 @@ const emit = defineEmits<{
 }>()
 
 const adapter = useAdapter()
+const { locale } = useFbkTheme()
 const slots: Slots = useSlots()
 const { DataGrid, Pagination } = adapter.primitives
 
@@ -85,7 +86,14 @@ const preserveOnReload = computed(() => selectionOptions.value.preserveOnReload 
 const columns = computed<ProTableColumn<T>[]>(() =>
   props.columns
     .filter((column) => !column.hideInTable)
-    .map((column) => resolveColumnRenderer(column, { Tag: adapter.primitives.Tag })),
+    .map((column) =>
+      resolveColumnRenderer(column, {
+        Tag: adapter.primitives.Tag,
+        // locale 是一等公民：业务侧把 createBusinessKit 的 locale 设成 en-US 后，
+        // 金额与日期要跟着变。L1 不读注入上下文，所以在这里显式传下去。
+        locale: locale.value,
+      }),
+    ),
 )
 
 const gridProps = computed(() => ({

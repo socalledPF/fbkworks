@@ -61,6 +61,10 @@ jobs:
       - name: 消费者烟雾测试
         run: pnpm check:consumer
 
+      # 与 verify 保持一致：架构图语法错误不该等到发布前才被发现
+      - name: 架构图
+        run: pnpm check:diagrams
+
       - name: Docs
         run: pnpm docs:build
 
