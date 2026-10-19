@@ -66,6 +66,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'Button',
         'Input',
         'Select',
+        'Checkbox',
         'Form',
         'FormItem',
         'DataGrid',
@@ -108,6 +109,20 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       // 部分库（vant Field）把展示值写在 input.value 上，所以文本和表单值都要看。
       const shown = wrapper.text() + wrapper.findAll('input').map((input: any) => (input.element as HTMLInputElement).value).join('')
       expect(shown).toContain('A')
+    })
+
+    it('Checkbox 实现 v-model 布尔值', async () => {
+      const wrapper = mount(p.Checkbox, { modelValue: false })
+      const input = wrapper.find('input[type="checkbox"]')
+      expect(input.exists()).toBe(true)
+
+      const element = input.element as HTMLInputElement
+      element.checked = true
+      element.dispatchEvent(new Event('change', { bubbles: true }))
+      await flushPromises()
+
+      const emitted = wrapper.findComponent(p.Checkbox).emitted('update:modelValue')
+      expect(emitted?.at(-1)).toEqual([true])
     })
 
     it('Form 暴露 validate(): Promise<true>', async () => {

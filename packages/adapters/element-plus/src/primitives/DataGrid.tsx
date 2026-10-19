@@ -18,6 +18,7 @@ export const DataGrid = defineComponent({
     loading: Boolean,
     presentation: { type: String as PropType<DataGridProps['presentation']>, default: 'auto' },
     selectionEnabled: Boolean,
+    selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
     sort: { type: Object as PropType<SortState | null>, default: null },
     emptyText: String,
@@ -55,7 +56,7 @@ export const DataGrid = defineComponent({
         }}
       >
         {props.selectionEnabled ? (
-          <ElTableColumn type="selection" width="48" reserveSelection />
+          <ElTableColumn type="selection" width={props.selectionWidth} reserveSelection />
         ) : null}
         {props.columns.map((column) => (
           <ElTableColumn

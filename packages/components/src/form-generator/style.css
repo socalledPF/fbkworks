@@ -11,6 +11,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--fbk-form-generator-gap);
+  /* 同 ProTable / QueryForm：不继承 provider 注入的字号 */
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
 }
 
 @media (min-width: 640px) {
@@ -56,6 +60,9 @@
   gap: var(--fbk-form-generator-row-gap) var(--fbk-form-generator-column-gap);
   align-items: start;
 }
+
+/* 同 QueryForm：条目间距由栅格 gap 统一，不叠加 UI 库自带的外边距。
+   element-plus 的 .el-form-item 自带 18px 下边距，naive 是 0。 */
 
 /* 视图模式不是「禁用输入框」，是纯文本 —— 禁用的控件仍然占着表单的视觉重量 */
 .fbk-form-generator__view {

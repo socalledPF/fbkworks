@@ -51,6 +51,12 @@ export interface DataGridProps<T = any> {
   presentation?: DataGridPresentation
   selectionEnabled?: boolean
   selectedKeys?: Array<string | number>
+  /**
+   * 选择列宽度。默认 48。
+   * 原先三个适配器各自在内部写死 48，业务侧没法调；
+   * 现在由 ProTable 的 `selection.columnWidth` 传下来。
+   */
+  selectionWidth?: number
   sort?: SortState | null
   emptyText?: string
   rowClickable?: boolean

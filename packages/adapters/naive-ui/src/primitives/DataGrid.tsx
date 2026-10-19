@@ -18,6 +18,7 @@ export const DataGrid = defineComponent({
     loading: Boolean,
     presentation: { type: String as PropType<DataGridProps['presentation']>, default: 'auto' },
     selectionEnabled: Boolean,
+    selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
     sort: { type: Object as PropType<SortState | null>, default: null },
     emptyText: String,
@@ -31,7 +32,7 @@ export const DataGrid = defineComponent({
     const naiveColumns = computed<DataTableColumns<any>>(() => {
       const result: DataTableColumns<any> = []
       if (props.selectionEnabled) {
-        result.push({ type: 'selection', width: 48 } as any)
+        result.push({ type: 'selection', width: props.selectionWidth } as any)
       }
       for (const column of props.columns) {
         result.push({

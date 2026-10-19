@@ -52,6 +52,20 @@ export interface TagProps {
   bordered?: boolean
 }
 
+export interface CheckboxProps {
+  /** 单选布尔值是该原语的主要形态 */
+  modelValue?: boolean
+  /** 开关旁边的文案 */
+  label?: string
+  disabled?: boolean
+  size?: Size
+}
+
+export interface CheckboxEmits {
+  'update:modelValue': [value: boolean]
+  change: [value: boolean]
+}
+
 export interface EmptyProps {
   description?: string
 }

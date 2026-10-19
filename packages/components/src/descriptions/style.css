@@ -11,7 +11,11 @@
   grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
   gap: var(--fbk-descriptions-row-gap) var(--fbk-descriptions-column-gap);
   margin: 0;
+  /* 行高也要声明：font-size 换了但行高仍继承环境时，
+     naive(1.6) 和 element-plus(normal) 的单元格高度会差 3px。 */
   font-size: var(--fbk-descriptions-size);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
 }
 
 @media (min-width: 640px) {
@@ -44,9 +48,18 @@
   min-width: 0;
 }
 
+/* 标签列必须等宽，否则「订单号」和「金额」下面的值左边缘参差不齐。
+
+   每个 .__item 是独立的 flex 容器，彼此无法共享列宽（CSS 里没有
+   「让这些 flex 容器共享一列」的办法，除非上 subgrid —— 那要求
+   item 直接成为栅格子项，而现在是 dl > div > dt/dd 的结构）。
+   所以给一个固定默认宽度，由令牌控制；需要精确对齐时消费方传
+   labelWidth。这个宽度要能放下四个汉字（14px × 4 ≈ 56px）
+   加右侧间距。 */
 .fbk-descriptions__label {
   flex: none;
-  min-width: var(--fbk-descriptions-label-width);
+  width: var(--fbk-descriptions-label-width);
+  font-weight: var(--fbk-descriptions-label-font-weight);
   color: var(--fbk-descriptions-label-fg);
 }
 
@@ -62,21 +75,116 @@
   gap: var(--fbk-spacing-xs);
 }
 
+/* ============================================================
+   有边框模式
+
+   网格当一张表：单元格只画「右 + 下」两条线，容器负责「上 + 左」。
+   这样不会出现相邻单元格的双线，也不用 :nth-child 补最后一列的边框 ——
+   列数是响应式的，写死 :nth-child 在换断点后一定会错。
+
+   标签底色铺在 dt 上而不是整个 item 上：dt 是 flex:none 的一列，
+   宽度由内容决定，底色只覆盖标签本身，值区保持白底。铺在 item 上
+   会让整个单元格灰掉，值和标签的层级就没了。
+   ============================================================ */
 .fbk-descriptions--bordered {
   gap: 0;
   overflow: hidden;
-  border: 1px solid var(--fbk-descriptions-border-color);
+  border-top: 1px solid var(--fbk-descriptions-border-color);
+  border-left: 1px solid var(--fbk-descriptions-border-color);
   border-radius: var(--fbk-descriptions-radius);
 }
 
+/* 有边框模式下，内边距必须落在 dt / dd 上，而不是整个 item 上。
+
+   这是标签列能不能有「边界」的前提：item 有内边距时，dt 的底色只能
+   铺在文字背后，宽度随文字长短变化，看着像文字被选中；把内边距挪到
+   dt/dd 之后，dt 就能作为一个完整的列（固定宽度 + 整列底色 + 右分隔线）
+   存在，标签和值之间才有了真正的边界。
+
+   gap 也要归零 —— 否则 dt 的右分隔线和值之间会夹一条白缝。 */
 .fbk-descriptions--bordered .fbk-descriptions__item {
-  padding: var(--fbk-descriptions-cell-padding);
+  gap: 0;
   border-right: 1px solid var(--fbk-descriptions-border-color);
   border-bottom: 1px solid var(--fbk-descriptions-border-color);
 }
 
+.fbk-descriptions--bordered .fbk-descriptions__value {
+  flex: 1 1 auto;
+  padding: var(--fbk-descriptions-cell-padding);
+}
+
+/* 圆角裁切：容器 overflow:hidden 能裁掉外框，但标签底色是内层背景，
+   会从圆角处露出直角。给首尾单元格补圆角。 */
+.fbk-descriptions--bordered .fbk-descriptions__item:first-child {
+  border-top-left-radius: var(--fbk-descriptions-radius);
+}
+
+/* 有边框模式下的标签列：一列「表头」。
+
+   三件事共同建立边界，缺一件标签和值就会糊在一起：
+
+   1. 沉底背景。整列铺 --fbk-descriptions-label-bg，标签区在视觉上
+      退后一层，值区留在白底上。
+   2. 右分隔线。标签列和值列之间的竖线，是「这是两个东西」最直接的信号。
+   3. 右对齐 + 中等字重。值从左边缘对齐成一条竖线，便于扫读。
+
+   内边距上下要单独写：dt 和 dd 的内边距各自负责，但 dt 需要
+   「上/下 = 单元格内边距，右 = 单元格内边距」而**不能有左内边距**，
+   否则标签会离单元格左边缘太远，和值区的留白不对称。 */
 .fbk-descriptions--bordered .fbk-descriptions__label {
-  padding-right: var(--fbk-spacing-md);
-  font-weight: var(--fbk-font-weight-medium);
+  padding: var(--fbk-descriptions-cell-padding);
+  padding-left: 0;
   background: var(--fbk-descriptions-label-bg);
+  border-right: 1px solid var(--fbk-descriptions-border-color);
+  font-weight: var(--fbk-descriptions-label-font-weight);
+  color: var(--fbk-descriptions-label-fg);
+  text-align: right;
+}
+
+/* 首个单元格：标签列的底色会盖住容器的圆角，补一下。
+   容器是 overflow:hidden，但背景色在内层元素上，圆角处会露出直角。 */
+.fbk-descriptions--bordered .fbk-descriptions__item:first-child .fbk-descriptions__label {
+  border-top-left-radius: var(--fbk-descriptions-radius);
+}
+
+/* ============================================================
+   窄屏
+
+   标签的固定宽度会把值的空间挤掉（实测 420px 下「SO20260001」
+   被折成两行）。这时候改成上下排列 —— 标签在上、值在下，
+   和 direction="vertical" 一致。
+
+   注意这段必须放在文件**最后**：它和上面的
+   `.fbk-descriptions--bordered .fbk-descriptions__label`
+   特异性相同，靠顺序决定胜负。放前面会被右对齐覆盖。
+   ============================================================ */
+@media (max-width: 639px) {
+  .fbk-descriptions:not(.fbk-descriptions--vertical) .fbk-descriptions__item {
+    flex-direction: column;
+    gap: var(--fbk-spacing-xs);
+  }
+
+  .fbk-descriptions__label {
+    width: auto;
+  }
+
+  /* 竖排后右对齐和右分隔线都失去意义 —— 标签在上、值在下，
+     竖线会变成一条横在半空的线。标签列退回「标签块」：
+     去掉分隔线，内边距恢复成四边一致，底色只覆盖标签本身。 */
+  .fbk-descriptions--bordered .fbk-descriptions__label {
+    padding: 0;
+    background: none;
+    border-right: 0;
+    text-align: left;
+  }
+
+  .fbk-descriptions--bordered .fbk-descriptions__value {
+    padding: 0;
+  }
+
+  /* 内边距回到 item 上 —— 竖排时 dt/dd 不再是「两列」，
+     让它们各自持有内边距会得到上下不对称的留白。 */
+  .fbk-descriptions--bordered .fbk-descriptions__item {
+    padding: var(--fbk-descriptions-cell-padding);
+  }
 }

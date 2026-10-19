@@ -32,6 +32,12 @@ export const Button = defineComponent({
     return () => (
       <NButton
         {...attrs}
+        /* naive 的 text 模式**不产生任何 class**（Button.mjs 的 class 拼接里
+           只有 dashed / ghost / secondary 等会加类名，text 不加）。
+           样式层因此没法用 .n-button--text 选中它，文字按钮只剩行高
+           （实测 12px vs element-plus 的 32px）。
+           这里补一个自己的标记类，由 style.css 补回控件高度。 */
+        class={text.value ? 'fbk-button--text' : undefined}
         type={type.value}
         size={size.value}
         disabled={props.disabled}

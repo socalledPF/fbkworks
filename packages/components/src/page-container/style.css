@@ -13,6 +13,10 @@
   max-width: var(--fbk-page-container-max-width);
   padding: var(--fbk-page-container-padding);
   margin: 0 auto;
+  /* 同 ProTable / QueryForm：不继承 provider 注入的字号 */
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
   /* 容器查询的宿主。缺了这一行，下面的 @container 永远不匹配 ——
      而且不报错，只是静默失效。 */
   container-type: inline-size;
@@ -38,17 +42,27 @@
 .fbk-page-container__heading {
   display: flex;
   flex-direction: column;
-  gap: var(--fbk-spacing-xs);
+  gap: var(--fbk-page-container-heading-gap);
   min-width: 0;
 }
 
+/* 返回按钮是文字按钮，但它承载的是「离开这一页」的动作，
+   不该和面包屑、标题挤在同一个视觉层级里 —— 单独给一点下方留白。
+
+   内边距在这里归零：element-plus 的 text 按钮 padding 是 0，
+   naive 的是 12px，两个适配器下按钮宽度差 24px。
+   组件层统一成「纯文字 + 焦点环」，不依赖 UI 库的按钮内边距。 */
 .fbk-page-container__back {
   align-self: flex-start;
+  margin-bottom: var(--fbk-spacing-xs);
   padding: 0;
+  font-size: var(--fbk-page-container-breadcrumb-size);
+  line-height: var(--fbk-font-line-height-tight);
   color: var(--fbk-color-text-secondary);
   cursor: pointer;
   background: none;
   border: 0;
+  transition: var(--fbk-transition-color);
 }
 
 .fbk-page-container__back:hover {
@@ -92,21 +106,25 @@
 .fbk-page-container__title-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--fbk-spacing-sm);
+  gap: var(--fbk-page-container-title-row-gap);
   align-items: baseline;
 }
 
+/* 标题行高要压紧。用浏览器默认的 normal 时 h1 会继承 body 的行高，
+   20px 字号撑出 27px 行盒，标题和副标题之间会多出一截空。 */
 .fbk-page-container__title {
   margin: 0;
   font-size: var(--fbk-page-container-title-size);
   font-weight: var(--fbk-page-container-title-weight);
+  line-height: var(--fbk-page-container-title-line-height);
   color: var(--fbk-page-container-title-fg);
 }
 
 .fbk-page-container__subtitle {
   margin: 0;
-  font-size: var(--fbk-page-container-subtitle-size);
+  line-height: var(--fbk-page-container-title-line-height);
   color: var(--fbk-page-container-subtitle-fg);
+  font-size: var(--fbk-page-container-subtitle-size);
 }
 
 .fbk-page-container__extra {

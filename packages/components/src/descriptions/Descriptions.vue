@@ -21,11 +21,16 @@ const props = withDefaults(defineProps<DescriptionsProps<T>>(), {
  * 字号走组件令牌，不在这里写死像素。
  * 之前是 '12px' / '16px' / '14px' 三串字面量 —— 改字号档位要动组件源码。
  */
-const style = computed(() => ({
-  ...resolveColumns(props.column),
-  '--fbk-descriptions-label-width': toCssSize(props.labelWidth) ?? 'auto',
-  ...(props.size ? { '--fbk-descriptions-size': `var(--fbk-descriptions-size-${props.size})` } : {}),
-}))
+const style = computed(() => {
+  const labelWidth = toCssSize(props.labelWidth)
+  return {
+    ...resolveColumns(props.column),
+    /* 只写传进来的值。不传时交给令牌的默认宽度，
+       否则组件层永远拿不到消费方在 CSS 里设的默认值。 */
+    ...(labelWidth ? { '--fbk-descriptions-label-width': labelWidth } : {}),
+    ...(props.size ? { '--fbk-descriptions-size': `var(--fbk-descriptions-size-${props.size})` } : {}),
+  }
+})
 
 function valueOf(item: (typeof props.items)[number]) {
   if (item.getValue) return item.getValue(props.data)

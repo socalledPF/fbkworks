@@ -20,6 +20,17 @@
 `selection` 能力由 `adapter.capabilities.dataGrid.selection` 声明。
 适配器不支持时（`selection: false`），ProTable 不会渲染选择列，也不会报错。
 
+`selection` 也可以传配置对象：
+
+```ts
+selection: {
+  /** 选择列宽度，默认 48 */
+  columnWidth: 56,
+  /** reload 后是否保留已选行，默认 true */
+  preserveOnReload: false,
+}
+```
+
 ## 列配置
 
 ```ts
@@ -28,8 +39,11 @@ interface ProTableColumn<T> extends DataGridColumn<T> {
   valueEnum?: Record<string | number, { text: string; status?: Status }>
   hideInTable?: boolean
   hideInCard?: boolean
-  copyable?: boolean
   search?: boolean | QueryField
+  /** 悬停以原生 tooltip 展示的说明 */
+  tooltip?: string
+  /** 悬停显示复制按钮，点击写入剪贴板 */
+  copyable?: boolean
 }
 ```
 
@@ -39,6 +53,15 @@ interface ProTableColumn<T> extends DataGridColumn<T> {
 { key: 'amount', title: '金额', dataIndex: 'amount', valueType: 'money', align: 'right' }
 { key: 'status', title: '状态', dataIndex: 'status', valueType: 'enum', valueEnum: orderStatusEnum }
 ```
+
+`copyable` 与 `tooltip` 包在单元格内容外面，与 `valueType` / 自定义 `render` 都能组合：
+
+```ts
+{ key: 'orderNo', title: '订单号', valueType: 'text', copyable: true, tooltip: '业务单号' }
+```
+
+复制按钮默认只在行悬停或键盘聚焦时出现（触屏设备常驻）。`copyable` 需要列本身有渲染结果，
+纯文本列请配合 `valueType` 或 `render` 使用。
 
 ## 请求与竞态
 

@@ -29,14 +29,14 @@ createApp(App).use(createBusinessKit({ adapter: elementPlusAdapter, theme: 'ligh
 ## 契约
 
 - `UiAdapter`：`meta` / `capabilities` / `primitives` / `RootProvider` / `theme`
-- `UiPrimitives`：Button、Input、Select、Form、FormItem、DataGrid、Pagination、Dialog、Tag、Empty、Spin
+- `UiPrimitives`：Button、Input、Select、Checkbox、Form、FormItem、DataGrid、Pagination、Dialog、Tag、Empty、Spin
 - `Capabilities`：能力声明，业务组件据此降级而不是判断适配器名字
 - `ADAPTER_API_VERSION`：启动时校验，防止 core 与适配器版本错配
 - 注入键使用 `Symbol.for('fbk.adapter.context')`，多份 core 副本也不会断
 
 ## 写自己的适配器
 
-实现 11 个原语 → 声明能力 → 导出 `UiAdapter` → 跑 `@fbk/adapter-conformance`。
+实现 12 个原语 → 声明能力 → 导出 `UiAdapter` → 跑 `@fbk/adapter-conformance`。
 详见文档「编写自定义适配器」。
 
 ## License

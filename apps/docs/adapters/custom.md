@@ -4,13 +4,14 @@
 
 ## 1. 实现原语
 
-契约要求 11 个原语：
+契约要求 12 个原语：
 
 ```ts
 interface UiPrimitives {
   Button: Component
   Input: Component
   Select: Component
+  Checkbox: Component
   Form: Component
   FormItem: Component
   DataGrid: Component
@@ -27,6 +28,8 @@ interface UiPrimitives {
 
 - 受控一律用 `modelValue` + `update:modelValue`；
 - 选择器接收 `options` 数组，**不接收子组件**；
+- `Checkbox` 承载表单里的布尔字段（`switch` / `checkbox`），`modelValue` 是布尔值；
+  不提供它业务组件就只能渲染原生 `<input>`，等于绕过适配层；
 - 所有包装器 `inheritAttrs: false` + `v-bind="$attrs"` + `v-slots="slots"`；
 - 语义枚举 `Size = 'sm' | 'md' | 'lg'`、`Status = 'default' | 'primary' | ...`。
 
@@ -66,7 +69,7 @@ export const arcoAdapter: UiAdapter = {
     platform: 'desktop',
   },
   capabilities: arcoCapabilities,
-  primitives: { Button, Input, Select, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
   RootProvider,
   theme: arcoTheme,
 }
@@ -94,8 +97,8 @@ runAdapterConformance({
 })
 ```
 
-套件覆盖 14 条断言：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
-Form `validate()`、DataGrid 渲染与事件、选择/排序、`presentation=cards`、主题桥幂等。
+套件覆盖 15 条断言：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
+Checkbox 布尔值、Form `validate()`、DataGrid 渲染与事件、选择/排序、`presentation=cards`、主题桥幂等。
 
 跑通它，业务组件基本就能在这个库上正常工作。
 

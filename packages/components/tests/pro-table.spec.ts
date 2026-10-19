@@ -118,4 +118,66 @@ describe('FbkProTable', () => {
 
     expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ page: 1 }))
   })
+
+  /**
+   * selection 的配置项原先只在类型里，组件从不读它们。
+   * 业务侧写 selection: { columnWidth: 60 } 与实际渲染的列宽无关。
+   */
+  it('selection.columnWidth 传给 DataGrid', async () => {
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, data: rows, rowKey: 'id', selection: { columnWidth: 60 } },
+    })
+    await flushPromises()
+    expect(
+      wrapper.find('[data-fbk-part="data-grid"]').attributes('data-selection-width'),
+    ).toBe('60')
+  })
+
+  it('selection 未配置列宽时用 48 的默认值', async () => {
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, data: rows, rowKey: 'id', selection: {} },
+    })
+    await flushPromises()
+    expect(
+      wrapper.find('[data-fbk-part="data-grid"]').attributes('data-selection-width'),
+    ).toBe('48')
+  })
+
+  it('preserveOnReload 默认保留已选行', async () => {
+    const request = vi.fn().mockResolvedValue({ list: rows, total: 100 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id', selection: {} },
+    })
+    await flushPromises()
+
+    const table = wrapper.findComponent(FbkProTable)
+    const grid = () => wrapper.findComponent({ name: 'MockDataGrid' })
+    ;(table.vm as any).setSelectedKeys([1])
+    await flushPromises()
+
+    await (table.vm as any).reload()
+    await flushPromises()
+
+    // 默认不清选择：翻页/刷新后勾选仍然保留
+    expect(grid().props('selectedKeys')).toEqual([1])
+  })
+
+  it('preserveOnReload: false 时 reload 清空选择', async () => {
+    const request = vi.fn().mockResolvedValue({ list: rows, total: 100 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id', selection: { preserveOnReload: false } },
+    })
+    await flushPromises()
+
+    const table = wrapper.findComponent(FbkProTable)
+    const grid = () => wrapper.findComponent({ name: 'MockDataGrid' })
+    ;(table.vm as any).setSelectedKeys([1])
+    await flushPromises()
+    expect(grid().props('selectedKeys')).toEqual([1])
+
+    await (table.vm as any).reload()
+    await flushPromises()
+
+    expect(grid().props('selectedKeys')).toEqual([])
+  })
 })

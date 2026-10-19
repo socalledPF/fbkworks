@@ -59,12 +59,13 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm lint` | ESLint + 依赖边界规则（UI 库只允许出现在 `packages/adapters/**`） |
 | `pnpm lint:deps` | dependency-cruiser 依赖图校验（含循环依赖） |
 | `pnpm typecheck` | vue-tsc 全量类型检查 |
-| `pnpm test` | Vitest：66 个用例，含三个适配器共用的 14 条契约断言 |
+| `pnpm test` | Vitest：全部单测，含三个适配器共用的 15 条契约断言 |
 | `pnpm build` | turbo 构建全部包 |
 | `pnpm check:surface` | 扫描公开 `.d.ts`，禁止泄漏 UI 库类型 |
 | `pnpm check:packages` | publint |
 | `pnpm check:types` | attw（ESM-only profile） |
 | `pnpm check:consumer` | 消费者烟雾测试：按 exports 解析已构建产物 |
+| `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
 
 ## 目录

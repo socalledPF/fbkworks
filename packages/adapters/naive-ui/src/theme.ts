@@ -36,8 +36,44 @@ export function naiveProviderProps(mode: 'light' | 'dark', tokens: FbkTokens) {
         cardColor: t.color.bgContainer,
         borderColor: t.color.border,
         borderRadius: t.radius.md,
-        fontSize: t.font.size.md,
         fontFamily: t.font.family,
+        /* 注意：这里**不设** fontSize。
+           naive 的 NConfigProvider 会把 common.fontSize 写成根节点的
+           font-size，而 element-plus 不注入字号。设了它，同一个组件在
+           两个适配器下就会继承到不同的基准字号（14 vs 16），
+           行高、内边距全线错位。字号由组件样式自己声明（见各 style.css）。 */
+
+        /**
+         * 控件高度对齐 element-plus。
+         *
+         * naive 默认 heightMedium = 34px，element-plus 默认尺寸是 32px。
+         * 同一个 QueryForm 在两个适配器下输入框差 2px，整行跟着错位。
+         */
+        heightSmall: '28px',
+        heightMedium: '32px',
+        heightLarge: '40px',
+      },
+
+      /**
+       * 按钮。element-plus 默认是 height 32 / padding 0 15px / font-weight 500，
+       * naive 是 height 34 / padding 0 14px / 400。三项都在 themeOverrides
+       * 里对齐，不靠 CSS —— naive 的按钮样式是运行时生成的，
+       * CSS 要 !important 才能赢，而那会让消费方无法再覆盖。
+       */
+      Button: {
+        fontWeight: t.font.weightMedium,
+        fontWeightStrong: t.font.weightSemibold,
+        paddingMedium: '0 15px',
+        paddingSmall: '0 11px',
+        paddingLarge: '0 19px',
+      },
+
+      /**
+       * 表单标签色。element-plus 用 --el-text-color-regular（次级文字色），
+       * naive 默认 textColor1（正文色）。对齐到次级色，标签与值才有层级差。
+       */
+      Form: {
+        labelTextColor: t.color.textSecondary,
       },
 
       /**

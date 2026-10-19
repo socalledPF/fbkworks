@@ -32,7 +32,7 @@ const emit = defineEmits<{
 
 const adapter = useAdapter()
 const slots: Slots = useSlots()
-const { Form, FormItem, Input, Select, Button } = adapter.primitives
+const { Form, FormItem, Input, Select, Checkbox, Button } = adapter.primitives
 
 const formRef = ref<any>()
 const collapsed = ref(props.defaultCollapsed)
@@ -99,15 +99,18 @@ function renderControl(field: QueryField) {
         'onUpdate:modelValue': update,
       })
     case 'switch':
-      return h('input', {
-        type: 'checkbox',
-        checked: Boolean(value),
-        onChange: (event: Event) => update((event.target as HTMLInputElement).checked),
+    case 'checkbox':
+      /* 走适配器的 Checkbox 原语。原先这里是裸的 <input type="checkbox">，
+         三个适配器下会长出三种样子，等于绕过了适配层。 */
+      return h(Checkbox, {
+        ...common,
+        modelValue: Boolean(value),
+        'onUpdate:modelValue': update,
       })
     case 'custom':
       return null
     default:
-      // date / date-range / radio / checkbox 需要额外原语，首期走 render 逃生舱
+      // date / date-range / radio 需要额外原语，首期走 render 逃生舱
       return h(Input, {
         ...common,
         modelValue: value ?? '',

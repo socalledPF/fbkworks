@@ -119,6 +119,33 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
+  const Checkbox = defineComponent({
+    name: 'MockCheckbox',
+    inheritAttrs: false,
+    props: { modelValue: Boolean, label: String, disabled: Boolean },
+    emits: ['update:modelValue', 'change'],
+    setup(props, { attrs, emit }) {
+      return () =>
+        h(
+          'label',
+          { ...attrs, 'data-fbk-part': 'checkbox', 'data-checked': String(props.modelValue) },
+          [
+            h('input', {
+              type: 'checkbox',
+              disabled: props.disabled,
+              checked: props.modelValue,
+              onChange: (event: Event) => {
+                const next = (event.target as HTMLInputElement).checked
+                emit('update:modelValue', next)
+                emit('change', next)
+              },
+            }),
+            props.label ? h('span', { 'data-fbk-part': 'checkbox-label' }, props.label) : null,
+          ],
+        )
+    },
+  })
+
   const Form = defineComponent({
     name: 'MockForm',
     // 声明 labelWidth / labelPosition 是为了让业务组件测试能断言「传了什么」。
@@ -158,6 +185,7 @@ function createMockPrimitives(): UiPrimitives {
       data: { type: Array as PropType<any[]>, default: () => [] },
       rowKey: { type: [String, Function], default: 'id' },
       selectionEnabled: Boolean,
+      selectionWidth: { type: Number, default: 48 },
       selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
       presentation: { type: String, default: 'auto' },
       loading: Boolean,
@@ -177,6 +205,7 @@ function createMockPrimitives(): UiPrimitives {
             'data-fbk-part': 'data-grid',
             'data-presentation': props.presentation,
             'data-loading': String(props.loading),
+            'data-selection-width': props.selectionEnabled ? String(props.selectionWidth) : undefined,
           },
           props.data.length === 0
             ? h('div', { 'data-fbk-part': 'empty' }, props.emptyText ?? '暂无数据')
@@ -279,7 +308,7 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
-  return { Button, Input, Select, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
+  return { Button, Input, Select, Checkbox, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
 }
 
 export function createMockAdapter(overrides?: DeepPartial<Capabilities>): UiAdapter {

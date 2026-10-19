@@ -12,6 +12,14 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* 字号必须自己声明，不能继承环境。
+     naive 的 NConfigProvider 会在根节点注入 font-size: 14px，
+     element-plus 不注入（沿用 body 的 16px）。同一个组件在两种适配器下
+     就会长出两套字号 —— 表现是行高、内边距、分页尺寸全线错位。
+     组件令牌给出唯一答案，适配器不再影响排版。 */
+  font-size: var(--fbk-pro-table-cell-font-size);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-pro-table-cell-fg);
   background: var(--fbk-pro-table-bg);
   border: 1px solid var(--fbk-pro-table-border-color);
   border-radius: var(--fbk-pro-table-radius);
@@ -63,5 +71,61 @@
 @media (forced-colors: active) {
   .fbk-pro-table {
     box-shadow: none;
+  }
+}
+
+/* ============================================================
+   列级展示外壳：copyable / tooltip
+   由 value-renderer 包在单元格内容外面，适配器不需要知道它们的存在。
+   ============================================================ */
+.fbk-pro-table__copyable {
+  display: inline-flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  max-width: 100%;
+}
+
+/* 默认隐藏，行悬停或键盘聚焦时才出现 —— 常驻会在每行都多出一个按钮，
+   表格会显得比数据本身还吵。 */
+.fbk-pro-table__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
+  color: var(--fbk-color-text-tertiary);
+  cursor: pointer;
+  visibility: hidden;
+  background: none;
+  border: 0;
+  opacity: 0;
+}
+
+.fbk-pro-table__copyable:hover .fbk-pro-table__copy,
+.fbk-pro-table__copy:focus-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.fbk-pro-table__copy:hover {
+  color: var(--fbk-color-primary-text);
+}
+
+.fbk-pro-table__copy:focus-visible {
+  outline: 2px solid var(--fbk-color-primary);
+  outline-offset: 2px;
+}
+
+.fbk-pro-table__tip {
+  text-decoration: underline dotted var(--fbk-color-text-tertiary);
+  text-underline-offset: 2px;
+}
+
+/* 触屏没有 hover，复制按钮必须常驻，否则永远点不到 */
+@media (hover: none) {
+  .fbk-pro-table__copy {
+    visibility: visible;
+    opacity: 1;
   }
 }

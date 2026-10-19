@@ -90,19 +90,41 @@
   width: 100% !important;
 }
 
+/* 表头单元格的内边距必须清掉。
+   element-plus 用 `.el-table--default .el-table__cell { padding: 8px 0 }`
+   把上下撑开，于是设了 height:44px 实际得到 44px 但内容区只有 28px，
+   和 naive 的 44px 行盒对不上（视觉上表头文字偏上）。
+   这里改成 0，让 height 真正等于行盒。 */
+.fbk-pro-table .el-table th.el-table__cell,
+.fbk-pro-table .el-table td.el-table__cell {
+  box-sizing: border-box;
+  padding: 0 var(--fbk-pro-table-cell-padding-x);
+}
+
 .fbk-pro-table .el-table th.el-table__cell {
   height: var(--fbk-pro-table-header-height);
   font-size: var(--fbk-pro-table-header-font-size);
   font-weight: var(--fbk-pro-table-header-font-weight);
   letter-spacing: var(--fbk-pro-table-header-letter-spacing);
+  line-height: var(--fbk-pro-table-header-height);
+  /* 表头下边框用令牌，不用 element-plus 默认的 --el-table-border-color
+     派生值。实测默认值在表头上会变成文字色（rgb(31,35,41)），
+     比 naive 的 rgb(232,234,237) 重得多。 */
+  border-bottom-color: var(--fbk-pro-table-border-color);
 }
 
 .fbk-pro-table .el-table td.el-table__cell {
   height: var(--fbk-pro-table-row-height);
+  line-height: var(--fbk-pro-table-row-height);
 }
 
+/* 单元格内边距必须落在 <td> 上，而不是 .cell 上。
+   element-plus 默认把水平内边距放在 `.el-table .cell { padding: 0 12px }`，
+   naive 放在 `<td>` 上。位置不同导致「单元格宽度」这个属性对不上
+   （element-plus 的 th 报 0，naive 报 16），虽然视觉结果一样。
+   统一放到 td 上，两个适配器的盒模型就一致了。 */
 .fbk-pro-table .el-table .cell {
-  padding: 0 var(--fbk-pro-table-cell-padding-x);
+  padding: 0;
 }
 
 /* 数字列用等宽数字。类名由 el-table-column 的 className 加在 **<td>** 上
@@ -154,6 +176,10 @@
   --el-tag-bg-color: transparent;
   --el-tag-border-color: transparent;
   height: var(--fbk-tag-height);
+  /* 边框改成透明而不是 0：element-plus 的标签高度是 content-box，
+     去掉边框会让它比 naive 矮 2px。保留 1px 透明边，两边的
+     外框尺寸才对得上。 */
+  border: 1px solid transparent;
   padding: 0 var(--fbk-tag-padding-x);
   font-size: var(--fbk-tag-font-size);
   font-weight: var(--fbk-tag-font-weight);
@@ -165,6 +191,36 @@
 .el-tag.el-tag--danger  { --el-tag-text-color: var(--fbk-color-danger-text); }
 .el-tag.el-tag--info    { --el-tag-text-color: var(--fbk-color-info-text); }
 .el-tag.el-tag--primary { --el-tag-text-color: var(--fbk-color-primary-text); }
+
+/* ============================================================
+   按钮间距
+
+   element-plus 给相邻按钮自动加 margin-left: 12px
+   （`.el-button + .el-button`）。当容器已经用 flex gap 排版时，
+   两者会叠加，实测按钮间距变成 20px 而不是 8px。
+   契约里的按钮不携带间距 —— 间距是容器的责任，所以清掉。
+   ============================================================ */
+.el-button + .el-button {
+  margin-left: 0;
+}
+
+/* ============================================================
+   文字按钮
+
+   element-plus 的 text 按钮会继承 type 的色（primary 蓝），
+   naive 的是次级文字色。同一个「返回」按钮在两边一蓝一灰。
+   契约里的 variant='text' 语义是「弱化的次要动作」，
+   统一用次级文字色，hover 时加深。
+   ============================================================ */
+.el-button.is-text {
+  color: var(--fbk-color-text-secondary);
+}
+
+.el-button.is-text:hover,
+.el-button.is-text:focus {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill);
+}
 
 /* ============================================================
    分页
@@ -179,8 +235,12 @@
    ============================================================ */
 .fbk-pro-table .el-pagination {
   --el-text-color-primary: var(--fbk-color-text);
-  --el-text-color-regular: var(--fbk-color-text-secondary);
-  color: var(--fbk-color-text-secondary);
+  --el-text-color-regular: var(--fbk-pro-table-pagination-fg);
+  --el-pagination-font-size: var(--fbk-pro-table-pagination-font-size);
+  --el-pagination-button-height: var(--fbk-pro-table-pagination-item-height);
+  --el-pagination-button-width: var(--fbk-pro-table-pagination-item-height);
+  color: var(--fbk-pro-table-pagination-fg);
+  font-size: var(--fbk-pro-table-pagination-font-size);
 }
 
 .fbk-pro-table .el-pagination .number.is-active {

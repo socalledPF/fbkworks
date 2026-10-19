@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
 const adapter = useAdapter()
 const slots: Slots = useSlots()
-const { Form, FormItem, Input, Select, Button } = adapter.primitives
+const { Form, FormItem, Input, Select, Checkbox, Button } = adapter.primitives
 
 const formRef = ref<any>()
 
@@ -86,6 +86,7 @@ function renderControl(field: FormField) {
   const value = values.value[field.name]
   const update = (next: unknown) => setValue(field.name, next)
   const disabled = isFieldDisabled(field)
+  // disabled 放在 uiProps 之前，让 field.uiProps.disabled 能显式覆盖计算结果
   const common = { disabled, ...(field.uiProps ?? {}) }
 
   if (isView.value) {
@@ -122,11 +123,13 @@ function renderControl(field: FormField) {
         'onUpdate:modelValue': update,
       })
     case 'switch':
-      return h('input', {
-        type: 'checkbox',
-        disabled,
-        checked: Boolean(value),
-        onChange: (event: Event) => update((event.target as HTMLInputElement).checked),
+    case 'checkbox':
+      /* 走适配器的 Checkbox 原语，不用裸 <input>：
+         原先的写法在三个适配器下会长出三种样子，而且丢了 size/label 的对齐。 */
+      return h(Checkbox, {
+        ...common,
+        modelValue: Boolean(value),
+        'onUpdate:modelValue': update,
       })
     default:
       return h(Input, {

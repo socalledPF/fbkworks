@@ -111,4 +111,34 @@ describe('FbkQueryForm', () => {
     await flushPromises()
     expect(wrapper.find('[data-test="custom"]').exists()).toBe(true)
   })
+
+  it('switch 字段走适配器 Checkbox 原语，而不是裸 input', async () => {
+    // 裸 <input type="checkbox"> 会绕过适配层：三个适配器下长得完全不一样。
+    const wrapper = mountWithAdapter(FbkQueryForm, {
+      props: {
+        fields: [{ name: 'onlyMine', label: '只看我的', type: 'switch' as const }],
+        collapsible: false,
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-fbk-part="checkbox"]').exists()).toBe(true)
+    expect(wrapper.find('input[data-fbk-part="checkbox"]').exists()).toBe(false)
+
+    await wrapper.find('[data-fbk-part="checkbox"] input').setValue(true)
+    expect(wrapper.emitted('change')?.at(-1)?.[0]).toEqual(
+      expect.objectContaining({ onlyMine: true }),
+    )
+  })
+
+  it('checkbox 字段同样走原语', async () => {
+    const wrapper = mountWithAdapter(FbkQueryForm, {
+      props: {
+        fields: [{ name: 'archived', label: '含归档', type: 'checkbox' as const }],
+        collapsible: false,
+      },
+    })
+    await flushPromises()
+    expect(wrapper.find('[data-fbk-part="checkbox"]').exists()).toBe(true)
+  })
 })

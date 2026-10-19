@@ -25,6 +25,7 @@ export const DataGrid = defineComponent({
     loading: Boolean,
     presentation: { type: String as PropType<DataGridProps['presentation']>, default: 'auto' },
     selectionEnabled: Boolean,
+    selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
     sort: { type: Object as PropType<SortState | null>, default: null },
     emptyText: String,
@@ -86,6 +87,8 @@ export const DataGrid = defineComponent({
               {props.selectionEnabled ? (
                 <Checkbox
                   class="fbk-vant-grid__check"
+                  /* 卡片没有列宽，selectionWidth 在这里的唯一合理落法是勾选框的点击热区 */
+                  iconSize={Math.min(Math.max(props.selectionWidth - 28, 16), 28)}
                   modelValue={props.selectedKeys.includes(key)}
                   onClick={(event: Event) => event.stopPropagation()}
                   onUpdate:modelValue={(checked: boolean) => toggle(row, index, checked)}

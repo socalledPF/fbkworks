@@ -1,4 +1,4 @@
-import { computed, defineComponent, type PropType } from 'vue'
+import { computed, defineComponent, provide, type PropType } from 'vue'
 import {
   NConfigProvider,
   NDialogProvider,
@@ -12,6 +12,7 @@ import {
 import type { ThemeMode } from '@fbk/adapter-core'
 import type { FbkTokens } from '@fbk/tokens'
 import { naiveProviderProps } from './theme'
+import { PAGINATION_SUFFIX } from './locale-context'
 
 const locales: Record<string, { locale: any; dateLocale: any }> = {
   'zh-CN': { locale: zhCN, dateLocale: dateZhCN },
@@ -44,6 +45,13 @@ export const RootProvider = defineComponent({
     })
 
     const localePack = computed(() => locales[props.locale] ?? locales['zh-CN'])
+
+    /* 跳页组的尾部单位字。element-plus 的跳页是「前往 [1] 页」，
+       naive 只有「跳至 [1]」。这个字属于语言包，不能写死在 CSS 里。 */
+    provide(
+      PAGINATION_SUFFIX,
+      computed(() => (localePack.value.locale.Pagination as any)?.selectionSuffix ?? ''),
+    )
 
     return () => (
       <NConfigProvider

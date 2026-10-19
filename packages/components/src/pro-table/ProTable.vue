@@ -75,6 +75,13 @@ const selectionEnabled = computed(
   () => props.selection !== false && adapter.capabilities.dataGrid.selection,
 )
 
+/** 只在真的渲染选择列时才读，避免 false/{} 两种写法各写一套取值逻辑 */
+const selectionOptions = computed(() => (typeof props.selection === 'object' ? props.selection : {}))
+
+const selectionWidth = computed(() => selectionOptions.value.columnWidth ?? 48)
+/** 默认 true：翻页后保留已选行，这是 ProTable 的既有行为 */
+const preserveOnReload = computed(() => selectionOptions.value.preserveOnReload ?? true)
+
 const columns = computed<ProTableColumn<T>[]>(() =>
   props.columns
     .filter((column) => !column.hideInTable)
@@ -89,6 +96,7 @@ const gridProps = computed(() => ({
   loading: loading.value,
   presentation: props.presentation === 'auto' ? adapter.capabilities.dataGrid.presentation : props.presentation,
   selectionEnabled: selectionEnabled.value,
+  selectionWidth: selectionWidth.value,
   selectedKeys: innerSelected.value,
   sort: innerSort.value,
   emptyText: props.emptyText,
@@ -100,6 +108,24 @@ const gridProps = computed(() => ({
 const showPagination = computed(
   () => props.pagination !== false && !isControlledData.value && !isInfinite.value,
 )
+
+/**
+ * `pagination` 有两种形态（false / 配置对象），原先三处各写一遍
+ * `typeof pagination === 'object' ? ... : 默认值`，改一处就容易漏另一处。
+ * 这里收敛成一个对象，模板只读字段。
+ */
+const paginationOptions = computed(() => {
+  const options = typeof props.pagination === 'object' ? props.pagination : {}
+  return {
+    pageSizes: options.pageSizes,
+    showTotal: options.showTotal ?? true,
+    showJumper: options.showJumper ?? true,
+  }
+})
+
+/** 空对象而不是 undefined：让模板里 v-bind 的写法统一，不必每处写可选链 */
+const toolbarAttrs = computed(() => props.uiProps?.toolbar ?? {})
+const paginationAttrs = computed(() => props.uiProps?.pagination ?? {})
 
 const forwardedCellSlots = computed<string[]>(() =>
   columns.value.map((column) => column.key).filter((key) => Boolean(slots[`cell-${key}`])),
@@ -133,6 +159,8 @@ async function reload(options: { resetPage?: boolean } = {}) {
   emit('refresh')
   if (isControlledData.value) return
   if (isInfinite.value) requestState.finished.value = false
+  // 重新查询后旧行的 key 通常已经不存在了，默认保留；显式关闭时清空
+  if (!preserveOnReload.value) innerSelected.value = []
   await requestState.reload(options)
 }
 
@@ -158,7 +186,7 @@ defineExpose<ProTableExpose<T>>({
   <div class="fbk-pro-table" :class="{ 'fbk-pro-table--cards': adapter.capabilities.dataGrid.presentation === 'cards' }">
     <!-- toolbar 默认 true 只表示「允许工具栏」。没有插槽时不该渲染容器 ——
          虽然 :empty 能兜住，但少一个空节点对可访问性和 DOM 快照都更干净。 -->
-    <div v-if="$slots.toolbar" class="fbk-pro-table__toolbar" v-bind="uiProps?.toolbar">
+    <div v-if="$slots.toolbar" class="fbk-pro-table__toolbar" v-bind="toolbarAttrs">
       <slot name="toolbar" :selected-keys="innerSelected" :reload="reload" />
     </div>
 
@@ -179,15 +207,15 @@ defineExpose<ProTableExpose<T>>({
       </template>
     </component>
 
-    <div v-if="showPagination" class="fbk-pro-table__pagination" v-bind="uiProps?.pagination">
+    <div v-if="showPagination" class="fbk-pro-table__pagination" v-bind="paginationAttrs">
       <component
         :is="Pagination"
         :page="innerPage"
         :page-size="innerPageSize"
         :total="total"
-        :page-sizes="typeof pagination === 'object' ? pagination.pageSizes : undefined"
-        :show-total="typeof pagination === 'object' ? pagination.showTotal : true"
-        :show-jumper="typeof pagination === 'object' ? pagination.showJumper : true"
+        :page-sizes="paginationOptions.pageSizes"
+        :show-total="paginationOptions.showTotal"
+        :show-jumper="paginationOptions.showJumper"
         @update:page="onPage"
         @update:page-size="onPageSize"
       />

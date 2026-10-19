@@ -66,6 +66,12 @@ export interface UiPrimitives {
   Button: Component
   Input: Component
   Select: Component
+  /**
+   * 布尔开关（`switch` / `checkbox` 字段）。
+   * 不提供它的话，业务组件只能渲染原生 `<input type="checkbox">` ——
+   * 那会在三个适配器下长出三种样子，而这正是适配层要消除的。
+   */
+  Checkbox: Component
   Form: Component
   FormItem: Component
   DataGrid: Component
@@ -100,6 +106,7 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
     'Button',
     'Input',
     'Select',
+    'Checkbox',
     'Form',
     'FormItem',
     'DataGrid',

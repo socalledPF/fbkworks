@@ -11,6 +11,8 @@ export { assertAdapterCompatible } from './contracts/adapter'
 export type {
   ButtonProps,
   ButtonVariant,
+  CheckboxEmits,
+  CheckboxProps,
   DialogProps,
   EmptyProps,
   FormExpose,

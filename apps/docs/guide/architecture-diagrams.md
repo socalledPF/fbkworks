@@ -360,7 +360,7 @@ flowchart TB
   end
 
   subgraph conformance["契约测试（核心）"]
-    c1["@fbk/adapter-conformance<br/>14 条断言"]
+    c1["@fbk/adapter-conformance<br/>15 条断言"]
     c2["element-plus"]
     c3["vant"]
     c4["naive-ui"]
@@ -388,7 +388,7 @@ flowchart TB
   semantic --> gates
 ```
 
-三个适配器跑**同一套** 14 条断言，这是"换适配器只改注入"这句话唯一可信的证据。
+三个适配器跑**同一套** 15 条断言，这是"换适配器只改注入"这句话唯一可信的证据。
 
 ## 11. 一次适配器切换发生了什么
 

@@ -46,6 +46,11 @@
 
 .fbk-query-form {
   padding: var(--fbk-query-form-padding);
+  /* 同 ProTable：字号自己声明。naive 的 provider 会注入 14px，
+     element-plus 不注入，不声明就会在两套适配器下差 2px。 */
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
   background: var(--fbk-query-form-bg);
   border: 1px solid var(--fbk-query-form-border-color);
   border-radius: var(--fbk-query-form-radius);
@@ -58,8 +63,31 @@
   align-items: start;
 }
 
+/* 表单条目在栅格里的上下外边距必须归零。
+   element-plus 的 .el-form-item 自带 margin-bottom: 18px，
+   naive 的是 0 —— 两者都让栅格的 gap 去管间距，否则
+   element-plus 侧每行多出 18px，整个表单比 naive 高 20px。
+
+   这里**不能**用 :where() 降特异性：.el-form-item 是 0,1,0，
+   降到 0 就会被它压过，规则看着写了其实不生效。 */
+.fbk-query-form__grid > *,
+.fbk-form-generator__grid > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 控件容器必须是 flex 而不是 block。
+   block 容器里的行内级控件（element-plus 的 .el-input 是 inline-flex）
+   会按行盒对齐，容器高度变成「行高 + 基线间隙」= 33.5px，
+   而 naive 的控件是 block，容器正好 32px。差 1.5px 会传导到整个表单高度。 */
 .fbk-query-form__control {
+  display: flex;
   width: 100%;
+  min-width: 0;
+}
+
+.fbk-query-form__control > * {
+  flex: 1 1 auto;
   min-width: 0;
 }
 

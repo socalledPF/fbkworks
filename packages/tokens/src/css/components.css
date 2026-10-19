@@ -120,6 +120,18 @@
   /* 分页 */
   --fbk-pro-table-pagination-padding: var(--fbk-spacing-md) var(--fbk-spacing-lg);
   --fbk-pro-table-pagination-border-color: var(--fbk-color-border-light);
+  /* 分页控件的高度与字号。两个桌面适配器的分页是两套完全不同的 DOM，
+     能对齐的只有这两项 —— 所以单独抽成令牌，由各自适配器消费。 */
+  --fbk-pro-table-pagination-item-height: 32px;
+  --fbk-pro-table-pagination-font-size: var(--fbk-font-size-md);
+  --fbk-pro-table-pagination-fg: var(--fbk-color-text-secondary);
+  /* 分组间距：总数 / 每页条数 / 翻页组 / 跳页 之间的间隔。
+     element-plus 默认就是 16px（--el-pagination-item-gap），
+     naive 是 8px —— 两边分页块宽度因此差 40px。 */
+  --fbk-pro-table-pagination-gap: var(--fbk-spacing-lg);
+  /* 活动页码加粗。element-plus 用 `font-weight: bold`（700），
+     比 semibold(600) 重一档，页码才在整行里立得住。 */
+  --fbk-pro-table-pagination-active-font-weight: 700;
 
   /* 空态 */
   --fbk-pro-table-empty-fg: var(--fbk-color-text-secondary);
@@ -162,6 +174,11 @@
   --fbk-page-container-max-width: 100%;
   --fbk-page-container-header-gap: var(--fbk-spacing-md);
   --fbk-page-container-header-padding-bottom: var(--fbk-spacing-md);
+  /* 头部内部的竖向节奏。三档而不是一个 gap：
+     返回 → 面包屑 → 标题 是三级信息，等距会让它们看起来同级。 */
+  --fbk-page-container-heading-gap: var(--fbk-spacing-xs);
+  --fbk-page-container-title-row-gap: var(--fbk-spacing-sm);
+  --fbk-page-container-title-line-height: var(--fbk-leading-tight);
   --fbk-page-container-header-border-color: var(--fbk-color-border-light);
   --fbk-page-container-title-size: var(--fbk-font-size-xl);
   --fbk-page-container-title-weight: var(--fbk-font-weight-semibold);
@@ -179,7 +196,9 @@
      Descriptions
      ============================================================ */
   --fbk-descriptions-columns: 2;
-  --fbk-descriptions-label-width: auto;
+  /* 标签列固定宽度，保证同一组描述项的值左边缘对齐。
+     4 个汉字 + 右侧间距 ≈ 72px。窄屏由下面的媒体查询压到 64px。 */
+  --fbk-descriptions-label-width: 72px;
   --fbk-descriptions-size: var(--fbk-font-size-md);
   --fbk-descriptions-size-sm: var(--fbk-fs-12);
   --fbk-descriptions-size-md: var(--fbk-font-size-md);
@@ -191,7 +210,10 @@
   --fbk-descriptions-border-color: var(--fbk-color-border-light);
   --fbk-descriptions-radius: var(--fbk-radius-md);
   --fbk-descriptions-cell-padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
-  --fbk-descriptions-label-bg: var(--fbk-color-fill);
+  /* 表头/标签那一列的底色只用于 bordered 模式，且要比 fill 更淡一档：
+     fill 是 hover 用的，拿来铺一整列会显得脏。 */
+  --fbk-descriptions-label-bg: var(--fbk-color-bg-sunken);
+  --fbk-descriptions-label-font-weight: var(--fbk-font-weight-medium);
 }
 
 /* ============================================================
@@ -289,4 +311,8 @@ html[data-fbk-theme='dark'],
   --fbk-page-container-header-border-color: var(--fbk-color-border);
   --fbk-page-container-footer-border-color: var(--fbk-color-border);
   --fbk-descriptions-border-color: var(--fbk-color-border);
+  /* 标签列底色。浅色下 bg-sunken(#f0f1f2) 比卡片底(#fff)暗，标签退后一层；
+     暗色下 bg-sunken(#131317) 反而比卡片底(#18181c)更暗，会像挖了个洞 ——
+     改用 elevated，和表头同一套处理。 */
+  --fbk-descriptions-label-bg: var(--fbk-color-bg-elevated);
 }

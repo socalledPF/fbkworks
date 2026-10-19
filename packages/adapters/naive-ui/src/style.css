@@ -15,6 +15,21 @@
 }
 
 /* ============================================================
+   表单条目的反馈占位
+
+   naive 的 NFormItem 在控件下面永远渲染一个 n-form-item-feedback-wrapper，
+   即使没有错误信息也占 24px（实测 form-item 高 56px，
+   而 element-plus 只有 33.5px）。两个适配器的表单高度因此差 22px。
+
+   它在没有反馈时是空的 —— 空就不该占位。用 :empty 收起。
+   注意不要用 display:none 直接砍掉：有错误信息时它需要正常出现，
+   :empty 只在真正没有子节点时生效。
+   ============================================================ */
+.n-form-item-feedback-wrapper:empty {
+  display: none;
+}
+
+/* ============================================================
    表格
 
    naive 的 DataTable 同样用 CSS-in-JS，但**表头/单元格的颜色**
@@ -37,17 +52,57 @@
   border-radius: var(--fbk-pro-table-radius) !important;
 }
 
+/* 行高必须用 border-box + line-height 精确控制。
+   naive 的单元格默认上下 12px 内边距 + 1.6 行高，只设 height 时
+   内容会把格子撑高（实测设 44px 得到 45.8px）。
+
+   注意这里用 height 而不是 min-height，并且**不加**边框补偿：
+   naive 的 <td> 自带 1px 下边框，border-box 下 height 已含边框，
+   而 element-plus 的渲染高度同样含边框（都是 44px）。
+   两边一致，不需要 +1px。 */
+.fbk-pro-table .n-data-table-th,
+.fbk-pro-table .n-data-table-td {
+  box-sizing: border-box;
+}
+
+/* naive 的内层 wrapper 自带 1px 四周边框，element-plus 没有 ——
+   表格高度差 2px、行宽窄 2px，下面分页条的 y 坐标也跟着差。
+   外框由组件层 .fbk-pro-table 的 border 负责，内层不再画。
+
+   选择器要写三层：naive 的 CSS-in-JS 是在运行时注入 <head> 的，
+   位置在我们的样式表**之后**。同等特异性下它会赢，
+   所以 `.fbk-pro-table .n-data-table-wrapper` 这种两层写法无效（实测过）。 */
+.fbk-pro-table .n-data-table .n-data-table-wrapper {
+  border: 0;
+}
+
 .fbk-pro-table .n-data-table-th {
   height: var(--fbk-pro-table-header-height) !important;
+  padding: 0 var(--fbk-pro-table-cell-padding-x) !important;
   font-size: var(--fbk-pro-table-header-font-size) !important;
   font-weight: var(--fbk-pro-table-header-font-weight) !important;
   letter-spacing: var(--fbk-pro-table-header-letter-spacing) !important;
+  /* line-height 必须比 height 小 1px：单元格自带 1px 下边框，
+     border-box 下内容盒 = height - 边框，行盒撑到 height 就会溢出 1px。
+     直接写 line-height: 46px 时实测渲染 47px。 */
+  line-height: calc(var(--fbk-pro-table-header-height) - 1px) !important;
 }
 
 .fbk-pro-table .n-data-table-td {
   height: var(--fbk-pro-table-row-height) !important;
   padding: 0 var(--fbk-pro-table-cell-padding-x) !important;
   font-size: var(--fbk-pro-table-cell-font-size) !important;
+  line-height: calc(var(--fbk-pro-table-row-height) - 1px) !important;
+}
+
+/* 表头首尾单元格补圆角，和外层容器一致。
+   element-plus 用同一套令牌做同样的事，两个适配器的表头圆角才对得上。 */
+.fbk-pro-table .n-data-table-thead .n-data-table-tr:first-child .n-data-table-th:first-child {
+  border-top-left-radius: var(--fbk-pro-table-radius);
+}
+
+.fbk-pro-table .n-data-table-thead .n-data-table-tr:first-child .n-data-table-th:last-child {
+  border-top-right-radius: var(--fbk-pro-table-radius);
 }
 
 /* 数值列等宽数字。类名由 DataGrid 按 column.numeric 加上。 */
@@ -66,9 +121,15 @@
 }
 
 /* ============================================================
-   标签尺寸
+   标签
 
-   只能改尺寸。颜色改不了 —— 见文件头与 README 的说明。
+   颜色在 theme.ts 的 themeOverrides 里（NTag 不输出状态 class）。
+   这里只管尺寸与边框。
+
+   边框：naive 默认给非 bordered 标签加 1px 实线描边，实测
+   element-plus 侧是透明的，导致同状态标签宽 2px。
+   令牌没有「标签边框」这个概念 —— 语义上标签就是「浅底 + 深字」，
+   不需要描边，所以这里统一抹掉。
    ============================================================ */
 .n-tag {
   --n-height: var(--fbk-tag-height) !important;
@@ -76,4 +137,193 @@
   --n-border-radius: var(--fbk-tag-radius) !important;
   --n-font-size: var(--fbk-tag-font-size) !important;
   font-weight: var(--fbk-tag-font-weight);
+  border: 1px solid transparent !important;
+}
+
+/* ============================================================
+   文字按钮
+
+   naive 的 text 模式按钮没有 min-height，只剩行高（实测 12px），
+   而 element-plus 的 text 按钮仍是 32px。返回按钮这类「文字按钮
+   承载点击动作」的位置就会一边是 32px 一边是 12px，头部高度差 20px。
+
+   这里给文字按钮补回控件高度。用 min-height 而不是 height：
+   文字换行时仍能自然长高。
+   ============================================================ */
+/* 类名由适配器的 Button.tsx 加上：naive 的 text 模式本身不输出类名。
+   内边距归零 —— element-plus 的 text 按钮 padding 就是 0，
+   naive 默认 12px，两边会差 24px 宽。
+
+   颜色也在这里定：naive 的默认 text 按钮用 textColor2，
+   element-plus 的 text 按钮继承按钮的 type 色（这里是 primary）。
+   返回按钮的语义是「一个动作」，不是「一段灰字」，
+   所以跟 element-plus 走主色，由组件层用 --fbk-color-* 覆盖。 */
+.n-button.fbk-button--text {
+  min-height: var(--fbk-button-height-md);
+  padding: 0;
+  border-radius: var(--fbk-button-radius);
+  color: var(--fbk-color-text-secondary);
+}
+
+.n-button.fbk-button--text:hover,
+.n-button.fbk-button--text:focus {
+  color: var(--fbk-color-text);
+}
+
+/* 圆角在 naive 的文字按钮上是 0，element-plus 是 6px。
+   焦点环会贴着这个圆角，所以必须一致。 */
+.n-button {
+  border-radius: var(--fbk-button-radius);
+}
+
+/* 按钮宽度对齐。
+   element-plus 的按钮有 1px 实体边框（计入 border-box 宽度），
+   naive 的边框画在伪元素上、不占布局 —— 同文案同内边距下
+   宽度差 2px（实测 60 vs 58）。
+
+   基准取 theme.ts 里 Button.paddingMedium 的 15px，不是
+   --fbk-button-padding-x-md（12px）—— 后者是契约档位，
+   naive 实际用的内边距是 15px，按 12px 补会把按钮压窄。 */
+.n-button:not(.fbk-button--text) {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* ============================================================
+   分页
+
+   naive 的 NPagination 与 element-plus 的分页是两套完全不同的 DOM，
+   默认外观差异很大 —— 不是「差几个像素」，是能一眼看出来的：
+
+   ┌──────────────┬──────────────────────┬──────────────────────┐
+   │              │ element-plus         │ naive（默认）        │
+   ├──────────────┼──────────────────────┼──────────────────────┤
+   │ 页码描边      │ 无                   │ 活动页 1px 主色描边   │
+   │ 活动页底色    │ 透明                 │ 主色浅底             │
+   │ 活动页字重    │ 700                  │ 400                  │
+   │ 页码文字色    │ 正文色               │ 次级色               │
+   │ 分组间距      │ 16px                 │ 8px                  │
+   │ 每页条数/跳页 │ 32px 高              │ 28px 高（small 档）   │
+   └──────────────┴──────────────────────┴──────────────────────┘
+
+   下面按这六项逐条对齐。全部走 --n-* 变量，不用 !important 堆选择器。
+   ============================================================ */
+.fbk-pro-table .n-pagination {
+  --n-item-size: var(--fbk-pro-table-pagination-item-height) !important;
+  --n-item-font-size: var(--fbk-pro-table-pagination-font-size) !important;
+  --n-jumper-font-size: var(--fbk-pro-table-pagination-font-size) !important;
+  --n-item-border-radius: var(--fbk-radius-sm) !important;
+
+  /* 文字色：element-plus 的普通页码用正文色，不是次级色。
+     次级色留给「共 N 条」这类说明文字。 */
+  --n-item-text-color: var(--fbk-color-text) !important;
+  --n-item-text-color-hover: var(--fbk-color-primary-text) !important;
+  --n-item-text-color-active: var(--fbk-color-primary-text) !important;
+  --n-item-text-color-disabled: var(--fbk-color-text-disabled) !important;
+
+  /* 活动页：element-plus 只有文字变色 + 加粗，没有底色也没有描边。
+     保留 1px 透明边是为了盒模型一致（naive 的 item 是 border-box）。 */
+  --n-item-color-active: transparent !important;
+  --n-item-color-active-hover: transparent !important;
+  --n-item-border-active: 1px solid transparent !important;
+
+  /* 普通页 / 翻页按钮：同样不能有描边和底色。 */
+  --n-item-border: 1px solid transparent !important;
+  --n-item-border-hover: 1px solid transparent !important;
+  --n-item-border-pressed: 1px solid transparent !important;
+  --n-button-border: 1px solid transparent !important;
+  --n-button-border-hover: 1px solid transparent !important;
+  --n-button-border-pressed: 1px solid transparent !important;
+  --n-button-color: transparent !important;
+  --n-button-color-hover: transparent !important;
+  --n-button-color-pressed: transparent !important;
+  --n-button-icon-color: var(--fbk-color-text) !important;
+  --n-button-icon-color-hover: var(--fbk-color-primary-text) !important;
+  --n-button-icon-color-pressed: var(--fbk-color-primary-text) !important;
+
+  /* 禁用态：element-plus 只把文字调灰，底色仍是白、无描边。 */
+  --n-item-color-disabled: transparent !important;
+  --n-item-border-disabled: 1px solid transparent !important;
+
+  /* 分组间距。element-plus 的规则是「翻页组内部 0，组与组之间 16px」，
+     naive 则给每个非首子元素统一 8px。先统一归零，再按组补。 */
+  --n-item-margin: 0 !important;
+
+  /* 跳页输入框宽度：element-plus 是 56px，naive 是 60px。
+     4px 的差会一路传导到「共 N 条」的左边缘。 */
+  --n-input-width: 56px !important;
+
+  /* 翻页箭头图标：element-plus 是 12px 的细箭头，naive 是 16px。
+     16px 的箭头在 32px 的按钮里显得笨重，也让翻页组看起来更宽。 */
+  --n-button-icon-size: 12px !important;
+
+  font-size: var(--fbk-pro-table-pagination-font-size);
+  color: var(--fbk-pro-table-pagination-fg);
+}
+
+/* 活动页加粗，和 element-plus 的 `font-weight: bold` 一致。
+   只靠颜色区分时，当前页在三个数字里并不显眼。 */
+.fbk-pro-table .n-pagination .n-pagination-item--active {
+  font-weight: var(--fbk-pro-table-pagination-active-font-weight);
+}
+
+/* 组间间距：每页条数 → 翻页组、翻页组 → 跳页。
+   这两条要写在 --n-item-margin 归零之后，特异性也要够
+   （naive 的规则是 `.n-pagination > *:not(:first-child)` = 0,2,0）。 */
+.fbk-pro-table .n-pagination > .n-select + .n-pagination-item,
+.fbk-pro-table .n-pagination > .n-pagination-quick-jumper {
+  margin-left: var(--fbk-pro-table-pagination-gap);
+}
+
+/* 每页条数下拉的宽度。
+   element-plus 的 sizes 选择器是固定 128px，naive 的是内容宽（实测 87px）。
+   分页块右对齐，宽度差会一路传导到左边，两个适配器的分页起点相差 40px。 */
+.fbk-pro-table .n-pagination .n-select {
+  width: 128px;
+}
+
+/* 每页条数下拉与跳页输入框的高度。
+
+   naive 把这两个控件降了一档尺寸（`smallerSize(medium)` → small = 28px），
+   element-plus 是 32px。分页条里两个控件比页码矮 4px，看着像没对齐。
+
+   --n-height 是行内变量，样式表里必须 !important 才能赢。
+   naive 的内边距由 `calc((var(--n-height) - 1.5 * var(--n-font-size)) / 2)`
+   推导，所以改这一个变量，内边距会跟着重算。 */
+.fbk-pro-table .n-pagination .n-select .n-base-selection,
+.fbk-pro-table .n-pagination .n-pagination-quick-jumper .n-input {
+  --n-height: var(--fbk-pro-table-pagination-item-height) !important;
+}
+
+/* 跳页组尾部的单位字（「页」/「page」）。
+   由 Pagination.tsx 通过 NPagination 的 suffix 槽渲染，跟随 locale。
+   naive 默认给 suffix 8px 左边距，和 element-plus 的间距一致，
+   这里只需要对齐文字样式。 */
+.fbk-pagination__suffix {
+  /* element-plus 的单位字离输入框 8px（.el-pagination__classifier 的
+     margin-left）。naive 的 suffix 槽默认紧贴，要补回来。 */
+  margin-left: var(--fbk-spacing-sm);
+  font-size: var(--fbk-pro-table-pagination-font-size);
+  color: var(--fbk-pro-table-pagination-fg);
+  white-space: nowrap;
+}
+
+/* 总数文案由适配器的 Pagination.tsx 补渲染（naive 没有等价能力）。
+   和 NPagination 排在同一行，右对齐由外层 .fbk-pro-table__pagination 管。 */
+.fbk-pagination {
+  display: flex;
+  gap: var(--fbk-pro-table-pagination-gap);
+  align-items: center;
+  margin-left: auto;
+  /* 容器也要声明颜色：element-plus 的分页根元素是 textSecondary，
+     naive 的根元素继承正文色。只在 .__total 上设色的话，
+     两个容器的计算色不一致，下游做颜色断言或主题覆盖时会踩到。 */
+  font-size: var(--fbk-pro-table-pagination-font-size);
+  color: var(--fbk-pro-table-pagination-fg);
+}
+
+.fbk-pagination__total {
+  font-size: var(--fbk-pro-table-pagination-font-size);
+  color: var(--fbk-pro-table-pagination-fg);
+  white-space: nowrap;
 }

@@ -39,7 +39,12 @@ export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<
   hideInTable?: boolean
   hideInCard?: boolean
   search?: boolean
+  /** 悬停时以原生 tooltip 展示的说明。与 `render` 并存时，说明包在渲染结果外面。 */
   tooltip?: string
+  /**
+   * 单元格内容可复制：悬停显示复制按钮，点击写入剪贴板。
+   * 只在列有 render（valueType 或自定义）时生效；纯文本列想复制请显式写 render。
+   */
   copyable?: boolean
 }
 

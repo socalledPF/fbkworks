@@ -14,6 +14,10 @@ export const demos: Record<string, DemoEntry> = {
     title: '基础表格',
     component: defineAsyncComponent(() => import('./pro-table/basic.vue')),
   },
+  'pro-table/with-query': {
+    title: '查询表单 + 表格联动',
+    component: defineAsyncComponent(() => import('./pro-table/with-query.vue')),
+  },
   'pro-table/selection': {
     title: '多选与批量操作',
     component: defineAsyncComponent(() => import('./pro-table/selection.vue')),
