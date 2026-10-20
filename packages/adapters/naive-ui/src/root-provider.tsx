@@ -36,10 +36,17 @@ export const RootProvider = defineComponent({
   },
   setup(props, { slots }) {
     const config = computed(() => {
-      const resolved = props.mode === 'dark' ? 'dark' : 'light'
-      if (props.tokens) return naiveProviderProps(resolved, props.tokens)
+      // 不要把 mode 提前降级成 dark/light —— cyber 需要它自己的色板，
+      // 只有 naiveProviderProps 内部知道 cyber 该用哪套 themeOverrides。
+      // 早期这里写了 `props.mode === 'dark' ? 'dark' : 'light'`，
+      // 结果 cyber 被当成 light，主按钮保持默认蓝（实测 rgb(47,107,255)）。
+      if (props.tokens) {
+        const { theme, themeOverrides } = naiveProviderProps(props.mode, props.tokens)
+        // naiveProviderProps 返回的是 'dark' | 'light' 字符串，这里换成真正的 theme 对象
+        return { theme: theme === 'dark' ? darkTheme : null, themeOverrides }
+      }
       return {
-        theme: resolved === 'dark' ? darkTheme : null,
+        theme: props.mode === 'light' ? null : darkTheme,
         themeOverrides: props.themeOverrides,
       }
     })
@@ -55,7 +62,7 @@ export const RootProvider = defineComponent({
 
     return () => (
       <NConfigProvider
-        theme={config.value.theme === 'dark' ? darkTheme : null}
+        theme={config.value.theme ?? null}
         themeOverrides={config.value.themeOverrides}
         locale={localePack.value.locale}
         dateLocale={localePack.value.dateLocale}

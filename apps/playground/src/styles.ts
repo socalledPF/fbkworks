@@ -1,5 +1,7 @@
 import '@fbk/tokens/css'
 import '@fbk/tokens/dark.css'
+// 未来科技风预设：与 dark.css 同层，只覆盖语义令牌
+import '@fbk/tokens/cyber.css'
 import 'element-plus/dist/index.css'
 import '@fbk/adapter-element-plus/style.css'
 import '@fbk/adapter-element-plus/dark.css'

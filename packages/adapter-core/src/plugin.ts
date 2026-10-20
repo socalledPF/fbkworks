@@ -28,7 +28,14 @@ export interface BusinessKitOptions {
   components?: Array<{ name: string; component: Component }>
 }
 
-function resolveTheme(mode: ThemeMode): 'light' | 'dark' {
+/**
+ * 把 `system` 解析成具体的明暗档位。
+ *
+ * 注意 `cyber` 会被**原样保留**，不降级成 dark —— 它需要写成
+ * `data-fbk-theme="cyber"` 才能命中 cyber.css 的选择器。
+ * 需要明暗布尔值的适配器自己用 `THEME_IS_DARK` 判断。
+ */
+function resolveTheme(mode: ThemeMode): Exclude<ThemeMode, 'system'> {
   if (mode !== 'system') return mode
   if (typeof window === 'undefined' || !window.matchMedia) return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

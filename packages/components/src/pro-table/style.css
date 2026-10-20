@@ -129,3 +129,125 @@
     opacity: 1;
   }
 }
+
+/* ============================================================
+   批量选择条 + 操作栏
+   ============================================================ */
+.fbk-pro-table__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  padding: var(--fbk-pro-table-toolbar-padding);
+  border-bottom: 1px solid var(--fbk-pro-table-toolbar-border-color);
+}
+
+.fbk-pro-table__select-all {
+  display: inline-flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+}
+
+.fbk-pro-table__select-all input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--fbk-color-primary);
+  cursor: pointer;
+}
+
+.fbk-pro-table__selected-count {
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-primary-text);
+}
+
+/* 操作列：按钮组横排，超出的折叠进「更多」 */
+.fbk-pro-table__actions {
+  display: inline-flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  white-space: nowrap;
+}
+
+.fbk-pro-table__action {
+  padding: 0;
+  font: inherit;
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-primary-text);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.fbk-pro-table__action:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.fbk-pro-table__action:focus-visible {
+  outline: 2px solid var(--fbk-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-pro-table__action:disabled {
+  color: var(--fbk-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.fbk-pro-table__action--danger {
+  color: var(--fbk-color-danger-text);
+}
+
+.fbk-pro-table__action--warning {
+  color: var(--fbk-color-warning-text);
+}
+
+.fbk-pro-table__action--success {
+  color: var(--fbk-color-success-text);
+}
+
+.fbk-pro-table__action--default {
+  color: var(--fbk-color-text-secondary);
+}
+
+/* 「更多」用 <details>，不引入额外弹层依赖；键盘可达性由浏览器保证 */
+.fbk-pro-table__actions-more {
+  position: relative;
+  display: inline-block;
+}
+
+.fbk-pro-table__actions-more > summary {
+  list-style: none;
+}
+
+.fbk-pro-table__actions-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.fbk-pro-table__actions-more > summary::after {
+  content: ' ▾';
+}
+
+.fbk-pro-table__actions-menu {
+  position: absolute;
+  top: calc(100% + var(--fbk-spacing-xs));
+  right: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-sm);
+  min-width: 96px;
+  padding: var(--fbk-spacing-sm);
+  background: var(--fbk-color-bg-elevated);
+  border: 1px solid var(--fbk-color-border-light);
+  border-radius: var(--fbk-radius-md);
+  box-shadow: var(--fbk-shadow-md);
+}
+
+/* 卡片模式：卡片本身已有下边框分层，批量条不再重复画线 */
+.fbk-pro-table__bulk--cards {
+  border-bottom: 0;
+}

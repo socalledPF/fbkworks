@@ -279,6 +279,65 @@ export const darkColorOverrides: Partial<FbkTokens['color']> = {
   focusRing: '#7ba3ff',
 }
 
+/**
+ * 未来科技风（cyber）覆盖。
+ *
+ * 与 cyber.css 里的值**必须保持一致** —— 两处重复是刻意的：
+ *   · cyber.css 供纯 CSS 消费者（只引样式、不走 JS 主题桥）；
+ *   · 这份 TS 对象供适配器把色值注入 UI 库自己的变量
+ *     （element-plus 的 --el-color-primary、naive 的 primaryColor）。
+ * 只写 CSS 的话，element-plus 的主按钮仍然读它自己的 --el-color-primary，
+ * 结果就是「表格是青色主题、按钮还是蓝色」—— 实测过这个割裂。
+ *
+ * 一致性由 packages/tokens/tests/cyber.spec.ts 断言（逐字段比对 CSS 与 TS）。
+ */
+export const cyberColorOverrides: Partial<FbkTokens['color']> = {
+  primary: '#22d3ee',
+  primaryHover: '#67e8f9',
+  primaryActive: '#06b6d4',
+  primaryText: '#67e8f9',
+  primaryBg: '#0a2330',
+  primaryBgHover: '#0e2f40',
+  primaryBorder: '#155e75',
+  onPrimary: '#041016',
+  primaryFillHover: '#67e8f9',
+  primaryFillActive: '#a5f3fc',
+
+  success: '#34d399',
+  warning: '#fbbf24',
+  danger: '#f87171',
+  info: '#38bdf8',
+  successText: '#34d399',
+  warningText: '#fbbf24',
+  dangerText: '#f87171',
+  infoText: '#38bdf8',
+  successBg: '#08231b',
+  warningBg: '#241a05',
+  dangerBg: '#2a0f12',
+  infoBg: '#08202e',
+
+  text: '#e6f7fb',
+  textSecondary: '#94b8c4',
+  textTertiary: '#6b8b98',
+  textDisabled: '#4a6570',
+  textInverse: '#041016',
+
+  bg: '#070b14',
+  bgContainer: '#0c1420',
+  bgElevated: '#111c2b',
+  bgSunken: '#050910',
+  overlay: 'rgba(2, 6, 12, 0.72)',
+
+  border: '#1b3040',
+  borderLight: '#142433',
+  borderStrong: '#2a4a5e',
+
+  fill: '#101b28',
+  fillHover: '#162435',
+
+  focusRing: '#67e8f9',
+}
+
 /** camelCase → kebab-case：primaryHover → primary-hover */
 const kebab = (key: string) => key.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 

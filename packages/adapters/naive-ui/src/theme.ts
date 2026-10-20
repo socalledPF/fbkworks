@@ -1,13 +1,27 @@
-import type { ThemeBridge } from '@fbk/adapter-core'
-import { darkColorOverrides } from '@fbk/tokens'
+import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
+import { THEME_IS_DARK } from '@fbk/adapter-core'
+import { cyberColorOverrides, darkColorOverrides } from '@fbk/tokens'
 import type { FbkTokens } from '@fbk/tokens'
 
 /**
  * 按模式取令牌。naive 的暗色走 theme="dark"，但 themeOverrides 里的颜色
  * 必须也跟着换 —— 否则 override 会把 naive 自己的暗色值盖回浅色。
+ *
+ * cyber 归到 dark 处理：naive 只认识 light / dark 两个 theme，
+ * 它没有「风格」这个概念。cyber 的青色主色通过 themeOverrides 里的
+ * primaryColor 系列注入，底色则继续由 cyber.css 的 CSS 变量承担
+ * （naive 的 DataTable/Tag 走 themeOverrides，其余 fbk-* 元素走 CSS 变量）。
  */
-function resolveTokens(mode: 'light' | 'dark', tokens: FbkTokens): FbkTokens {
-  if (mode !== 'dark') return tokens
+function isDark(mode: ThemeMode): boolean {
+  return mode === 'system' ? false : THEME_IS_DARK[mode]
+}
+
+function resolveTokens(mode: ThemeMode, tokens: FbkTokens): FbkTokens {
+  // cyber 有自己的青色色板；不注入的话 naive 的按钮/表格仍是默认蓝
+  if (mode === 'cyber') {
+    return { ...tokens, color: { ...tokens.color, ...cyberColorOverrides } }
+  }
+  if (!isDark(mode)) return tokens
   return { ...tokens, color: { ...tokens.color, ...darkColorOverrides } }
 }
 
@@ -15,11 +29,11 @@ function resolveTokens(mode: 'light' | 'dark', tokens: FbkTokens): FbkTokens {
  * naive-ui 没有 CSS 变量，主题必须通过 NConfigProvider 的 theme + themeOverrides。
  * 因此 providerProps 是必需的；只调用 apply() 不会让暗色生效。
  */
-export function naiveProviderProps(mode: 'light' | 'dark', tokens: FbkTokens) {
+export function naiveProviderProps(mode: ThemeMode, tokens: FbkTokens) {
   const t = resolveTokens(mode, tokens)
 
   return {
-    theme: mode === 'dark' ? 'dark' : 'light',
+    theme: isDark(mode) ? 'dark' : 'light',
     themeOverrides: {
       common: {
         primaryColor: t.color.primary,
@@ -128,5 +142,5 @@ export const naiveTheme: ThemeBridge = {
     if (typeof document === 'undefined') return
     document.documentElement.setAttribute('data-fbk-theme', mode)
   },
-  providerProps: (mode, tokens) => naiveProviderProps(mode === 'dark' ? 'dark' : 'light', tokens),
+  providerProps: (mode, tokens) => naiveProviderProps(mode, tokens),
 }

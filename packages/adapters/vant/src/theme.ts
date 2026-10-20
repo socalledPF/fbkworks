@@ -1,4 +1,5 @@
-import type { ThemeBridge } from '@fbk/adapter-core'
+import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
+import { THEME_IS_DARK } from '@fbk/adapter-core'
 import type { FbkTokens } from '@fbk/tokens'
 
 function toVantVars(tokens: FbkTokens): Record<string, string> {
@@ -31,6 +32,8 @@ export const vantTheme: ThemeBridge = {
     }
   },
   providerProps(mode) {
-    return { theme: mode === 'dark' ? 'dark' : 'light' }
+    // cyber 是暗底主题，vant 只认 light / dark，按暗色处理
+    const dark = mode === 'system' ? false : THEME_IS_DARK[mode as Exclude<ThemeMode, 'system'>]
+    return { theme: dark ? 'dark' : 'light' }
   },
 }

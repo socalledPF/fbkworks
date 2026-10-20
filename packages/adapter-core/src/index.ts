@@ -40,6 +40,7 @@ export type {
 
 export type { FbkRule, FormRules } from './contracts/form'
 export type { ThemeBridge, ThemeMode } from './contracts/theme'
+export { THEME_IS_DARK } from './contracts/theme'
 
 export { ADAPTER_CONTEXT, useAdapter, useAdapterCapabilities, useAdapterContext, useFbkTheme } from './context'
 export type { AdapterContext } from './context'

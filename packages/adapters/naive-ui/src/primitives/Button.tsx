@@ -37,7 +37,7 @@ export const Button = defineComponent({
            样式层因此没法用 .n-button--text 选中它，文字按钮只剩行高
            （实测 12px vs element-plus 的 32px）。
            这里补一个自己的标记类，由 style.css 补回控件高度。 */
-        class={text.value ? 'fbk-button--text' : undefined}
+        class={[text.value ? 'fbk-button--text' : null, attrs.class]}
         type={type.value}
         size={size.value}
         disabled={props.disabled}

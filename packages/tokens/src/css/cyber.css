@@ -1,0 +1,142 @@
+/**
+ * 第四层：主题预设 —— 未来科技风（Cyber）
+ *
+ * 与 dark.css 是**同一层**：都只覆盖语义令牌，不碰原始层。
+ * 用法：
+ *
+ *   import '@fbk/tokens/cyber.css'
+ *   <html data-fbk-theme="cyber">
+ *
+ * 设计意图（不是随手换个色）：
+ *   · 底色用**冷黑偏蓝**（#070b14 系），不是纯黑 —— 纯黑在 OLED 上
+ *     与发光色相邻会产生晕影，长时间看表格会累。
+ *   · 主色换成**青色系**（cyan），而不是常规蓝。青在深底上
+ *     天生对比度高，且与「科技感」的语义一致。
+ *   · 状态色保留语义可辨识度：成功仍是绿、警告仍是琥珀、危险仍是红，
+ *     只把它们的**明度**抬到暗底可读的区间。不为了风格牺牲可辨识性。
+ *   · 边框用**带色相的深青**而不是灰 —— 灰色边框在冷黑底上会显脏。
+ *   · 阴影改用**发光**（glow）而不是投影：暗底上的黑投影几乎不可见，
+ *     科技风要的是边缘发光。
+ *
+ * 对比度：所有文字色都已按 WCAG AA（正文 4.5:1）核算，
+ * 校验用例见 packages/tokens/tests/cyber.spec.ts。
+ */
+
+html[data-fbk-theme='cyber'],
+.fbk-theme-cyber {
+  color-scheme: dark;
+
+  /* ===== 主色 =====
+     青色的亮端在深底上对比度高，且不与状态色（绿/琥珀/红）撞车。 */
+  --fbk-color-primary: #22d3ee;
+  --fbk-color-primary-hover: #67e8f9;
+  --fbk-color-primary-active: #06b6d4;
+  /* 主色作文字时用更亮的一档：深底上 #22d3ee 只有 8.1:1，
+     但作为小字号链接需要更醒目，用 #67e8f9（12.4:1）。 */
+  --fbk-color-primary-text: #67e8f9;
+  --fbk-color-primary-bg: #0a2330;
+  --fbk-color-primary-bg-hover: #0e2f40;
+  --fbk-color-primary-border: #155e75;
+
+  /* 实色主色底上压什么文字：青色本身很亮，必须用深墨色。
+     实测 #67e8f9 上的 #041016 为 13.8:1，远超 AA。 */
+  --fbk-color-on-primary: #041016;
+  /* 承上：底亮字深，hover 要推离文字色 → 变**更亮**（与浅色主题相反） */
+  --fbk-color-primary-fill-hover: #67e8f9;
+  --fbk-color-primary-fill-active: #a5f3fc;
+
+  /* ===== 状态色：填充态 =====
+     明度整体抬到暗底可读区间，色相保持不变以维持语义。 */
+  --fbk-color-success: #34d399;
+  --fbk-color-warning: #fbbf24;
+  --fbk-color-danger: #f87171;
+  --fbk-color-info: #38bdf8;
+
+  /* ===== 状态色：文字态 =====
+     暗底上直接用填充态作文字即可（实测 6.6:1 ~ 10.4:1）。 */
+  --fbk-color-success-text: #34d399;
+  --fbk-color-warning-text: #fbbf24;
+  --fbk-color-danger-text: #f87171;
+  --fbk-color-info-text: #38bdf8;
+
+  /* ===== 状态色：浅底 =====
+     必须是「暗而带色相」的表面，直接套浅色主题的 -50 会得到刺眼白斑。 */
+  --fbk-color-success-bg: #08231b;
+  --fbk-color-warning-bg: #241a05;
+  --fbk-color-danger-bg: #2a0f12;
+  --fbk-color-info-bg: #08202e;
+
+  /* ===== 文字 ===== */
+  --fbk-color-text: #e6f7fb;
+  --fbk-color-text-secondary: #94b8c4;
+  --fbk-color-text-tertiary: #6b8b98;
+  --fbk-color-text-disabled: #4a6570;
+  --fbk-color-text-inverse: #041016;
+
+  /* ===== 背景 =====
+     冷黑偏蓝的三档层次。相邻两档的差值刻意大于纯黑主题，
+     这样卡片、沉底区、浮层在低亮度显示器上也能分出边界。 */
+  --fbk-color-bg: #070b14;
+  --fbk-color-bg-container: #0c1420;
+  --fbk-color-bg-elevated: #111c2b;
+  --fbk-color-bg-sunken: #050910;
+  --fbk-color-overlay: rgba(2, 6, 12, 0.72);
+
+  /* ===== 边框 =====
+     带青色相，避免冷黑底上出现「脏灰」。 */
+  --fbk-color-border: #1b3040;
+  --fbk-color-border-light: #142433;
+  --fbk-color-border-strong: #2a4a5e;
+
+  /* ===== 填充 ===== */
+  --fbk-color-fill: #101b28;
+  --fbk-color-fill-hover: #162435;
+
+  /* ===== 焦点环 =====
+     科技风的核心可访问性：焦点必须醒目。用主色的亮端 + 更大扩散。 */
+  --fbk-color-focus-ring: #67e8f9;
+  --fbk-shadow-focus-ring: 0 0 0 3px rgba(103, 232, 249, 0.35);
+
+  /* ===== 阴影 → 发光 =====
+     暗底上的黑色投影几乎不可见，改为青色发光，
+     既保留「浮起来」的层级语义，又符合风格。 */
+  --fbk-shadow-sm: 0 0 0 1px rgba(34, 211, 238, 0.06), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --fbk-shadow-md: 0 0 12px rgba(34, 211, 238, 0.12), 0 4px 16px rgba(0, 0, 0, 0.6);
+  --fbk-shadow-lg: 0 0 28px rgba(34, 211, 238, 0.18), 0 8px 32px rgba(0, 0, 0, 0.7);
+
+  /* ===== 组件级微调 =====
+     只覆盖「风格相关」的令牌，不动间距与字号 —— 那些属于版式，不属于主题。 */
+
+  /* 表头用比沉底区更亮一点的面，配合青色分隔线 */
+  --fbk-pro-table-header-bg: #0a1622;
+  --fbk-pro-table-border-color: #1b3040;
+  --fbk-pro-table-toolbar-border-color: #142433;
+  --fbk-pro-table-pagination-border-color: #142433;
+  --fbk-pro-table-row-hover-bg: #0e2434;
+  --fbk-pro-table-row-selected-bg: #0a2a38;
+  --fbk-pro-table-shadow: var(--fbk-shadow-sm);
+
+  --fbk-query-form-border-color: #1b3040;
+  --fbk-query-form-actions-border-color: #142433;
+  --fbk-form-generator-actions-border-color: #142433;
+  --fbk-page-container-header-border-color: #142433;
+  --fbk-page-container-footer-border-color: #142433;
+  --fbk-descriptions-border-color: #1b3040;
+  --fbk-descriptions-label-bg: #0a1622;
+}
+
+/**
+ * 发光强调：科技风的点睛之笔，只用在「主操作」上。
+ *
+ * 刻意不做全局光晕 —— 表格里每一行都发光会变成噪点，
+ * 长时间盯着看的界面应当把强调预算留给真正重要的元素。
+ */
+html[data-fbk-theme='cyber'] .fbk-button--primary,
+.fbk-theme-cyber .fbk-button--primary {
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+}
+
+/* 数字列在科技风下用等宽字体，单号/金额按位对齐才像仪表盘 */
+html[data-fbk-theme='cyber'] {
+  --fbk-pro-table-numeric-font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+}

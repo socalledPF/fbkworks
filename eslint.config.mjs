@@ -240,6 +240,15 @@ export default tseslint.config(
     },
   },
 
+  // 桌面端一致性对照测试：职责就是同时 import 两个桌面适配器做比对，
+  // 这不是「业务组件依赖具体适配器」，而是测试本身的意义所在。
+  {
+    files: ['packages/internal/adapter-conformance/tests/desktop-parity.spec.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+
   // 配置文件与脚本
   // 脚本目录写成 **/scripts/**：包内也会有 scripts/（如 apps/docs/scripts/），
   // 只写 scripts/** 在 flat config 里只匹配仓库根目录那一层，包内的脚本会被漏掉。

@@ -1,9 +1,10 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, useSlots, watch } from 'vue'
+import { computed, ref, useSlots, watch, watchEffect } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter, useFbkTheme } from '@fbk/adapter-core'
 import type { SortState } from '@fbk/adapter-core'
-import type { Key } from '@fbk/shared'
+import type { Key, RowKeyGetter } from '@fbk/shared'
+import { getRowKey } from '@fbk/shared'
 import type { ProTableColumn, ProTableExpose, ProTableProps } from './types'
 import { useTableRequest } from './use-table-request'
 import { resolveColumnRenderer } from './value-renderer'
@@ -144,6 +145,37 @@ function onSelectedKeys(keys: Key[]) {
   emit('update:selectedKeys', keys)
 }
 
+/* ------------------------------------------------------------------
+   表头全选
+   适配器的选择列只能勾单行，表头那个「全选」框由 ProTable 自己渲染，
+   这样才能同时兼容三种适配器（vant 的卡片列表根本没有表头）。
+   ------------------------------------------------------------------ */
+
+const rowKeys = computed<Key[]>(() =>
+  rows.value.map((row, index) => getRowKey(row, index, props.rowKey as RowKeyGetter<T>)),
+)
+
+const allSelected = computed(
+  () => rowKeys.value.length > 0 && rowKeys.value.every((key) => innerSelected.value.includes(key)),
+)
+
+const someSelected = computed(
+  () => !allSelected.value && rowKeys.value.some((key) => innerSelected.value.includes(key)),
+)
+
+/** indeterminate 只能通过 DOM 属性设置 */
+const selectAllRef = ref<HTMLInputElement>()
+watchEffect(() => {
+  if (selectAllRef.value) selectAllRef.value.indeterminate = someSelected.value
+})
+
+function toggleSelectAll(checked: boolean) {
+  const current = new Set(innerSelected.value)
+  if (checked) rowKeys.value.forEach((key) => current.add(key))
+  else rowKeys.value.forEach((key) => current.delete(key))
+  onSelectedKeys([...current])
+}
+
 function onSort(sort: SortState | null) {
   innerSort.value = sort
   emit('update:sort', sort)
@@ -192,6 +224,30 @@ defineExpose<ProTableExpose<T>>({
 
 <template>
   <div class="fbk-pro-table" :class="{ 'fbk-pro-table--cards': adapter.capabilities.dataGrid.presentation === 'cards' }">
+    <!-- 表头全选。只有渲染了选择列、且有数据时才出现；
+         卡片模式（vant）没有表头，放在工具栏里反而更自然。 -->
+    <div
+      v-if="selectionEnabled && rowKeys.length > 0"
+      class="fbk-pro-table__bulk"
+      :class="{ 'fbk-pro-table__bulk--cards': adapter.capabilities.dataGrid.presentation === 'cards' }"
+    >
+      <label class="fbk-pro-table__select-all">
+        <!-- indeterminate 是 DOM 属性不是 HTML attribute，:indeterminate 绑定不会生效，
+             必须用 ref 手动写。否则「部分选中」显示成未选中，用户会误以为没选。 -->
+        <input
+          ref="selectAllRef"
+          type="checkbox"
+          :checked="allSelected"
+          @change="toggleSelectAll(($event.target as HTMLInputElement).checked)"
+        />
+        <span>全选当前页</span>
+      </label>
+      <span v-if="innerSelected.length" class="fbk-pro-table__selected-count">
+        已选 {{ innerSelected.length }} 项
+      </span>
+      <slot name="bulk-actions" :selected-keys="innerSelected" :clear="clearSelection" />
+    </div>
+
     <!-- toolbar 默认 true 只表示「允许工具栏」。没有插槽时不该渲染容器 ——
          虽然 :empty 能兜住，但少一个空节点对可访问性和 DOM 快照都更干净。 -->
     <div v-if="$slots.toolbar" class="fbk-pro-table__toolbar" v-bind="toolbarAttrs">

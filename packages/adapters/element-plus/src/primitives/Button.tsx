@@ -42,6 +42,12 @@ export const Button = defineComponent({
     return () => (
       <ElButton
         {...attrs}
+        /* 与 naive 适配器对齐的标记类。
+           naive 的 text 模式不输出任何类名，样式层只能靠这个标记补控件高度；
+           element-plus 本来会输出 .el-button--text，但如果只有一侧有标记类，
+           style.css 里针对 .fbk-button--text 的规则就只在一个适配器生效 ——
+           两边按钮高度会分叉。所以两个适配器都必须打同一个标记。 */
+        class={[text.value || link.value ? 'fbk-button--text' : null, attrs.class]}
         type={type.value}
         size={toElementSize(props.size)}
         disabled={props.disabled}

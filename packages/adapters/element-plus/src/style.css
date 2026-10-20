@@ -259,3 +259,21 @@
   --el-input-border-color: var(--fbk-color-border);
   --el-input-bg-color: var(--fbk-color-bg-container);
 }
+
+/* ============================================================
+   cyber 主题：实色主按钮的文字色
+   ============================================================
+   element-plus 的 .el-button--primary 在自己的规则里写死了 color: #fff，
+   优先级高于 :root 上的 --el-button-text-color。cyber 的主色是亮青
+   （#22d3ee），白字压上去只有 1.81:1，远低于 AA。
+
+   这里用 [data-fbk-theme='cyber'] 提权，只在 cyber 下覆盖，
+   浅色/暗色主题的主按钮行为完全不变。 */
+[data-fbk-theme='cyber'] .el-button--primary {
+  color: var(--fbk-color-on-primary);
+}
+
+[data-fbk-theme='cyber'] .el-button--primary:hover,
+[data-fbk-theme='cyber'] .el-button--primary:focus {
+  color: var(--fbk-color-on-primary);
+}

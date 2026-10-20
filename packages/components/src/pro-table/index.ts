@@ -1,5 +1,7 @@
 export { default as FbkProTable } from './ProTable.vue'
 export type {
+  ProTableAction,
+  ProTableActionContext,
   ProTableColumn,
   ProTableExpose,
   ProTableProps,

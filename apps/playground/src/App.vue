@@ -32,6 +32,7 @@ const showSource = ref(false)
         <select v-model="theme">
           <option value="light">light</option>
           <option value="dark">dark</option>
+          <option value="cyber">cyber · 未来科技</option>
         </select>
       </label>
 

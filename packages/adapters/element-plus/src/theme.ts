@@ -1,5 +1,6 @@
 import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
-import { darkColorOverrides } from '@fbk/tokens'
+import { THEME_IS_DARK } from '@fbk/adapter-core'
+import { cyberColorOverrides, darkColorOverrides } from '@fbk/tokens'
 import type { FbkTokens } from '@fbk/tokens'
 
 /**
@@ -10,10 +11,16 @@ import type { FbkTokens } from '@fbk/tokens'
  * 暗色会被行内变量整片盖掉 —— 实测未选中页码 1.17:1、辅助文字 3.38:1，
  * 也就是说「切了暗色但文字还是深灰压在深底上」。
  *
- * @fbk/tokens 早就导出了 darkColorOverrides，此前没有任何适配器用它。
+ * cyber 需要它自己的色值：只引 cyber.css 是不够的 —— element-plus 的
+ * 主按钮读的是 `--el-color-primary`，那是 apply() 从这里写进去的。
+ * 不注入就会得到「表格是青色、按钮还是蓝色」的割裂观感（实测过）。
  */
 function resolveTokens(mode: ThemeMode, tokens: FbkTokens): FbkTokens {
-  if (mode !== 'dark') return tokens
+  if (mode === 'cyber') {
+    return { ...tokens, color: { ...tokens.color, ...cyberColorOverrides } }
+  }
+  const dark = mode === 'system' ? false : THEME_IS_DARK[mode]
+  if (!dark) return tokens
   return { ...tokens, color: { ...tokens.color, ...darkColorOverrides } }
 }
 
@@ -61,6 +68,13 @@ function toElementVars(tokens: FbkTokens): Record<string, string> {
     '--el-border-radius-small': tokens.radius.sm,
     '--el-font-size-base': tokens.font.size.md,
     '--el-font-family': tokens.font.family,
+
+    /* 实色主按钮上的文字色。
+       element-plus 默认写死 #fff，但 cyber 的主色是亮青（#22d3ee），
+       白字压上去只有 1.81:1 —— 远低于 AA。tokens 早就把 onPrimary 定义成
+       「压在实色主色底上的文字色」，这里把它接上，让主题自己决定黑白。
+       浅色/暗色主题下 onPrimary 分别是 #fff / #1f2329，行为不变。 */
+    '--el-button-text-color': tokens.color.onPrimary,
   }
 }
 
@@ -70,7 +84,10 @@ export const elementTheme: ThemeBridge = {
     if (typeof document === 'undefined') return
     const root = document.documentElement
     const resolved = resolveTokens(mode, tokens)
-    root.classList.toggle('dark', mode === 'dark')
+    // element-plus 只认 .dark 这个 class，不认自定义主题名。
+    // cyber 是暗底，所以也要挂上 .dark，否则它内部的浅色规则会盖住 cyber 配色。
+    const dark = mode === 'system' ? false : THEME_IS_DARK[mode]
+    root.classList.toggle('dark', dark)
     root.setAttribute('data-fbk-theme', mode)
     for (const [key, value] of Object.entries(toElementVars(resolved))) {
       root.style.setProperty(key, value)

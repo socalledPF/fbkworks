@@ -1,7 +1,7 @@
 import { h, type VNodeChild } from 'vue'
 import { formatDate, formatMoney, formatNumber } from '@fbk/shared'
 import type { CellRenderContext } from '@fbk/adapter-core'
-import type { ProTableColumn } from './types'
+import type { ProTableAction, ProTableColumn } from './types'
 
 interface RendererContext {
   /** 适配器提供的 Tag 原语。显式传入而不是从适配器上下文里取，方便单测。 */
@@ -101,6 +101,75 @@ function renderByValueType(
 }
 
 /**
+ * 操作栏：把 `column.actions` 渲染成一组按钮。
+ *
+ * 超过 `max` 个时折叠进「更多」—— 表格里的操作列宽度有限，
+ * 四五个按钮并排会把别的列挤没。折叠用原生 `<details>`，
+ * 不引入额外的弹层依赖，键盘可达性也由浏览器保证。
+ */
+function renderActions<T>(
+  ctx: CellRenderContext<any>,
+  column: ProTableColumn<T>,
+): VNodeChild {
+  const { row, index } = ctx
+  const all = column.actions ?? []
+  const actionCtx = { row, index }
+
+  const usable = all.filter((action) => {
+    if (typeof action.visible === 'function') return action.visible(actionCtx)
+    return action.visible !== false
+  })
+
+  const max = column.max ?? 3
+  const visible = usable.slice(0, max)
+  const overflow = usable.slice(max)
+
+  const button = (action: ProTableAction<T>) => {
+    const disabled =
+      typeof action.disabled === 'function' ? action.disabled(actionCtx) : Boolean(action.disabled)
+
+    return h(
+      'button',
+      {
+        type: 'button',
+        class: [
+          'fbk-pro-table__action',
+          action.status ? `fbk-pro-table__action--${action.status}` : null,
+          action.variant ? `fbk-pro-table__action--${action.variant}` : null,
+        ],
+        disabled: disabled || undefined,
+        'data-action-key': action.key,
+        onClick: (event: MouseEvent) => {
+          // 行本身可点击，操作按钮不能顺带把行打开
+          event.stopPropagation()
+          if (disabled) return
+          if (action.confirm && typeof window !== 'undefined' && !window.confirm(action.confirm)) return
+          action.onClick?.({ row, index })
+        },
+      },
+      action.text,
+    )
+  }
+
+  const nodes: VNodeChild[] = visible.map(button)
+
+  if (overflow.length) {
+    nodes.push(
+      h('details', { class: 'fbk-pro-table__actions-more' }, [
+        h('summary', { class: 'fbk-pro-table__action fbk-pro-table__action--text' }, '更多'),
+        h(
+          'div',
+          { class: 'fbk-pro-table__actions-menu' },
+          overflow.map((action) => button(action)),
+        ),
+      ]),
+    )
+  }
+
+  return h('div', { class: 'fbk-pro-table__actions' }, nodes as any)
+}
+
+/**
  * 把业务 valueType 解析成 column.render。
  * 适配器只负责排版，业务语义全部在这里收敛。
  */
@@ -110,14 +179,39 @@ export function resolveColumnRenderer<T extends Record<string, any>>(
 ): ProTableColumn<T> {
   const hasShell = Boolean(column.copyable || column.tooltip)
 
-  // 显式 render / actions 列：只在外壳存在时才重新包一层，否则原样返回
-  if (column.render || !column.valueType || column.valueType === 'actions') {
-    if (!hasShell || !column.render) return column
+  // 用户显式写的 render 永远优先，保留逃生舱
+  if (column.render) {
+    if (!hasShell) return column
     const userRender = column.render
     return {
       ...column,
       render: (ctx) => wrapCell(userRender(ctx) as VNodeChild, column, ctx.value),
     }
+  }
+
+  // actions 列：有 actions 定义就渲染按钮组
+  if (column.valueType === 'actions') {
+    if (!column.actions?.length) return column
+    return {
+      ...column,
+      render: (ctx) => wrapCell(renderActions(ctx, column), column, ctx.value),
+    }
+  }
+
+  if (!column.valueType) {
+    return hasShell
+      ? {
+          ...column,
+          render: (ctx) =>
+            wrapCell(
+              ctx.value === null || ctx.value === undefined || ctx.value === ''
+                ? '-'
+                : String(ctx.value),
+              column,
+              ctx.value,
+            ),
+        }
+      : column
   }
 
   const valueType = column.valueType

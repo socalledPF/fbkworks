@@ -4,6 +4,8 @@
  */
 export { FbkProTable, useTableRequest } from './pro-table'
 export type {
+  ProTableAction,
+  ProTableActionContext,
   ProTableColumn,
   ProTableExpose,
   ProTableProps,

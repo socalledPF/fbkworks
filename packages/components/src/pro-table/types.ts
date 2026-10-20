@@ -33,6 +33,33 @@ export interface ValueEnumItem {
   status?: Status
 }
 
+/** action 回调收到的上下文 */
+export interface ProTableActionContext<T = any> {
+  row: T
+  index: number
+}
+
+/**
+ * 操作栏里的一个按钮。
+ *
+ * `valueType: 'actions'` 的列此前只是类型里的一个标记，没有任何实现 ——
+ * 业务侧写了 `valueType: 'actions'` 而不写 `render`，单元格会渲染成空白。
+ */
+export interface ProTableAction<T = any> {
+  key: string
+  text: string
+  /** 复用 Tag/Button 的状态色语义 */
+  status?: Status
+  /** text 变体渲染成链接样式，用于「查看」这类次要操作 */
+  variant?: 'default' | 'primary' | 'text' | 'link'
+  icon?: string
+  /** 危险操作二次确认文案；不传则不确认 */
+  confirm?: string
+  visible?: boolean | ((ctx: ProTableActionContext<T>) => boolean)
+  disabled?: boolean | ((ctx: ProTableActionContext<T>) => boolean)
+  onClick?: (ctx: ProTableActionContext<T>) => void
+}
+
 export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<T> {
   valueType?: ValueType
   valueEnum?: Record<string | number, ValueEnumItem>
@@ -46,6 +73,13 @@ export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<
    * 只在列有 render（valueType 或自定义）时生效；纯文本列想复制请显式写 render。
    */
   copyable?: boolean
+  /**
+   * `valueType: 'actions'` 时生效：该列渲染成一组操作按钮。
+   * 与 `render` 同时存在时，`render` 优先（保留逃生舱）。
+   */
+  actions?: ProTableAction<T>[]
+  /** 最多直接显示几个 action，其余折叠进「更多」。默认 3。 */
+  max?: number
 }
 
 export interface ProTableUiProps {
