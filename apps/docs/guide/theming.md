@@ -69,6 +69,54 @@ createBusinessKit({ adapter: elementPlusAdapter, theme: 'dark' })
 - vant：适配器设置 `van-config-provider` 的 `theme="dark"`。
 - naive-ui：`providerProps()` 返回 `{ theme: darkTheme }`。
 
+## 主题预设：cyber（未来科技风）
+
+除了明暗两档，还内置一套风格预设。它不是「第三种明暗」，而是**暗底 + 青色主色**
+的完整配色方案：
+
+```ts
+import '@fbk/tokens/css'
+import '@fbk/tokens/dark.css'
+import '@fbk/tokens/cyber.css'   // 新增
+
+createBusinessKit({ adapter: elementPlusAdapter, theme: 'cyber' })
+```
+
+或局部切换：
+
+```vue
+<FbkProvider :adapter="adapter" theme="cyber">
+  <OrderList />
+</FbkProvider>
+```
+
+`theme: 'cyber'` 会：
+
+1. 把 `data-fbk-theme="cyber"` 写到根元素，命中 `cyber.css` 的选择器；
+2. 让适配器改用 `cyberColorOverrides` 注入 UI 库自己的变量
+   （element-plus 的 `--el-color-primary`、naive 的 `primaryColor`）。
+
+第 2 步不能省。只引 `cyber.css` 而不传 `theme: 'cyber'`，会得到
+「表格是青色、主按钮还是蓝色」的割裂 —— CSS 变量只管 fbk-* 元素，
+UI 库内部的组件读的是它们自己的变量。
+
+::: tip 为什么色值在 CSS 和 TS 里各有一份
+`cyber.css` 给纯样式消费者（只引 CSS、不走 JS 主题桥）；
+`cyberColorOverrides` 给适配器注入 UI 库变量。两份必须一致，
+由 `packages/tokens/tests/cyber.spec.ts` 逐字段比对断言保证。
+:::
+
+设计取舍：
+
+| 决策 | 原因 |
+|---|---|
+| 冷黑偏蓝底 `#070b14`，不用纯黑 | 纯黑与发光色相邻会产生晕影，长时间看表格累 |
+| 状态色只抬明度、不改色相 | 保住「绿=成功、红=危险」的语义可辨识度 |
+| 阴影改成发光 | 暗底上的黑投影几乎不可见 |
+| 主按钮文字用深墨色 | 亮青 `#22d3ee` 上白字只有 1.81:1，深墨色 10.65:1 |
+
+所有文字/背景组合按 WCAG AA 核算，30 条对比度断言锁定。
+
 ## 尺寸与状态枚举
 
 契约里的尺寸与状态是与 UI 库无关的语义枚举，适配器负责翻译：
