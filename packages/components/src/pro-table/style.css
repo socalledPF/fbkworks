@@ -251,3 +251,35 @@
 .fbk-pro-table__bulk--cards {
   border-bottom: 0;
 }
+
+/* 批量条里的原生按钮。
+   bulk-actions 是插槽，业务方通常直接写 <button> —— 不约束的话
+   会拿到浏览器默认样式（实测 rgba(19,1,1,0.3) 的半透明黑底），
+   在深色主题下像一块脏斑。这里给插槽里的裸 button 一个与 fbk 体系
+   一致的外观，业务方仍可用自己的类覆盖（特异性只有 0,1,1）。 */
+.fbk-pro-table__bulk button {
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  font: inherit;
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text);
+  cursor: pointer;
+  background: var(--fbk-color-bg-elevated);
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-pro-table__bulk button:hover:not(:disabled) {
+  background: var(--fbk-color-fill-hover);
+  border-color: var(--fbk-color-border-strong);
+}
+
+.fbk-pro-table__bulk button:focus-visible {
+  outline: 2px solid var(--fbk-color-primary);
+  outline-offset: 2px;
+}
+
+.fbk-pro-table__bulk button:disabled {
+  color: var(--fbk-color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
