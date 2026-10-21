@@ -43,15 +43,16 @@ async function onConfirm() {
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px">
-    <div style="display: flex; gap: 8px; flex-wrap: wrap">
-      <button type="button" data-act="success" @click="onSuccess">成功提示</button>
-      <button type="button" data-act="error" @click="onError">错误提示</button>
-      <button type="button" data-act="warning" @click="onWarning">警告提示</button>
-      <button type="button" data-act="info" @click="onInfo">普通提示</button>
-      <button type="button" data-act="confirm" @click="onConfirm">确认框</button>
+  <div class="fbk-demo-stack" style="padding: var(--fbk-spacing-lg)">
+    <div class="fbk-demo-actions">
+      <button type="button" class="fbk-demo-btn" data-act="success" @click="onSuccess">成功提示</button>
+      <button type="button" class="fbk-demo-btn" data-act="error" @click="onError">错误提示</button>
+      <button type="button" class="fbk-demo-btn" data-act="warning" @click="onWarning">警告提示</button>
+      <button type="button" class="fbk-demo-btn" data-act="info" @click="onInfo">普通提示</button>
+      <button type="button" class="fbk-demo-btn" data-act="confirm" @click="onConfirm">确认框</button>
     </div>
-    <ul>
+    <!-- 没有记录时不渲染空块：空容器会留下一条突兀的灰条 -->
+    <ul v-if="log.length" class="fbk-demo-output" style="list-style: none; margin: 0">
       <li v-for="(line, i) in log" :key="i" data-log>{{ line }}</li>
     </ul>
   </div>

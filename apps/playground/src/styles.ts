@@ -18,4 +18,6 @@ import '@fbk/components/descriptions/style.css'
 import '@fbk/components/crud-page/style.css'
 import '@fbk/components/form-modal/style.css'
 import '@fbk/components/result/style.css'
+// demo 脚手架样式：让 demo 里的原生 button / p / pre 也走设计系统
+import '@fbk/demos/style.css'
 import './playground.css'

@@ -77,9 +77,11 @@ async function submit(values: Record<string, any>) {
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 12px">
+  <div class="fbk-demo-stack">
     <div>
-      <button type="button" data-act="create" @click="openCreate">新建订单</button>
+      <button type="button" class="fbk-demo-btn fbk-demo-btn--primary" data-act="create" @click="openCreate">
+        新建订单
+      </button>
     </div>
 
     <FbkProTable ref="tableRef" :columns="columns" :request="queryOrders" row-key="id" />

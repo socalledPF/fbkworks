@@ -12,14 +12,15 @@ const current = ref<ResultStatus>('404')
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 16px">
-    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+  <div class="fbk-demo-stack">
+    <div class="fbk-demo-actions">
       <button
         v-for="status in statuses"
         :key="status"
         type="button"
+        class="fbk-demo-btn"
+        :class="{ 'fbk-demo-btn--active': current === status }"
         :data-status-btn="status"
-        :style="{ fontWeight: current === status ? 600 : 400 }"
         @click="current = status"
       >
         {{ status }}
@@ -28,8 +29,8 @@ const current = ref<ResultStatus>('404')
 
     <FbkResult :status="current" extra="Trace ID: 7f3a9c2e-1b4d">
       <template #actions>
-        <button type="button" data-act="back">返回首页</button>
-        <button type="button" data-act="retry">重试</button>
+        <button type="button" class="fbk-demo-btn" data-act="back">返回首页</button>
+        <button type="button" class="fbk-demo-btn" data-act="retry">重试</button>
       </template>
     </FbkResult>
   </div>

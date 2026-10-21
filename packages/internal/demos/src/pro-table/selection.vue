@@ -75,8 +75,17 @@ function batchDelete() {
       :selection="{ preserveOnReload: true }"
     >
       <template #bulk-actions="{ clear }">
-        <button type="button" :disabled="!selectedKeys.length" @click="batchDelete">批量删除</button>
-        <button type="button" :disabled="!selectedKeys.length" @click="clear">清空</button>
+        <button
+          type="button"
+          class="fbk-demo-btn"
+          :disabled="!selectedKeys.length"
+          @click="batchDelete"
+        >
+          批量删除
+        </button>
+        <button type="button" class="fbk-demo-btn" :disabled="!selectedKeys.length" @click="clear">
+          清空
+        </button>
       </template>
     </FbkProTable>
   </div>

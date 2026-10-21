@@ -39,7 +39,9 @@
   flex-wrap: wrap;
   gap: var(--fbk-spacing-sm);
   align-items: center;
-  justify-content: flex-end;
+  /* 主操作（新建/添加）在左，辅助操作在右 —— 业务惯例。
+     需要右对齐的辅助按钮请自行包一层 `margin-left: auto`。 */
+  justify-content: flex-start;
   padding: var(--fbk-pro-table-toolbar-padding);
   border-bottom: 1px solid var(--fbk-pro-table-toolbar-border-color);
 }
@@ -249,6 +251,25 @@
 
 /* 卡片模式：卡片本身已有下边框分层，批量条不再重复画线 */
 .fbk-pro-table__bulk--cards {
+  border-bottom: 0;
+}
+
+/* 批量条与工具栏相邻时只保留一条分隔线。
+   两者各自都有 border-bottom，叠在一起会画出两条紧挨的线（实测可见）。
+   统一策略：紧邻的第二个容器去掉下边框，由前一个提供分隔。 */
+.fbk-pro-table__bulk + .fbk-pro-table__toolbar {
+  border-top: 0;
+}
+
+.fbk-pro-table__bulk:has(+ .fbk-pro-table__toolbar) {
+  border-bottom: 0;
+}
+
+.fbk-pro-table__toolbar + .fbk-pro-table__bulk {
+  border-top: 0;
+}
+
+.fbk-pro-table__toolbar:has(+ .fbk-pro-table__bulk) {
   border-bottom: 0;
 }
 

@@ -182,6 +182,83 @@ for (const { rel, stripped } of parsedFiles) {
   }
 }
 
+
+/* ---------- 4：demo 模板里的原生控件必须有样式类 ---------- */
+
+/**
+ * demo 是评审材料，里面的原生 <button> / <select> / <input> 若不带
+ * fbk-demo-* 或 playground__* 类，就会呈现浏览器默认外观（16px 字号、
+ * 2px 边框），与被演示的组件完全是两套视觉语言。
+ *
+ * 只扫 packages/internal/demos 与 apps/playground —— 业务组件内部
+ * 允许使用原生标签（它们由组件自己的 style.css 负责）。
+ */
+const RAW_CONTROL_RE = /<(button|select|input)\b[^>]*>/g
+const STYLE_CLASS_RE = /class="([^"]*)"/ 
+
+async function walkVue(dir) {
+  const out = []
+  let list
+  try {
+    list = await readdir(dir, { withFileTypes: true })
+  } catch {
+    return out
+  }
+  for (const entry of list) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === 'dist') continue
+      out.push(...(await walkVue(full)))
+    } else if (entry.name.endsWith('.vue')) {
+      out.push(full)
+    }
+  }
+  return out
+}
+
+const demoTemplates = [
+  ...(await walkVue(join(root, 'packages', 'internal', 'demos'))),
+  ...(await walkVue(join(root, 'apps', 'playground', 'src'))),
+]
+
+for (const file of demoTemplates) {
+  const src = await readFile(file, 'utf8')
+  const rel = relative(root, file).replace(/\\/g, '/')
+  // 只看 template 部分
+  const tplStart = src.indexOf('<template>')
+  if (tplStart === -1) continue
+  // 去掉 HTML 注释：注释里出现的 <button> 不是真实元素
+  const tpl = src.slice(tplStart).replace(/<!--[\s\S]*?-->/g, '')
+
+  let m
+  while ((m = RAW_CONTROL_RE.exec(tpl))) {
+    const tag = m[0]
+    const clsMatch = tag.match(STYLE_CLASS_RE)
+    const cls = clsMatch ? clsMatch[1] : ''
+    let styled =
+      cls.includes('fbk-demo-') || cls.includes('playground__') || cls.includes('fbk-')
+
+    /* 也接受「父级带样式类」的写法：Playground 的 <select> 就是靠
+       外层 .playground__field 定位的，自身不需要类。
+       做法：从标签位置往前找最近的开始标签，看它是否带样式类。 */
+    if (!styled) {
+      const before = tpl.slice(0, m.index)
+      const ancestors = [...before.matchAll(/<([a-zA-Z][\w-]*)([^>]*)>/g)].slice(-3)
+      styled = ancestors.some((a) => {
+        const c = (a[2].match(STYLE_CLASS_RE) || [])[1] || ''
+        return c.includes('playground__') || c.includes('fbk-demo-') || c.includes('fbk-')
+      })
+    }
+
+    if (!styled) {
+      problems.push(
+        `[demo] ${rel} 里的原生 <${m[1]}> 没有 fbk-demo-* 或 playground__* 样式类` +
+          '（会呈现浏览器默认外观）',
+      )
+    }
+  }
+}
+
 /* ---------- 输出 ---------- */
 
 if (problems.length) {

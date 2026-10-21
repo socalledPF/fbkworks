@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./style.css": "./src/demo.css"
   },
   "dependencies": {
     "@fbk/components": "workspace:*"

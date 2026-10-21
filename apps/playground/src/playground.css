@@ -15,7 +15,9 @@ body {
   z-index: 100;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--fbk-spacing-md);
+  /* 层级差：header 内各字段组之间 16px，字段组内部 label 与控件之间 4px。
+     之前 header 用 12px、组内 4px，只差 8px，视觉上分不出层级。 */
+  gap: var(--fbk-spacing-lg);
   align-items: center;
   padding: var(--fbk-spacing-sm) var(--fbk-spacing-lg);
   background: var(--fbk-color-bg-container);
@@ -24,7 +26,10 @@ body {
 
 .playground__brand {
   margin-right: auto;
+  /* 标题用 semibold：之前只有字号没有字重，和普通文字区分不开 */
   font-size: var(--fbk-font-size-lg);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
 }
 
 .playground__field {

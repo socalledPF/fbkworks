@@ -1,0 +1,114 @@
+/**
+ * Demo 脚手架样式。
+ *
+ * 为什么需要这份文件：demo 是文档站与 Playground 共用的**评审材料**，
+ * 它们的观感直接影响「这个组件库看起来专业吗」。但 demo 里直接写的
+ * 原生 <button> 全是浏览器默认样式（16px 字号、2px 边框、系统字体），
+ * 与被演示的组件完全是两套视觉语言。
+ *
+ * 为什么不用 @fbk/components 的 Button 当触发器：
+ * demo 要演示的是"被评测的组件"，按钮只是触发器。用被测组件当触发器，
+ * 阅读者会分不清哪部分是被演示的组件能力、哪部分是页面脚手架。
+ *
+ * 规格与业务组件控件完全一致（字体/字号/高度/圆角/焦点环）。
+ */
+
+.fbk-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值 */
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: 1;
+  /* 与业务组件的 md 尺寸按钮同高，视觉上才在同一栅格里 */
+  height: 32px;
+  padding: 0 var(--fbk-spacing-md);
+  color: var(--fbk-color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--fbk-color-bg-container);
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-md);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.fbk-demo-btn:hover:not(:disabled) {
+  border-color: var(--fbk-color-border-strong);
+  background: var(--fbk-color-fill-hover);
+}
+
+.fbk-demo-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--fbk-shadow-focus-ring);
+}
+
+.fbk-demo-btn:disabled {
+  color: var(--fbk-color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 主操作：实色主色底。文字用 onPrimary —— 亮色主题下是白字，
+   暗色/cyber 主题下是深墨色，由令牌自动决定。 */
+.fbk-demo-btn--primary {
+  color: var(--fbk-color-on-primary);
+  background: var(--fbk-color-primary);
+  border-color: var(--fbk-color-primary);
+}
+
+.fbk-demo-btn--primary:hover:not(:disabled) {
+  background: var(--fbk-color-primary-fill-hover);
+  border-color: var(--fbk-color-primary-fill-hover);
+}
+
+/* 当前选中态：用于 result demo 的状态切换 */
+.fbk-demo-btn--active {
+  color: var(--fbk-color-primary-text);
+  background: var(--fbk-color-primary-bg);
+  border-color: var(--fbk-color-primary-border);
+}
+
+/* 按钮组：与 FormModal 底部、QueryForm 操作区同一套间距 */
+.fbk-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+}
+
+/* 说明文字。demo 里常写 <p>，不约束会继承 body 的默认字号 */
+.fbk-demo-note {
+  margin: 0;
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-sm);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text-secondary);
+}
+
+/* 演示用的代码/结果块 */
+.fbk-demo-output {
+  padding: var(--fbk-spacing-md);
+  overflow: auto;
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg-sunken);
+  border-radius: var(--fbk-radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbk-demo-btn {
+    transition: none;
+  }
+}
+
+/* 纵向堆叠的 demo 容器。之前各 demo 用内联 style 写 gap，
+   数值各不相同（12px / 16px），这里统一到令牌。 */
+.fbk-demo-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-lg);
+}

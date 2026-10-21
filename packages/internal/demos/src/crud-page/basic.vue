@@ -42,11 +42,16 @@ const showForm = ref(false)
     :selection="{ preserveOnReload: true }"
   >
     <template #toolbar>
-      <button type="button" @click="showForm = true">新建</button>
+      <button type="button" class="fbk-demo-btn fbk-demo-btn--primary" @click="showForm = true">新建</button>
     </template>
 
     <template #bulk-actions="{ selectedKeys }">
-      <button type="button" :disabled="!selectedKeys.length" @click="selected = [...selectedKeys]">
+      <button
+        type="button"
+        class="fbk-demo-btn"
+        :disabled="!selectedKeys.length"
+        @click="selected = [...selectedKeys]"
+      >
         批量处理 ({{ selectedKeys.length }})
       </button>
     </template>
@@ -54,7 +59,7 @@ const showForm = ref(false)
     <template #form>
       <div v-if="showForm" data-demo-form>
         业务方自己的弹窗表单放在这里（CrudPage 不内置）。
-        <button type="button" @click="showForm = false">关闭</button>
+        <button type="button" class="fbk-demo-btn" @click="showForm = false">关闭</button>
       </div>
     </template>
   </FbkCrudPage>
