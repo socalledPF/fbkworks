@@ -4,12 +4,11 @@
  * 纯展示组件：不经过适配层，只用组件令牌 + CSS Grid。
  * 列数解析与 QueryForm / FormGenerator 同构。
  */
+/* 根容器：纵向排列各分组。网格布局在 .fbk-descriptions__grid 上，
+   因为每个分组可以有独立列数，不能共用根节点的一套变量。 */
 .fbk-descriptions {
-  --fbk-cols-base: var(--fbk-descriptions-columns);
-  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
-  display: grid;
-  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
-  gap: var(--fbk-descriptions-row-gap) var(--fbk-descriptions-column-gap);
+  display: flex;
+  flex-direction: column;
   margin: 0;
   /* 行高也要声明：font-size 换了但行高仍继承环境时，
      naive(1.6) 和 element-plus(normal) 的单元格高度会差 3px。 */
@@ -18,14 +17,24 @@
   color: var(--fbk-color-text);
 }
 
+/* 分组的网格容器。列数变量由组件按分组写入行内样式。 */
+.fbk-descriptions__grid {
+  --fbk-cols-base: var(--fbk-descriptions-columns);
+  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
+  display: grid;
+  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
+  gap: var(--fbk-descriptions-row-gap) var(--fbk-descriptions-column-gap);
+  margin: 0;
+}
+
 @media (min-width: 640px) {
-  .fbk-descriptions {
+  .fbk-descriptions__grid {
     --fbk-cols-resolved: var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)));
   }
 }
 
 @media (min-width: 960px) {
-  .fbk-descriptions {
+  .fbk-descriptions__grid {
     --fbk-cols-resolved: var(
       --fbk-cols-md,
       var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)))
@@ -34,7 +43,7 @@
 }
 
 @media (min-width: 1280px) {
-  .fbk-descriptions {
+  .fbk-descriptions__grid {
     --fbk-cols-resolved: var(
       --fbk-cols-lg,
       var(--fbk-cols-md, var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base))))
@@ -192,11 +201,6 @@
 /* ============================================================
    分组
    ============================================================ */
-.fbk-descriptions {
-  display: flex;
-  flex-direction: column;
-}
-
 .fbk-descriptions--gap-sm {
   gap: var(--fbk-spacing-sm);
 }

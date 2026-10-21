@@ -19,6 +19,7 @@
     "check:packages": "pnpm -r --filter \"./packages/**\" exec publint",
     "check:types": "node scripts/check-package-types.mjs",
     "check:surface": "node scripts/check-type-surface.mjs",
+    "check:styles": "node scripts/check-styles.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only",
     "release": "pnpm build && changeset publish",
@@ -27,7 +28,7 @@
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbk/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:styles && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbk/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbk/docs check:diagrams"
   },

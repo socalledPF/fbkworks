@@ -4,3 +4,6 @@
 @import '../form-generator/style.css';
 @import '../pro-table/style.css';
 @import '../descriptions/style.css';
+@import '../crud-page/style.css';
+@import '../form-modal/style.css';
+@import '../result/style.css';
