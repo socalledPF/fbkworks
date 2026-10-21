@@ -70,6 +70,41 @@ export interface EmptyProps {
   description?: string
 }
 
+/**
+ * 日期/时间选择。
+ *
+ * 值统一用字符串：`YYYY-MM-DD`（date）/ `YYYY-MM-DD HH:mm:ss`（datetime）/
+ * `HH:mm:ss`（time）。不传 Date 对象 —— 业务侧最常见的来源是后端 JSON，
+ * 来回转换只会引入时区问题。适配器负责与各 UI 库的 Date 对象互转。
+ *
+ * 区间模式（range）下 modelValue 是长度为 2 的数组，空值用 null。
+ */
+export type DatePickerType = 'date' | 'datetime' | 'time' | 'daterange' | 'datetimerange'
+
+export interface DatePickerProps {
+  modelValue?: string | string[] | null
+  type?: DatePickerType
+  placeholder?: string | [string, string]
+  disabled?: boolean
+  clearable?: boolean
+  size?: Size
+  /** 透传给 UI 库的额外属性（如 disabledDate） */
+  uiProps?: Record<string, any>
+}
+
+export interface RadioOption<V = string | number> {
+  label: string
+  value: V
+  disabled?: boolean
+}
+
+export interface RadioProps<V = string | number> {
+  modelValue?: V | null
+  options: RadioOption<V>[]
+  disabled?: boolean
+  size?: Size
+}
+
 export interface SpinProps {
   loading?: boolean
   size?: Size

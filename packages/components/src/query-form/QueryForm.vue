@@ -3,7 +3,7 @@ import { computed, h, ref, useSlots } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter } from '@fbk/adapter-core'
 import type { SelectOption } from '@fbk/adapter-core'
-import { resolveColumns } from '@fbk/shared'
+import { resolveColumns, warnOnce } from '@fbk/shared'
 import type { QueryField, QueryFormExpose, QueryFormProps } from './types'
 import { useQueryModel } from './use-query-model'
 
@@ -32,7 +32,7 @@ const emit = defineEmits<{
 
 const adapter = useAdapter()
 const slots: Slots = useSlots()
-const { Form, FormItem, Input, Select, Checkbox, Button } = adapter.primitives
+const { Form, FormItem, Input, Select, Checkbox, DatePicker, Radio, Button } = adapter.primitives
 
 const formRef = ref<any>()
 const collapsed = ref(props.defaultCollapsed)
@@ -107,10 +107,33 @@ function renderControl(field: QueryField) {
         modelValue: Boolean(value),
         'onUpdate:modelValue': update,
       })
+    case 'date':
+    case 'date-range':
+      /* 走适配器的 DatePicker 原语。
+         此前这两个类型落进 default，被渲染成普通文本框 ——
+         筛选条件写 type: 'date' 得到的却是个能随便输入的框。 */
+      return h(DatePicker, {
+        ...common,
+        type: field.type === 'date-range' ? 'daterange' : 'date',
+        modelValue: value ?? null,
+        placeholder: field.placeholder ?? `请选择${field.label}`,
+        'onUpdate:modelValue': update,
+      })
+    case 'radio':
+      return h(Radio, {
+        ...common,
+        modelValue: value ?? null,
+        options: (field.options ?? []) as SelectOption[],
+        'onUpdate:modelValue': update,
+      })
     case 'custom':
       return null
     default:
-      // date / date-range / radio 需要额外原语，首期走 render 逃生舱
+      /* 剩余类型（time 等）降级为文本框，但不再静默 */
+      warnOnce(
+        `query-field-type:${field.type}`,
+        `查询字段类型 "${field.type}" 尚未实现，已降级为文本输入框。`,
+      )
       return h(Input, {
         ...common,
         modelValue: value ?? '',

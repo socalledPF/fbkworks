@@ -10,6 +10,7 @@ export type FormFieldType =
   | 'checkbox'
   | 'switch'
   | 'date'
+  | 'datetime'
   | 'date-range'
   | 'time'
   | 'upload'

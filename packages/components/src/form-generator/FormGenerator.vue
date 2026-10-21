@@ -3,7 +3,7 @@ import { computed, h, ref, useSlots } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter } from '@fbk/adapter-core'
 import type { SelectOption } from '@fbk/adapter-core'
-import { resolveColumns } from '@fbk/shared'
+import { resolveColumns, warnOnce } from '@fbk/shared'
 import type { FormField, FormGeneratorExpose, FormGeneratorProps } from './types'
 import type { QueryField } from '../query-form/types'
 import { useQueryModel } from '../query-form/use-query-model'
@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
 const adapter = useAdapter()
 const slots: Slots = useSlots()
-const { Form, FormItem, Input, Select, Checkbox, Button } = adapter.primitives
+const { Form, FormItem, Input, Select, Checkbox, DatePicker, Radio, Button } = adapter.primitives
 
 const formRef = ref<any>()
 
@@ -131,7 +131,35 @@ function renderControl(field: FormField) {
         modelValue: Boolean(value),
         'onUpdate:modelValue': update,
       })
+    case 'date':
+    case 'datetime':
+    case 'time':
+    case 'date-range':
+      /* 走适配器的 DatePicker 原语。
+         这些类型此前全部落进 default，被渲染成普通文本框 ——
+         用户看到一个能随便输入的框，以为"支持日期"。 */
+      return h(DatePicker, {
+        ...common,
+        type: field.type === 'date-range' ? 'daterange' : field.type,
+        modelValue: value ?? null,
+        placeholder: field.placeholder ?? `请选择${field.label}`,
+        'onUpdate:modelValue': update,
+      })
+    case 'radio':
+      return h(Radio, {
+        ...common,
+        modelValue: value ?? null,
+        options: (field.options ?? []) as SelectOption[],
+        'onUpdate:modelValue': update,
+      })
     default:
+      /* 剩下的 rate / slider / upload 仍是降级为文本框，但不再是静默的：
+         warnOnce 会提示一次，避免业务方以为这些类型已经支持。 */
+      warnOnce(
+        `field-type:${field.type}`,
+        `字段类型 "${field.type}" 尚未实现，已降级为文本输入框。` +
+          '可用的类型见 FormGenerator 文档，或改用 field.render 自定义。',
+      )
       return h(Input, {
         ...common,
         modelValue: value ?? '',
@@ -144,6 +172,15 @@ function renderControl(field: FormField) {
 const FieldControl = (controlProps: { field: FormField }) => renderControl(controlProps.field)
 FieldControl.props = ['field']
 
+/**
+ * 按字段聚合校验规则：schema 级 + 字段级 required + 字段级 rules。
+ *
+ * 注意这个结果同时喂给两处：
+ *   · `<Form :rules>` —— 表单整体校验
+ *   · `<FormItem :rules>` —— 单条目的即时反馈
+ * 只喂第一处的话，UI 库仍能校验，但行内不会出现红框与提示文案；
+ * 只喂第二处则 `validate()` 拿不到规则。两处都要。
+ */
 const rules = computed(() => {
   const result: Record<string, any> = { ...(props.schema.rules ?? {}) }
   for (const field of props.schema.fields) {
@@ -156,6 +193,16 @@ const rules = computed(() => {
   }
   return result
 })
+
+/**
+ * 传给单个 FormItem 的规则。
+ * 没有规则时返回 undefined 而不是 []：空数组会让 UI 库仍然挂上校验分支，
+ * 产生无意义的 watch 与 render 开销。
+ */
+function rulesOf(name: string) {
+  const list = rules.value[name]
+  return list?.length ? list : undefined
+}
 
 const formProps = computed(() => ({
   ...(props.uiProps ?? {}),
@@ -207,6 +254,7 @@ defineExpose<FormGeneratorExpose>({
             :label="field.label"
             :prop="field.name"
             :required="field.required"
+            :rules="rulesOf(field.name)"
             :help="field.help"
             :span="field.span"
           >

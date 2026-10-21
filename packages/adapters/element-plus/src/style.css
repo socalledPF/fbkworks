@@ -277,3 +277,15 @@
 [data-fbk-theme='cyber'] .el-button--primary:focus {
   color: var(--fbk-color-on-primary);
 }
+
+/* ============================================================
+   日期选择器：宽度撑满栅格
+   ============================================================
+   element-plus 的 .el-date-editor 默认宽度 220px（按内容定宽），
+   放在 FormGenerator 的栅格里会比旁边的 .el-input（撑满 100%）窄一半。
+   实测 220 vs 508，视觉上参差不齐。 */
+.fbk-form-generator .el-date-editor,
+.fbk-query-form .el-date-editor {
+  width: 100%;
+  box-sizing: border-box;
+}

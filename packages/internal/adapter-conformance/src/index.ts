@@ -67,6 +67,8 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'Input',
         'Select',
         'Checkbox',
+        'DatePicker',
+        'Radio',
         'Form',
         'FormItem',
         'DataGrid',

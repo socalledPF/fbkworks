@@ -2,6 +2,8 @@ import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, type Component } from 'vue'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { elementPlusAdapter } from '@fbk/adapter-element-plus'
 import { naiveUiAdapter } from '@fbk/adapter-naive-ui'
 import type { UiAdapter } from '@fbk/adapter-core'
@@ -142,6 +144,36 @@ describe('桌面端双适配器一致性', () => {
       })
       await flushPromises()
       expect(wrapper.html(), `${name} 缺少 fbk-numeric`).toContain('fbk-numeric')
+    }
+  })
+
+
+  /**
+   * 日期选择器必须撑满栅格。
+   *
+   * element-plus 的 .el-date-editor 默认 220px、naive 的 .n-date-picker 默认 203px，
+   * 而普通输入框是 width:100%。不约束的话同一行里两种宽度参差不齐
+   * （实测 220 vs 508）。这条断言锁定两个适配器的 style.css 里都有宽度规则。
+   */
+  it('两个适配器的 style.css 都约束了日期选择器宽度', () => {
+    const cssOf: Record<string, string> = {
+      'element-plus': readFileSync(
+        join(import.meta.dirname, '..', '..', '..', 'adapters', 'element-plus', 'src', 'style.css'),
+        'utf8',
+      ),
+      'naive-ui': readFileSync(
+        join(import.meta.dirname, '..', '..', '..', 'adapters', 'naive-ui', 'src', 'style.css'),
+        'utf8',
+      ),
+    }
+    const selector = { 'element-plus': 'el-date-editor', 'naive-ui': 'n-date-picker' }
+    for (const [name] of adapters) {
+      const css = cssOf[name]
+      const sel = selector[name as keyof typeof selector]
+      expect(css, `${name} 的 style.css 缺少日期选择器宽度约束`).toContain(sel)
+      // 必须出现 width: 100%，而不是只选择到元素却没给宽度
+      const block = css.slice(css.indexOf(`.fbk-form-generator .${sel}`))
+      expect(block.slice(0, 200), `${name} 的日期选择器没有 width: 100%`).toContain('width: 100%')
     }
   })
 

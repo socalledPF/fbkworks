@@ -89,7 +89,7 @@ function createMockPrimitives(): UiPrimitives {
     inheritAttrs: false,
     props: {
       modelValue: { type: [String, Number, Array], default: undefined },
-      options: { type: Array as PropType<Array<{ label: string; value: string | number }>>, default: () => [] },
+      options: { type: Array as PropType<Array<{ label: string; value: string | number; disabled?: boolean }>>, default: () => [] },
       multiple: Boolean,
       disabled: Boolean,
     },
@@ -146,6 +146,67 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
+  const DatePicker = defineComponent({
+    name: 'MockDatePicker',
+    inheritAttrs: false,
+    props: {
+      modelValue: { type: [String, Array], default: undefined },
+      type: { type: String, default: 'date' },
+      placeholder: { type: [String, Array], default: undefined },
+      disabled: Boolean,
+      clearable: Boolean,
+    },
+    emits: ['update:modelValue', 'change'],
+    setup(props, { attrs, emit }) {
+      return () =>
+        h('input', {
+          ...attrs,
+          'data-fbk-part': 'date-picker',
+          'data-picker-type': props.type,
+          value: Array.isArray(props.modelValue) ? props.modelValue.join('~') : (props.modelValue ?? ''),
+          disabled: props.disabled,
+          onInput: (event: Event) => {
+            const next = (event.target as HTMLInputElement).value
+            emit('update:modelValue', next)
+            emit('change', next)
+          },
+        })
+    },
+  })
+
+  const Radio = defineComponent({
+    name: 'MockRadio',
+    inheritAttrs: false,
+    props: {
+      modelValue: { type: [String, Number], default: undefined },
+      options: { type: Array as PropType<Array<{ label: string; value: string | number; disabled?: boolean }>>, default: () => [] },
+      disabled: Boolean,
+    },
+    emits: ['update:modelValue', 'change'],
+    setup(props, { attrs, emit }) {
+      return () =>
+        h(
+          'div',
+          { ...attrs, 'data-fbk-part': 'radio' },
+          props.options.map((option) =>
+            h('label', { 'data-radio-value': String(option.value) }, [
+              h('input', {
+                type: 'radio',
+                value: option.value,
+                checked: props.modelValue === option.value,
+                disabled: props.disabled || option.disabled,
+                onChange: () => {
+                  emit('update:modelValue', option.value)
+                  emit('change', option.value)
+                },
+              }),
+              option.label,
+            ]),
+          ),
+        )
+    },
+  })
+
   const Form = defineComponent({
     name: 'MockForm',
     // 声明 labelWidth / labelPosition 是为了让业务组件测试能断言「传了什么」。
@@ -167,7 +228,16 @@ function createMockPrimitives(): UiPrimitives {
 
   const FormItem = defineComponent({
     name: 'MockFormItem',
-    props: { label: String, prop: String },
+    // rules / required / help 必须显式声明：不声明的话它们会落到 attrs，
+    // 测试里 `props()` 读不到，于是「规则有没有真的传下来」无法断言。
+    // 真实适配器（element-plus / naive-ui）都声明了这些 prop。
+    props: {
+      label: String,
+      prop: String,
+      required: Boolean,
+      rules: { type: Array as PropType<any[]>, default: undefined },
+      help: String,
+    },
     setup(props, { slots }) {
       return () =>
         h('div', { 'data-fbk-part': 'form-item', 'data-prop': props.prop }, [
@@ -308,7 +378,7 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
-  return { Button, Input, Select, Checkbox, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
+  return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
 }
 
 export function createMockAdapter(overrides?: DeepPartial<Capabilities>): UiAdapter {

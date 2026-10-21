@@ -72,6 +72,14 @@ export interface UiPrimitives {
    * 那会在三个适配器下长出三种样子，而这正是适配层要消除的。
    */
   Checkbox: Component
+  /**
+   * 日期/时间选择。
+   * 不提供它，`type: 'date'` 的字段只能渲染成普通文本框 ——
+   * 用户看到的是一个能随便输入的框，而不是日期选择器。
+   */
+  DatePicker: Component
+  /** 单选组。`type: 'radio'` 的字段用它，而不是静默降级成文本框。 */
+  Radio: Component
   Form: Component
   FormItem: Component
   DataGrid: Component
@@ -107,6 +115,8 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
     'Input',
     'Select',
     'Checkbox',
+    'DatePicker',
+    'Radio',
     'Form',
     'FormItem',
     'DataGrid',

@@ -327,3 +327,19 @@
   color: var(--fbk-pro-table-pagination-fg);
   white-space: nowrap;
 }
+
+/* ============================================================
+   日期选择器：宽度撑满栅格
+   ============================================================
+   naive 的 .n-date-picker 默认按内容定宽（实测 203px），
+   而 .n-input 是 width:100%。同一行里两种宽度会参差不齐。
+   range 模式还要保证内部两个输入框均分。 */
+.fbk-form-generator .n-date-picker,
+.fbk-query-form .n-date-picker {
+  width: 100%;
+}
+
+.fbk-form-generator .n-date-picker .n-input,
+.fbk-query-form .n-date-picker .n-input {
+  width: 100%;
+}
