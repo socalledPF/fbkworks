@@ -273,12 +273,17 @@
   border-bottom: 0;
 }
 
-/* 批量条里的原生按钮。
+/* 批量条里的**裸**原生按钮。
    bulk-actions 是插槽，业务方通常直接写 <button> —— 不约束的话
    会拿到浏览器默认样式（实测 rgba(19,1,1,0.3) 的半透明黑底），
-   在深色主题下像一块脏斑。这里给插槽里的裸 button 一个与 fbk 体系
-   一致的外观，业务方仍可用自己的类覆盖（特异性只有 0,1,1）。 */
-.fbk-pro-table__bulk button {
+   在深色主题下像一块脏斑。
+
+   用 :not([class]) 只兜底「完全没有类名」的按钮：
+   业务方一旦给了自己的类（如 demo 的 .fbk-demo-btn），就该完全由
+   那个类决定外观。此前直接写 `.fbk-pro-table__bulk button`（特异性 0,2,1）
+   会压过业务方的类（0,1,0），导致「明明加了类却没生效」—— 实测
+   demo 里三个按钮被压成 12px 字号、2px 圆角。 */
+.fbk-pro-table__bulk button:not([class]) {
   padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
   font: inherit;
   font-size: var(--fbk-font-size-sm);
@@ -289,17 +294,17 @@
   border-radius: var(--fbk-radius-sm);
 }
 
-.fbk-pro-table__bulk button:hover:not(:disabled) {
+.fbk-pro-table__bulk button:not([class]):hover:not(:disabled) {
   background: var(--fbk-color-fill-hover);
   border-color: var(--fbk-color-border-strong);
 }
 
-.fbk-pro-table__bulk button:focus-visible {
+.fbk-pro-table__bulk button:not([class]):focus-visible {
   outline: 2px solid var(--fbk-color-primary);
   outline-offset: 2px;
 }
 
-.fbk-pro-table__bulk button:disabled {
+.fbk-pro-table__bulk button:not([class]):disabled {
   color: var(--fbk-color-text-disabled);
   cursor: not-allowed;
   opacity: 0.6;

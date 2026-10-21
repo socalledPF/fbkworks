@@ -57,9 +57,14 @@ body {
      （Arial / 13.33px），这是之前最明显的割裂点。 */
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
+  /* 行高显式声明：不写就是 normal，与 demo 的 14px 不同，
+     同一行里文字基线会差 1px。 */
+  line-height: 1;
   /* 与业务组件控件同高，视觉上才在同一栅格里 */
   height: 32px;
-  padding: 0 var(--fbk-spacing-sm);
+  /* 内边距与 demo 的 .fbk-demo-btn 一致（--fbk-spacing-md = 12px）。
+     之前用 --fbk-spacing-sm（8px），比 demo 窄 4px。 */
+  padding: 0 var(--fbk-spacing-md);
   color: var(--fbk-color-text);
   cursor: pointer;
   background: var(--fbk-color-bg-container);

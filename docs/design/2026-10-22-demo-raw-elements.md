@@ -108,3 +108,45 @@ CrudPage demo 截图显示：批量条占一行，"新建"按钮单独占一行�
 
 没有记录时仍渲染 `<ul class="fbk-demo-output">`，留下一条突兀的灰条。
 已改为 `v-if="log.length"`。
+
+---
+
+## 二次确认结果（用户要求复查）
+
+上一轮声称"已统一"，但**没有对比过 header 与 demo 是否彼此一致**。
+实测后发现两处细节没对齐：
+
+| 属性 | header | demo | 处理 |
+|---|---|---|---|
+| `padding` | `0 8px` | `0 12px` | header 改用 `--fbk-spacing-md` |
+| `line-height` | `normal` | `14px` | header 显式声明 `1` |
+
+### 更严重的一处：组件样式压过业务方的类
+
+全量对比 19 个 demo 按钮，发现 3 个（批量删除 / 清空 / 批量处理）
+字号是 12px、圆角 2px —— 明明加了 `.fbk-demo-btn` 却没生效。
+
+根因：ProTable 为批量条里的裸 button 写了兜底样式
+
+```css
+.fbk-pro-table__bulk button { ... }   /* 特异性 0,2,1 */
+```
+
+而业务方的类只有 0,1,0，被压掉了。
+
+**这是组件库的设计缺陷，不是 demo 的问题**：兜底样式不该压过
+业务方显式指定的类。改为 `button:not([class])` —— 只兜底
+「完全没有类名」的按钮，一旦业务方给了类，外观完全由那个类决定。
+
+已在 `desktop-parity.spec.ts` 加断言防复发。
+
+### 固化对比脚本
+
+`scripts/visual/compare-controls.py`：启动 playground 后运行，
+全量对比 header 与所有 demo 按钮的 11 项计算样式，
+非 0 退出码表示不一致。合法差异（禁用态配色、primary/active 变体）
+已在脚本内识别，不会误报。
+
+### 最终结果
+
+19 个 demo 按钮与 header 控件完全一致。

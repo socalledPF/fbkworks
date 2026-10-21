@@ -224,6 +224,34 @@ describe('桌面端双适配器一致性', () => {
     expect(block.slice(0, 600)).toContain('font-size: var(--fbk-font-size-md)')
   })
 
+
+  /**
+   * 组件样式不得压过业务方自己的类。
+   *
+   * ProTable 的批量条曾用 `.fbk-pro-table__bulk button`（特异性 0,2,1）
+   * 给裸 button 兜底，结果把 demo 的 `.fbk-demo-btn`（0,1,0）压掉了 ——
+   * 表现为「明明加了类却没生效」：字号变 12px、圆角变 2px。
+   *
+   * 兜底样式必须限定在「完全没有类名」的元素上，
+   * 业务方一旦给了类，外观就该完全由那个类决定。
+   */
+  it('ProTable 的批量条兜底样式只作用于无类名按钮', () => {
+    const css = readFileSync(
+      join(import.meta.dirname, '..', '..', '..', 'components', 'src', 'pro-table', 'style.css'),
+      'utf8',
+    )
+    // 找到批量条里针对 button 的规则
+    const matches = [...css.matchAll(/\.fbk-pro-table__bulk\s+button([^{]*)\{/g)]
+    expect(matches.length, '找不到批量条的 button 规则').toBeGreaterThan(0)
+    for (const m of matches) {
+      const qualifier = m[1].trim()
+      expect(
+        qualifier,
+        `批量条 button 规则缺少 :not([class]) 限定，会压过业务方的类（实际是 "${qualifier}"）`,
+      ).toContain(':not([class])')
+    }
+  })
+
   it('DataGrid 空态文案可透传', async () => {
     for (const [name, adapter] of adapters) {
       const wrapper = mountPrimitive(adapter, adapter.primitives.DataGrid, {
