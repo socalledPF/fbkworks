@@ -46,6 +46,7 @@ export default withMermaid(
         {
           text: '业务组件',
           items: [
+            { text: 'CrudPage CRUD 页面', link: '/components/crud-page' },
             { text: 'ProTable 高级表格', link: '/components/pro-table' },
             { text: 'QueryForm 查询表单', link: '/components/query-form' },
             { text: 'FormGenerator 表单生成器', link: '/components/form-generator' },
