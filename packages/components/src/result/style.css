@@ -1,0 +1,106 @@
+/**
+ * 异常状态页。
+ * 所有数值来自组件令牌，不写字面量像素（1px 边框除外）。
+ */
+.fbk-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fbk-spacing-sm);
+  padding: var(--fbk-spacing-xxl) var(--fbk-spacing-lg);
+  text-align: center;
+  /* 字号自己声明，不继承 provider 注入的值（同 ProTable / QueryForm） */
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
+}
+
+.fbk-result__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--fbk-spacing-xs);
+}
+
+.fbk-result__glyph {
+  width: 64px;
+  height: 64px;
+}
+
+/* 状态码用大号等宽字，比图标更直接地传达「这是哪一类错误」 */
+.fbk-result__code {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: 64px;
+  font-weight: var(--fbk-font-weight-semibold);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.fbk-result__title {
+  margin: 0;
+  font-size: var(--fbk-font-size-xl);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+}
+
+.fbk-result__subtitle {
+  max-width: 42ch;
+  margin: 0;
+  font-size: var(--fbk-font-size-md);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-result__content {
+  width: 100%;
+  margin-top: var(--fbk-spacing-sm);
+}
+
+.fbk-result__extra {
+  max-width: 60ch;
+  margin: var(--fbk-spacing-sm) 0 0;
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+  word-break: break-word;
+  background: var(--fbk-color-bg-sunken);
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fbk-spacing-sm);
+  justify-content: center;
+  margin-top: var(--fbk-spacing-md);
+}
+
+/* 语义色：图标与状态码跟随状态，标题保持正文色（可读性优先） */
+.fbk-result--success .fbk-result__icon {
+  color: var(--fbk-color-success);
+}
+
+.fbk-result--warning .fbk-result__icon {
+  color: var(--fbk-color-warning);
+}
+
+.fbk-result--danger .fbk-result__icon {
+  color: var(--fbk-color-danger);
+}
+
+.fbk-result--info .fbk-result__icon {
+  color: var(--fbk-color-info);
+}
+
+/* 移动端：状态码收一号，避免在 375px 宽屏上溢出 */
+@media (max-width: 639px) {
+  .fbk-result__code {
+    font-size: 48px;
+  }
+
+  .fbk-result__glyph {
+    width: 52px;
+    height: 52px;
+  }
+}

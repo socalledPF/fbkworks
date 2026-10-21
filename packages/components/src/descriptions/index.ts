@@ -1,2 +1,7 @@
 export { default as FbkDescriptions } from './Descriptions.vue'
-export type { DescriptionItem, DescriptionsProps } from './types'
+export type {
+  DescriptionGroup,
+  DescriptionItem,
+  DescriptionsProps,
+  ResolvedGroup,
+} from './types'

@@ -1,0 +1,20 @@
+/**
+ * 弹窗底部按钮区。
+ * 右对齐、等间距，与 QueryForm / FormGenerator 的操作区保持同一套视觉语言。
+ */
+.fbk-form-modal__footer {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  justify-content: flex-end;
+}
+
+/* 移动端按钮铺满：拇指点击区比右对齐的窄按钮好按得多 */
+@media (max-width: 639px) {
+  .fbk-form-modal__footer {
+    justify-content: stretch;
+  }
+
+  .fbk-form-modal__footer > * {
+    flex: 1 1 0;
+  }
+}

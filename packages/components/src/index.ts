@@ -17,6 +17,12 @@ export type {
   ValueType,
 } from './pro-table'
 
+export { FbkResult, RESULT_DEFAULTS } from './result'
+export type { ResultProps, ResultSlots, ResultStatus } from './result'
+
+export { FbkFormModal } from './form-modal'
+export type { FormModalExpose, FormModalMode, FormModalProps } from './form-modal'
+
 export { FbkCrudPage } from './crud-page'
 export type { CrudPageExpose, CrudPageProps, CrudPageSlots } from './crud-page'
 
@@ -37,4 +43,9 @@ export { FbkPageContainer } from './page-container'
 export type { BreadcrumbItem, PageContainerProps } from './page-container'
 
 export { FbkDescriptions } from './descriptions'
-export type { DescriptionItem, DescriptionsProps } from './descriptions'
+export type {
+  DescriptionGroup,
+  DescriptionItem,
+  DescriptionsProps,
+  ResolvedGroup,
+} from './descriptions'

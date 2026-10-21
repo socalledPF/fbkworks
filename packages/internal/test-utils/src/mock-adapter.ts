@@ -353,12 +353,27 @@ function createMockPrimitives(): UiPrimitives {
 
   const Dialog = defineComponent({
     name: 'MockDialog',
-    props: { modelValue: Boolean, title: String },
-    emits: ['update:modelValue'],
+    props: {
+      modelValue: Boolean,
+      title: String,
+      width: [String, Number],
+      placement: String,
+      closeOnClickModal: Boolean,
+      showClose: Boolean,
+    },
+    emits: ['update:modelValue', 'close'],
     setup(props, { slots }) {
+      /* 必须渲染 footer 插槽：真实适配器（element-plus / naive / vant）
+         都有 footer 区域，业务组件（如 FormModal）靠它放操作按钮。
+         早期 mock 只渲染 default，导致「弹窗里有没有按钮」根本没法断言。 */
       return () =>
         props.modelValue
-          ? h('div', { 'data-fbk-part': 'dialog', 'data-title': props.title }, slots.default?.())
+          ? h('div', { 'data-fbk-part': 'dialog', 'data-title': props.title }, [
+              h('div', { 'data-fbk-part': 'dialog-body' }, slots.default?.()),
+              slots.footer
+                ? h('div', { 'data-fbk-part': 'dialog-footer' }, slots.footer())
+                : null,
+            ])
           : null
     },
   })

@@ -188,3 +188,82 @@
     padding: var(--fbk-descriptions-cell-padding);
   }
 }
+
+/* ============================================================
+   分组
+   ============================================================ */
+.fbk-descriptions {
+  display: flex;
+  flex-direction: column;
+}
+
+.fbk-descriptions--gap-sm {
+  gap: var(--fbk-spacing-sm);
+}
+
+.fbk-descriptions--gap-md {
+  gap: var(--fbk-spacing-lg);
+}
+
+.fbk-descriptions--gap-lg {
+  gap: var(--fbk-spacing-xl);
+}
+
+.fbk-descriptions__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-md);
+  min-width: 0;
+}
+
+.fbk-descriptions__group-header {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.fbk-descriptions__group-title {
+  margin: 0;
+  font-size: var(--fbk-font-size-lg);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+}
+
+/* 折叠按钮用原生 button，去掉默认外观但保留键盘可达性 */
+.fbk-descriptions__group-toggle {
+  display: inline-flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fbk-font-size-lg);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.fbk-descriptions__group-toggle:focus-visible {
+  outline: 2px solid var(--fbk-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--fbk-radius-sm);
+}
+
+.fbk-descriptions__group-caret {
+  display: inline-block;
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+  transition: transform 0.15s ease;
+}
+
+.fbk-descriptions__group-caret.is-collapsed {
+  transform: rotate(-90deg);
+}
+
+/* 折叠时用 v-show 隐藏，动画不需要额外处理 */
+@media (prefers-reduced-motion: reduce) {
+  .fbk-descriptions__group-caret {
+    transition: none;
+  }
+}

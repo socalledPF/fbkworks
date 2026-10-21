@@ -38,6 +38,18 @@ export const demos: Record<string, DemoEntry> = {
     title: 'CRUD 页面（查询 + 表格联动）',
     component: defineAsyncComponent(() => import('./crud-page/basic.vue')),
   },
+  'form-modal/basic': {
+    title: '弹窗表单',
+    component: defineAsyncComponent(() => import('./form-modal/basic.vue')),
+  },
+  'result/basic': {
+    title: '异常状态页',
+    component: defineAsyncComponent(() => import('./result/basic.vue')),
+  },
+  'descriptions/basic': {
+    title: '分组详情',
+    component: defineAsyncComponent(() => import('./descriptions/basic.vue')),
+  },
   'feedback/basic': {
     title: '命令式反馈',
     component: defineAsyncComponent(() => import('./feedback-basic.vue')),
