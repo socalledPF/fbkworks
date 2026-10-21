@@ -34,6 +34,10 @@ export const demos: Record<string, DemoEntry> = {
     title: '页面容器 + 描述列表',
     component: defineAsyncComponent(() => import('./page-container/basic.vue')),
   },
+  'crud-page/basic': {
+    title: 'CRUD 页面（查询 + 表格联动）',
+    component: defineAsyncComponent(() => import('./crud-page/basic.vue')),
+  },
   'feedback/basic': {
     title: '命令式反馈',
     component: defineAsyncComponent(() => import('./feedback-basic.vue')),

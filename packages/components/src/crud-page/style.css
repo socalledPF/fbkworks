@@ -1,0 +1,15 @@
+/**
+ * CrudPage 只负责两件事：查询区与表格之间的间距、以及整页的纵向堆叠。
+ * 具体的表单与表格样式由各自的组件样式提供，这里不重复。
+ */
+.fbk-crud-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-lg);
+  min-width: 0;
+}
+
+/* 没有查询区时不要留出多余的顶部间距 */
+.fbk-crud-page > .fbk-pro-table:first-child {
+  margin-top: 0;
+}

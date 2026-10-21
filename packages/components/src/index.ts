@@ -17,6 +17,9 @@ export type {
   ValueType,
 } from './pro-table'
 
+export { FbkCrudPage } from './crud-page'
+export type { CrudPageExpose, CrudPageProps, CrudPageSlots } from './crud-page'
+
 export { FbkQueryForm } from './query-form'
 export type { QueryField, QueryFieldType, QueryFormExpose, QueryFormProps } from './query-form'
 
