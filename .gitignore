@@ -13,3 +13,4 @@ tests/visual/__screenshots__/**/diff*
 # 视觉改版方案的试验田：CDP 注入截图 + 三个方向的样式表。
 # 它跑的是运行中的页面而不是构建产物，不参与任何门禁，也不该进版本库。
 design-preview
+.diag
