@@ -1,4 +1,8 @@
-export const ADAPTER_API_VERSION = 1
+/* 从 contracts/adapter 再导出，不要在这里重复定义常量。
+   此前这里写死了 `= 1`，而 contracts/adapter.ts 里是另一份 ——
+   提升契约版本时只改一处，导出的那个仍然是旧值，
+   于是所有适配器在运行时被误判为不兼容。 */
+export { ADAPTER_API_VERSION } from './contracts/adapter'
 
 export type {
   AdapterMeta,
@@ -45,6 +49,15 @@ export type {
 export type { FbkRule, FormRules } from './contracts/form'
 export type { ThemeBridge, ThemeMode } from './contracts/theme'
 export { THEME_IS_DARK } from './contracts/theme'
+
+export type {
+  ConfirmApi,
+  ConfirmOptions,
+  FeedbackApi,
+  MessageApi,
+  MessageOptions,
+  MessageType,
+} from './contracts/feedback'
 
 export { ADAPTER_CONTEXT, useAdapter, useAdapterCapabilities, useAdapterContext, useFbkTheme } from './context'
 export type { AdapterContext } from './context'

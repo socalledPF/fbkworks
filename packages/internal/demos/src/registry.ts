@@ -34,6 +34,10 @@ export const demos: Record<string, DemoEntry> = {
     title: '页面容器 + 描述列表',
     component: defineAsyncComponent(() => import('./page-container/basic.vue')),
   },
+  'feedback/basic': {
+    title: '命令式反馈',
+    component: defineAsyncComponent(() => import('./feedback-basic.vue')),
+  },
 }
 
 // Vite 的 import.meta.glob 类型来自 vite/client，这里做最小声明以免依赖构建工具类型

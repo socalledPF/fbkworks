@@ -1,5 +1,15 @@
 import { defineComponent, h, type PropType } from 'vue'
-import type { Capabilities, DataGridColumn, UiAdapter, UiPrimitives } from '@fbk/adapter-core'
+import type {
+  Capabilities,
+  ConfirmOptions,
+  DataGridColumn,
+  FeedbackApi,
+  MessageApi,
+  MessageOptions,
+  MessageType,
+  UiAdapter,
+  UiPrimitives,
+} from '@fbk/adapter-core'
 
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
@@ -381,6 +391,39 @@ function createMockPrimitives(): UiPrimitives {
   return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
 }
 
+export interface MockFeedbackRecord {
+  type: MessageType
+  content: string
+  options?: MessageOptions
+}
+
+/** 测试用 feedback：把调用记录下来，业务侧代码照常写，测试里断言即可 */
+export function createMockFeedback() {
+  const messages: MockFeedbackRecord[] = []
+  const confirms: Array<{ content: string; options?: ConfirmOptions }> = []
+  /** 下一次 confirm 的返回值，测试里可改 */
+  const state = { confirmResult: true }
+
+  const show = (type: MessageType, content: string, options?: MessageOptions) => {
+    messages.push({ type, content, options })
+    return () => {}
+  }
+
+  const message = ((type: MessageType, content: string, options?: MessageOptions) =>
+    show(type, content, options)) as MessageApi
+  message.success = (c, o) => show('success', c, o)
+  message.warning = (c, o) => show('warning', c, o)
+  message.error = (c, o) => show('error', c, o)
+  message.info = (c, o) => show('info', c, o)
+
+  const confirm = async (content: string, options?: ConfirmOptions) => {
+    confirms.push({ content, options })
+    return state.confirmResult
+  }
+
+  return { api: { message, confirm } as FeedbackApi, messages, confirms, state }
+}
+
 export function createMockAdapter(overrides?: DeepPartial<Capabilities>): UiAdapter {
   return {
     meta: {
@@ -391,6 +434,8 @@ export function createMockAdapter(overrides?: DeepPartial<Capabilities>): UiAdap
       platform: 'desktop',
     },
     capabilities: mergeCapabilities(defaultMockCapabilities, overrides),
+    // 测试用 feedback：记录调用而不真正弹窗，便于断言
+    feedback: createMockFeedback().api,
     primitives: createMockPrimitives(),
     RootProvider: defineComponent({
       name: 'MockRootProvider',

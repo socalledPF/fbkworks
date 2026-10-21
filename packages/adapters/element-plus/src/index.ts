@@ -5,6 +5,7 @@ import { Select } from './primitives/Select'
 import { Checkbox } from './primitives/Checkbox'
 import { DatePicker } from './primitives/DatePicker'
 import { Radio } from './primitives/Radio'
+import { feedback } from './feedback'
 import { Form, FormItem } from './primitives/Form'
 import { DataGrid } from './primitives/DataGrid'
 import { Pagination } from './primitives/Pagination'
@@ -40,7 +41,7 @@ export const elementPlusCapabilities: Capabilities = {
 
 export const elementPlusAdapter: UiAdapter = {
   meta: {
-    apiVersion: 1,
+    apiVersion: 2,
     name: 'element-plus',
     version: '0.1.0',
     uiLibrary: { name: 'element-plus', version: '^2.8.0' },
@@ -48,6 +49,7 @@ export const elementPlusAdapter: UiAdapter = {
   },
   capabilities: elementPlusCapabilities,
   primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
+  feedback,
   RootProvider,
   theme: elementTheme,
 }

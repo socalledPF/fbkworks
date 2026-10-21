@@ -12,6 +12,7 @@ import {
 import type { ThemeMode } from '@fbk/adapter-core'
 import type { FbkTokens } from '@fbk/tokens'
 import { naiveProviderProps } from './theme'
+import { installFeedback } from './feedback'
 import { PAGINATION_SUFFIX } from './locale-context'
 
 const locales: Record<string, { locale: any; dateLocale: any }> = {
@@ -68,9 +69,26 @@ export const RootProvider = defineComponent({
         dateLocale={localePack.value.dateLocale}
       >
         <NMessageProvider>
-          <NDialogProvider>{slots.default?.()}</NDialogProvider>
+          <NDialogProvider>
+            <FeedbackInstaller>{slots.default?.()}</FeedbackInstaller>
+          </NDialogProvider>
         </NMessageProvider>
       </NConfigProvider>
     )
+  },
+})
+
+/**
+ * 在 NMessageProvider / NDialogProvider **内部**调用 installFeedback。
+ *
+ * 为什么需要这个内部组件：useMessage / useDialog 依赖 inject，
+ * 必须在 provider 的后代里调用。放在 RootProvider 自己的 setup 里
+ * 拿到的是空实例，运行时报「No outer <n-message-provider /> founded」。
+ */
+const FeedbackInstaller = defineComponent({
+  name: 'FbkNaiveFeedbackInstaller',
+  setup(_props, { slots }) {
+    installFeedback()
+    return () => slots.default?.()
   },
 })

@@ -205,6 +205,28 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       })
     }
 
+
+    it('提供 feedback：message 四种语义 + confirm', () => {
+      const f = adapter.feedback
+      expect(f, '缺少 feedback').toBeTruthy()
+      expect(typeof f.message).toBe('function')
+      for (const kind of ['success', 'warning', 'error', 'info'] as const) {
+        expect(typeof f.message[kind], `message.${kind} 不是函数`).toBe('function')
+      }
+      expect(typeof f.confirm).toBe('function')
+
+      /* 刻意**不**调用 f.confirm()：它会弹出真实模态框并等待用户点击，
+         在测试环境里永远不 resolve（实测 5s 超时）。
+         契约对 confirm 的承诺（resolve 布尔而非 reject）由各适配器的
+         单元测试用 mock 验证，这里只断言形态。 */
+    })
+
+    it('feedback 的调用不抛错（无 provider 时降级）', () => {
+      // 未包 RootProvider 时 naive 会降级、vant/element 直接可用；
+      // 无论哪种，都不应该把异常抛给业务侧
+      expect(() => adapter.feedback.message.info('契约测试')).not.toThrow()
+    })
+
     it('主题桥 apply 幂等', () => {
       const apply = vi.spyOn(adapter.theme, 'apply')
       adapter.theme.apply('light', defaultTokens)

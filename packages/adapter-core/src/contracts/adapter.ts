@@ -1,11 +1,15 @@
 import type { Component } from 'vue'
 import type { ThemeBridge } from './theme'
+import type { FeedbackApi } from './feedback'
 
 /**
  * 适配器契约版本。core 在安装时校验，不匹配直接抛错。
- * P0 结束后冻结为 1；破坏性变更必须提升此值并写迁移指南。
+ *
+ * 版本 2：新增 DatePicker / Radio 原语与 `feedback` 命令式 API。
+ * 三者都是**必填**，旧适配器缺少它们会在启动时被 assertAdapterCompatible
+ * 拦下，因此属于破坏性变更 —— 版本号必须提升。
  */
-export const ADAPTER_API_VERSION = 1
+export const ADAPTER_API_VERSION = 2
 
 export interface AdapterMeta {
   apiVersion: number
@@ -94,6 +98,11 @@ export interface UiAdapter {
   meta: AdapterMeta
   capabilities: Capabilities
   primitives: UiPrimitives
+  /**
+   * 命令式反馈 API（消息提示 / 确认框）。
+   * 不放在 primitives 里：那不是组件，调用方式完全不同。
+   */
+  feedback: FeedbackApi
   /** 承载 locale / theme / size 的根组件 */
   RootProvider: Component
   theme: ThemeBridge
@@ -129,6 +138,9 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
   const missing = required.filter((key) => !adapter.primitives?.[key])
   if (missing.length) {
     throw new Error(`[fbk] 适配器 "${adapter.meta.name}" 缺少原语：${missing.join(', ')}。`)
+  }
+  if (!adapter.feedback?.message || !adapter.feedback?.confirm) {
+    throw new Error(`[fbk] 适配器 "${adapter.meta.name}" 缺少 feedback（message / confirm）。`)
   }
   if (!adapter.RootProvider) {
     throw new Error(`[fbk] 适配器 "${adapter.meta.name}" 缺少 RootProvider。`)
