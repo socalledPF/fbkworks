@@ -185,3 +185,43 @@ CrudPage demo 截图显示：批量条占一行，"新建"按钮单独占一行�
 
 `scripts/visual/compare-controls.py` 现在同时采集 header 的 button 与
 select，并把 select 必需的 3 项差异列入白名单，其余任何差异都报错。
+
+---
+
+## 四次确认：header 下拉框直接对齐业务组件的 Select
+
+用户的意见更明确：「header 里的下拉框直接和基础查询表单里的状态下拉框一样就可以了」。
+
+这比我自己折腾 `line-height` 更可靠 —— **有现成的基准就该照搬，不要另起一套**。
+
+### 实测基准（.el-select__wrapper，真正承载外观的那一层）
+
+| 属性 | 值 |
+|---|---|
+| 高度 | 32px |
+| 内边距 | `4px 12px` |
+| 行高 | 24px |
+| 圆角 | `--fbk-radius-md` (6px) |
+| 边框 | **`box-shadow: inset 0 0 0 1px`**，不是 `border` |
+| 底色 / 文字色 | `bg-container` / `text` |
+
+### 关键发现：边框用 box-shadow 而不是 border
+
+element-plus 新版用内阴影画边框。这不只是写法差异：
+
+- `border` 占盒模型 → 32px 高里只剩 30px 可用
+- `box-shadow` 不占盒模型 → 32px 全是可用空间
+
+两者高度数值相同，但内部可用空间差 2px，文字基线随之偏移。
+**这就是之前"高度一样但看起来不一样"的真正原因。**
+
+### 最终状态
+
+header select vs 业务 Select：**只有 `padding-right` 多 12px**（给下拉箭头留位），
+其余 9 项完全一致。
+
+同时把 `.fbk-demo-btn` 也同步到同一规格（`line-height: 24px`、
+`padding: 4px 12px`、`box-shadow` 边框），否则 demo 按钮会与 header 脱节。
+
+对比脚本新增「header select vs 业务 Select」一项，基准取
+`.el-select__wrapper`，白名单只放 select 必需的 3 项。

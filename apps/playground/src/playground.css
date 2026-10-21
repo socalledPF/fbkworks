@@ -51,42 +51,54 @@ body {
    刻意不直接用 @fbk/components 的 Button：
    Playground 的顶部是工具条、不是业务界面，且"用组件测组件"会让
    评审时看不清组件在真实业务里的样子。 */
+/*
+ * 顶部控件的外观**直接照搬业务组件的 Select / Button**，而不是另起一套。
+ *
+ * 基准来自实测的 .el-select__wrapper（基础查询表单里的状态下拉框）：
+ *   高度 32px、内边距 4px 12px、圆角 --fbk-radius-md、
+ *   底色 bg-container、文字色 text、**边框用 box-shadow inset 而不是 border**。
+ *
+ * 最后一条很关键：element-plus 新版用
+ *   box-shadow: inset 0 0 0 1px <border-color>
+ * 画边框，而不是 border。用 border 会导致：
+ *   · 控件外框尺寸比业务控件大 2px（border 占盒模型，box-shadow 不占）
+ *   · 焦点/悬停时边框色的过渡表现不同
+ * 实测两者高度都是 32px，但内部可用空间差 2px，文字基线随之偏移。
+ */
 .playground__field select,
 .playground__toggle {
-  /* button 用 flex 居中；select 是替换元素、不吃 flex 对齐，
-     它的居中在下面单独用 line-height 处理。 */
   display: inline-flex;
   align-items: center;
   /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值
      （Arial / 13.33px），这是之前最明显的割裂点。 */
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
-  /* 行高显式声明：不写就是 normal，与 demo 的 14px 不同，
-     同一行里文字基线会差 1px。 */
-  line-height: 1;
-  /* 与业务组件控件同高，视觉上才在同一栅格里 */
+  /* 与业务 Select 的 line-height 一致（24px） */
+  line-height: 24px;
+  /* 与业务组件控件同高 */
   height: 32px;
-  /* 内边距与 demo 的 .fbk-demo-btn 一致（--fbk-spacing-md = 12px）。
-     之前用 --fbk-spacing-sm（8px），比 demo 窄 4px。 */
-  padding: 0 var(--fbk-spacing-md);
+  /* 内边距照搬业务 Select：4px 12px */
+  padding: 4px var(--fbk-spacing-md);
   color: var(--fbk-color-text);
   cursor: pointer;
   background: var(--fbk-color-bg-container);
-  border: 1px solid var(--fbk-color-border);
+  /* 边框用内阴影，与 element-plus 的做法一致；不占盒模型 */
+  border: none;
   border-radius: var(--fbk-radius-md);
-  transition: border-color 0.15s ease;
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
+  transition: box-shadow 0.15s ease;
 }
 
 .playground__field select:hover,
 .playground__toggle:hover {
-  border-color: var(--fbk-color-border-strong);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
 }
 
 /* 焦点环与业务组件一致，键盘用户能看清当前位置 */
 .playground__field select:focus-visible,
 .playground__toggle:focus-visible {
   outline: none;
-  box-shadow: var(--fbk-shadow-focus-ring);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary), var(--fbk-shadow-focus-ring);
 }
 
 /* select 的下拉箭头：原生箭头在各平台差异很大，换成与设计系统一致的绘制箭头。

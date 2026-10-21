@@ -20,29 +20,34 @@
   /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值 */
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
-  line-height: 1;
-  /* 与业务组件的 md 尺寸按钮同高，视觉上才在同一栅格里 */
+  /* 与业务组件 Select 的 line-height 一致（24px）。
+     两者都是 32px 高的控件，行高不同会导致文字基线偏移。 */
+  line-height: 24px;
+  /* 与业务组件的 md 尺寸控件同高，视觉上才在同一栅格里 */
   height: 32px;
-  padding: 0 var(--fbk-spacing-md);
+  /* 内边距照搬业务 Select：4px 12px */
+  padding: 4px var(--fbk-spacing-md);
   color: var(--fbk-color-text);
   white-space: nowrap;
   cursor: pointer;
   background: var(--fbk-color-bg-container);
-  border: 1px solid var(--fbk-color-border);
+  /* 边框用内阴影，与 element-plus 一致（不占盒模型，内部可用空间相同） */
+  border: none;
   border-radius: var(--fbk-radius-md);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
   transition:
     border-color 0.15s ease,
     background-color 0.15s ease;
 }
 
 .fbk-demo-btn:hover:not(:disabled) {
-  border-color: var(--fbk-color-border-strong);
   background: var(--fbk-color-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
 }
 
 .fbk-demo-btn:focus-visible {
   outline: none;
-  box-shadow: var(--fbk-shadow-focus-ring);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary), var(--fbk-shadow-focus-ring);
 }
 
 .fbk-demo-btn:disabled {
@@ -56,19 +61,19 @@
 .fbk-demo-btn--primary {
   color: var(--fbk-color-on-primary);
   background: var(--fbk-color-primary);
-  border-color: var(--fbk-color-primary);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary);
 }
 
 .fbk-demo-btn--primary:hover:not(:disabled) {
   background: var(--fbk-color-primary-fill-hover);
-  border-color: var(--fbk-color-primary-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary-fill-hover);
 }
 
 /* 当前选中态：用于 result demo 的状态切换 */
 .fbk-demo-btn--active {
   color: var(--fbk-color-primary-text);
   background: var(--fbk-color-primary-bg);
-  border-color: var(--fbk-color-primary-border);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary-border);
 }
 
 /* 按钮组：与 FormModal 底部、QueryForm 操作区同一套间距 */
