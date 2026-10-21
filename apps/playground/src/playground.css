@@ -35,17 +35,65 @@ body {
   color: var(--fbk-color-text-secondary);
 }
 
+/* ============================================================
+   Playground 顶部控件
+   ============================================================
+   这些是原生 <select> / <button>，浏览器默认样式是 Arial 13.33px、
+   2px 圆角、系统灰底 —— 与业务组件完全是两套视觉语言。
+   Playground 是评审环境，它本身不像产品就没法判断组件好不好看，
+   所以这里用 --fbk-* 令牌把它们拉回设计系统。
+
+   刻意不直接用 @fbk/components 的 Button：
+   Playground 的顶部是工具条、不是业务界面，且"用组件测组件"会让
+   评审时看不清组件在真实业务里的样子。 */
 .playground__field select,
 .playground__toggle {
-  padding: 4px 8px;
+  /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值
+     （Arial / 13.33px），这是之前最明显的割裂点。 */
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  /* 与业务组件控件同高，视觉上才在同一栅格里 */
+  height: 32px;
+  padding: 0 var(--fbk-spacing-sm);
   color: var(--fbk-color-text);
-  background: var(--fbk-color-bg);
+  cursor: pointer;
+  background: var(--fbk-color-bg-container);
   border: 1px solid var(--fbk-color-border);
-  border-radius: var(--fbk-radius-sm);
+  border-radius: var(--fbk-radius-md);
+  transition: border-color 0.15s ease;
 }
 
-.playground__toggle {
-  cursor: pointer;
+.playground__field select:hover,
+.playground__toggle:hover {
+  border-color: var(--fbk-color-border-strong);
+}
+
+/* 焦点环与业务组件一致，键盘用户能看清当前位置 */
+.playground__field select:focus-visible,
+.playground__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--fbk-shadow-focus-ring);
+}
+
+/* 原生 select 的下拉箭头在各平台差异很大，换成与设计系统一致的绘制箭头 */
+.playground__field select {
+  padding-right: var(--fbk-spacing-xl);
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 14px) calc(50% - 2px),
+    calc(100% - 9px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+}
+
+/* 减少动效偏好：去掉过渡 */
+@media (prefers-reduced-motion: reduce) {
+  .playground__field select,
+  .playground__toggle {
+    transition: none;
+  }
 }
 
 .playground__body {

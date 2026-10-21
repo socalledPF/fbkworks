@@ -289,3 +289,16 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+/* ============================================================
+   feedback 确认框：按钮间距
+   ============================================================
+   element-plus 的 .el-message-box__btns 是 flex 但**没有 gap**，
+   两个按钮紧贴在一起（实测间距 0px）。而 naive-ui 自带 12px，
+   三个适配器不一致 —— PC 端 element 与 naive 都用于桌面，必须对齐。
+
+   用单个类选择器（特异性 0,1,0），消费方仍可用更高特异性覆盖。 */
+.el-message-box__btns {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+}

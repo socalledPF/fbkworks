@@ -343,3 +343,25 @@
 .fbk-query-form .n-date-picker .n-input {
   width: 100%;
 }
+
+/* ============================================================
+   feedback 确认框：按钮间距对齐 element-plus
+   ============================================================
+   naive 自带 12px（.n-dialog__action 的子按钮有 margin-left），
+   而 element-plus 是 0。统一成 8px（--fbk-spacing-sm），
+   与 FormModal 底部按钮组、QueryForm 操作区保持同一数值。 */
+.n-dialog__action {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+}
+
+/* naive 的按钮间距来自 --n-action-space（默认 12px），
+   规则是 `.n-dialog .n-dialog__action > :not(:last-child) { margin-right: var(--n-action-space) }`。
+   但这个变量是 naive 用 CSS-in-JS 写在 .n-dialog 的**行内样式**上的，
+   行内样式优先级高于任何普通选择器 —— 实测普通规则改不动它。
+
+   这里必须用 !important。理由：这是覆盖第三方库行内变量的唯一手段，
+   且作用域限定在 .n-dialog 内的 --n-action-space，不影响消费方其他样式。 */
+.n-dialog {
+  --n-action-space: 0 !important;
+}

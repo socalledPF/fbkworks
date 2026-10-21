@@ -180,3 +180,19 @@
   color: var(--fbk-form-item-help-fg);
   font-size: var(--fbk-form-item-help-font-size);
 }
+
+/* ============================================================
+   feedback 确认框：按钮间距
+   ============================================================
+   vant 的 .van-dialog__footer 用等分按钮布局，按钮之间没有间隙
+   （实测 0px）。移动端触控场景下两个按钮紧贴极易误触。
+   这里加 gap 并保留原来的等分行为。 */
+.van-dialog__footer {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+}
+
+/* 等分布局 + gap 时，按钮宽度由 flex 分配，边框不会重叠 */
+.van-dialog__footer::after {
+  display: none;
+}

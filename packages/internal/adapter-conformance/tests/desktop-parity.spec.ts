@@ -177,6 +177,53 @@ describe('桌面端双适配器一致性', () => {
     }
   })
 
+
+  /**
+   * feedback 确认框的按钮间距。
+   *
+   * 实测三个适配器原本不一致：element-plus 与 vant 都是 0px
+   * （按钮紧贴），naive 是 12px。PC 端 element 与 naive 都用于桌面，
+   * 这种差异必须消除。统一到 --fbk-spacing-sm（8px）。
+   *
+   * jsdom 没有布局引擎、量不出实际间距，因此这里断言 CSS 里
+   * 确实存在对应规则 —— 配合浏览器实测脚本一起守住。
+   */
+  it('两个桌面适配器的 style.css 都约束了确认框按钮间距', () => {
+    const cases: Record<string, { file: string; selector: string }> = {
+      'element-plus': { file: 'element-plus', selector: '.el-message-box__btns' },
+      'naive-ui': { file: 'naive-ui', selector: '--n-action-space' },
+    }
+
+    for (const [name] of adapters) {
+      const { file, selector } = cases[name]
+      const css = readFileSync(
+        join(import.meta.dirname, '..', '..', '..', 'adapters', file, 'src', 'style.css'),
+        'utf8',
+      )
+      expect(css, `${name} 缺少确认框按钮间距规则`).toContain(selector)
+      // 必须引用间距令牌，而不是写死像素
+      expect(css, `${name} 的确认框间距应使用 --fbk-spacing-sm`).toContain('--fbk-spacing-sm')
+    }
+  })
+
+  /**
+   * Playground 的控件必须使用设计系统令牌。
+   *
+   * 它是评审环境：控件本身是浏览器默认样式（Arial / 13.33px）时，
+   * 就没法判断组件到底好不好看。断言样式表里对原生 select/button
+   * 显式声明了字体与字号。
+   */
+  it('Playground 控件显式声明了字体与字号', () => {
+    const css = readFileSync(
+      join(import.meta.dirname, '..', '..', '..', '..', 'apps', 'playground', 'src', 'playground.css'),
+      'utf8',
+    )
+    // 找到 select/button 的规则块
+    const block = css.slice(css.indexOf('.playground__field select'))
+    expect(block.slice(0, 600)).toContain('font-family: var(--fbk-font-family)')
+    expect(block.slice(0, 600)).toContain('font-size: var(--fbk-font-size-md)')
+  })
+
   it('DataGrid 空态文案可透传', async () => {
     for (const [name, adapter] of adapters) {
       const wrapper = mountPrimitive(adapter, adapter.primitives.DataGrid, {
