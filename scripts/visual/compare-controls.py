@@ -46,6 +46,8 @@ PROPS = [
     "borderColor",
     "backgroundColor",
     "color",
+    "backgroundImage",
+    "appearance",
 ]
 
 with sync_playwright() as p:
@@ -54,17 +56,25 @@ with sync_playwright() as p:
     page.goto(URL)
     page.wait_for_load_state("networkidle")
 
-    # header 基准
+    # header 基准：button 与 select 分别采集。
+    # select 有两处必要的自身差异（右侧箭头留位、自绘箭头、去掉原生外观），
+    # 其余属性必须与 demo 按钮一致。
     baseline = page.evaluate(
         """(props) => {
-          const el = document.querySelector('.playground__toggle');
-          const cs = getComputedStyle(el);
-          const out = {};
-          for (const k of props) out[k] = cs[k];
-          return out;
+          const grab = (sel) => {
+            const el = document.querySelector(sel);
+            if (!el) return null;
+            const cs = getComputedStyle(el);
+            const out = {};
+            for (const k of props) out[k] = cs[k];
+            return out;
+          };
+          return { button: grab('.playground__toggle'), select: grab('.playground__field select') };
         }""",
         PROPS,
     )
+    baseBtn = baseline["button"]
+    baseSel = baseline["select"]
 
     sels = page.locator(".playground__field select")
     findings = []
@@ -90,7 +100,8 @@ with sync_playwright() as p:
 
     browser.close()
 
-print(f"header 基准: {json.dumps(baseline, ensure_ascii=False)}")
+print(f"header button: {json.dumps(baseBtn, ensure_ascii=False)}")
+print(f"header select: {json.dumps(baseSel, ensure_ascii=False)}")
 print(f"\n扫描到 {len(findings)} 个 .fbk-demo-btn\n")
 
 # 合法差异：
@@ -101,7 +112,7 @@ VARIANT_ONLY = {"borderColor", "backgroundColor", "color"}
 
 bad = []
 for f in findings:
-    diffs = {k: (baseline[k], f[k]) for k in PROPS if baseline[k] != f[k]}
+    diffs = {k: (baseBtn[k], f[k]) for k in PROPS if baseBtn[k] != f[k]}
     if not diffs:
         continue
 
@@ -116,8 +127,26 @@ for f in findings:
 
     bad.append({**f, "diffs": non_color})
 
+# select 与 demo 按钮的对比。SELECT_ONLY 是 select 作为下拉框的必要差异。
+SELECT_ONLY = {"padding", "backgroundImage", "appearance"}
+sel_diffs = {k: (baseSel[k], baseBtn[k]) for k in PROPS if baseSel[k] != baseBtn[k]}
+sel_bad = {k: v for k, v in sel_diffs.items() if k not in SELECT_ONLY}
+
+print("\n" + "=" * 70)
+print("header select vs header button（demo 按钮与之同规格）")
+print("=" * 70)
+if sel_bad:
+    print("存在非必要差异：")
+    for k, (a, b) in sel_bad.items():
+        print(f"  ✗ {k:16} select={a!r:30} button={b!r}")
+    bad.append({"demo": "(header)", "text": "select", "diffs": sel_bad})
+else:
+    print("除 select 必需的 3 项（箭头留位/自绘箭头/去原生外观）外完全一致")
+    for k, (a, b) in sel_diffs.items():
+        print(f"  · {k:16} select={str(a)[:36]:38} button={str(b)[:36]}")
+
 if not bad:
-    print("所有 .fbk-demo-btn 与 header 控件完全一致")
+    print("\n所有 .fbk-demo-btn 与 header 控件完全一致")
     sys.exit(0)
 else:
     print(f"存在差异的按钮：{len(bad)}")

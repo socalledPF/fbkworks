@@ -150,3 +150,38 @@ CrudPage demo 截图显示：批量条占一行，"新建"按钮单独占一行�
 ### 最终结果
 
 19 个 demo 按钮与 header 控件完全一致。
+
+---
+
+## 三次确认：header 的 select 与 demo 控件
+
+用户指出 select 与 demo 仍不一致。实测后确认问题真实存在，
+且**不是数值差异，而是视觉上的垂直居中失效**：
+
+| 属性 | select | button | 说明 |
+|---|---|---|---|
+| `line-height` | 曾设为 30px | 14px | **这是根因** |
+| `padding` | `0 24px 0 12px` | `0 12px` | 右侧 12px 给下拉箭头，必要 |
+| `backgroundImage` | 自绘箭头 | none | 必要 |
+| `appearance` | none | auto | 必要 |
+
+### 根因
+
+我一开始以为 select 是「替换元素、flex 的 align-items 管不到它」，
+于是加了 `line-height: 30px` 想用行高撑满。**这个判断是错的**：
+`appearance: none` 之后 select 已经是普通块级盒，flex 能正常居中。
+`line-height: 30px` 反而把行盒撑得比内容盒还高，导致文字偏上。
+
+删掉这条覆盖后，select 的 line-height 回到继承值 14px，
+与 button 一致，flex 居中正常工作。
+
+### 教训
+
+**「看起来不对」时，先量再改，不要凭对浏览器行为的记忆下结论。**
+我这次凭印象认定 select 是替换元素，加了一条错误的补救规则，
+反而制造了新问题。截图对比 + 计算样式测量才是可靠路径。
+
+### 对比脚本增强
+
+`scripts/visual/compare-controls.py` 现在同时采集 header 的 button 与
+select，并把 select 必需的 3 项差异列入白名单，其余任何差异都报错。

@@ -53,6 +53,10 @@ body {
    评审时看不清组件在真实业务里的样子。 */
 .playground__field select,
 .playground__toggle {
+  /* button 用 flex 居中；select 是替换元素、不吃 flex 对齐，
+     它的居中在下面单独用 line-height 处理。 */
+  display: inline-flex;
+  align-items: center;
   /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值
      （Arial / 13.33px），这是之前最明显的割裂点。 */
   font-family: var(--fbk-font-family);
@@ -85,7 +89,8 @@ body {
   box-shadow: var(--fbk-shadow-focus-ring);
 }
 
-/* 原生 select 的下拉箭头在各平台差异很大，换成与设计系统一致的绘制箭头 */
+/* select 的下拉箭头：原生箭头在各平台差异很大，换成与设计系统一致的绘制箭头。
+   右侧多留的空间是箭头位置，属于 select 特有的必要差异。 */
 .playground__field select {
   padding-right: var(--fbk-spacing-xl);
   appearance: none;
