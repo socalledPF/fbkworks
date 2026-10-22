@@ -28,6 +28,7 @@ tokens ← shared ← adapter-core ← adapters
 ```bash
 pnpm install
 pnpm playground   # http://localhost:5174，运行时切换适配器与主题
+pnpm admin        # http://localhost:5185，完整后台管理系统 demo
 pnpm docs:dev     # VitePress 文档站
 ```
 
@@ -74,6 +75,7 @@ pnpm verify        # 一次跑完全部门禁
 apps/
   docs/                  VitePress 文档站（demo 来自 @fbk/demos）
   playground/            三适配器调试台
+  admin/                 后台管理系统 demo（吃自己的狗粮测试）
 packages/
   tokens/ shared/ adapter-core/ components/ resolver/
   adapters/{element-plus,vant,naive-ui}/

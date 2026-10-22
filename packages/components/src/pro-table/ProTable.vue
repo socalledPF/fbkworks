@@ -224,7 +224,17 @@ defineExpose<ProTableExpose<T>>({
 
 <template>
   <div class="fbk-pro-table" :class="{ 'fbk-pro-table--cards': adapter.capabilities.dataGrid.presentation === 'cards' }">
-    <!-- 表头全选。只有渲染了选择列、且有数据时才出现；
+
+    <!-- toolbar 默认 true 只表示「允许工具栏」。没有插槽时不该渲染容器 ——
+         虽然 :empty 能兜住，但少一个空节点对可访问性和 DOM 快照都更干净。 -->
+    <div v-if="$slots.toolbar" class="fbk-pro-table__toolbar" v-bind="toolbarAttrs">
+      <slot name="toolbar" :selected-keys="innerSelected" :reload="reload" />
+    </div>
+
+    <!-- 表头全选 + 批量操作。
+         位置在工具栏**之后**：主操作（新建/导出）是常驻的，应该在上面；
+         批量条是选中后才出现的次要操作，紧贴表格更符合后台惯例。
+         早期放在工具栏之前，导致「新建」被挤到批量条下方，层级颠倒。
          卡片模式（vant）没有表头，放在工具栏里反而更自然。 -->
     <div
       v-if="selectionEnabled && rowKeys.length > 0"
@@ -246,12 +256,6 @@ defineExpose<ProTableExpose<T>>({
         已选 {{ innerSelected.length }} 项
       </span>
       <slot name="bulk-actions" :selected-keys="innerSelected" :clear="clearSelection" />
-    </div>
-
-    <!-- toolbar 默认 true 只表示「允许工具栏」。没有插槽时不该渲染容器 ——
-         虽然 :empty 能兜住，但少一个空节点对可访问性和 DOM 快照都更干净。 -->
-    <div v-if="$slots.toolbar" class="fbk-pro-table__toolbar" v-bind="toolbarAttrs">
-      <slot name="toolbar" :selected-keys="innerSelected" :reload="reload" />
     </div>
 
     <component

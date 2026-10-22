@@ -1,0 +1,112 @@
+/**
+ * 应用级样式。
+ *
+ * 只放两样东西：
+ *   1. 全局 reset（组件库不管这个，是应用的职责）
+ *   2. .admin-btn —— demo 自己的按钮
+ *
+ * 注意 .admin-btn 刻意不复用 @fbk/components 的 Button：
+ * 这个 demo 要检验的是**业务组件**（ProTable/CrudPage/FormGenerator），
+ * 按钮只是脚手架。用被测组件当脚手架会让问题归因变得模糊。
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg);
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ============ 通用按钮 ============ */
+.admin-btn {
+  display: inline-flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  justify-content: center;
+  padding: 4px var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: 24px;
+  color: var(--fbk-color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--fbk-color-bg-container);
+  border: none;
+  border-radius: var(--fbk-radius-md);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-btn:hover:not(:disabled) {
+  background: var(--fbk-color-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
+}
+
+.admin-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--fbk-color-primary),
+    var(--fbk-shadow-focus-ring);
+}
+
+.admin-btn:disabled {
+  color: var(--fbk-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.admin-btn--primary {
+  color: var(--fbk-color-on-primary);
+  background: var(--fbk-color-primary);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary);
+}
+
+.admin-btn--primary:hover:not(:disabled) {
+  background: var(--fbk-color-primary-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-primary-fill-hover);
+}
+
+.admin-btn--danger {
+  color: var(--fbk-color-danger-text);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-danger-border);
+}
+
+.admin-btn--danger:hover:not(:disabled) {
+  background: var(--fbk-color-danger-bg);
+}
+
+.admin-btn--link {
+  padding: 0;
+  color: var(--fbk-color-primary-text);
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-btn--link:hover:not(:disabled) {
+  background: transparent;
+  text-decoration: underline;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-btn {
+    transition: none;
+  }
+}

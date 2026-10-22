@@ -14,6 +14,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "playground": "pnpm --filter @fbk/playground dev",
+    "admin": "pnpm --filter @fbk/admin dev",
     "docs:dev": "pnpm --filter @fbk/docs dev",
     "docs:build": "turbo run docs:build",
     "check:packages": "pnpm -r --filter \"./packages/**\" exec publint",

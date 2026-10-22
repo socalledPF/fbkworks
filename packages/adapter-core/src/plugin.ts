@@ -5,6 +5,7 @@ import {
   inject,
   provide,
   ref,
+  watch,
   watchEffect,
   type App,
   type Component,
@@ -113,6 +114,33 @@ export const FbkProvider = defineComponent({
       tokens: props.tokens ?? parent?.tokens ?? defaultTokens,
     })
     provide(ADAPTER_CONTEXT, ctx)
+
+    /*
+     * theme / locale / size 三个 prop 必须与内部 ctx 保持同步。
+     *
+     * 早期只在 setup 时读一次 props.theme 传给 createAdapterContext，
+     * 之后 props.theme 变化完全不生效 —— `<FbkProvider :theme="theme">`
+     * 配合 v-model 切换主题时，界面纹丝不动。
+     * 实测症状：切暗色后 data-fbk-theme 仍是 light、表格仍白底。
+     */
+    watch(
+      () => props.theme,
+      (next) => {
+        if (next !== undefined) ctx.setThemeMode(next)
+      },
+    )
+    watch(
+      () => props.locale,
+      (next) => {
+        if (next !== undefined) ctx.locale.value = next
+      },
+    )
+    watch(
+      () => props.size,
+      (next) => {
+        if (next !== undefined) ctx.size.value = next
+      },
+    )
 
     watchEffect(() => {
       ctx.adapter.theme.apply(resolveTheme(ctx.themeMode.value), ctx.tokens)

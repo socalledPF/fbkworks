@@ -84,6 +84,39 @@ importers:
         specifier: ^2.2.0
         version: 2.2.12(typescript@5.9.3)
 
+  apps/admin:
+    dependencies:
+      '@fbk/adapter-core':
+        specifier: workspace:*
+        version: link:../../packages/adapter-core
+      '@fbk/adapter-element-plus':
+        specifier: workspace:*
+        version: link:../../packages/adapters/element-plus
+      '@fbk/chart-core':
+        specifier: workspace:*
+        version: link:../../packages/chart-core
+      '@fbk/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@fbk/dashboard':
+        specifier: workspace:*
+        version: link:../../packages/dashboard
+      '@fbk/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@fbk/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
+      element-plus:
+        specifier: ^2.8.8
+        version: 2.14.7(vue@3.5.44(typescript@5.9.3))
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.44(typescript@5.9.3)
+
   apps/docs:
     dependencies:
       '@fbk/adapter-core':

@@ -281,11 +281,40 @@ export default tseslint.config(
     },
   },
 
-  // 边界 4：Playground 与文档站是唯一允许同时依赖三个适配器的应用（都不发布）
+  // 边界 4：应用层（不发布）允许依赖适配器
   {
     files: ['apps/playground/**/*.{ts,tsx,vue}', 'apps/docs/**/*.{ts,tsx,vue,mts}'],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+
+  /*
+   * admin 是「只接一个适配器」的应用 demo。
+   *
+   * 与 playground 的区别值得保留在规则里：playground 是组件评审台，
+   * 需要同时接三个适配器对比；admin 模拟真实项目，只该接一个。
+   * 所以这里**只放行 element-plus**，同时接其他适配器仍会报错 ——
+   * 防止 demo 慢慢退化成第二个 playground。
+   */
+  {
+    files: ['apps/admin/**/*.{ts,tsx,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@fbk/adapter-vant',
+              message: 'admin demo 只接 element-plus 一个适配器（模拟真实项目）。',
+            },
+            {
+              name: '@fbk/adapter-naive-ui',
+              message: 'admin demo 只接 element-plus 一个适配器（模拟真实项目）。',
+            },
+          ],
+        },
+      ],
     },
   },
 

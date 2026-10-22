@@ -1,0 +1,273 @@
+/**
+ * 后台布局样式。
+ *
+ * 全部走设计令牌 —— 这是对组件库令牌体系的一次压力测试：
+ * 如果令牌不够用，这里就会被迫写死色值。
+ */
+
+.admin-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--fbk-color-bg);
+}
+
+/* ============ 侧边栏 ============ */
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 220px;
+  background: var(--fbk-color-bg-container);
+  border-right: 1px solid var(--fbk-color-border-light);
+  transition: width 0.2s ease;
+}
+
+.admin-layout--collapsed .admin-sidebar {
+  width: 64px;
+}
+
+.admin-sidebar__brand {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  height: 56px;
+  padding: 0 var(--fbk-spacing-lg);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.admin-sidebar__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: var(--fbk-font-size-md);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-on-primary);
+  background: var(--fbk-color-primary);
+  border-radius: var(--fbk-radius-md);
+}
+
+.admin-sidebar__name {
+  overflow: hidden;
+  font-size: var(--fbk-font-size-md);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+  white-space: nowrap;
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--fbk-spacing-sm);
+  overflow-y: auto;
+}
+
+.admin-menu {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  width: 100%;
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  color: var(--fbk-color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--fbk-radius-md);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-menu:hover {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill-hover);
+}
+
+.admin-menu.is-active {
+  font-weight: var(--fbk-font-weight-medium);
+  color: var(--fbk-color-primary-text);
+  background: var(--fbk-color-primary-bg);
+}
+
+.admin-menu:focus-visible {
+  outline: none;
+  box-shadow: var(--fbk-shadow-focus-ring);
+}
+
+.admin-menu__icon {
+  flex-shrink: 0;
+  width: 18px;
+  font-size: var(--fbk-font-size-lg);
+  text-align: center;
+}
+
+.admin-menu__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 子菜单缩进，并用左侧细线表示层级 */
+.admin-menu--child {
+  padding-left: calc(var(--fbk-spacing-md) + 18px + var(--fbk-spacing-sm));
+}
+
+.admin-menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-menu-group__label {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+  font-size: var(--fbk-font-size-md);
+  color: var(--fbk-color-text-tertiary);
+}
+
+.admin-sidebar__footer {
+  padding: var(--fbk-spacing-sm);
+  border-top: 1px solid var(--fbk-color-border-light);
+}
+
+.admin-sidebar__collapse {
+  width: 100%;
+  padding: var(--fbk-spacing-xs);
+  font-size: var(--fbk-font-size-md);
+  color: var(--fbk-color-text-tertiary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--fbk-radius-md);
+}
+
+.admin-sidebar__collapse:hover {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill-hover);
+}
+
+/* ============ 主区 ============ */
+.admin-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-topbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 var(--fbk-spacing-lg);
+  background: var(--fbk-color-bg-container);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.admin-topbar__left,
+.admin-topbar__right {
+  display: flex;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+}
+
+.admin-topbar__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: var(--fbk-font-size-lg);
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--fbk-radius-md);
+}
+
+.admin-topbar__icon-btn:hover {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill-hover);
+}
+
+.admin-topbar__icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--fbk-shadow-focus-ring);
+}
+
+.admin-user {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+}
+
+.admin-user__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: var(--fbk-font-size-sm);
+  font-weight: var(--fbk-font-weight-medium);
+  color: var(--fbk-color-on-primary);
+  background: var(--fbk-color-primary);
+  border-radius: var(--fbk-radius-round);
+}
+
+.admin-user__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.admin-user__name {
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text);
+}
+
+.admin-user__role {
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-tertiary);
+}
+
+.admin-topbar__logout {
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-md);
+}
+
+.admin-topbar__logout:hover {
+  color: var(--fbk-color-danger-text);
+  border-color: var(--fbk-color-danger-border);
+}
+
+.admin-content {
+  flex: 1;
+  min-height: 0;
+  padding: var(--fbk-spacing-lg);
+  overflow-y: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar,
+  .admin-menu {
+    transition: none;
+  }
+}
