@@ -36,18 +36,28 @@ const scale = ref(1)
 const scaleX = ref(1)
 const scaleY = ref(1)
 
+/**
+ * 舞台定位。
+ *
+ * 数学要点（这里踩过坑）：`translate(-50%, -50%)` 的百分比相对
+ * **元素自身尺寸**，而 `transform-origin: top left` 让缩放以左上角为基准。
+ * 两者组合时，必须先 `scale` 再 `translate` —— 这样 translate 的 -50%
+ * 会作用在已缩放的坐标系里，元素中心才真正对齐父级中心。
+ *
+ * 顺序写反（translate 在前）时，实测舞台顶部偏移 24.5px、底部溢出。
+ *
+ * 更简单的替代方案是 `left:50%; top:50%; transform-origin: center`，
+ * 但那样缩放原点不在左上角，子元素的像素对齐会随缩放比例变化。
+ */
 const stageStyle = computed(() => {
-  if (props.mode === 'fill') {
-    return {
-      width: `${props.designWidth}px`,
-      height: `${props.designHeight}px`,
-      transform: `translate(-50%, -50%) scale(${scaleX.value}, ${scaleY.value})`,
-    }
-  }
+  const sx = props.mode === 'fill' ? scaleX.value : scale.value
+  const sy = props.mode === 'fill' ? scaleY.value : scale.value
+  const scaleExpr = sx === sy ? `scale(${sx})` : `scale(${sx}, ${sy})`
+
   return {
     width: `${props.designWidth}px`,
     height: `${props.designHeight}px`,
-    transform: `translate(-50%, -50%) scale(${scale.value})`,
+    transform: `${scaleExpr} translate(-50%, -50%)`,
   }
 })
 

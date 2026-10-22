@@ -51,8 +51,9 @@ const option = computed(() => ({
       splitLine: { show: false },
       axisLabel: {
         color: 'var(--fbk-chart-axis-label)',
-        fontSize: 12,
-        distance: 14,
+        fontSize: 11,
+        // 往内收，避免与 detail/title 抢位置
+        distance: 6,
       },
       pointer: {
         width: 4,
@@ -64,16 +65,20 @@ const option = computed(() => ({
         size: 10,
         itemStyle: { color: 'var(--fbk-chart-1)' },
       },
+      /* 标题与数值的纵向位置必须错开：
+         detail 在中心偏上，title 在它下方。
+         早期 detail=44% / title=78%，两者与刻度标签（distance 14）
+         挤在一起，实测「转化率」与刻度重叠。 */
       title: {
         show: Boolean(props.label),
-        offsetCenter: [0, '78%'],
+        offsetCenter: [0, '72%'],
         color: 'var(--fbk-chart-axis-label)',
-        fontSize: 14,
+        fontSize: 13,
       },
       detail: {
         valueAnimation: true,
-        offsetCenter: [0, '44%'],
-        fontSize: 26,
+        offsetCenter: [0, '38%'],
+        fontSize: 24,
         fontWeight: 600,
         color: 'var(--fbk-color-text)',
         formatter: `{value}${props.unit}`,

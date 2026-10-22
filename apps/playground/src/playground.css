@@ -138,7 +138,9 @@ body {
    大屏按 1920×1080 设计稿等比缩放，被父容器约束会导致裁切与偏移。 */
 .playground__body--full {
   max-width: none;
+  height: calc(100vh - 49px);
   padding: 0;
+  overflow: hidden;
 }
 
 .playground__source {

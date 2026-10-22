@@ -271,3 +271,48 @@ linear-gradient(90deg, rgba(34,211,238,0.06) 1px, transparent 1px) 0 0 / 40px 40
 | 主题切换 | light / dark / cyber 下图表配色正确（截图确认） |
 | 门禁 | `pnpm verify` 全绿；`check:styles` 覆盖新包 |
 | 类型面 | 公开 d.ts 不泄漏 ECharts 类型 |
+
+---
+
+## 实现后的验证记录
+
+### 单元测试（108 条新增）
+
+jsdom 里 ECharts 无法真实绘制，所以单测覆盖的是**编排逻辑**：
+
+| 包 | 测试数 | 覆盖内容 |
+|---|---|---|
+| chart-core | 45 | CSS 变量解析、主题桥、FbkChart 生命周期 |
+| dashboard | 29 | 数值格式化、变化率语义、栅格、排行榜 |
+| screen | 34 | 等比缩放数学、面板、数字动画、轮播列表 |
+
+### 真实浏览器验证（`scripts/visual/verify-charts.py`）
+
+单测覆盖不到的部分，用 Playwright 补：
+
+- canvas **是否真的有像素**（不是空白）—— 通过采样 `getImageData` 判断
+- 1920×1080 / 1440×900 / 2560×1440 / 1280×720 四种分辨率下
+  构图比例是否保持 16:9、舞台是否超出容器
+- 三套主题下 `--fbk-chart-1` 是否真的不同
+- Canvas 是否报 `addColorStop` 错误
+
+### 这一步抓到的 3 个真实缺陷（单测全部通过，但仍有问题）
+
+1. **图表令牌被插进了 `.fbk-scope` 块而不是 `:root`**
+   `document.documentElement` 读不到，`resolveChartTheme()` 全部回退到内置默认色，
+   导致三套主题的图表配色**完全一样**。单测用 `setProperty` 伪造变量，
+   所以测不出来 —— 只有真实浏览器能发现。
+
+2. **`transform` 顺序错误**
+   写成 `translate(-50%,-50%) scale(s)`，而 `transform-origin` 是 top left。
+   translate 的百分比作用在未缩放坐标系，实测舞台顶部偏移 24.5px、底部溢出。
+   正确顺序是 `scale(s) translate(-50%,-50%)`。
+
+3. **仪表盘的 detail 与 title 位置重叠**
+   `offsetCenter` 分别是 44% / 78%，与刻度标签挤在一起。
+   调整为 38% / 72%，刻度 `distance` 从 14 收到 6。
+
+### 教训
+
+**「单测全绿」不等于「能用」。** 前两个缺陷都是纯 CSS/DOM 行为，
+jsdom 不计算布局，永远测不出来。样式类改动必须过一遍真实浏览器。

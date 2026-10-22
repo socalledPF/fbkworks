@@ -144,16 +144,6 @@
     background-color var(--fbk-duration-fast) var(--fbk-easing-standard),
     border-color var(--fbk-duration-fast) var(--fbk-easing-standard);
   --fbk-transition-shadow: box-shadow var(--fbk-duration-fast) var(--fbk-easing-standard);
-}
-
-/* 作用域容器：只设字体与前景色，具体排版交给组件 */
-.fbk-scope,
-.fbk-root {
-  color: var(--fbk-color-text);
-  font-family: var(--fbk-font-family);
-  font-size: var(--fbk-font-size-md);
-  line-height: var(--fbk-font-line-height);
-
 /* ============================================================
    图表（@fbk/chart-core / dashboard / screen）
    ============================================================
@@ -185,4 +175,13 @@
   --fbk-chart-tooltip-border: var(--fbk-color-border-light);
   --fbk-chart-tooltip-text: var(--fbk-color-text);
 
+}
+
+/* 作用域容器：只设字体与前景色，具体排版交给组件 */
+.fbk-scope,
+.fbk-root {
+  color: var(--fbk-color-text);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
 }
