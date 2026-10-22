@@ -91,3 +91,24 @@ html[data-fbk-theme='dark'],
   --fbk-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5); /* 原值 */
   --fbk-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
+
+/* ===== 图表色板（暗色）=====
+   暗底上要更亮的色。与 light 的对应关系见设计文档。 */
+html[data-fbk-theme='dark'],
+.fbk-theme-dark {
+  --fbk-chart-1: #5c8bff;
+  --fbk-chart-2: #63e2b7;
+  --fbk-chart-3: #f2c97d;
+  --fbk-chart-4: #e88080;
+  --fbk-chart-5: #70c0e8;
+  --fbk-chart-6: #b18cff;
+  --fbk-chart-7: #5ad4c4;
+  --fbk-chart-8: #a3a6ad;
+
+  --fbk-chart-axis-line: var(--fbk-color-border);
+  --fbk-chart-axis-label: var(--fbk-color-text-secondary);
+  --fbk-chart-split-line: var(--fbk-color-border-light);
+  --fbk-chart-tooltip-bg: var(--fbk-color-bg-elevated);
+  --fbk-chart-tooltip-border: var(--fbk-color-border);
+  --fbk-chart-tooltip-text: var(--fbk-color-text);
+}

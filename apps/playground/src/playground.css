@@ -134,6 +134,13 @@ body {
   background: var(--fbk-color-bg);
 }
 
+/* 大屏 demo：取消宽度与内边距限制，让它铺满整个视口。
+   大屏按 1920×1080 设计稿等比缩放，被父容器约束会导致裁切与偏移。 */
+.playground__body--full {
+  max-width: none;
+  padding: 0;
+}
+
 .playground__source {
   padding: var(--fbk-spacing-md);
   overflow: auto;

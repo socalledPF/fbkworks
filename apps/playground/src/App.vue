@@ -13,6 +13,10 @@ const adapter = computed(() => adapters[adapterName.value])
 const demo = computed(() => getDemo(demoId.value))
 const source = computed(() => getDemoSource(demoId.value))
 const showSource = ref(false)
+
+/* 大屏 demo 需要全屏宽度：它按 1920×1080 设计，
+   被 max-width: 1200px 约束会裁切右列、并且不居中。 */
+const isScreenDemo = computed(() => demoId.value.startsWith('screen/'))
 </script>
 
 <template>
@@ -48,7 +52,10 @@ const showSource = ref(false)
       </button>
     </header>
 
-    <main class="playground__body" :class="`playground__body--${adapterName}`">
+    <main
+      class="playground__body"
+      :class="[`playground__body--${adapterName}`, { 'playground__body--full': isScreenDemo }]"
+    >
       <!-- key 变化时整棵子树重建，避免旧适配器的 DOM 状态残留 -->
       <FbkProvider :key="`${adapterName}-${theme}`" :adapter="adapter" :theme="theme">
         <component :is="demo?.component" v-if="demo" />

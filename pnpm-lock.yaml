@@ -35,6 +35,9 @@ importers:
       dependency-cruiser:
         specifier: ^16.0.0
         version: 16.10.4
+      echarts:
+        specifier: ^6.1.0
+        version: 6.1.0
       eslint:
         specifier: ^9.0.0
         version: 9.39.5(jiti@2.7.0)
@@ -150,15 +153,27 @@ importers:
       '@fbk/adapter-vant':
         specifier: workspace:*
         version: link:../../packages/adapters/vant
+      '@fbk/chart-core':
+        specifier: workspace:^
+        version: link:../../packages/chart-core
       '@fbk/components':
         specifier: workspace:*
         version: link:../../packages/components
+      '@fbk/dashboard':
+        specifier: workspace:^
+        version: link:../../packages/dashboard
       '@fbk/demos':
         specifier: workspace:*
         version: link:../../packages/internal/demos
+      '@fbk/screen':
+        specifier: workspace:^
+        version: link:../../packages/screen
       '@fbk/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
       element-plus:
         specifier: ^2.8.8
         version: 2.14.7(vue@3.5.44(typescript@5.9.3))
@@ -248,6 +263,21 @@ importers:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
 
+  packages/chart-core:
+    dependencies:
+      '@fbk/shared':
+        specifier: workspace:^
+        version: link:../shared
+      '@fbk/tokens':
+        specifier: workspace:^
+        version: link:../tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.44(typescript@5.9.3)
+
   packages/components:
     dependencies:
       '@fbk/adapter-core':
@@ -259,6 +289,24 @@ importers:
       '@fbk/tokens':
         specifier: workspace:^
         version: link:../tokens
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.44(typescript@5.9.3)
+
+  packages/dashboard:
+    dependencies:
+      '@fbk/chart-core':
+        specifier: workspace:^
+        version: link:../chart-core
+      '@fbk/shared':
+        specifier: workspace:^
+        version: link:../shared
+      '@fbk/tokens':
+        specifier: workspace:^
+        version: link:../tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
       vue:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
@@ -302,6 +350,12 @@ importers:
       '@fbk/components':
         specifier: workspace:*
         version: link:../../components
+      '@fbk/dashboard':
+        specifier: workspace:^
+        version: link:../../dashboard
+      '@fbk/screen':
+        specifier: workspace:^
+        version: link:../../screen
       vue:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
@@ -326,6 +380,24 @@ importers:
         version: 2.5.1(@vue/compiler-dom@3.5.44)(@vue/server-renderer@3.5.44)(vue@3.5.44(typescript@5.9.3))
 
   packages/resolver: {}
+
+  packages/screen:
+    dependencies:
+      '@fbk/chart-core':
+        specifier: workspace:^
+        version: link:../chart-core
+      '@fbk/shared':
+        specifier: workspace:^
+        version: link:../shared
+      '@fbk/tokens':
+        specifier: workspace:^
+        version: link:../tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.44(typescript@5.9.3)
 
   packages/shared:
     dependencies:
@@ -2504,6 +2576,9 @@ packages:
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
 
+  echarts@6.1.0:
+    resolution: {integrity: sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA==}
+
   editorconfig@3.0.2:
     resolution: {integrity: sha512-T0ix8GhtxyKVfUFEcvdNDt3YGqlwkFHbD4/5bgFUDgFmxhI/cSRAeJ87/Sz//Cq8Eam6JX/e23RkoFO71P7aAA==}
     engines: {node: '>=20'}
@@ -3956,6 +4031,9 @@ packages:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
     engines: {node: '>=6'}
 
+  tslib@2.3.0:
+    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+
   turbo@2.11.9:
     resolution: {integrity: sha512-k2ev5dv9OgP2pJwaPuydkZdid+haX2U5TDGcPtpAz0gb0nbRR3eXY/cpfrlvHih52YRTxWIcRVKc0ri3C2Scrg==}
     hasBin: true
@@ -4327,6 +4405,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zrender@6.1.0:
+    resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -6642,6 +6723,11 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
+  echarts@6.1.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.1.0
+
   editorconfig@3.0.2:
     dependencies:
       '@one-ini/wasm': 0.2.1
@@ -8121,6 +8207,8 @@ snapshots:
       minimist: 1.2.8
       strip-bom: 3.0.0
 
+  tslib@2.3.0: {}
+
   turbo@2.11.9:
     optionalDependencies:
       '@turbo/darwin-64': 2.11.9
@@ -8544,5 +8632,9 @@ snapshots:
       yargs-parser: 20.2.9
 
   yocto-queue@0.1.0: {}
+
+  zrender@6.1.0:
+    dependencies:
+      tslib: 2.3.0
 
   zwitch@2.0.4: {}

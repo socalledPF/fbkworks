@@ -153,4 +153,36 @@
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
   line-height: var(--fbk-font-line-height);
+
+/* ============================================================
+   图表（@fbk/chart-core / dashboard / screen）
+   ============================================================
+   色板经过脚本验证（见 docs/design/2026-10-22-dashboard-screen.md）：
+     · 每个色对背景 ≥ 3:1（WCAG 1.4.11 非文本对比）
+     · 相邻色 ΔE ≥ 10（色盲可区分）
+     · 轴标签等文字 ≥ 4.5:1（WCAG 1.4.3）
+
+   注意第 3 色是 #bd7a18 而不是 --fbk-amber-500(#f0a020)：
+   后者在白底上只有 2.15:1，不满足图形元素的 3:1 底线。
+   #bd7a18 是满足要求的最亮值（3.52 / 3.26）。 */
+
+  --fbk-chart-1: #2f6bff;
+  --fbk-chart-2: #18a058;
+  --fbk-chart-3: #bd7a18;
+  --fbk-chart-4: #d03050;
+  --fbk-chart-5: #2080f0;
+  --fbk-chart-6: #7c3aed;
+  --fbk-chart-7: #0e9aa7;
+  --fbk-chart-8: #868b93;
+
+  /* 轴线与网格。分割线刻意很弱 —— 它是背景不是内容 */
+  --fbk-chart-axis-line: var(--fbk-color-border);
+  --fbk-chart-axis-label: var(--fbk-color-text-secondary);
+  --fbk-chart-split-line: var(--fbk-color-border-light);
+
+  /* Tooltip。跟随浮层语义，不另起一套 */
+  --fbk-chart-tooltip-bg: var(--fbk-color-bg-elevated);
+  --fbk-chart-tooltip-border: var(--fbk-color-border-light);
+  --fbk-chart-tooltip-text: var(--fbk-color-text);
+
 }

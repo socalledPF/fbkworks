@@ -17,6 +17,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const packageCss = {
   '@fbk/tokens/css': 'packages/tokens/src/css/tokens.css',
   '@fbk/tokens/dark.css': 'packages/tokens/src/css/dark.css',
+  /* chart-core 的样式被 dashboard / screen 的聚合入口 @import，
+     必须在这里登记，否则 bundle-css 会抛「未登记的包路径」。 */
+  '@fbk/chart-core/style.css': 'packages/chart-core/src/style.css',
 }
 
 const IMPORT_RE = /@import\s+(?:url\()?['"]([^'"]+)['"]\)?\s*;/g

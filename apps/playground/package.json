@@ -19,7 +19,11 @@
     "element-plus": "^2.8.8",
     "naive-ui": "^2.40.3",
     "vant": "^4.9.15",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "@fbk/dashboard": "workspace:^",
+    "@fbk/screen": "workspace:^",
+    "echarts": "^6.0.0",
+    "@fbk/chart-core": "workspace:^"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",

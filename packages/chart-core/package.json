@@ -1,0 +1,51 @@
+{
+  "name": "@fbk/chart-core",
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": ["**/*.css"],
+  "files": ["dist", "README.md", "LICENSE"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build && node ../../scripts/copy-css.mjs src dist && node ../../scripts/bundle-css.mjs src/styles/index.css dist/style.css"
+  },
+  "dependencies": {
+    "@fbk/shared": "workspace:^",
+    "@fbk/tokens": "workspace:^"
+  },
+  "peerDependencies": {
+    "echarts": "^6.0.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "echarts": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "ECharts wrapper with FBK theme bridge and on-demand registration for the FBK component kit.",
+  "keywords": ["vue", "vue3", "echarts", "chart", "dashboard"],
+  "license": "MIT",
+  "author": "54356",
+  "homepage": "https://github.com/54356/frontend-business-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/54356/frontend-business-kit.git",
+    "directory": "packages/chart-core"
+  },
+  "bugs": {
+    "url": "https://github.com/54356/frontend-business-kit/issues"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

@@ -1,0 +1,324 @@
+/**
+ * 数据看板组件样式。
+ *
+ * 视觉基调：**嵌入后台页面**，必须与 ProTable / QueryForm 同一视觉语言。
+ * 白底卡片、shadow-sm、radius-lg、spacing-lg —— 不引入任何"科技感"装饰。
+ *
+ * 所有数值走令牌，不写字面量像素（1px 边框除外）。
+ */
+
+/* ============================================================
+   StatCard
+   ============================================================ */
+.fbk-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-xs);
+  padding: var(--fbk-spacing-lg);
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg-container);
+  border: 1px solid var(--fbk-color-border-light);
+  border-radius: var(--fbk-radius-lg);
+  box-shadow: var(--fbk-shadow-sm);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.fbk-stat-card--clickable {
+  cursor: pointer;
+}
+
+.fbk-stat-card--clickable:hover {
+  border-color: var(--fbk-color-primary-border);
+  box-shadow: var(--fbk-shadow-md);
+}
+
+.fbk-stat-card--clickable:focus-visible {
+  outline: none;
+  box-shadow: var(--fbk-shadow-focus-ring);
+}
+
+.fbk-stat-card__head {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fbk-stat-card__title {
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-stat-card__icon {
+  display: flex;
+  color: var(--fbk-color-text-tertiary);
+}
+
+.fbk-stat-card__value {
+  display: flex;
+  gap: 2px;
+  align-items: baseline;
+  margin-top: var(--fbk-spacing-xs);
+}
+
+.fbk-stat-card__number {
+  /* 等宽数字：刷新时宽度不跳动，一排卡片不会互相推挤 */
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: 28px;
+  font-weight: var(--fbk-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--fbk-color-text);
+}
+
+.fbk-stat-card__affix {
+  font-size: var(--fbk-font-size-lg);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-stat-card__change {
+  display: flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  font-size: var(--fbk-font-size-sm);
+}
+
+.fbk-stat-card__arrow,
+.fbk-stat-card__rate {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fbk-font-weight-medium);
+}
+
+.fbk-stat-card__change-label {
+  color: var(--fbk-color-text-tertiary);
+}
+
+/* 语义色：涨跌不等于好坏，由 data-tone 决定而不是由符号决定 */
+.fbk-stat-card[data-tone='positive'] .fbk-stat-card__arrow,
+.fbk-stat-card[data-tone='positive'] .fbk-stat-card__rate {
+  color: var(--fbk-color-success-text);
+}
+
+.fbk-stat-card[data-tone='negative'] .fbk-stat-card__arrow,
+.fbk-stat-card[data-tone='negative'] .fbk-stat-card__rate {
+  color: var(--fbk-color-danger-text);
+}
+
+.fbk-stat-card[data-tone='neutral'] .fbk-stat-card__arrow,
+.fbk-stat-card[data-tone='neutral'] .fbk-stat-card__rate {
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-stat-card__trend {
+  margin-top: var(--fbk-spacing-xs);
+}
+
+.fbk-stat-card__footer {
+  margin-top: var(--fbk-spacing-xs);
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+}
+
+/* ============================================================
+   StatGroup 栅格
+   ============================================================ */
+.fbk-stat-group {
+  --fbk-cols-base: 4;
+  --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
+  display: grid;
+  grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
+  gap: var(--fbk-spacing-md);
+}
+
+@media (min-width: 640px) {
+  .fbk-stat-group {
+    --fbk-cols-resolved: var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)));
+  }
+}
+
+@media (min-width: 960px) {
+  .fbk-stat-group {
+    --fbk-cols-resolved: var(
+      --fbk-cols-md,
+      var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base)))
+    );
+  }
+}
+
+@media (min-width: 1280px) {
+  .fbk-stat-group {
+    --fbk-cols-resolved: var(
+      --fbk-cols-lg,
+      var(--fbk-cols-md, var(--fbk-cols-sm, var(--fbk-cols-xs, var(--fbk-cols-base))))
+    );
+  }
+}
+
+.fbk-stat-group--gap-sm {
+  gap: var(--fbk-spacing-sm);
+}
+
+.fbk-stat-group--gap-lg {
+  gap: var(--fbk-spacing-lg);
+}
+
+/* ============================================================
+   ChartCard
+   ============================================================ */
+.fbk-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--fbk-spacing-lg);
+  font-size: var(--fbk-font-size-md);
+  line-height: var(--fbk-font-line-height);
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg-container);
+  border: 1px solid var(--fbk-color-border-light);
+  border-radius: var(--fbk-radius-lg);
+  box-shadow: var(--fbk-shadow-sm);
+}
+
+.fbk-chart-card__header {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: flex-start;
+  justify-content: space-between;
+  /* 标题区与图表区之间不加分隔线，靠间距区分 */
+  margin-bottom: var(--fbk-spacing-md);
+}
+
+.fbk-chart-card__heading {
+  min-width: 0;
+}
+
+.fbk-chart-card__title {
+  margin: 0;
+  font-size: var(--fbk-font-size-lg);
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+}
+
+.fbk-chart-card__subtitle {
+  margin: var(--fbk-spacing-xs) 0 0;
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+}
+
+.fbk-chart-card__extra {
+  display: flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.fbk-chart-card__body {
+  min-width: 0;
+}
+
+/* ============================================================
+   PieChart 中心文案
+   ============================================================ */
+.fbk-pie-chart {
+  position: relative;
+}
+
+.fbk-pie-chart__center {
+  position: absolute;
+  /* 与 ECharts 的 center: ['38%', '50%'] 对齐 —— 两个数值必须同步改 */
+  top: 50%;
+  left: 38%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.fbk-pie-chart__value {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: var(--fbk-font-size-xl);
+  font-weight: var(--fbk-font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--fbk-color-text);
+}
+
+.fbk-pie-chart__label {
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+}
+
+/* ============================================================
+   RankList
+   ============================================================ */
+.fbk-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-spacing-sm);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.fbk-rank-list__row {
+  display: grid;
+  /* 名次 / 名称 / 进度条 / 数值 四列 */
+  grid-template-columns: 20px minmax(60px, 1fr) minmax(60px, 1.4fr) auto;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  font-size: var(--fbk-font-size-sm);
+}
+
+.fbk-rank-list__rank {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-variant-numeric: tabular-nums;
+  color: var(--fbk-color-text-tertiary);
+  text-align: center;
+}
+
+/* 前三名加粗，其余退到次级色 —— 超过三个高亮等于没有高亮 */
+.fbk-rank-list__rank.is-top {
+  font-weight: var(--fbk-font-weight-semibold);
+  color: var(--fbk-color-text);
+}
+
+.fbk-rank-list__name {
+  overflow: hidden;
+  color: var(--fbk-color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fbk-rank-list__bar {
+  height: 6px;
+  overflow: hidden;
+  background: var(--fbk-color-fill);
+  border-radius: var(--fbk-radius-round);
+}
+
+.fbk-rank-list__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--fbk-radius-round);
+  transition: width 0.3s ease;
+}
+
+.fbk-rank-list__value {
+  font-family: var(--fbk-pro-table-numeric-font-family);
+  font-size: var(--fbk-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--fbk-color-text-secondary);
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbk-stat-card,
+  .fbk-rank-list__bar-fill {
+    transition: none;
+  }
+}

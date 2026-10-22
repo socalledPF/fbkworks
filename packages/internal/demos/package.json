@@ -8,7 +8,9 @@
     "./style.css": "./src/demo.css"
   },
   "dependencies": {
-    "@fbk/components": "workspace:*"
+    "@fbk/components": "workspace:*",
+    "@fbk/dashboard": "workspace:^",
+    "@fbk/screen": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

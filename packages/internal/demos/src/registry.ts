@@ -50,6 +50,14 @@ export const demos: Record<string, DemoEntry> = {
     title: '分组详情',
     component: defineAsyncComponent(() => import('./descriptions/basic.vue')),
   },
+  'dashboard/basic': {
+    title: '数据看板',
+    component: defineAsyncComponent(() => import('./dashboard/basic.vue')),
+  },
+  'screen/basic': {
+    title: '可视化大屏',
+    component: defineAsyncComponent(() => import('./screen/basic.vue')),
+  },
   'feedback/basic': {
     title: '命令式反馈',
     component: defineAsyncComponent(() => import('./feedback-basic.vue')),

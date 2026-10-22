@@ -140,3 +140,24 @@ html[data-fbk-theme='cyber'] .fbk-button--primary,
 html[data-fbk-theme='cyber'] {
   --fbk-pro-table-numeric-font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
 }
+
+/* ===== 图表色板（cyber / 大屏）=====
+   青色系主导，与 cyber 主色同源。大屏也复用这一套。 */
+html[data-fbk-theme='cyber'],
+.fbk-theme-cyber {
+  --fbk-chart-1: #22d3ee;
+  --fbk-chart-2: #34d399;
+  --fbk-chart-3: #fbbf24;
+  --fbk-chart-4: #f87171;
+  --fbk-chart-5: #38bdf8;
+  --fbk-chart-6: #a78bfa;
+  --fbk-chart-7: #2dd4bf;
+  --fbk-chart-8: #94b8c4;
+
+  --fbk-chart-axis-line: #1b3040;
+  --fbk-chart-axis-label: #94b8c4;
+  --fbk-chart-split-line: #142433;
+  --fbk-chart-tooltip-bg: #111c2b;
+  --fbk-chart-tooltip-border: #1b3040;
+  --fbk-chart-tooltip-text: #e6f7fb;
+}
