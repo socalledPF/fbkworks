@@ -68,9 +68,13 @@ export default {
     {
       name: 'no-business-runtime-deps',
       severity: 'error',
-      comment: '组件库必须零业务运行时依赖：请求由调用方注入，日期格式化用 Intl。',
-      from: { path: '^packages/(components|adapter-core|shared|tokens)/' },
-      to: { path: '^node_modules/(axios|vue-router|dayjs|moment|lodash|@tanstack)/' },
+      comment:
+        '发布包禁止第一类运行时依赖（传输/路由/状态/i18n/工具库）：请求由调用方注入，日期用 Intl。' +
+        '详见 docs/style-guide.md 的三类划分。',
+      from: { path: '^packages/(components|adapter-core|shared|tokens|chart-core|dashboard|screen)/' },
+      to: {
+        path: '^node_modules/(axios|ky|ofetch|superagent|vue-router|pinia|vuex|vue-i18n|dayjs|moment|lodash|ramda|date-fns)(/|$)',
+      },
     },
     {
       name: 'no-orphans',

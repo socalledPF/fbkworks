@@ -48,6 +48,61 @@ const noUiImports = [
   },
 ]
 
+/**
+ * 第一类：禁止的运行时依赖（必须由调用方注入）。
+ *
+ * 判定标准：换一个后端 / 框架 / UI 库，这段代码就不成立了。
+ * 详见 docs/style-guide.md 的「运行时依赖三类划分」。
+ *
+ * 注意这里**只是第一类**。第二类（日期/工具库，需评审）不在这里拦，
+ * 因为它需要看具体场景 —— 用硬规则拦住会逼着大家写更差的替代实现
+ * （shared/format.ts 里那 132 行手工日期拼接就是前车之鉴）。
+ */
+const FORBIDDEN_RUNTIME_DEPS = [
+  // 传输层：库无权锁定调用方用什么 HTTP 客户端
+  'axios',
+  'ky',
+  'ofetch',
+  'superagent',
+  // 路由与状态：库不该假设 SPA 结构
+  'vue-router',
+  'pinia',
+  'vuex',
+  // 全局 i18n：库应接受 locale 参数而不是读全局实例
+  'vue-i18n',
+  // 工具库：平台有等价能力
+  'dayjs',
+  'moment',
+  'lodash',
+  'ramda',
+  'date-fns',
+]
+
+/**
+ * 所有发布包（不含内部工具包与适配器）。
+ *
+ * 这份列表必须与 pnpm-workspace.yaml 里的发布包保持同步 ——
+ * 上一版漏掉了 chart-core / dashboard / screen，导致三个新包完全不受约束。
+ */
+const PUBLISHED_PACKAGES = [
+  'packages/tokens',
+  'packages/shared',
+  'packages/adapter-core',
+  'packages/components',
+  'packages/chart-core',
+  'packages/dashboard',
+  'packages/screen',
+]
+
+/** 生成 `packages/x/src/**` 形式的 glob */
+const publishedSrcGlobs = PUBLISHED_PACKAGES.map((p) => `${p}/src/**/*.{ts,tsx,vue}`)
+
+const runtimeDepMessage =
+  '这是第一类禁止依赖（传输/路由/状态/i18n/工具库），必须由调用方注入。' +
+  '请求通过 request prop 注入，日期用 Intl，详见 docs/style-guide.md。' +
+  '如果确实无法替代，请走第二类评审流程而不是绕过这条规则。'
+
+
 export default tseslint.config(
   {
     ignores: [
@@ -127,9 +182,9 @@ export default tseslint.config(
     },
   },
 
-  // 边界 2：components 只能依赖 adapter-core / shared / tokens
+  // 边界 2：所有发布包禁止第一类运行时依赖 + 内部工具包
   {
-    files: ['packages/components/src/**/*.{ts,tsx,vue}'],
+    files: publishedSrcGlobs,
     rules: {
       'no-restricted-imports': [
         'error',
@@ -137,15 +192,43 @@ export default tseslint.config(
           paths: noUiImports,
           patterns: [
             {
-              group: ['vue-router', 'axios', 'dayjs', 'moment', 'lodash'],
-              message:
-                '业务组件库必须零业务运行时依赖。日期格式化用 Intl，请求由调用方通过 request 注入。',
+              group: FORBIDDEN_RUNTIME_DEPS,
+              message: runtimeDepMessage,
             },
             {
               group: ['@fbk/resolver', '@fbk/demos', '@fbk/test-utils'],
               message: '发布包不得依赖内部工具包。',
             },
           ],
+        },
+      ],
+
+      /*
+       * 动态 import 与 require 绕过检查。
+       *
+       * 实测过：`import('dayjs')` 不会被 no-restricted-imports 拦住
+       * （那条规则只看静态 import 声明），dependency-cruiser 也漏掉了它。
+       * 而按需加载恰恰是最容易写成动态 import 的地方。
+       *
+       * 同时拦截模板字符串拼接包名（`da${'yjs'}`），
+       * 那种写法是刻意规避检查的信号。
+       */
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'ImportExpression > Literal[value=/^(axios|ky|ofetch|superagent|vue-router|pinia|vuex|vue-i18n|dayjs|moment|lodash|ramda|date-fns)(\\/.*)?$/]',
+          message: `${runtimeDepMessage}（检测到动态 import）`,
+        },
+        {
+          selector: 'ImportExpression > TemplateLiteral',
+          message:
+            '禁止用模板字符串拼接模块名做动态 import —— 这会绕过依赖检查。' +
+            '请用静态字符串字面量，让构建期能静态分析。',
+        },
+        {
+          selector: "CallExpression[callee.name='require']",
+          message: '禁止 require：本项目是 ESM-only。',
         },
       ],
     },

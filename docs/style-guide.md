@@ -114,8 +114,6 @@ PC 端 element-plus 与 naive-ui 必须看起来一致。这条由
 
 第 3 条专门防本次的 bug 复发。
 
----
-
 ## 五、流程要求
 
 > **任何涉及样式的改动，必须先出设计（间距、对齐、断点行为），
@@ -132,3 +130,140 @@ PC 端 element-plus 与 naive-ui 必须看起来一致。这条由
 | 日期 | 组件 | 改动 | 验收标准 |
 |---|---|---|---|
 | 2026-10-21 | FormModal / CrudPage / Result | 补样式接入 + 修 gap 失效 | 弹窗底部按钮间距 8px（实测）；CrudPage 区块间距 16px；Result 垂直居中 |
+
+---
+
+## 六、运行时依赖的三类划分
+
+> **一句话判定**：换一个后端 / 框架 / UI 库，这段代码还成立吗？
+>
+> - 不成立 → **第一类**，必须由调用方注入
+> - 成立，但平台有等价能力 → **第二类**，用平台能力替代
+> - 成立，且是组件本身的存在前提 → **第三类**，走 peerDependency
+
+### 第一类：禁止（硬规则拦截）
+
+| 性质 | 包 | 为什么 |
+|---|---|---|
+| HTTP 客户端 | axios, ky, ofetch, superagent | 传输层是应用决策，库无权锁定 |
+| 路由 | vue-router | 库不该假设 SPA 结构 |
+| 状态管理 | pinia, vuex | 同上 |
+| 全局 i18n | vue-i18n | 库应接受 `locale` 参数而不是读全局实例 |
+| 工具库 | dayjs, moment, lodash, ramda, date-fns | 平台有等价能力 |
+
+**替代方案**：
+
+- 请求 → `request` prop 注入纯函数（`TableRequest` 契约）
+- 日期 → `Intl.DateTimeFormat`
+- 数字/货币 → `Intl.NumberFormat`
+- 数组/对象 → 原生 `Array` / `Object` 方法
+
+这条由三道门禁同时拦截：
+
+1. ESLint `no-restricted-imports`（静态 import）
+2. ESLint `no-restricted-syntax`（动态 import / 模板字符串拼接 / require）
+3. `pnpm check:runtime-deps`（扫**发布产物**的 import 语句）
+
+> 第 3 道是关键。前两道检查源码，总有绕过方式；第三道检查 `dist/*.mjs`，
+> 不管源码怎么写，产物里出现的 bare specifier 就是真实依赖。
+
+### 第二类：需评审（不硬拦，但要说明理由）
+
+| 性质 | 优先替代 | 什么情况下才允许引入 |
+|---|---|---|
+| 日期 | `Intl.DateTimeFormat` | 需要**时区运算 / 相对时间 / 复杂日历**（Intl 做不到） |
+| 十进制运算 | `Intl.NumberFormat` | 需要精确十进制（`0.1 + 0.2` 场景）→ `decimal.js` |
+| 深克隆 / 深合并 | `structuredClone`、手写 | 已证明是性能瓶颈 |
+| 深比较 | 手写、Vue 的 `watch` | 同上 |
+
+**引入第二类的 PR 必须写清楚三件事**：
+
+1. 为什么不替代（具体到 Intl / 原生 API 做不到什么）
+2. 体积代价（gzip 后多少 KB）
+3. 是否可以做成可选（peerDependency + 独立入口）
+
+**为什么第二类不硬拦**：硬拦会逼着大家写更差的替代实现。
+`packages/shared/src/format.ts` 里那 132 行手工日期拼接就是例证 ——
+只因为 `Intl` 在 zh-CN 下输出 `2026/09/01` 而历史实现是 `2026-09-01`。
+这个代价是真实存在的，不该用规则掩盖。
+
+### 第三类：允许（走 peerDependency）
+
+| 性质 | 例子 | 为什么允许 |
+|---|---|---|
+| 渲染引擎 | echarts, d3 | 组件的**存在前提**，不是业务逻辑 |
+| 纯类型 | `@types/*` | 零运行时 |
+| 框架本身 | vue | 唯一例外，任何 Vue 库都需要 |
+
+第三类必须声明为 `peerDependencies`，**不能进 `dependencies`**。
+理由：进 `dependencies` 会导致同一个库被打包两份，实例状态分裂
+（比如 echarts 的注册表分裂，图表直接渲染不出来 —— 这个坑踩过）。
+
+可选依赖用 `peerDependenciesMeta.optional`：
+
+```json
+{
+  "peerDependencies": { "echarts": "^6.0.0" },
+  "peerDependenciesMeta": { "echarts": { "optional": true } }
+}
+```
+
+---
+
+## 七、后端接口适配放在哪里
+
+**核心库不做后端适配。**
+
+`@fbk/components` 的 `request` 是纯函数契约：
+
+```ts
+type TableRequest<T> = (params: {
+  page: number
+  pageSize: number
+  sort: SortState | null
+  params: Record<string, any>
+  signal: AbortSignal
+}) => Promise<{ list: T[]; total?: number; hasMore?: boolean }>
+```
+
+这个契约**与后端规范无关**。如果把 ruoyi 的 `{ code, msg, rows, total }`
+映射写进核心库，就意味着核心库要知道：
+
+- ruoyi 的字段名
+- `code === 200` 的成功判定
+- token 放在哪个 header
+
+一旦换成 Spring 标准分页（`{ content, totalElements }`）就要再加分支 ——
+这正是「万能组件」陷阱。
+
+**正确做法**：由业务项目自己写一层转换，通常 10 行以内：
+
+```ts
+const ruoyiRequest: TableRequest<Row> = async ({ page, pageSize, params, signal }) => {
+  const res = await http.get('/api/order/list', {
+    params: { pageNum: page, pageSize, ...params },
+    signal,
+  })
+  return { list: res.data.rows, total: res.data.total }
+}
+```
+
+如果多个项目重复写同一套转换，**再**考虑抽成独立的可选包
+（`@fbk/request-adapters`），且必须满足：
+
+- 不进任何核心包的 `dependencies`
+- 传输层仍然注入（`createRuoyiRequest(http, options)`），不内置 axios
+- 只做**形状转换**，不做传输
+
+---
+
+## 八、新增依赖的检查清单
+
+提 PR 前逐条确认：
+
+- [ ] 这个依赖属于哪一类？（对照上面三张表）
+- [ ] 第一类：不能加，改用注入或平台能力
+- [ ] 第二类：PR 描述里写了「为什么不替代 + 体积 + 能否可选」
+- [ ] 第三类：声明为 `peerDependencies`，**没有**写进 `dependencies`
+- [ ] 可选依赖加了 `peerDependenciesMeta.optional`
+- [ ] `pnpm check:runtime-deps` 通过
