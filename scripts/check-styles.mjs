@@ -187,14 +187,27 @@ for (const { rel, stripped } of parsedFiles) {
 
 /**
  * demo 是评审材料，里面的原生 <button> / <select> / <input> 若不带
- * fbk-demo-* 或 playground__* 类，就会呈现浏览器默认外观（16px 字号、
- * 2px 边框），与被演示的组件完全是两套视觉语言。
+ * 样式类，就会呈现浏览器默认外观（16px 字号、2px 边框），
+ * 与被演示的组件完全是两套视觉语言。
+ *
+ * 认可以下几种前缀：
+ *   fbk-demo-*     @fbk/demos 的脚手架样式
+ *   playground__*  Playground 旧命名（BEM）
+ *   pg__*          Playground 新命名（布局骨架）
+ *   pg-sidebar__*  Playground 侧边栏
+ *   pg-drawer__*   Playground 源码抽屉
+ *                  （以上三者见 docs/design/2026-10-23-playground-redesign.md）
+ *   fbk-*          组件库自身的类
  *
  * 只扫 packages/internal/demos 与 apps/playground —— 业务组件内部
  * 允许使用原生标签（它们由组件自己的 style.css 负责）。
  */
 const RAW_CONTROL_RE = /<(button|select|input)\b[^>]*>/g
-const STYLE_CLASS_RE = /class="([^"]*)"/ 
+const STYLE_CLASS_RE = /class="([^"]*)"/
+
+/** 类名是否表明这个控件已被样式接管 */
+const STYLED_PREFIXES = ['fbk-demo-', 'playground__', 'pg__', 'pg-sidebar__', 'pg-drawer__', 'fbk-']
+const isStyledClass = (cls) => STYLED_PREFIXES.some((p) => cls.includes(p))
 
 async function walkVue(dir) {
   const out = []
@@ -235,8 +248,7 @@ for (const file of demoTemplates) {
     const tag = m[0]
     const clsMatch = tag.match(STYLE_CLASS_RE)
     const cls = clsMatch ? clsMatch[1] : ''
-    let styled =
-      cls.includes('fbk-demo-') || cls.includes('playground__') || cls.includes('fbk-')
+    let styled = isStyledClass(cls)
 
     /* 也接受「父级带样式类」的写法：Playground 的 <select> 就是靠
        外层 .playground__field 定位的，自身不需要类。
@@ -246,13 +258,13 @@ for (const file of demoTemplates) {
       const ancestors = [...before.matchAll(/<([a-zA-Z][\w-]*)([^>]*)>/g)].slice(-3)
       styled = ancestors.some((a) => {
         const c = (a[2].match(STYLE_CLASS_RE) || [])[1] || ''
-        return c.includes('playground__') || c.includes('fbk-demo-') || c.includes('fbk-')
+        return isStyledClass(c)
       })
     }
 
     if (!styled) {
       problems.push(
-        `[demo] ${rel} 里的原生 <${m[1]}> 没有 fbk-demo-* 或 playground__* 样式类` +
+        `[demo] ${rel} 里的原生 <${m[1]}> 没有 fbk-demo-* / pg__* / playground__* 样式类` +
           '（会呈现浏览器默认外观）',
       )
     }

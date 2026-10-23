@@ -1,156 +1,487 @@
+/**
+ * Playground 布局样式。
+ *
+ * 设计见 docs/design/2026-10-23-playground-redesign.md。
+ *
+ * **本文件不再包含任何表单控件样式。**
+ * playground 是消费方应用，顶部控件直接用 element-plus ——
+ * 之前手写 <select> + appearance:none + 自绘箭头，本质上是在
+ * 重新实现 UI 库已有的东西，方向就错了。
+ */
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  color: var(--fbk-color-text);
   background: var(--fbk-color-bg);
-  color: var(--fbk-color-text);
   font-family: var(--fbk-font-family);
-}
-
-.playground__header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  flex-wrap: wrap;
-  /* 层级差：header 内各字段组之间 16px，字段组内部 label 与控件之间 4px。
-     之前 header 用 12px、组内 4px，只差 8px，视觉上分不出层级。 */
-  gap: var(--fbk-spacing-lg);
-  align-items: center;
-  padding: var(--fbk-spacing-sm) var(--fbk-spacing-lg);
-  background: var(--fbk-color-bg-container);
-  border-bottom: 1px solid var(--fbk-color-border);
-}
-
-.playground__brand {
-  margin-right: auto;
-  /* 标题用 semibold：之前只有字号没有字重，和普通文字区分不开 */
-  font-size: var(--fbk-font-size-lg);
-  font-weight: var(--fbk-font-weight-semibold);
-  color: var(--fbk-color-text);
-}
-
-.playground__field {
-  display: flex;
-  gap: var(--fbk-spacing-xs);
-  align-items: center;
-  font-size: var(--fbk-font-size-sm);
-  color: var(--fbk-color-text-secondary);
 }
 
 /* ============================================================
-   Playground 顶部控件
-   ============================================================
-   这些是原生 <select> / <button>，浏览器默认样式是 Arial 13.33px、
-   2px 圆角、系统灰底 —— 与业务组件完全是两套视觉语言。
-   Playground 是评审环境，它本身不像产品就没法判断组件好不好看，
-   所以这里用 --fbk-* 令牌把它们拉回设计系统。
+   整体：侧边栏 + 主区
+   ============================================================ */
+.pg {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
 
-   刻意不直接用 @fbk/components 的 Button：
-   Playground 的顶部是工具条、不是业务界面，且"用组件测组件"会让
-   评审时看不清组件在真实业务里的样子。 */
-/*
- * 顶部控件的外观**直接照搬业务组件的 Select / Button**，而不是另起一套。
- *
- * 基准来自实测的 .el-select__wrapper（基础查询表单里的状态下拉框）：
- *   高度 32px、内边距 4px 12px、圆角 --fbk-radius-md、
- *   底色 bg-container、文字色 text、**边框用 box-shadow inset 而不是 border**。
- *
- * 最后一条很关键：element-plus 新版用
- *   box-shadow: inset 0 0 0 1px <border-color>
- * 画边框，而不是 border。用 border 会导致：
- *   · 控件外框尺寸比业务控件大 2px（border 占盒模型，box-shadow 不占）
- *   · 焦点/悬停时边框色的过渡表现不同
- * 实测两者高度都是 32px，但内部可用空间差 2px，文字基线随之偏移。
- */
-.playground__field select,
-.playground__toggle {
-  display: inline-flex;
+.pg__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ============================================================
+   侧边栏
+   ============================================================ */
+.pg-sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 240px;
+  background: var(--fbk-color-bg-container);
+  border-right: 1px solid var(--fbk-color-border-light);
+}
+
+.pg-sidebar__brand {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
   align-items: center;
-  /* 显式声明字体与字号：不声明就会继承浏览器对表单控件的默认值
-     （Arial / 13.33px），这是之前最明显的割裂点。 */
+  height: 56px;
+  padding: 0 var(--fbk-spacing-md);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.pg-sidebar__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--fbk-color-on-primary);
+  background: var(--fbk-color-primary);
+  border-radius: var(--fbk-radius-md);
+  font-size: var(--fbk-font-size-md);
+  font-weight: var(--fbk-font-weight-semibold);
+}
+
+.pg-sidebar__brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.pg-sidebar__name {
+  color: var(--fbk-color-text);
+  font-size: var(--fbk-font-size-md);
+  font-weight: var(--fbk-font-weight-semibold);
+  white-space: nowrap;
+}
+
+.pg-sidebar__sub {
+  color: var(--fbk-color-text-tertiary);
+  font-size: var(--fbk-font-size-sm);
+}
+
+.pg-sidebar__close {
+  display: none;
+  margin-left: auto;
+  padding: var(--fbk-spacing-xs);
+  color: var(--fbk-color-text-tertiary);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.pg-sidebar__search {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.pg-sidebar__search-icon {
+  color: var(--fbk-color-text-tertiary);
+  font-size: var(--fbk-font-size-md);
+}
+
+.pg-sidebar__nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--fbk-spacing-md);
+  padding: var(--fbk-spacing-sm);
+  overflow-y: auto;
+}
+
+.pg-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pg-sidebar__group-title {
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-sm);
+  color: var(--fbk-color-text-tertiary);
+  font-size: var(--fbk-font-size-sm);
+  font-weight: var(--fbk-font-weight-medium);
+  letter-spacing: 0.04em;
+}
+
+.pg-sidebar__item {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px var(--fbk-spacing-sm);
+  color: var(--fbk-color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--fbk-radius-md);
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
-  /* 与业务 Select 的 line-height 一致（24px） */
-  line-height: 24px;
-  /* 与业务组件控件同高 */
-  height: 32px;
-  /* 内边距照搬业务 Select：4px 12px */
-  padding: 4px var(--fbk-spacing-md);
-  color: var(--fbk-color-text);
+  text-align: left;
   cursor: pointer;
-  background: var(--fbk-color-bg-container);
-  /* 边框用内阴影，与 element-plus 的做法一致；不占盒模型 */
-  border: none;
-  border-radius: var(--fbk-radius-md);
-  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
-  transition: box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.playground__field select:hover,
-.playground__toggle:hover {
-  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
+.pg-sidebar__item:hover {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill-hover);
 }
 
-/* 焦点环与业务组件一致，键盘用户能看清当前位置 */
-.playground__field select:focus-visible,
-.playground__toggle:focus-visible {
+.pg-sidebar__item.is-active {
+  color: var(--fbk-color-primary-text);
+  background: var(--fbk-color-primary-bg);
+  font-weight: var(--fbk-font-weight-medium);
+}
+
+.pg-sidebar__item:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 1px var(--fbk-color-primary), var(--fbk-shadow-focus-ring);
+  box-shadow: var(--fbk-shadow-focus-ring);
 }
 
-/* select 的下拉箭头：原生箭头在各平台差异很大，换成与设计系统一致的绘制箭头。
-   右侧多留的空间是箭头位置，属于 select 特有的必要差异。 */
-.playground__field select {
-  padding-right: var(--fbk-spacing-xl);
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, currentcolor 50%),
-    linear-gradient(135deg, currentcolor 50%, transparent 50%);
-  background-repeat: no-repeat;
-  background-position:
-    calc(100% - 14px) calc(50% - 2px),
-    calc(100% - 9px) calc(50% - 2px);
-  background-size: 5px 5px, 5px 5px;
+.pg-sidebar__item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* 减少动效偏好：去掉过渡 */
-@media (prefers-reduced-motion: reduce) {
-  .playground__field select,
-  .playground__toggle {
-    transition: none;
-  }
+.pg-sidebar__item-id {
+  flex-shrink: 0;
+  color: var(--fbk-color-text-tertiary);
+  font-family: var(--fbk-font-family-mono, ui-monospace, Menlo, monospace);
+  font-size: 11px;
 }
 
-.playground__body {
-  max-width: 1200px;
+.pg-sidebar__empty {
   padding: var(--fbk-spacing-lg);
+  color: var(--fbk-color-text-tertiary);
+  font-size: var(--fbk-font-size-sm);
+  text-align: center;
+}
+
+.pg-sidebar__footer {
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-md);
+  color: var(--fbk-color-text-tertiary);
+  border-top: 1px solid var(--fbk-color-border-light);
+  font-size: var(--fbk-font-size-sm);
+}
+
+.pg-sidebar__mask {
+  display: none;
+}
+
+/* ============================================================
+   顶栏
+   ============================================================ */
+.pg__topbar {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  /* 右侧多留 8px：开关的 label 靠右时会顶到边缘，看起来像被裁掉 */
+  padding: 0 var(--fbk-spacing-md) 0 var(--fbk-spacing-lg);
+  background: var(--fbk-color-bg-container);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.pg__topbar-left,
+.pg__topbar-right {
+  display: flex;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+}
+
+.pg__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--fbk-color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--fbk-radius-md);
+  cursor: pointer;
+  font-size: var(--fbk-font-size-lg);
+}
+
+.pg__icon-btn:hover {
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-fill-hover);
+}
+
+.pg__icon-btn--menu {
+  display: none;
+}
+
+.pg__switch {
+  display: flex;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+}
+
+.pg__switch-label {
+  color: var(--fbk-color-text-secondary);
+  font-size: var(--fbk-font-size-sm);
+  white-space: nowrap;
+}
+
+.pg__heading {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  min-width: 0;
+}
+
+.pg__title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--fbk-color-text);
+  font-size: var(--fbk-font-size-lg);
+  font-weight: var(--fbk-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg__badge {
+  flex-shrink: 0;
+  padding: 2px var(--fbk-spacing-sm);
+  color: var(--fbk-color-primary-text);
+  background: var(--fbk-color-primary-bg);
+  border-radius: var(--fbk-radius-round);
+  font-size: var(--fbk-font-size-sm);
+}
+
+/* ============================================================
+   Demo 说明条
+   ============================================================ */
+.pg__desc {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fbk-spacing-sm) var(--fbk-spacing-lg);
+  color: var(--fbk-color-text-secondary);
+  background: var(--fbk-color-bg-sunken);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+  font-size: var(--fbk-font-size-sm);
+}
+
+.pg__desc-text {
+  min-width: 0;
+}
+
+.pg__id {
+  flex-shrink: 0;
+  padding: 2px var(--fbk-spacing-xs);
+  color: var(--fbk-color-text-tertiary);
+  background: var(--fbk-color-bg-container);
+  border-radius: var(--fbk-radius-sm);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+}
+
+/* ============================================================
+   内容区
+   ============================================================ */
+.pg__body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--fbk-spacing-lg);
+  overflow: auto;
+}
+
+.pg__body > * {
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.playground__body--vant {
-  max-width: 480px;
-  background: var(--fbk-color-bg);
-}
-
-/* 大屏 demo：取消宽度与内边距限制，让它铺满整个视口。
-   大屏按 1920×1080 设计稿等比缩放，被父容器约束会导致裁切与偏移。 */
-.playground__body--full {
-  max-width: none;
-  height: calc(100vh - 49px);
+/* 大屏按 1920×1080 设计，需要全宽且不滚动 */
+.pg__body--full {
   padding: 0;
   overflow: hidden;
 }
 
-.playground__source {
-  padding: var(--fbk-spacing-md);
-  overflow: auto;
-  font-size: var(--fbk-font-size-sm);
-  background: var(--fbk-color-bg-container);
-  border-radius: var(--fbk-radius-md);
+.pg__body--full > * {
+  max-width: none;
+  margin: 0;
+  height: 100%;
 }
 
-.demo-block__title {
-  margin: 0 0 var(--fbk-spacing-md);
+/* ============================================================
+   源码抽屉
+   ============================================================ */
+.pg-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.pg-drawer.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.pg-drawer__mask {
+  position: absolute;
+  inset: 0;
+  /* 0.28 太淡，实测几乎看不出遮罩效果；0.45 才能明确表达"下方不可交互" */
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.pg-drawer.is-open .pg-drawer__mask {
+  opacity: 1;
+}
+
+.pg-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 92vw);
+  background: var(--fbk-color-bg-container);
+  border-left: 1px solid var(--fbk-color-border);
+  box-shadow: var(--fbk-shadow-lg);
+  transform: translateX(100%);
+  transition: transform 0.24s ease;
+}
+
+.pg-drawer.is-open .pg-drawer__panel {
+  transform: translateX(0);
+}
+
+.pg-drawer__header {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 var(--fbk-spacing-lg);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.pg-drawer__heading {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: baseline;
+  min-width: 0;
+}
+
+.pg-drawer__title {
+  color: var(--fbk-color-text);
+  font-size: var(--fbk-font-size-md);
+  font-weight: var(--fbk-font-weight-semibold);
+}
+
+.pg-drawer__sub {
+  overflow: hidden;
+  color: var(--fbk-color-text-tertiary);
+  font-size: var(--fbk-font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-drawer__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--fbk-spacing-xs);
+  align-items: center;
+}
+
+.pg-drawer__code {
+  flex: 1;
+  margin: 0;
+  padding: var(--fbk-spacing-lg);
+  overflow: auto;
+  color: var(--fbk-color-text);
+  background: var(--fbk-color-bg-sunken);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+/* ============================================================
+   窄屏：侧边栏改为抽屉
+   ============================================================ */
+@media (max-width: 900px) {
+  .pg-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 210;
+    transform: translateX(-100%);
+    transition: transform 0.24s ease;
+  }
+
+  .pg--sidebar-open .pg-sidebar {
+    transform: translateX(0);
+  }
+
+  .pg-sidebar__close {
+    display: block;
+  }
+
+  .pg-sidebar__mask {
+    position: fixed;
+    inset: 0;
+    z-index: 205;
+    display: block;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .pg__icon-btn--menu {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-sidebar,
+  .pg-drawer__panel,
+  .pg-drawer__mask,
+  .pg-sidebar__item {
+    transition: none;
+  }
 }

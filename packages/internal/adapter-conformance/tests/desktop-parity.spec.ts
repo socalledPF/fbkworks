@@ -207,21 +207,32 @@ describe('桌面端双适配器一致性', () => {
   })
 
   /**
-   * Playground 的控件必须使用设计系统令牌。
+   * Playground 的控件应当直接使用 UI 库，而不是手写原生控件。
    *
-   * 它是评审环境：控件本身是浏览器默认样式（Arial / 13.33px）时，
-   * 就没法判断组件到底好不好看。断言样式表里对原生 select/button
-   * 显式声明了字体与字号。
+   * 这条断言的前身是「手写 select 必须显式声明字体与字号」——
+   * 那是把方向搞反了：Playground 是**消费方应用**，不受组件库的
+   * 零依赖约束，真实项目里没人会手写 `<select>` + appearance:none
+   * 再自己画箭头。手写 CSS 去模仿 UI 库，本质是在重新实现已有的东西。
+   *
+   * 现在断言反过来：顶部控件用 element-plus 的组件，
+   * 且 playground.css 里不再残留手写的表单控件样式。
    */
-  it('Playground 控件显式声明了字体与字号', () => {
+  it('Playground 顶部控件使用 element-plus 而非手写原生控件', () => {
+    const app = readFileSync(
+      join(import.meta.dirname, '..', '..', '..', '..', 'apps', 'playground', 'src', 'App.vue'),
+      'utf8',
+    )
+    expect(app, '顶部应使用 el-select').toContain('ElSelect')
+    expect(app, '顶部应使用 el-switch').toContain('ElSwitch')
+
     const css = readFileSync(
       join(import.meta.dirname, '..', '..', '..', '..', 'apps', 'playground', 'src', 'playground.css'),
       'utf8',
     )
-    // 找到 select/button 的规则块
-    const block = css.slice(css.indexOf('.playground__field select'))
-    expect(block.slice(0, 600)).toContain('font-family: var(--fbk-font-family)')
-    expect(block.slice(0, 600)).toContain('font-size: var(--fbk-font-size-md)')
+    // 手写控件样式的特征：自定义箭头、去掉原生外观
+    expect(css, 'playground.css 不应再有 appearance: none（那是手写 select 的痕迹）').not.toContain(
+      'appearance: none',
+    )
   })
 
 
