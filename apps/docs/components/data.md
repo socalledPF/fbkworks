@@ -74,6 +74,15 @@ createPageRequest({
 **路径解析失败会抛错，而不是返回空数组。** 返回空数组会让用户看到
 「暂无数据」，而真实原因是字段名写错 —— 这类 bug 极难排查。
 
+### total 为 null 也会抛错
+
+`Number(null) === 0`、`Number('') === 0`。如果静默转换，
+后端返回 `total: null`（「暂无数据」或字段未初始化时很常见）会让
+分页器显示「共 0 条」，而实际可能有数据 —— 用户看到错误信息且无报错。
+
+所以 `total` 位置是 `null` / `undefined` / `''` 时抛 `FbkDataError`，
+并在消息里给出替代方案（`total: (raw) => rows.length` 或直接不传 `total`）。
+
 ### 上报
 
 ```ts
@@ -109,6 +118,7 @@ createPageRequest({ fetch, rows: 'rows', scope: 'client-filtered' })
 | 导出 | 说明 |
 |---|---|
 | `createPageRequest(config)` | 创建 `PageFetcher` |
+| `extractTotal` | 取总数，`null`/`''` 抛错（不静默当 0） |
 | `getByPath(raw, path)` | 点号路径取值，支持数组下标 |
 | `extractRows` / `extractTotal` | 从响应里取列表 / 总数 |
 | `assertServerScope(feature)` | dev 环境提醒数据级权限 |

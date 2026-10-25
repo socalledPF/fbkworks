@@ -83,4 +83,24 @@ describe('extractTotal', () => {
   it('非数字时抛错', () => {
     expect(() => extractTotal({ total: 'abc' }, 'total')).toThrow(FbkDataError)
   })
+
+  /* 这三条防的是同一个坑：Number(null) === 0、Number('') === 0。
+     静默转成 0 会让分页器显示「共 0 条」，而实际可能有数据 ——
+     用户看到错误信息，且没有任何报错。 */
+  it('total 为 null 时抛错，而不是当成 0', () => {
+    expect(() => extractTotal({ total: null }, 'total')).toThrow(FbkDataError)
+  })
+
+  it('total 为空字符串时抛错', () => {
+    expect(() => extractTotal({ total: '' }, 'total')).toThrow(FbkDataError)
+  })
+
+  it('错误信息解释原因并给替代方案', () => {
+    try {
+      extractTotal({ total: null }, 'total')
+    } catch (e) {
+      expect((e as Error).message).toContain('Number(null) === 0')
+      expect((e as Error).message).toContain('rows.length')
+    }
+  })
 })

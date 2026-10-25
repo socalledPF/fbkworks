@@ -77,12 +77,35 @@ export function extractRows<TRaw>(raw: TRaw, spec: string | ((raw: TRaw) => unkn
   return value
 }
 
-/** 从响应里取总数。失败时同样抛错 */
+/**
+ * 从响应里取总数。失败时抛错。
+ *
+ * **null / '' / undefined 必须抛错，不能当成 0。**
+ *
+ * `Number(null) === 0`、`Number('') === 0` —— 这是挖过的坑：
+ * 后端返回 `total: null`（「暂无数据」或字段未初始化时很常见），
+ * 契约层静默变成 total=0，分页器显示「共 0 条」，
+ * 而实际可能有数据。用户看到的是错误信息，且没有任何报错。
+ *
+ * 宁可抛错让人发现，也不要静默显示错的分页。
+ */
 export function extractTotal<TRaw>(
   raw: TRaw,
   spec: string | ((raw: TRaw) => unknown),
 ): number {
   const value = typeof spec === 'function' ? spec(raw) : getByPath(raw, spec)
+
+  if (value === null || value === undefined || value === '') {
+    throw new FbkDataError(
+      'path',
+      `[fbk/data] 总数位置是 ${value === '' ? '空字符串' : String(value)}，不是有效数字。` +
+        `\n  Number(null) === 0，如果静默转换，分页器会显示「共 0 条」但实际可能有数据。` +
+        `\n  如果后端确实没有总数，请改用 total: (raw) => rows.length 或直接不传 total。` +
+        `\n  实际响应：${previewRaw(raw)}`,
+      raw,
+    )
+  }
+
   const num = Number(value)
 
   if (!Number.isFinite(num)) {
