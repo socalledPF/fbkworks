@@ -45,6 +45,30 @@ const { values, setValue, setValues, reset } = useQueryModel({
   },
 })
 
+/**
+ * 解析字段的 options。
+ *
+ * 支持两种形态：
+ *   静态   options: [{ label, value }]
+ *   动态   options: (values) => [{ label, value }]
+ *
+ * 动态形式用于联动：选了省份后城市选项变化。
+ */
+function resolveOptions(field: FormField): SelectOption[] {
+  const raw = field.options
+  if (!raw) return []
+  if (typeof raw === 'function') {
+    try {
+      return raw(values.value)
+    } catch {
+      /* 解析函数抛错不该让整个表单崩 —— 退化成空选项，
+         用户看到「无选项」比白屏好排查。 */
+      return []
+    }
+  }
+  return raw
+}
+
 const isView = computed(() => props.mode === 'view')
 const isDisabled = computed(() => props.disabled || isView.value)
 
@@ -92,7 +116,7 @@ function renderControl(field: FormField) {
   if (isView.value) {
     const display =
       field.type === 'select' && field.options
-        ? (field.options.find((option: SelectOption) => option.value === value)?.label ?? '-')
+        ? (resolveOptions(field).find((option: SelectOption) => option.value === value)?.label ?? '-')
         : value === null || value === undefined || value === ''
           ? '-'
           : String(value)
@@ -118,7 +142,7 @@ function renderControl(field: FormField) {
       return h(Select, {
         ...common,
         modelValue: value ?? undefined,
-        options: (field.options ?? []) as SelectOption[],
+        options: resolveOptions(field),
         placeholder: field.placeholder ?? `请选择${field.label}`,
         'onUpdate:modelValue': update,
       })
@@ -149,7 +173,7 @@ function renderControl(field: FormField) {
       return h(Radio, {
         ...common,
         modelValue: value ?? null,
-        options: (field.options ?? []) as SelectOption[],
+        options: resolveOptions(field),
         'onUpdate:modelValue': update,
       })
     default:

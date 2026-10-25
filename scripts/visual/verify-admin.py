@@ -124,13 +124,30 @@ with sync_playwright() as p:
     check("/orders/" in page.url, f"跳转到详情（{page.url.split('#')[-1]}）")
     check(page.locator(".fbk-descriptions").count() >= 1, "详情用 Descriptions 渲染")
 
-    print("\n[11] 异常页")
+    print("\n[11] 详情页（DetailPage）")
+    # 详情页有数据时应渲染字段 + extra 插槽
+    has_fields = page.locator(".fbk-descriptions").count() >= 1
+    has_timeline = page.locator(".detail__timeline").count() >= 1
+    check(has_fields, "详情页用 Descriptions 渲染字段")
+    check(has_timeline, "extra 插槽渲染了时间线")
+
+    # 访问不存在的 id → 应该渲染 404 而不是「加载失败」
+    page.evaluate("() => { location.hash = '/orders/99999' }")
+    page.wait_for_timeout(2500)
+    not_found_text = page.evaluate("""() => {
+        const el = document.querySelector('.admin-content');
+        return el ? el.innerText.replace(/\\s+/g, ' ') : '';
+    }""")
+    check("内容不存在" in not_found_text, f"不存在的 id 渲染 404（{not_found_text[:40]}）")
+    check("加载失败" not in not_found_text, "404 不被误报为加载失败")
+
+    print("\n[12] 异常页")
     for kind in ["403", "404"]:
         page.evaluate(f"() => {{ location.hash = '/{kind}' }}")
         page.wait_for_timeout(1500)
         check(page.locator(".fbk-result").count() >= 1, f"{kind} 用 Result 渲染")
 
-    print("\n[12] 暗色主题")
+    print("\n[13] 暗色主题")
     page.evaluate("() => { location.hash = '/orders' }")
     page.wait_for_timeout(2000)
     page.locator('.admin-topbar__icon-btn[aria-label*="暗色"]').click()
@@ -144,7 +161,7 @@ with sync_playwright() as p:
     check(theme["dataTheme"] == "dark", f"data-fbk-theme 已切（{theme['dataTheme']}）")
     check(theme["elBg"] != "#ffffff", f"element-plus 变量已跟随（{theme['elBg']}）")
 
-    print("\n[13] 可观测性上报")
+    print("\n[14] 可观测性上报")
     page.evaluate("() => { location.hash = '/orders' }")
     page.wait_for_timeout(2500)
     telemetry = page.evaluate("""() => {
@@ -160,7 +177,7 @@ with sync_playwright() as p:
         f"收到请求事件（{telemetry['items'][:2]}）",
     )
 
-    print("\n[14] 权限（v-permission）")
+    print("\n[15] 权限（v-permission）")
     def perm_state():
         return page.evaluate("""() => {
             const btns = [...document.querySelectorAll('.fbk-pro-table__bulk button')];
@@ -187,7 +204,7 @@ with sync_playwright() as p:
     back = perm_state()
     check(back["batchExists"], "权限恢复后元素重新出现")
 
-    print("\n[15] console 错误")
+    print("\n[16] console 错误")
     check(len(errs) == 0, f"无 console 错误（{errs[:3] if errs else '无'}）")
 
     b.close()

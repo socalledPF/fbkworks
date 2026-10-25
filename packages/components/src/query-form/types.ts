@@ -13,12 +13,22 @@ export type QueryFieldType =
   | 'date-range'
   | 'custom'
 
+/**
+ * 选项可以静态给数组，也可以由当前表单值动态算。
+ *
+ * 动态形式解决「联动」：选了省份后城市选项变化。
+ * 之前只能让业务方把 options 放进 ref 再手动改，写法绕且容易忘记清空旧的选中值。
+ */
+export type SelectOptionsResolver = (
+  values: Record<string, any>,
+) => SelectOption[]
+
 export interface QueryField<V = any> {
   name: string
   label: string
   type: QueryFieldType
   placeholder?: string
-  options?: SelectOption[]
+  options?: SelectOption[] | SelectOptionsResolver
   defaultValue?: V
   span?: number
   hidden?: boolean | ((values: Record<string, any>) => boolean)

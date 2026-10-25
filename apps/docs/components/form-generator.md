@@ -85,3 +85,43 @@ async function onConfirm() {
 <ApiTable component="FormGenerator" section="slots" />
 
 <ApiTable component="FormGenerator" section="exposed" />
+
+## 字段联动
+
+`options` 支持两种形态：静态数组与函数。
+
+### 静态（多数场景）
+
+```ts
+{ name: 'status', label: '状态', type: 'select',
+  options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }
+```
+
+### 动态：选项随其他字段变化
+
+```ts
+{
+  name: 'city',
+  label: '城市',
+  type: 'select',
+  // 收到当前表单值，返回选项
+  options: (values) => CITIES_OF[values.province] ?? [],
+}
+```
+
+省了业务方自己 `watch` 省份再改 `options` 的绕法，也不会出现
+「省份变了但城市还留着旧选项」这种状态不同步。
+
+### 抛错时退化为空选项
+
+解析函数抛错不会让表单崩 —— 那个字段的选项变空，其他字段正常。
+一个字段的选项算错不该白屏。
+
+### 与 `disabled` 的区别
+
+| 能力 | 用途 |
+|---|---|
+| `disabled: (values) => boolean` | 整个字段能不能填 |
+| `options: (values) => Option[]` | 能填什么 |
+
+两者可以组合：`disabled` 控制是否可交互，`options` 控制候选值。

@@ -73,6 +73,12 @@ export const demos: Record<string, DemoEntry> = {
     description: '成功、警告、错误、403/404/500 等状态页。',
     component: defineAsyncComponent(() => import('./result/basic.vue')),
   },
+  'detail-page/basic': {
+    group: '数据展示',
+    description: '详情页：三态、面包屑、返回由组件负责，业务只写字段描述。',
+    title: '详情页',
+    component: defineAsyncComponent(() => import('./detail-page/basic.vue')),
+  },
   'descriptions/basic': {
     title: '分组详情',
     group: '数据展示',

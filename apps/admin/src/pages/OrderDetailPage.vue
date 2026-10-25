@@ -1,33 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { FbkPageContainer } from '@fbk/components/page-container'
-import { FbkDescriptions } from '@fbk/components/descriptions'
+import { FbkDetailPage } from '@fbk/components/detail-page'
 import type { DescriptionItem } from '@fbk/components/descriptions'
-import { FbkResult } from '@fbk/components/result'
 import { fetchOrder, ORDER_STATUS_MAP, type OrderRow } from '../mock/data'
 import { navigate, params } from '../router'
 
 /**
  * 订单详情。
  *
- * 检验点：
- *   · PageContainer 的返回按钮 + 面包屑
- *   · Descriptions 的分组与自定义渲染
- *   · 数据不存在时用 Result 的 404
+ * **这是 DetailPage 的用法演示。** 对比改造前（198 行、手写三态）：
+ *   · 加载态 / 错误态 / 404 由组件负责，与列表页表现一致
+ *   · 错误自动走 useReporter()，不再是一个监控黑洞
+ *   · 页面只剩「字段怎么描述」这一件事
+ *
+ * 时间线不是通用能力，放在 extra 插槽里 —— 组件不该知道业务特有的区块。
  */
-const loading = ref(true)
-const order = ref<OrderRow | null>(null)
-
 const id = Number(params.value[0])
-
-onMounted(async () => {
-  loading.value = true
-  try {
-    order.value = await fetchOrder(id)
-  } finally {
-    loading.value = false
-  }
-})
 
 const items: DescriptionItem<OrderRow>[] = [
   { key: 'orderNo', label: '订单号', dataIndex: 'orderNo' },
@@ -64,6 +51,7 @@ const items: DescriptionItem<OrderRow>[] = [
   },
 ]
 
+/** 订单流转。真实项目里这来自独立接口，这里用固定数据演示插槽用法 */
 const timeline = [
   { time: '2026-09-15 10:32', text: '订单创建', active: true },
   { time: '2026-09-15 10:35', text: '买家付款', active: true },
@@ -73,33 +61,20 @@ const timeline = [
 </script>
 
 <template>
-  <FbkPageContainer
-    :title="order ? `订单 ${order.orderNo}` : '订单详情'"
+  <FbkDetailPage
+    :request="() => fetchOrder(id)"
+    :items="items"
+    :title="(data: OrderRow) => `订单 ${data.orderNo}`"
+    :breadcrumbs="[
+      { text: '交易管理' },
+      { text: '订单列表', to: '/orders' },
+      { text: '订单详情' },
+    ]"
     back
-    :breadcrumbs="[{ text: '交易管理' }, { text: '订单列表', to: '/orders' }, { text: '订单详情' }]"
     @back="navigate('/orders')"
   >
-    <div v-if="loading" class="detail__loading">加载中…</div>
-
-    <FbkResult
-      v-else-if="!order"
-      status="404"
-      title="订单不存在"
-      :subtitle="`没有找到 ID 为 ${id} 的订单`"
-    >
-      <template #default>
-        <button type="button" class="admin-btn admin-btn--primary" @click="navigate('/orders')">
-          返回列表
-        </button>
-      </template>
-    </FbkResult>
-
-    <div v-else class="detail">
-      <section class="detail__card">
-        <h2 class="detail__title">基本信息</h2>
-        <FbkDescriptions :items="items" :data="order" :column="2" />
-      </section>
-
+    <!-- 时间线：业务特有区块，不属于通用能力 -->
+    <template #extra>
       <section class="detail__card">
         <h2 class="detail__title">订单流转</h2>
         <ol class="detail__timeline">
@@ -117,26 +92,11 @@ const timeline = [
           </li>
         </ol>
       </section>
-    </div>
-  </FbkPageContainer>
+    </template>
+  </FbkDetailPage>
 </template>
 
 <style scoped>
-.detail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--fbk-spacing-lg);
-}
-
-.detail__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  font-size: var(--fbk-font-size-sm);
-  color: var(--fbk-color-text-tertiary);
-}
-
 .detail__card {
   padding: var(--fbk-spacing-lg);
   background: var(--fbk-color-bg-container);

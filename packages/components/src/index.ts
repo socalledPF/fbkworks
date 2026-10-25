@@ -49,3 +49,5 @@ export type {
   DescriptionsProps,
   ResolvedGroup,
 } from './descriptions'
+
+export { FbkDetailPage, useDetail, useDetailWatch } from './detail-page'

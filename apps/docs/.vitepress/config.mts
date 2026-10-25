@@ -54,6 +54,7 @@ export default withMermaid(
             { text: 'Dashboard 数据看板', link: '/components/dashboard' },
             { text: 'Screen 可视化大屏', link: '/components/screen' },
             { text: 'Data 数据层契约', link: '/components/data' },
+            { text: 'DetailPage 详情页', link: '/components/detail-page' },
             { text: 'ProTable 高级表格', link: '/components/pro-table' },
             { text: 'QueryForm 查询表单', link: '/components/query-form' },
             { text: 'FormGenerator 表单生成器', link: '/components/form-generator' },

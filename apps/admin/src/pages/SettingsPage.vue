@@ -17,6 +17,7 @@ const model = ref<Record<string, any>>({
   siteName: 'FBK Admin',
   siteDesc: '基于 @fbk 组件库构建的后台管理系统',
   contactEmail: 'admin@example.com',
+  region: 'cn',
   timezone: 'Asia/Shanghai',
   dateFormat: 'YYYY-MM-DD',
   pageSize: 20,
@@ -30,11 +31,6 @@ const settingsFields: FormField[] = [
   { name: 'siteName', label: '站点名称', type: 'input', required: true, span: 2 },
   { name: 'siteDesc', label: '站点描述', type: 'textarea', span: 2 },
   { name: 'contactEmail', label: '联系邮箱', type: 'input', required: true },
-  { name: 'timezone', label: '时区', type: 'select', options: [
-    { label: '中国标准时间 (UTC+8)', value: 'Asia/Shanghai' },
-    { label: 'UTC', value: 'UTC' },
-    { label: '美国东部时间', value: 'America/New_York' },
-  ] },
   { name: 'dateFormat', label: '日期格式', type: 'select', options: [
     { label: '2026-10-22', value: 'YYYY-MM-DD' },
     { label: '2026/10/22', value: 'YYYY/MM/DD' },
@@ -44,9 +40,40 @@ const settingsFields: FormField[] = [
     { label: '亮色', value: 'light' },
     { label: '暗色', value: 'dark' },
   ] },
+  {
+    name: 'region',
+    label: '部署区域',
+    type: 'select',
+    options: [
+      { label: '中国大陆', value: 'cn' },
+      { label: '海外', value: 'overseas' },
+    ],
+  },
+  {
+    /* options 是函数 → 选项随「部署区域」变化。
+       这是 FormGenerator 的联动能力：不需要业务方把 options
+       放进 ref 再手动 watch。 */
+    name: 'timezone',
+    label: '时区',
+    type: 'select',
+    options: (values: Record<string, any>) =>
+      values.region === 'overseas'
+        ? [
+            { label: 'UTC', value: 'UTC' },
+            { label: '美国东部时间', value: 'America/New_York' },
+            { label: '欧洲中部时间', value: 'Europe/Berlin' },
+          ]
+        : [
+            { label: '中国标准时间 (UTC+8)', value: 'Asia/Shanghai' },
+            { label: 'UTC', value: 'UTC' },
+          ],
+  },
   { name: 'enableNotify', label: '开启消息通知', type: 'switch' },
   { name: 'enableAudit', label: '开启操作审计', type: 'switch' },
   {
+    /* options 函数形式：联动演示。
+       只有开启通知时才有意义 —— 之前只能用 disabled 让整行变灰，
+       现在选项本身也能按条件变化。 */
     name: 'notifyChannel',
     label: '通知渠道',
     type: 'radio',

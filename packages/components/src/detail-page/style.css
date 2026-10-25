@@ -1,0 +1,90 @@
+/**
+ * 详情页样式。
+ *
+ * 只负责容器与骨架 —— 字段渲染由 Descriptions 负责，
+ * 三态由 Result 负责。这里不重复定义它们的外观。
+ */
+
+.fbk-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fbk-space-section, var(--fbk-spacing-xl));
+}
+
+/* ---- 加载骨架 ---- */
+.fbk-detail-page__skeleton {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fbk-spacing-lg) var(--fbk-spacing-xl);
+}
+
+@media (max-width: 640px) {
+  .fbk-detail-page__skeleton {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fbk-detail-page__skeleton-row {
+  height: 20px;
+  background: var(--fbk-color-fill);
+  border-radius: var(--fbk-radius-sm);
+}
+
+/* 骨架不做闪烁动画：prefers-reduced-motion 用户会不适，
+   而且它本来只出现几百毫秒，动画反而显得页面在抖 */
+@media (prefers-reduced-motion: no-preference) {
+  .fbk-detail-page__skeleton-row {
+    animation: fbk-detail-page-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes fbk-detail-page-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ---- 额外区块与操作区 ---- */
+.fbk-detail-page__extra {
+  min-width: 0;
+}
+
+.fbk-detail-page__actions {
+  display: flex;
+  gap: var(--fbk-spacing-md);
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: var(--fbk-spacing-lg);
+  border-top: 1px solid var(--fbk-color-border-light);
+}
+
+/* ---- 默认按钮（错误态的重试 / 404 的返回）----
+   与 admin demo 的 .admin-btn 同规格：组件内部不依赖业务样式。 */
+.fbk-detail-page__btn {
+  padding: 4px var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: 24px;
+  color: var(--fbk-color-text);
+  cursor: pointer;
+  background: var(--fbk-color-bg-container);
+  border: none;
+  border-radius: var(--fbk-radius-md);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
+}
+
+.fbk-detail-page__btn:hover {
+  background: var(--fbk-color-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
+}
+
+.fbk-detail-page__btn:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--fbk-color-primary),
+    var(--fbk-shadow-focus-ring);
+}

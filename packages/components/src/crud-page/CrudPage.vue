@@ -27,7 +27,10 @@ const props = withDefaults(defineProps<CrudPageProps<T>>(), {
   defaultCollapsed: true,
 })
 
-const slots = useSlots()
+/* 显式标注 Slot 的键类型。
+   不标注时，generic 组件里的 useSlots() 在 dts 构建阶段无法收敛，
+   会报 TS7022（隐式 any）—— 这个错误只在 build 时出现，typecheck 看不到。 */
+const slots: Record<string, unknown> = useSlots() as Record<string, unknown>
 
 const queryRef = ref<QueryFormExpose>()
 const tableRef = ref<ProTableExpose<T>>()
@@ -82,7 +85,7 @@ const tableProps = computed(() => ({
  * 只转发「用户真的传了」的那些：ProTable 内部用 `$slots.toolbar` 判断
  * 是否渲染工具栏容器，如果无条件声明插槽，就会渲染出一个空的工具栏。
  */
-const passedSlots = computed(() =>
+const passedSlots = computed((): string[] =>
   Object.keys(slots ?? {}).filter(
     (name) => name === 'toolbar' || name === 'bulk-actions' || name === 'card-footer' || name.startsWith('cell-'),
   ),
