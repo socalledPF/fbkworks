@@ -91,9 +91,13 @@ const regions = [
 
 <template>
   <div class="dashboard-demo">
+    <!-- 指标区：无卡片容器，靠间距分组 -->
     <FbkStatGroup :columns="{ xs: 1, sm: 2, lg: 4 }">
       <FbkStatCard v-for="s in stats" :key="s.title" v-bind="s" />
     </FbkStatGroup>
+
+    <!-- 唯一的分隔线：指标与图表之间 -->
+    <hr class="dashboard-demo__rule" />
 
     <div class="dashboard-demo__row">
       <FbkTrendChart
@@ -149,16 +153,29 @@ const regions = [
 </template>
 
 <style scoped>
+/*
+ * 极简布局：
+ *   · 区块之间 32px（--fbk-space-section）
+ *   · 组之间 24px（--fbk-space-group）
+ *   · 只有一条分隔线，其余靠留白
+ */
 .dashboard-demo {
   display: flex;
   flex-direction: column;
-  gap: var(--fbk-spacing-lg);
+  gap: var(--fbk-space-section);
+}
+
+.dashboard-demo__rule {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--fbk-color-border-light);
 }
 
 .dashboard-demo__row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--fbk-spacing-lg);
+  gap: var(--fbk-space-group);
 }
 
 @media (min-width: 1024px) {

@@ -10,30 +10,35 @@
 /* ============================================================
    StatCard
    ============================================================ */
+/*
+ * 指标卡：**无容器**。
+ *
+ * 去掉了边框、圆角、阴影、背景色 —— 这些是「SaaS 卡片套件」的默认做法，
+ * 一屏十几个同款卡片只会制造视觉噪音。
+ *
+ * 分组改由间距承担：卡片内部 gap 8px，卡片之间由 StatGroup 的 gap 24px。
+ * 唯一保留的是 padding（保证点击区域）与焦点环（可访问性）。
+ */
 .fbk-stat-card {
   display: flex;
   flex-direction: column;
-  gap: var(--fbk-spacing-xs);
-  padding: var(--fbk-spacing-lg);
+  gap: 6px;
+  padding: var(--fbk-spacing-sm) 0;
   font-size: var(--fbk-font-size-md);
   line-height: var(--fbk-font-line-height);
   color: var(--fbk-color-text);
-  background: var(--fbk-color-bg-container);
-  border: 1px solid var(--fbk-color-border-light);
-  border-radius: var(--fbk-radius-lg);
-  box-shadow: var(--fbk-shadow-sm);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .fbk-stat-card--clickable {
   cursor: pointer;
 }
 
-.fbk-stat-card--clickable:hover {
-  border-color: var(--fbk-color-primary-border);
-  box-shadow: var(--fbk-shadow-md);
+.fbk-stat-card--clickable:hover .fbk-stat-card__title {
+  color: var(--fbk-color-primary-text);
 }
 
 .fbk-stat-card--clickable:focus-visible {
@@ -68,10 +73,11 @@
 .fbk-stat-card__number {
   /* 等宽数字：刷新时宽度不跳动，一排卡片不会互相推挤 */
   font-family: var(--fbk-pro-table-numeric-font-family);
-  font-size: 28px;
+  font-size: 32px;
   font-weight: var(--fbk-font-weight-semibold);
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   color: var(--fbk-color-text);
 }
 
@@ -105,7 +111,8 @@
 
 .fbk-stat-card[data-tone='negative'] .fbk-stat-card__arrow,
 .fbk-stat-card[data-tone='negative'] .fbk-stat-card__rate {
-  color: var(--fbk-color-danger-text);
+  /* 赤陶而不是正红：正红留给「错误」，负向变化只是「需要注意」 */
+  color: var(--fbk-color-accent-text);
 }
 
 .fbk-stat-card[data-tone='neutral'] .fbk-stat-card__arrow,
@@ -131,7 +138,8 @@
   --fbk-cols-resolved: var(--fbk-cols-xs, var(--fbk-cols-base));
   display: grid;
   grid-template-columns: repeat(var(--fbk-cols-resolved), minmax(0, 1fr));
-  gap: var(--fbk-spacing-md);
+  /* 卡片之间 24px：容器去掉后，间距成为唯一的分组手段 */
+  gap: var(--fbk-space-group);
 }
 
 @media (min-width: 640px) {
@@ -169,18 +177,24 @@
 /* ============================================================
    ChartCard
    ============================================================ */
+/*
+ * 图表卡片：**无容器**。
+ *
+ * 与 StatCard 一致 —— 去掉边框/圆角/阴影/背景。
+ * 图表本身有足够的视觉重量，再加一个框只是重复强调。
+ */
 .fbk-chart-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--fbk-spacing-lg);
+  padding: 0;
   font-size: var(--fbk-font-size-md);
   line-height: var(--fbk-font-line-height);
   color: var(--fbk-color-text);
-  background: var(--fbk-color-bg-container);
-  border: 1px solid var(--fbk-color-border-light);
-  border-radius: var(--fbk-radius-lg);
-  box-shadow: var(--fbk-shadow-sm);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .fbk-chart-card__header {
@@ -198,8 +212,9 @@
 
 .fbk-chart-card__title {
   margin: 0;
-  font-size: var(--fbk-font-size-lg);
+  font-size: 15px;
   font-weight: var(--fbk-font-weight-semibold);
+  letter-spacing: -0.01em;
   color: var(--fbk-color-text);
 }
 

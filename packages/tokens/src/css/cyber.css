@@ -161,3 +161,18 @@ html[data-fbk-theme='cyber'],
   --fbk-chart-tooltip-border: #1b3040;
   --fbk-chart-tooltip-text: #e6f7fb;
 }
+
+/* ===== 强调色与监控状态色（cyber）=====
+   cyber 是深青底，赤陶要提亮才看得清；
+   状态色同样按深底调整。 */
+html[data-fbk-theme='cyber'],
+.fbk-theme-cyber {
+  --fbk-color-accent: #e08a5f;
+  --fbk-color-accent-text: #f0a882;
+  --fbk-color-accent-bg: #2a1a12;
+  --fbk-color-accent-border: #6b2406;
+
+  --fbk-color-signal-ok: #4fc9a4;
+  --fbk-color-signal-warn: #e0b45f;
+  --fbk-color-signal-alert: #e07a66;
+}

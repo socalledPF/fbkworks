@@ -11,16 +11,22 @@ import type { FbkChartTheme } from './types'
  * SSR 安全：没有 document 时返回内置默认值，不抛错。
  */
 
-/** 无 DOM 环境下的兜底（与 light 主题一致） */
+/**
+ * 无 DOM 环境下的兜底（与 light 主题一致）。
+ *
+ * **必须与 tokens.css 的 --fbk-chart-1..8 保持同步。**
+ * 这组值只在没有 document 时使用（SSR、单元测试），
+ * 但一旦不同步，图表在 SSR 首屏会闪一下旧配色。
+ */
 const FALLBACK_PALETTE = [
-  '#2f6bff',
-  '#18a058',
-  '#bd7a18',
-  '#d03050',
-  '#2080f0',
-  '#7c3aed',
-  '#0e9aa7',
-  '#868b93',
+  '#1f3a8a',
+  '#4a9d7f',
+  '#a87a28',
+  '#c2410c',
+  '#6a7fb0',
+  '#7a5f8f',
+  '#3f7d8c',
+  '#7d8794',
 ]
 
 function readVar(styles: CSSStyleDeclaration, name: string, fallback: string): string {

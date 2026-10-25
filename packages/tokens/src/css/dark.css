@@ -17,13 +17,14 @@
 html[data-fbk-theme='dark'],
 .fbk-theme-dark {
   /* ===== 主色 ===== */
-  --fbk-color-primary: #5c8bff; /* 原值 */
-  --fbk-color-primary-hover: #7ba3ff; /* 原值 */
-  --fbk-color-primary-active: #2f6bff; /* 原值 */
-  --fbk-color-primary-text: var(--fbk-blue-400);
-  --fbk-color-primary-bg: #1a2340;
-  --fbk-color-primary-bg-hover: #1f2a4d;
-  --fbk-color-primary-border: #2d3f6b;
+  /* 墨蓝在暗底上要提亮 —— 直接用 #1f3a8a 会糊在背景里 */
+  --fbk-color-primary: #6a7fb0;
+  --fbk-color-primary-hover: #9aabd0;
+  --fbk-color-primary-active: #4a5f8f;
+  --fbk-color-primary-text: #9aabd0;
+  --fbk-color-primary-bg: #1a2135;
+  --fbk-color-primary-bg-hover: #212a42;
+  --fbk-color-primary-border: #2d3a55;
   /* 暗色下 primary 是**浅**蓝（#5c8bff），白字压上去只有 3.19:1，不达 AA。
      所以这里的 onPrimary 反过来用深墨色：实测 4.95:1。 */
   --fbk-color-on-primary: var(--fbk-gray-900);
@@ -96,7 +97,7 @@ html[data-fbk-theme='dark'],
    暗底上要更亮的色。与 light 的对应关系见设计文档。 */
 html[data-fbk-theme='dark'],
 .fbk-theme-dark {
-  --fbk-chart-1: #5c8bff;
+  --fbk-chart-1: #6a7fb0;
   --fbk-chart-2: #63e2b7;
   --fbk-chart-3: #f2c97d;
   --fbk-chart-4: #e88080;
@@ -111,4 +112,19 @@ html[data-fbk-theme='dark'],
   --fbk-chart-tooltip-bg: var(--fbk-color-bg-elevated);
   --fbk-chart-tooltip-border: var(--fbk-color-border);
   --fbk-chart-tooltip-text: var(--fbk-color-text);
+}
+
+/* ===== 强调色与监控状态色（暗色）=====
+   赤陶在暗底上要提亮，否则辨识度不足。
+   监控状态色同理 —— 暗底上低饱和会糊成一片。 */
+html[data-fbk-theme='dark'],
+.fbk-theme-dark {
+  --fbk-color-accent: #d97d57;
+  --fbk-color-accent-text: #e9a688;
+  --fbk-color-accent-bg: #2a1a12;
+  --fbk-color-accent-border: #6b2406;
+
+  --fbk-color-signal-ok: #5fb894;
+  --fbk-color-signal-warn: #d9ad5a;
+  --fbk-color-signal-alert: #d4735f;
 }

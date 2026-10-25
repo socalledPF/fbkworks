@@ -334,3 +334,19 @@ html[data-fbk-theme='dark'],
   /* 图表容器标题区高度 */
   --fbk-chart-header-height: 48px;
 }
+
+/* ============================================================
+   极简布局间距（组件级，不属于语义层）
+   ============================================================
+   组件不再用卡片容器，改用间距分层：
+     section = 区块之间（大）
+     group   = 组之间（中）
+     inline  = 行内元素之间（小）
+
+   不是颜色，暗色下不需要覆盖 —— 所以放组件层而不是语义层，
+   避免 tokens.spec.ts 的「语义令牌必须有暗色覆盖」检查误报。 */
+:root {
+  --fbk-space-section: var(--fbk-space-32);
+  --fbk-space-group: var(--fbk-space-24);
+  --fbk-space-inline: var(--fbk-space-8);
+}
