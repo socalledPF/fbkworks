@@ -1,0 +1,7 @@
+{
+  "name": "@fbk/scripts-tests",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "仓库脚本的单元测试（不发布）。vitest 只扫 packages/**/tests/，所以脚本测试放在这里。"
+}

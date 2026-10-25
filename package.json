@@ -22,6 +22,7 @@
     "check:surface": "node scripts/check-type-surface.mjs",
     "check:styles": "node scripts/check-styles.mjs",
     "check:style-entries": "node scripts/check-style-entries.mjs",
+    "check:impact": "node scripts/check-impact.mjs",
     "check:runtime-deps": "node scripts/check-runtime-deps.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only",

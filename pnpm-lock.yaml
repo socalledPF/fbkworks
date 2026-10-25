@@ -417,6 +417,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
 
+  packages/internal/scripts-tests: {}
+
   packages/internal/test-utils:
     dependencies:
       '@fbk/adapter-core':
