@@ -140,7 +140,7 @@ naive 有 12px 但来自 CSS-in-JS 写在行内样式上的 `--n-action-space`�
 naive 额外要把 `--n-action-space` 置 0——那个变量被 naive 用 CSS-in-JS 写在 `.n-dialog` 的**行内样式**上，
 普通选择器改不动，只能用 `!important`（作用域限定在 `.n-dialog` 内，不影响消费方）。
 
-### 6.3 `inheritAttrs: false` 却没 `v-bind="attrs"` —— **仍未修**
+### 6.3 `inheritAttrs: false` 却没 `v-bind="attrs"` —— **已修（2026-10-25 续）**
 
 **症状**：给组件传 `class` / `style` 静默失效，无任何报错。
 
@@ -153,8 +153,8 @@ naive 额外要把 `--n-action-space` 置 0——那个变量被 naive 用 CSS-i
 | `dashboard`（7 个组件） | ✅ 正确转发（`useAttrs()` + `v-bind="attrs"`） |
 | `screen`（11 个组件） | ✅ 正确转发 |
 | `components` 的 `DetailPage` | ✅ 正确转发 |
-| **`components` 其余 8 个** | ❌ **丢 attrs**：`crud-page` `descriptions` `form-generator` `form-modal` `page-container` `pro-table` `query-form` `result` |
-| **`chart-core` 的 `FbkChart`** | ❌ **丢 attrs** |
+| **`components` 其余 8 个** | ✅ **已修**：`crud-page` `descriptions` `form-generator` `form-modal` `page-container` `pro-table` `query-form` `result` |
+| **`chart-core` 的 `FbkChart`** | ✅ **已修** |
 
 实测证据（临时探针，已删除）：
 
@@ -170,8 +170,12 @@ Result root       = fbk-result fbk-result--info                 ← 期望含 fr
 **为什么危险**：`inheritAttrs: false` 本身是**正确**的写法（组件需要控制 attrs 落在哪个元素上），
 所以它看起来像「已经处理过了」。真正的判断标准是**有没有 `useAttrs()` 或 `v-bind="attrs"`**。
 
-**修法**（未执行，留给下次）：9 个组件各加 `const attrs = useAttrs()` 并绑到模板根元素。
-注意 `form-modal` 的根是 `<component :is="Dialog">`，attrs 该绑到 Dialog 还是内层内容需要单独判断。
+**修法**（2026-10-25 续已执行）：9 个组件各加 `const attrs = useAttrs()` 并绑到模板根元素。
+`form-modal` 的根是 `<component :is="Dialog">`，attrs 绑在 **Dialog 这一层**（经用户决策）。
+
+守卫：`packages/components/tests/attrs.spec.ts`（10 用例）与
+`packages/chart-core/tests/attrs.spec.ts`（4 用例）表驱动覆盖两包全部组件导出，
+漏转发会立刻变红。单点证伪已验证：只摘 `Result` 的 `v-bind` → 恰好 1 条红。
 
 ### 6.4 大屏缩放后整体偏移 24.5px
 
@@ -338,7 +342,7 @@ export type TableResponse<T> = Omit<Page<T>, 'total'> & { total?: number }
 
 | 项 | 状态 | 阻塞点 |
 |---|---|---|
-| **P4-2 `CrudPage` 详情抽屉** | 待决策 | 抽屉 vs 页面跳转，需要产品口径 |
+| **P4-2 详情抽屉** | 待决策 | 抽屉 vs 页面跳转，需要产品口径（**唯一有实质内容的剩余项**） |
 | 8 个变更集未发布 | 待决策 | 发布节奏由用户定，`.changeset/` 已备好 |
 | `request-adapters` | 明确不做 | 用户决策跳过 |
 | 角色 → 权限点映射 | 不做 | 那是应用的用户体系，库不该知道 |
@@ -404,7 +408,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 
 ## 附录 B：仓库里已发现的过期文档（尚未修）
 
-写这份文档时顺手发现的，**本轮未修**，留给下次处理：
+写这份文档时顺手发现的，**已于 2026-10-25 续修完**（下表 4 项全部落地）：
 
 | 位置 | 问题 |
 |---|---|
@@ -414,4 +418,35 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 | `docs/design/2026-10-25-fbk-data-contract.md:3` | 引用了**不存在**的 `docs/design/2026-10-25-enterprise-architecture-plan.md`，应指向 `docs/enterprise-architecture.md` |
 
 这些不影响门禁（`docs/` 不在 VitePress 构建范围，也没有 markdown lint），
-但会让下次接手的人读到错的状态——建议优先修前三条。
+但会让下次接手的人读到错的状态——已全部修正。
+
+---
+
+## 附录 C：2026-10-25 续（attrs 转发 + 文档修正）
+
+| 项 | 结果 |
+|---|---|
+| 9 个组件补 attrs 转发 | ✅ `components` 8 个 + `chart-core` 1 个 |
+| 回归守卫 | ✅ 两个表驱动 `attrs.spec.ts`，共 14 用例 |
+| 附录 B 的 4 处过期文档 | ✅ 全部修正 |
+| 变更集 | ✅ `.changeset/attrs-inherit-forwarding.md`（patch × 2），总数 8 → 9 |
+| 门禁 | ✅ `pnpm verify` exit 0，**614 用例 / 46 个测试文件** |
+
+### 本轮新增的坑
+
+**C1. HTML 注释写在 `<template>` 根节点上方 → Vue 判定为多根 fragment → attrs 再次丢失。**
+根因：`<template>` 里只要出现两个顶层节点（注释也算），就不再是单根，`attrs` 无处自动落地。
+修法：说明性注释写进 `<script>`，不要放在模板根节点上方。
+
+**C2. `pnpm verify` 「全绿」不等于「零错误」。**
+`@fbk/components` 的 dts 构建**一直**打印 5 个 TS7022/TS7024（`DetailPage.vue` ×4、`FormModal.vue` ×1），
+但 `vite build` 仍然 exit 0，所以 `verify` 照样通过。已在干净 HEAD 树上复现，确认是既有问题、非本轮引入。
+这正是 §6.12 那个坑的另一面：**`typecheck` 通过 ≠ `build` 无错**，且 `build` 的报错还未必拦得住门禁。
+
+**C3. PowerShell `Get-Content | Measure-Object -Line` 数行数不可靠。**
+对 `apps/admin/src` 实测得 **1667**，真值 **1929**（`find | wc -l` 与 Node 换行计数双重确认）。
+该 cmdlet 在多文件管道下按批统计、且不数空行。**数行数用 `wc -l`。**
+
+**C4. `win_bash` 是持久 shell，`cd` 会残留。**
+一次 `cd packages/components` 之后的命令全在错误目录下执行，`npx vitest run` 因此报 17 failed 的假象。
+每次命令都显式 `cd <repo root> &&` 前缀。

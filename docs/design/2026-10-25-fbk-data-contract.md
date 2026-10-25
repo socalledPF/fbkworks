@@ -1,6 +1,6 @@
 # 设计稿：`@fbk/data` 契约层
 
-> 企业级前端架构优先级计划的 P0。见 `docs/design/2026-10-25-enterprise-architecture-plan.md`。
+> 企业级前端架构优先级计划的 P0。见 `docs/enterprise-architecture.md`。
 
 ## 一、为什么需要它
 
