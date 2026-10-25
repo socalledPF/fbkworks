@@ -25,12 +25,14 @@ defineProps<{
   theme: 'light' | 'dark'
   collapsed: boolean
   user: { name: string; role: string }
+  hasDeletePermission: boolean
 }>()
 
 const emit = defineEmits<{
   'update:theme': [value: 'light' | 'dark']
   'update:collapsed': [value: boolean]
   logout: []
+  'toggle-delete-permission': []
 }>()
 
 const menus: MenuItem[] = [
@@ -146,6 +148,15 @@ const openKeys = computed(() => {
               <span class="admin-user__role">{{ user.role }}</span>
             </span>
           </div>
+
+          <button
+            type="button"
+            class="admin-topbar__perm"
+            :aria-pressed="hasDeletePermission"
+            @click="emit('toggle-delete-permission')"
+          >
+            {{ hasDeletePermission ? '有删除权限' : '无删除权限' }}
+          </button>
 
           <button type="button" class="admin-topbar__logout" @click="emit('logout')">退出</button>
         </div>

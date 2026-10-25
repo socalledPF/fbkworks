@@ -144,7 +144,50 @@ with sync_playwright() as p:
     check(theme["dataTheme"] == "dark", f"data-fbk-theme 已切（{theme['dataTheme']}）")
     check(theme["elBg"] != "#ffffff", f"element-plus 变量已跟随（{theme['elBg']}）")
 
-    print("\n[13] console 错误")
+    print("\n[13] 可观测性上报")
+    page.evaluate("() => { location.hash = '/orders' }")
+    page.wait_for_timeout(2500)
+    telemetry = page.evaluate("""() => {
+        const panel = document.querySelector('.admin-telemetry');
+        return {
+            exists: !!panel,
+            items: panel ? [...panel.querySelectorAll('li')].map(li => li.textContent.trim()) : [],
+        };
+    }""")
+    check(telemetry["exists"], "上报面板存在")
+    check(
+        any("ProTable.request" in t for t in telemetry["items"]),
+        f"收到请求事件（{telemetry['items'][:2]}）",
+    )
+
+    print("\n[14] 权限（v-permission）")
+    def perm_state():
+        return page.evaluate("""() => {
+            const btns = [...document.querySelectorAll('.fbk-pro-table__bulk button')];
+            const batch = btns.find(b => b.textContent.includes('批量删除'));
+            return {
+                batchExists: !!batch,
+                rowDelete: [...document.querySelectorAll('.el-table__body a, .el-table__body button')]
+                    .filter(el => el.textContent.trim() === '删除').length,
+            };
+        }""")
+
+    on = perm_state()
+    check(on["batchExists"], "有权限时批量删除存在")
+
+    page.locator(".admin-topbar__perm").click()
+    page.wait_for_timeout(1200)
+    off = perm_state()
+    # 核心断言：元素从 DOM 移除，不是 display:none
+    check(not off["batchExists"], "无权限时批量删除从 DOM 移除（非隐藏）")
+    check(off["rowDelete"] == 0, "无权限时行内删除按钮为 0")
+
+    page.locator(".admin-topbar__perm").click()
+    page.wait_for_timeout(1200)
+    back = perm_state()
+    check(back["batchExists"], "权限恢复后元素重新出现")
+
+    print("\n[15] console 错误")
     check(len(errs) == 0, f"无 console 错误（{errs[:3] if errs else '无'}）")
 
     b.close()

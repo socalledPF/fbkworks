@@ -1,45 +1,18 @@
 /**
- * Mock 数据层。
+ * 业务数据访问层。
  *
- * 刻意模拟真实后端的三个特征，用来压测组件库：
- *   1. **分页 + 排序 + 多条件筛选**都在「服务端」完成（不是前端过滤）
- *   2. **随机延迟**（150-450ms），能暴露竞态与 loading 状态问题
- *   3. **AbortSignal** 生效 —— 快速切换查询条件时旧请求应被取消
+ * **这是 `@fbk/data` 契约层的真实用法。**
  *
- * 数据是确定性生成的（固定种子），刷新后保持一致，便于截图对比。
+ * 对比改造前，每个 `fetchXxx` 都要手写：解析筛选字段、排序逻辑、
+ * 分页切片、组装 { list, total }。现在只剩「数据从哪来」+「字段在哪」。
+ *
+ * 注意：本文件不含任何 mock 后端逻辑 —— 那些在 server.ts 里，
+ * 真实项目中对应的是 HTTP 请求。
  */
 
-import type { TableRequestParams, TableResponse } from '@fbk/components/pro-table'
+import { createPageRequest, type PageFetcher } from '@fbk/data'
 import type { Status } from '@fbk/adapter-core'
-
-// ---------- 确定性伪随机 ----------
-
-/** 简单的 LCG，保证每次刷新数据一致 */
-function makeRandom(seed: number) {
-  let state = seed
-  return () => {
-    state = (state * 1664525 + 1013904223) % 4294967296
-    return state / 4294967296
-  }
-}
-
-const rand = makeRandom(20261022)
-
-const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rand() * arr.length)]!
-const between = (min: number, max: number) => min + Math.floor(rand() * (max - min + 1))
-
-/** 模拟网络延迟，并响应 AbortSignal */
-function delay(signal?: AbortSignal, base = 150, spread = 300): Promise<void> {
-  const ms = base + Math.floor(Math.random() * spread)
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, ms)
-    signal?.addEventListener('abort', () => {
-      clearTimeout(timer)
-      // DOMException 是浏览器取消请求的标准表现，组件库需要能正确处理
-      reject(new DOMException('请求已取消', 'AbortError'))
-    })
-  })
-}
+import { between, delay, makeRandom, mockServerQuery, pick, rand } from './server'
 
 // ---------- 订单 ----------
 
@@ -48,7 +21,6 @@ export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'completed' | 'cancel
 export const ORDER_STATUS_MAP: Record<OrderStatus, { text: string; status: Status }> = {
   pending: { text: '待支付', status: 'warning' },
   paid: { text: '已支付', status: 'info' },
-  // 'processing' 不在 Status 联合里，用 primary 表达"进行中"
   shipped: { text: '已发货', status: 'primary' },
   completed: { text: '已完成', status: 'success' },
   cancelled: { text: '已取消', status: 'default' },
@@ -79,7 +51,10 @@ const STATUSES: OrderStatus[] = ['pending', 'paid', 'shipped', 'completed', 'can
 function makeOrder(i: number): OrderRow {
   const status = pick(STATUSES)
   const created = new Date(2026, 8, between(1, 30), between(8, 22), between(0, 59))
-  const paid = status === 'pending' || status === 'cancelled' ? null : new Date(created.getTime() + between(1, 120) * 60000)
+  const paid =
+    status === 'pending' || status === 'cancelled'
+      ? null
+      : new Date(created.getTime() + between(1, 120) * 60000)
 
   return {
     id: i,
@@ -99,61 +74,42 @@ function makeOrder(i: number): OrderRow {
 
 export const ORDERS: OrderRow[] = Array.from({ length: 128 }, (_, i) => makeOrder(i + 1))
 
-/** 订单列表接口。完整模拟后端：筛选 → 排序 → 分页 */
-export async function fetchOrders(
-  params: TableRequestParams,
-): Promise<TableResponse<OrderRow>> {
-  await delay(params.signal)
+/**
+ * 订单列表。
+ *
+ * 这几行就是全部 —— 对比改造前少了约 30 行手写转换。
+ *
+ * 换成真实 ruoyi 后端时，只需改 fetch 与 isSuccess：
+ * ```ts
+ * createPageRequest({
+ *   fetch: ({ page, pageSize, params, signal }) =>
+ *     http.get('/api/order/list', { params: { pageNum: page, pageSize, ...params }, signal }),
+ *   rows: 'rows', total: 'total',
+ *   isSuccess: (res) => res.code === 200,
+ *   errorMessage: (res) => res.msg,
+ *   scope: 'server-filtered',
+ * })
+ * ```
+ */
+export const fetchOrders: PageFetcher<OrderRow> = createPageRequest({
+  fetch: (query) =>
+    mockServerQuery(ORDERS, query, {
+      searchFields: ['orderNo', 'customer', 'phone'],
+      equals: ['status', 'channel'],
+    }),
+  rows: 'rows',
+  total: 'total',
+  // 模拟「服务端已按权限过滤」
+  scope: 'server-filtered',
+})
 
-  const { keyword, status, channel, dateRange } = params.params as {
-    keyword?: string
-    status?: OrderStatus
-    channel?: string
-    dateRange?: [string, string]
-  }
+// ---------- 订单详情 ----------
 
-  let rows = ORDERS.slice()
-
-  if (keyword) {
-    const kw = String(keyword).trim().toLowerCase()
-    rows = rows.filter(
-      (r) => r.orderNo.toLowerCase().includes(kw) || r.customer.toLowerCase().includes(kw) || r.phone.includes(kw),
-    )
-  }
-  if (status) rows = rows.filter((r) => r.status === status)
-  if (channel) rows = rows.filter((r) => r.channel === channel)
-  if (dateRange?.[0] && dateRange?.[1]) {
-    const [from, to] = dateRange
-    rows = rows.filter((r) => {
-      const d = r.createdAt.slice(0, 10)
-      return d >= from && d <= to
-    })
-  }
-
-  // 服务端排序。SortState 的形状是 { field, order }，order 可能为 null
-  if (params.sort?.order) {
-    const { field, order } = params.sort
-    rows.sort((a, b) => {
-      const av = (a as any)[field]
-      const bv = (b as any)[field]
-      if (av === bv) return 0
-      const result = av > bv ? 1 : -1
-      return order === 'desc' ? -result : result
-    })
-  }
-
-  const total = rows.length
-  const start = (params.page - 1) * params.pageSize
-  return { list: rows.slice(start, start + params.pageSize), total }
-}
-
-/** 订单详情 */
 export async function fetchOrder(id: number, signal?: AbortSignal): Promise<OrderRow | null> {
   await delay(signal, 100, 150)
   return ORDERS.find((o) => o.id === id) ?? null
 }
 
-/** 批量删除 */
 export async function deleteOrders(ids: number[], signal?: AbortSignal): Promise<number> {
   await delay(signal, 200, 200)
   for (const id of ids) {
@@ -163,7 +119,6 @@ export async function deleteOrders(ids: number[], signal?: AbortSignal): Promise
   return ids.length
 }
 
-/** 保存订单（新增/编辑） */
 export async function saveOrder(row: Partial<OrderRow>, signal?: AbortSignal): Promise<OrderRow> {
   await delay(signal, 200, 200)
   if (row.id) {
@@ -205,41 +160,16 @@ export const USERS: UserRow[] = Array.from({ length: 46 }, (_, i) => ({
   lastLogin: new Date(2026, 9, between(1, 22), between(8, 23), between(0, 59)).toISOString(),
 }))
 
-export async function fetchUsers(params: TableRequestParams): Promise<TableResponse<UserRow>> {
-  await delay(params.signal, 120, 200)
-
-  const { keyword, role, enabled } = params.params as {
-    keyword?: string
-    role?: string
-    // 查询表单的 select 只能产出 string | number，所以这里是字符串
-    enabled?: string
-  }
-
-  let rows = USERS.slice()
-  if (keyword) {
-    const kw = String(keyword).toLowerCase()
-    rows = rows.filter((u) => u.username.includes(kw) || u.realName.includes(kw) || u.email.includes(kw))
-  }
-  if (role) rows = rows.filter((u) => u.role === role)
-  if (enabled) {
-    // 查询值是 'true' / 'false'，数据是布尔
-    rows = rows.filter((u) => String(u.enabled) === enabled)
-  }
-
-  if (params.sort?.order) {
-    const { field, order } = params.sort
-    rows.sort((a, b) => {
-      const av = (a as any)[field]
-      const bv = (b as any)[field]
-      if (av === bv) return 0
-      const result = av > bv ? 1 : -1
-      return order === 'desc' ? -result : result
-    })
-  }
-
-  const start = (params.page - 1) * params.pageSize
-  return { list: rows.slice(start, start + params.pageSize), total: rows.length }
-}
+export const fetchUsers: PageFetcher<UserRow> = createPageRequest({
+  fetch: (query) =>
+    mockServerQuery(USERS, query, {
+      searchFields: ['username', 'realName', 'email'],
+      equals: ['role', 'enabled'],
+    }),
+  rows: 'rows',
+  total: 'total',
+  scope: 'server-filtered',
+})
 
 export async function toggleUser(id: number, enabled: boolean): Promise<void> {
   await delay(undefined, 80, 120)

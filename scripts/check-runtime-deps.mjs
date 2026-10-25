@@ -50,6 +50,7 @@ const PUBLISHED = [
   'packages/chart-core',
   'packages/dashboard',
   'packages/screen',
+  'packages/data',
 ]
 
 /**

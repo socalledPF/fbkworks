@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, watch } from 'vue'
+import { toErrorEvent, useReporter } from '@fbk/adapter-core'
 import { useAdapter } from '@fbk/adapter-core'
 import { FbkFormGenerator } from '../form-generator'
 import type { FormGeneratorExpose } from '../form-generator'
@@ -31,6 +32,8 @@ const props = withDefaults(defineProps<FormModalProps<T>>(), {
   cancelText: '取消',
   maskClosableWhileSubmitting: true,
 })
+
+const reporter = useReporter()
 
 const emit = defineEmits<{
   'update:show': [show: boolean]
@@ -149,6 +152,13 @@ async function submit() {
   } catch (error) {
     // 失败时保持打开并保留用户输入
     emit('error', error)
+    // 统一上报：表单提交失败是高频问题，但业务方常常忘记接 error 事件
+    reporter.error(
+      toErrorEvent(error, 'component', 'FbkFormModal', {
+        mode: innerMode.value,
+        fields: Object.keys(payload),
+      }),
+    )
   } finally {
     submitting.value = false
   }

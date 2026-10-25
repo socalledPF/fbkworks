@@ -92,6 +92,7 @@ const PUBLISHED_PACKAGES = [
   'packages/chart-core',
   'packages/dashboard',
   'packages/screen',
+  'packages/data',
 ]
 
 /** 生成 `packages/x/src/**` 形式的 glob */

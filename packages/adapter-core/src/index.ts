@@ -59,10 +59,27 @@ export type {
   MessageType,
 } from './contracts/feedback'
 
-export { ADAPTER_CONTEXT, useAdapter, useAdapterCapabilities, useAdapterContext, useFbkTheme } from './context'
+export { ADAPTER_CONTEXT, useAdapter, useAdapterCapabilities, useAdapterContext, useFbkTheme, useReporter } from './context'
 export type { AdapterContext } from './context'
+export { PERMISSION_CONTEXT, hasPermission, usePermission } from './permission'
+export { createPermissionDirective } from './permission-directive'
+export type { PermissionContext, PermissionResolver } from './permission'
 
 export { createBusinessKit, createAdapterContext, FbkProvider } from './plugin'
+export {
+  NOOP_REPORTER,
+  createReporter,
+  safeContext,
+  toErrorEvent,
+} from './observability'
+export type {
+  FbkErrorEvent,
+  FbkErrorSource,
+  FbkReporter,
+  FbkReporterOptions,
+  FbkTelemetryEvent,
+  FbkTelemetryType,
+} from './observability'
 export type { BusinessKitOptions } from './plugin'
 
 export { getCellValue, renderCell } from './render'

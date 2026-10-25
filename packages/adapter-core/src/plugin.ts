@@ -1,6 +1,7 @@
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   h,
   inject,
   provide,
@@ -18,6 +19,16 @@ import { assertAdapterCompatible, type UiAdapter } from './contracts/adapter'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'
 import { ADAPTER_CONTEXT, type AdapterContext } from './context'
+import {
+  PERMISSION_CONTEXT,
+  type PermissionResolver,
+} from './permission'
+import { createPermissionDirective } from './permission-directive'
+import {
+  createReporter,
+  type FbkErrorEvent,
+  type FbkTelemetryEvent,
+} from './observability'
 
 export interface BusinessKitOptions {
   adapter: UiAdapter
@@ -27,6 +38,26 @@ export interface BusinessKitOptions {
   tokens?: FbkTokens
   /** 显式注册为全局组件；默认不注册，保证 tree-shaking */
   components?: Array<{ name: string; component: Component }>
+
+  /**
+   * 统一错误出口。不传则不采集（零开销）。
+   *
+   * 见 docs/design/2026-10-25-observability.md。
+   */
+  onError?: (event: FbkErrorEvent) => void
+
+  /** 统一行为与性能事件出口。不传则不采集 */
+  onTelemetry?: (event: FbkTelemetryEvent) => void
+
+  /**
+   * 当前用户的权限点。
+   *
+   * 传**函数**而不是数组：权限可能在登录后异步加载、也可能随用户切换变化。
+   * 每次检查都调一次，天然响应式。
+   *
+   * 库不做「角色 → 权限点」的映射 —— 那是应用的用户体系。
+   */
+  permissions?: PermissionResolver
 }
 
 /**
@@ -45,6 +76,7 @@ function resolveTheme(mode: ThemeMode): Exclude<ThemeMode, 'system'> {
 export function createAdapterContext(options: BusinessKitOptions): AdapterContext {
   const { adapter } = options
   const tokens = options.tokens ?? defaultTokens
+  const reporter = createReporter({ onError: options.onError, onTelemetry: options.onTelemetry })
   const themeMode = ref<ThemeMode>(options.theme ?? 'light')
   const locale = ref(options.locale ?? 'zh-CN')
   const size = ref<Size>(options.size ?? 'md')
@@ -59,7 +91,7 @@ export function createAdapterContext(options: BusinessKitOptions): AdapterContex
     applyTheme(mode)
   }
 
-  return { adapter, themeMode, setThemeMode, locale, size, tokens }
+  return { adapter, themeMode, setThemeMode, locale, size, tokens, reporter }
 }
 
 export function createBusinessKit(options: BusinessKitOptions): Plugin {
@@ -68,6 +100,13 @@ export function createBusinessKit(options: BusinessKitOptions): Plugin {
       assertAdapterCompatible(options.adapter)
       const ctx = createAdapterContext(options)
       app.provide(ADAPTER_CONTEXT, ctx)
+
+      /* 权限上下文与指令。
+         没有 permissions 时也 provide —— 让指令统一走「无权限」分支，
+         而不是因为 inject 失败而崩溃。 */
+      const getPermissions: PermissionResolver = options.permissions ?? (() => [])
+      app.provide(PERMISSION_CONTEXT, { getPermissions })
+      app.directive('permission', createPermissionDirective(getPermissions))
       app.config.globalProperties.$fbk = ctx
 
       ctx.setThemeMode(ctx.themeMode.value)
@@ -97,6 +136,15 @@ export const FbkProvider = defineComponent({
     locale: { type: String, default: undefined },
     size: { type: String as PropType<Size>, default: undefined },
     tokens: { type: Object as PropType<FbkTokens>, default: undefined },
+    onError: { type: Function as PropType<(event: FbkErrorEvent) => void>, default: undefined },
+    onTelemetry: {
+      type: Function as PropType<(event: FbkTelemetryEvent) => void>,
+      default: undefined,
+    },
+    permissions: {
+      type: Function as PropType<PermissionResolver>,
+      default: undefined,
+    },
   },
   setup(props, { slots }) {
     const parent = inject(ADAPTER_CONTEXT, null)
@@ -112,8 +160,26 @@ export const FbkProvider = defineComponent({
       locale: props.locale ?? parent?.locale.value ?? 'zh-CN',
       size: props.size ?? parent?.size.value ?? 'md',
       tokens: props.tokens ?? parent?.tokens ?? defaultTokens,
+      // 未传时继承上层，保证嵌套 Provider 不会意外关掉上报
+      onError: props.onError ?? parent?.reporter.handlers.onError,
+      onTelemetry: props.onTelemetry ?? parent?.reporter.handlers.onTelemetry,
     })
     provide(ADAPTER_CONTEXT, ctx)
+
+    /* 权限上下文。
+       未传时用空解析器 —— 指令统一走「无权限」分支，不崩。 */
+    const getPermissions: PermissionResolver = props.permissions ?? (() => [])
+    provide(PERMISSION_CONTEXT, { getPermissions })
+
+    /* 注册 v-permission 指令。
+       必须在这里也注册：应用用 <FbkProvider> 而不是 app.use(createBusinessKit())
+       时，指令不会走插件的 install，导致模板里报
+       "Failed to resolve directive: permission" 且静默失效。
+       用局部指令（当前实例作用域）而不是全局，避免多实例互相覆盖。 */
+    const instance = getCurrentInstance()
+    if (instance) {
+      instance.appContext.app.directive('permission', createPermissionDirective(getPermissions))
+    }
 
     /*
      * theme / locale / size 三个 prop 必须与内部 ctx 保持同步。

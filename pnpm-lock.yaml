@@ -101,6 +101,9 @@ importers:
       '@fbk/dashboard':
         specifier: workspace:*
         version: link:../../packages/dashboard
+      '@fbk/data':
+        specifier: workspace:*
+        version: link:../../packages/data
       '@fbk/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -343,6 +346,12 @@ importers:
       vue:
         specifier: ^3.5.0
         version: 3.5.44(typescript@5.9.3)
+
+  packages/data:
+    dependencies:
+      '@fbk/shared':
+        specifier: workspace:^
+        version: link:../shared
 
   packages/internal/adapter-conformance:
     dependencies:

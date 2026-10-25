@@ -3,6 +3,7 @@ import type { FbkTokens } from '@fbk/tokens'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'
 import type { UiAdapter } from './contracts/adapter'
+import { NOOP_REPORTER, type FbkReporter } from './observability'
 
 export interface AdapterContext {
   adapter: UiAdapter
@@ -11,6 +12,8 @@ export interface AdapterContext {
   locale: Ref<string>
   size: Ref<Size>
   tokens: FbkTokens
+  /** 统一上报出口。未配置时是 noop，调用方不需要判空 */
+  reporter: FbkReporter
 }
 
 /**
@@ -23,6 +26,16 @@ export const ADAPTER_CONTEXT = Symbol.for('fbk.adapter.context') as unknown as I
 
 export function useAdapterContext(): AdapterContext | null {
   return inject(ADAPTER_CONTEXT, null)
+}
+
+/**
+ * 取上报器。
+ *
+ * 不在 Provider 下时返回 noop 而不是抛错 —— 上报是可选能力，
+ * 组件在独立使用（无 Provider）时不该因为它而崩溃。
+ */
+export function useReporter(): FbkReporter {
+  return useAdapterContext()?.reporter ?? NOOP_REPORTER
 }
 
 export function useAdapter(): UiAdapter {

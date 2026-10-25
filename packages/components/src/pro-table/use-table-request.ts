@@ -1,5 +1,5 @@
 import { onBeforeUnmount, ref, shallowRef, watch, type Ref } from 'vue'
-import type { SortState } from '@fbk/adapter-core'
+import { toErrorEvent, useReporter, type SortState } from '@fbk/adapter-core'
 import type { TableRequest, TableRequestParams, TableResponse } from './types'
 
 export interface UseTableRequestOptions<T> {
@@ -20,6 +20,11 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
   const loading = ref(false)
   const error = shallowRef<unknown>(null)
   const finished = ref(false)
+
+  /* 统一上报出口。未配置 onTelemetry / onError 时是 noop，零开销。
+     这是组件库里最有价值的上报点：表格请求是失败率最高、
+     也最能反映后端问题的地方。 */
+  const reporter = useReporter()
 
   let requestId = 0
   let controller: AbortController | null = null
@@ -43,6 +48,8 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
     loading.value = true
     error.value = null
 
+    const startedAt = reporter.enabled ? performance.now() : 0
+
     try {
       const result = await request(requestParams)
       // 过期响应直接丢弃，防止快速翻页时旧数据覆盖新数据
@@ -57,10 +64,38 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       }
       total.value = result.total ?? data.value.length
       options.onLoad?.(result, requestParams)
+
+      if (reporter.enabled) {
+        reporter.telemetry({
+          type: 'request',
+          name: 'ProTable.request',
+          duration: Math.round(performance.now() - startedAt),
+          success: true,
+          context: { page: requestParams.page, pageSize: requestParams.pageSize, rows: result.list.length },
+        })
+      }
     } catch (err) {
+      // 取消不是错误：快速翻页时旧请求被 abort 属于正常流程
       if (id !== requestId || controller.signal.aborted) return
       error.value = err
       options.onError?.(err, requestParams)
+
+      if (reporter.enabled) {
+        reporter.error(
+          toErrorEvent(err, 'request', 'FbkProTable', {
+            page: requestParams.page,
+            pageSize: requestParams.pageSize,
+            params: requestParams.params,
+            sort: requestParams.sort,
+          }),
+        )
+        reporter.telemetry({
+          type: 'request',
+          name: 'ProTable.request',
+          duration: Math.round(performance.now() - startedAt),
+          success: false,
+        })
+      }
     } finally {
       if (id === requestId) loading.value = false
     }

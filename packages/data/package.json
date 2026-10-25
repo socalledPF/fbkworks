@@ -1,0 +1,40 @@
+{
+  "name": "@fbk/data",
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md", "LICENSE"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@fbk/shared": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Backend-agnostic data contracts (paging, response mapping, permission scope) for the FBK kit.",
+  "keywords": ["vue", "pagination", "data-layer", "contract", "fbk"],
+  "license": "MIT",
+  "author": "54356",
+  "homepage": "https://github.com/54356/frontend-business-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/54356/frontend-business-kit.git",
+    "directory": "packages/data"
+  },
+  "bugs": {
+    "url": "https://github.com/54356/frontend-business-kit/issues"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}

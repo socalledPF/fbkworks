@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { hasPermission, usePermission } from '@fbk/adapter-core'
 import { FbkCrudPage } from '@fbk/components/crud-page'
 import { FbkPageContainer } from '@fbk/components/page-container'
 import { FbkFormModal } from '@fbk/components/form-modal'
@@ -27,6 +28,7 @@ import { navigate } from '../router'
  *   · 跳转详情
  */
 const crudRef = ref<any>(null)
+const { list: permissions } = usePermission()
 
 const queryFields: QueryField[] = [
   { name: 'keyword', label: '关键词', type: 'input', placeholder: '订单号 / 客户 / 手机' },
@@ -108,6 +110,8 @@ const columns: ProTableColumn<OrderRow>[] = [
         variant: 'link',
         status: 'danger',
         confirm: '确定删除这条订单？',
+        // 无权限时整列按钮不渲染（ProTable 的 visible 支持函数）
+        visible: () => hasPermission(permissions(), 'order:delete'),
         onClick: async ({ row }) => {
           await deleteOrders([row.id])
           crudRef.value?.reload()
@@ -204,7 +208,10 @@ async function batchDelete(keys: number[], clear: () => void) {
         <span class="admin-bulk__label">
           {{ keys.length ? `已选 ${keys.length} 条` : '批量操作' }}
         </span>
+        <!-- v-permission：无权限时元素从 DOM 移除（不是 display:none）。
+             控制台一行 el.click() 也触发不了它，因为元素根本不存在。 -->
         <button
+          v-permission="'order:delete'"
           type="button"
           class="admin-btn admin-btn--danger"
           :disabled="!keys.length"

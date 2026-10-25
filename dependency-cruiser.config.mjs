@@ -71,7 +71,7 @@ export default {
       comment:
         '发布包禁止第一类运行时依赖（传输/路由/状态/i18n/工具库）：请求由调用方注入，日期用 Intl。' +
         '详见 docs/style-guide.md 的三类划分。',
-      from: { path: '^packages/(components|adapter-core|shared|tokens|chart-core|dashboard|screen)/' },
+      from: { path: '^packages/(components|adapter-core|shared|tokens|chart-core|dashboard|screen|data)/' },
       to: {
         path: '^node_modules/(axios|ky|ofetch|superagent|vue-router|pinia|vuex|vue-i18n|dayjs|moment|lodash|ramda|date-fns)(/|$)',
       },

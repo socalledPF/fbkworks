@@ -271,3 +271,83 @@
     transition: none;
   }
 }
+
+/* ============ 上报事件面板 ============ */
+.admin-telemetry {
+  position: fixed;
+  right: var(--fbk-spacing-lg);
+  bottom: var(--fbk-spacing-lg);
+  z-index: 50;
+  width: 300px;
+  max-height: 240px;
+  overflow: hidden;
+  background: var(--fbk-color-bg-container);
+  border: 1px solid var(--fbk-color-border);
+  border-radius: var(--fbk-radius-lg);
+  box-shadow: var(--fbk-shadow-md);
+  font-size: var(--fbk-font-size-sm);
+}
+
+.admin-telemetry__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  color: var(--fbk-color-text-secondary);
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
+.admin-telemetry__clear {
+  padding: 0;
+  color: var(--fbk-color-primary-text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: var(--fbk-font-size-sm);
+}
+
+.admin-telemetry__list {
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  margin: 0;
+  overflow-y: auto;
+  max-height: 190px;
+  list-style: none;
+}
+
+.admin-telemetry__list li {
+  padding: 2px 0;
+  color: var(--fbk-color-text-secondary);
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-telemetry__list li[data-kind='error'] {
+  color: var(--fbk-color-danger-text);
+}
+
+.admin-telemetry__empty {
+  padding: var(--fbk-spacing-md);
+  margin: 0;
+  color: var(--fbk-color-text-tertiary);
+  text-align: center;
+}
+
+.admin-topbar__perm {
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-sm);
+  color: var(--fbk-color-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 1px dashed var(--fbk-color-border);
+  border-radius: var(--fbk-radius-md);
+}
+
+.admin-topbar__perm[aria-pressed='true'] {
+  color: var(--fbk-color-primary-text);
+  border-color: var(--fbk-color-primary-border);
+  border-style: solid;
+}
