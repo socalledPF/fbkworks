@@ -10,6 +10,8 @@ import type { PieChartProps } from './types'
  * 默认环形（innerRadius 0.62）：环形比实心饼更容易读，
  * 而且中心可以放总计 —— 这是数据看板的高频需求。
  */
+const emit = defineEmits<{ error: [error: unknown] }>()
+
 defineOptions({ name: 'FbkPieChart', inheritAttrs: false })
 
 const props = withDefaults(defineProps<PieChartProps>(), {
@@ -81,6 +83,7 @@ const showCenter = computed(() => props.innerRadius > 0 && (props.centerValue !=
     <template v-if="$slots.extra" #extra><slot name="extra" /></template>
     <div class="fbk-pie-chart">
       <FbkChart
+      @error="(e: unknown) => emit('error', e)"
         :option="option"
         :height="height"
         :loading="loading"

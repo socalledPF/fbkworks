@@ -50,7 +50,8 @@
   "dependencies": {
     "@fbk/adapter-core": "workspace:^",
     "@fbk/shared": "workspace:^",
-    "@fbk/tokens": "workspace:^"
+    "@fbk/tokens": "workspace:^",
+    "@fbk/data": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

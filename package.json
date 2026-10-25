@@ -21,6 +21,7 @@
     "check:types": "node scripts/check-package-types.mjs",
     "check:surface": "node scripts/check-type-surface.mjs",
     "check:styles": "node scripts/check-styles.mjs",
+    "check:style-entries": "node scripts/check-style-entries.mjs",
     "check:runtime-deps": "node scripts/check-runtime-deps.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only",
@@ -30,7 +31,7 @@
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbk/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:styles && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:styles && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbk/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbk/docs check:diagrams"
   },

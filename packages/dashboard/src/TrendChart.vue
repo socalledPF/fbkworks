@@ -10,6 +10,8 @@ import type { TrendChartProps } from './types'
  * 默认带面积填充：单系列趋势图里，填充比纯线条更容易读出"量"的感觉。
  * 多系列时填充会互相遮挡，所以 `area` 默认按系列数自动关闭。
  */
+const emit = defineEmits<{ error: [error: unknown] }>()
+
 defineOptions({ name: 'FbkTrendChart', inheritAttrs: false })
 
 const props = withDefaults(defineProps<TrendChartProps>(), {
@@ -88,6 +90,7 @@ defineExpose({ palette })
   >
     <template v-if="$slots.extra" #extra><slot name="extra" /></template>
     <FbkChart
+      @error="(e: unknown) => emit('error', e)"
       :option="option"
       :height="height"
       :loading="loading"

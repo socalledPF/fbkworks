@@ -134,15 +134,27 @@ importers:
       '@fbk/adapter-vant':
         specifier: workspace:*
         version: link:../../packages/adapters/vant
+      '@fbk/chart-core':
+        specifier: workspace:*
+        version: link:../../packages/chart-core
       '@fbk/components':
         specifier: workspace:*
         version: link:../../packages/components
+      '@fbk/dashboard':
+        specifier: workspace:*
+        version: link:../../packages/dashboard
       '@fbk/demos':
         specifier: workspace:*
         version: link:../../packages/internal/demos
+      '@fbk/screen':
+        specifier: workspace:*
+        version: link:../../packages/screen
       '@fbk/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      echarts:
+        specifier: ^6.0.0
+        version: 6.1.0
       element-plus:
         specifier: ^2.8.8
         version: 2.14.7(vue@3.5.44(typescript@5.9.3))
@@ -319,6 +331,9 @@ importers:
       '@fbk/adapter-core':
         specifier: workspace:^
         version: link:../adapter-core
+      '@fbk/data':
+        specifier: workspace:^
+        version: link:../data
       '@fbk/shared':
         specifier: workspace:^
         version: link:../shared

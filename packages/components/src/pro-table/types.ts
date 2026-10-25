@@ -1,19 +1,22 @@
 import type { DataGridColumn, SortState, Status } from '@fbk/adapter-core'
 import type { Key } from '@fbk/shared'
+import type { Page, PageQuery } from '@fbk/data'
 
-export interface TableRequestParams {
-  page: number
-  pageSize: number
-  sort: SortState | null
-  params: Record<string, any>
-  signal: AbortSignal
-}
+/*
+ * 分页契约的**唯一定义处是 @fbk/data**，这里是别名。
+ *
+ * 之前两处各写一份同形接口，靠注释声称「保证兼容」——
+ * 实际没有任何类型保障：改了一处，另一处不会报错，注释继续说兼容。
+ * 现在改 @fbk/data 就会在这里一起生效。
+ *
+ * 唯一的语义差异：`TableResponse.total` 可选，`Page.total` 必填。
+ * 业务方手写 fetcher 时可能拿不到总数（这时组件用 list.length 兜底），
+ * 所以这里保留可选；`createPageRequest` 的产物 total 一定存在，
+ * 可以安全地赋给 TableRequest。
+ */
+export type TableRequestParams = PageQuery
 
-export interface TableResponse<T> {
-  list: T[]
-  total?: number
-  hasMore?: boolean
-}
+export type TableResponse<T> = Omit<Page<T>, 'total'> & { total?: number }
 
 export type TableRequest<T> = (params: TableRequestParams) => Promise<TableResponse<T>>
 

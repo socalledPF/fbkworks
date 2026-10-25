@@ -9,6 +9,8 @@ import type { BarChartProps } from './types'
  *
  * 支持分组与堆叠。横向条形图在类目名较长时更可读（标签不用旋转）。
  */
+const emit = defineEmits<{ error: [error: unknown] }>()
+
 defineOptions({ name: 'FbkBarChart', inheritAttrs: false })
 
 const props = withDefaults(defineProps<BarChartProps>(), {
@@ -92,6 +94,7 @@ const option = computed(() => {
   >
     <template v-if="$slots.extra" #extra><slot name="extra" /></template>
     <FbkChart
+      @error="(e: unknown) => emit('error', e)"
       :option="option"
       :height="height"
       :loading="loading"

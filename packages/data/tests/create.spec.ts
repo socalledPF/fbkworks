@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetWarnCache } from '@fbk/shared'
-import { createPageRequest, toTableResponse } from '../src/create'
+import { createPageRequest } from '../src/create'
 import { FbkDataError } from '../src/error'
 import type { PageQuery } from '../src/types'
 
@@ -174,15 +174,5 @@ describe('数据级权限提醒', () => {
     })
     expect(warn).not.toHaveBeenCalled()
     warn.mockRestore()
-  })
-})
-
-describe('toTableResponse', () => {
-  it('保持结构兼容', () => {
-    expect(toTableResponse({ list: [1], total: 1 })).toEqual({ list: [1], total: 1 })
-  })
-
-  it('透传 hasMore', () => {
-    expect(toTableResponse({ list: [], total: 0, hasMore: false }).hasMore).toBe(false)
   })
 })

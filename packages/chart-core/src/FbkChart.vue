@@ -47,6 +47,13 @@ const emit = defineEmits<{
   click: [params: Record<string, any>]
   /** 尺寸变化（缩放后） */
   resize: [size: { width: number; height: number }]
+  /**
+   * 图表初始化或渲染失败。
+   *
+   * 不传时组件降级为空态，不抛到全局 —— 一个图表渲染失败
+   * 不该让整页白屏。
+   */
+  error: [error: unknown]
 }>()
 
 const container = ref<HTMLDivElement>()
@@ -73,11 +80,18 @@ const resolvedEmpty = computed(() => {
 function applyOption() {
   const instance = chart.value
   if (!instance) return
-  /* 必须先解析 CSS 变量：ECharts 用 Canvas 绘制，不认 var(--x)，
-     直接传会抛 "could not be parsed as a color" 并且图表不上色。 */
-  const resolved = resolveOptionVars(props.option)
-  // notMerge: false 让 ECharts 合并配置，避免每次更新都重置动画
-  instance.setOption(resolved as any, { notMerge: false, lazyUpdate: false })
+
+  try {
+    /* 必须先解析 CSS 变量：ECharts 用 Canvas 绘制，不认 var(--x)，
+       直接传会抛 "could not be parsed as a color" 并且图表不上色。 */
+    const resolved = resolveOptionVars(props.option)
+    // notMerge: false 让 ECharts 合并配置，避免每次更新都重置动画
+    instance.setOption(resolved as any, { notMerge: false, lazyUpdate: false })
+  } catch (err) {
+    /* setOption 抛错通常是配置写错（渐变色的非法值、series 结构不对）。
+       捕获后上报，图表保留上一帧而不是整页崩。 */
+    emit('error', err)
+  }
 }
 
 function create() {
@@ -100,7 +114,17 @@ function create() {
   chart.value?.dispose()
 
   const theme = props.themed ? resolveChartTheme()._echartsTheme : undefined
-  const instance = init(el, theme)
+
+  /* echarts.init 会抛错（容器不是 DOM、已初始化过、canvas 创建失败等）。
+     之前没有保护：一个图表初始化失败会冒泡到全局，整页白屏。
+     现在捕获后走 onError 上报，组件降级为空态而不是崩掉。 */
+  let instance
+  try {
+    instance = init(el, theme)
+  } catch (err) {
+    emit('error', err)
+    return
+  }
   chart.value = instance
 
   instance.on('click', (params: any) => emit('click', params))
