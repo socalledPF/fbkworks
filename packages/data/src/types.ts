@@ -141,3 +141,78 @@ export interface PageRequestErrorEvent {
   /** 本次请求的参数快照（用于复现） */
   context?: Record<string, unknown>
 }
+
+/* ============================================================
+   后端惯例（defineBackend）
+   ============================================================ */
+
+/**
+ * 后端惯例配置。
+ *
+ * 描述「这个后端长什么样」—— 一次，全项目复用。
+ * 接口特有的信息（URL、feature、mapRow）不在这里。
+ */
+export interface BackendConfig<TRaw = any> {
+  /**
+   * 传输层。签名固定，A 形态依赖它。
+   *
+   * `params` 已经过 `mapParams` 转换，直接透传给 HTTP 客户端即可。
+   */
+  request: (url: string, params: Record<string, any>, signal: AbortSignal) => Promise<TRaw>
+
+  /** 列表在响应里的位置 */
+  rows: PathSpec<TRaw>
+
+  /** 总数位置。不传时用 rows.length */
+  total?: PathSpec<TRaw>
+
+  /** 业务码判定 */
+  isSuccess?: (raw: TRaw) => boolean
+
+  /** 失败时的错误信息提取 */
+  errorMessage?: (raw: TRaw) => string
+
+  /** 数据级权限声明 */
+  scope?: DataScope
+
+  /** 错误上报钩子 */
+  onError?: (event: PageRequestErrorEvent) => void
+
+  /**
+   * `PageQuery` → 后端参数名。
+   *
+   * 不传时直接用 `{ page, pageSize, ...params }`。
+   * 后端用 `pageNum` 的项目需要显式传：
+   * ```ts
+   * mapParams: ({ page, pageSize, params }) => ({ pageNum: page, pageSize, ...params })
+   * ```
+   */
+  mapParams?: (query: PageQuery) => Record<string, any>
+}
+
+/** 接口级配置：覆盖后端惯例的任意字段（`fetch` 除外，由 defineBackend 生成） */
+export type PageOptions<TRaw, T> = Partial<Omit<CreatePageRequestConfig<TRaw, T>, 'fetch'>>
+
+export interface Backend<TRaw = any> {
+  /**
+   * 创建一个分页取数函数。
+   *
+   * **A 形态**：传字符串路径，用后端惯例的 `request` 发请求
+   * ```ts
+   * api.page('/api/order/list', { feature: 'order.list' })
+   * ```
+   *
+   * **B 形态**：传 fetcher，逃生口（URL 动态拼接、特殊 header 等）
+   * ```ts
+   * api.page(({ page, pageSize, signal }) =>
+   *   http.get(`/api/${tenant}/list`, { params: { pageNum: page, pageSize }, signal }))
+   * ```
+   */
+  page<T = unknown>(
+    pathOrFetcher: string | ((query: PageQuery) => Promise<TRaw>),
+    options?: PageOptions<TRaw, T>,
+  ): PageFetcher<T>
+
+  /** 底层配置。便于测试与高级用法（例如在别处复用同一个 request） */
+  readonly config: BackendConfig<TRaw>
+}

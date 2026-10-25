@@ -29,7 +29,7 @@
  *
  * 前置：先 pnpm --filter @fbk/data build
  */
-import { FbkDataError, createPageRequest } from '../../packages/data/dist/index.mjs'
+import { FbkDataError, createPageRequest, defineBackend } from '../../packages/data/dist/index.mjs'
 
 const PORT = Number(process.argv[2] ?? 5199)
 const BASE = `http://localhost:${PORT}`
@@ -376,6 +376,107 @@ async function testMapRow() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   14. defineBackend：后端惯例复用（A 形态）
+   ══════════════════════════════════════════════════════════ */
+async function testDefineBackendA() {
+  console.log('\n[14] defineBackend A 形态（传路径）')
+
+  /* 模拟真实项目：全项目唯一一处描述 Spring 后端 */
+  const api = defineBackend({
+    request: (url, params, signal) => {
+      const qs = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)]),
+      ).toString()
+      return http(`${url}?${qs}`, signal).then((r) => r.json())
+    },
+    rows: 'content',
+    total: 'totalElements',
+    /* 注意：真实 Spring Data 的 page 是 0 基，但 mock 后端按 1 基实现。
+       这里改用 pageNum（也是常见惯例），避免测试依赖 mock 的基址选择 ——
+       我们验证的是「mapParams 能改参数名」，不是「mock 后端的基址对不对」。 */
+    mapParams: ({ page, pageSize, params }) => ({
+      pageNum: page,
+      pageSize,
+      ...params,
+    }),
+  })
+
+  // 每个接口只写自己的信息
+  const fetchOrders = api.page('/spring/list', { feature: 'order.list' })
+  const fetchUsers = api.page('/spring/list', { feature: 'user.list' })
+
+  const orders = await fetchOrders(query({ page: 1 }))
+  check('A 形态解析列表', orders.list.length === 10, `实际 ${orders.list.length}`)
+  check('A 形态解析总数', orders.total === 128, `实际 ${orders.total}`)
+
+  const users = await fetchUsers(query({ page: 1 }))
+  check('第二个接口复用同一份配置', users.total === 128)
+
+  /* 验证 mapParams 生效：它能改变参数名（page → pageNum），
+     并传对分页值。mock 后端两种写法都认，所以这里能验证到真实效果。 */
+  const page2 = await fetchOrders(query({ page: 2 }))
+  check('mapParams 生效（page=2 拿到第 2 页）', page2.list[0].id === 11,
+    `实际 id=${page2.list[0].id}`)
+}
+
+/* ══════════════════════════════════════════════════════════
+   15. defineBackend：B 形态（逃生口）
+   ══════════════════════════════════════════════════════════ */
+async function testDefineBackendB() {
+  console.log('\n[15] defineBackend B 形态（传 fetcher）')
+
+  const api = defineBackend({
+    // 不会被调用 —— B 形态绕过它
+    request: () => {
+      throw new Error('B 形态不该走 request')
+    },
+    rows: 'content',
+    total: 'totalElements',
+  })
+
+  // 逃生口：URL 需要特殊拼接，参数名也不同
+  const fetchSpecial = api.page(({ page, pageSize, signal }) =>
+    http(`/spring/list?page=${page - 1}&size=${pageSize}`, signal).then((r) => r.json()),
+  )
+
+  const result = await fetchSpecial(query({ page: 1 }))
+  check('B 形态能自己发请求', result.list.length === 10, `实际 ${result.list.length}`)
+  check('B 形态仍用后端配置解析', result.total === 128, `实际 ${result.total}`)
+}
+
+/* ══════════════════════════════════════════════════════════
+   16. defineBackend：接口级覆盖
+   ══════════════════════════════════════════════════════════ */
+async function testDefineBackendOverride() {
+  console.log('\n[16] defineBackend 接口级覆盖')
+
+  const api = defineBackend({
+    request: (url, params, signal) => {
+      const qs = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)]),
+      ).toString()
+      return http(`${url}?${qs}`, signal).then((r) => r.json())
+    },
+    // 后端惯例是 Spring
+    rows: 'content',
+    total: 'totalElements',
+    isSuccess: (res) => res.code === 200,
+    errorMessage: (res) => res.msg,
+  })
+
+  // 但这个老接口是 ruoyi 风格
+  const fetchLegacy = api.page('/ruoyi/list', {
+    rows: 'rows',
+    total: 'total',
+    isSuccess: (res) => res.code === 200,
+  })
+
+  const result = await fetchLegacy(query())
+  check('覆盖 rows/total 后正确解析', result.list.length === 10, `实际 ${result.list.length}`)
+  check('覆盖后总数正确', result.total === 128)
+}
+
+/* ══════════════════════════════════════════════════════════
    主流程
    ══════════════════════════════════════════════════════════ */
 async function main() {
@@ -408,6 +509,9 @@ async function main() {
     testMissingField,
     testAbort,
     testMapRow,
+    testDefineBackendA,
+    testDefineBackendB,
+    testDefineBackendOverride,
   ]) {
     try {
       await test()

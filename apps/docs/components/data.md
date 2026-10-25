@@ -40,6 +40,70 @@ export const fetchOrders = createPageRequest({
 <FbkCrudPage :columns="columns" :request="fetchOrders" row-key="id" />
 ```
 
+## 多个接口复用：`defineBackend`
+
+**一个项目通常只有 1-2 种响应形状。** 让每个接口重复描述它是浪费：
+
+```ts
+// ❌ 12 个接口 × 6 行相同配置
+export const fetchOrders = createPageRequest({
+  fetch: ..., rows: 'content', total: 'totalElements',
+  isSuccess: (res) => res.code === 200,
+  errorMessage: (res) => res.msg,
+  feature: 'order.list',
+})
+```
+
+改为「一次描述后端，每个接口只写自己的部分」：
+
+```ts
+// src/api/backend.ts —— 全项目唯一一处
+import { defineBackend } from '@fbk/data'
+
+export const api = defineBackend({
+  request: (url, params, signal) =>
+    http.get(url, { params, signal }).then((r) => r.data),
+  rows: 'content',
+  total: 'totalElements',
+  isSuccess: (res) => res.code === 200,
+  errorMessage: (res) => res.msg,
+  scope: 'server-filtered',
+  // Spring 用 pageNum；不传则默认 page
+  mapParams: ({ page, pageSize, params }) => ({ pageNum: page, pageSize, ...params }),
+})
+```
+
+```ts
+// src/api/order.ts —— 每个接口只剩自己的信息
+export const fetchOrders = api.page('/api/order/list', { feature: 'order.list' })
+export const fetchUsers = api.page('/api/user/list', { feature: 'user.list' })
+```
+
+### 两种形态
+
+判定方式看第一个参数的类型，不需要记两个方法名：
+
+| 形态 | 写法 | 适用 |
+|---|---|---|
+| **A** 传路径 | `api.page('/api/order/list')` | 常规接口 |
+| **B** 传 fetcher | `api.page(({ page, signal }) => http.get(...))` | URL 动态拼接、特殊 header |
+
+B 形态只接管「怎么发请求」，`rows`/`total` 解析仍用后端配置。
+
+### 接口级覆盖
+
+单个接口可以覆盖后端的任意配置（浅合并，接口优先）：
+
+```ts
+// 这个老接口是 ruoyi 风格，不是 Spring
+api.page('/api/legacy/list', { rows: 'rows', total: 'total' })
+```
+
+### 为什么不内置 `presets: 'spring'`
+
+一旦库认识 Spring，就要认识 ruoyi、GraphQL、OData……维护成本无上限。
+让业务方写三个字符串，比让库猜要稳。
+
 ## 适配不同后端
 
 换两个字符串即可：

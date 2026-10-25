@@ -10,7 +10,7 @@
  * 真实项目中对应的是 HTTP 请求。
  */
 
-import { createPageRequest, type PageFetcher } from '@fbk/data'
+import { defineBackend, type PageFetcher } from '@fbk/data'
 import type { Status } from '@fbk/adapter-core'
 import { between, delay, makeRandom, mockServerQuery, pick, rand } from './server'
 
@@ -75,32 +75,61 @@ function makeOrder(i: number): OrderRow {
 export const ORDERS: OrderRow[] = Array.from({ length: 128 }, (_, i) => makeOrder(i + 1))
 
 /**
- * 订单列表。
+ * mock 后端的响应惯例 —— **全项目唯一一处**。
  *
- * 这几行就是全部 —— 对比改造前少了约 30 行手写转换。
+ * 真实项目里这一段对应「你的 Spring / ruoyi 后端长什么样」：
+ *   request     怎么发请求
+ *   rows/total  列表与总数在哪
+ *   isSuccess   业务码怎么判（本例的 mock 没有业务码，所以不传）
  *
- * 换成真实 ruoyi 后端时，只需改 fetch 与 isSuccess：
- * ```ts
- * createPageRequest({
- *   fetch: ({ page, pageSize, params, signal }) =>
- *     http.get('/api/order/list', { params: { pageNum: page, pageSize, ...params }, signal }),
- *   rows: 'rows', total: 'total',
- *   isSuccess: (res) => res.code === 200,
- *   errorMessage: (res) => res.msg,
- *   scope: 'server-filtered',
- * })
- * ```
+ * 定义一次之后，每个接口只写自己的 URL 和 feature。
+ * 对比改造前：每个 fetchXxx 都要重复 6 行相同配置。
  */
-export const fetchOrders: PageFetcher<OrderRow> = createPageRequest({
-  fetch: (query) =>
-    mockServerQuery(ORDERS, query, {
+export const api = defineBackend<{ rows: unknown[]; total: number }>({
+  /* A 形态的基础：传输层。
+     真实项目里这里是 http.get(url, { params, signal })。
+
+     mock 的特别之处：不同接口对应不同内存表与不同筛选字段，
+     所以这里按 url 分派。真实后端由后端自己区分，不需要这一步。 */
+  request: (url, params, signal) => {
+    const query = {
+      page: params.page,
+      pageSize: params.pageSize,
+      sort: params.sort ?? null,
+      params: params.filters ?? {},
+      signal,
+    }
+
+    if (url.includes('user')) {
+      return mockServerQuery(USERS, query, {
+        searchFields: ['username', 'realName', 'email'],
+        equals: ['role', 'enabled'],
+      })
+    }
+
+    return mockServerQuery(ORDERS, query, {
       searchFields: ['orderNo', 'customer', 'phone'],
       equals: ['status', 'channel'],
-    }),
+    })
+  },
+
   rows: 'rows',
   total: 'total',
-  // 模拟「服务端已按权限过滤」
   scope: 'server-filtered',
+
+  /* 把筛选条件收进 filters，其余分页字段留在顶层。
+     真实 Spring 项目通常不需要这么绕 —— 直接摊平即可。 */
+  mapParams: ({ page, pageSize, sort, params }) => ({
+    page,
+    pageSize,
+    sort,
+    filters: params,
+  }),
+})
+
+/** 订单列表。只剩「它是哪个接口」这一条信息。 */
+export const fetchOrders: PageFetcher<OrderRow> = api.page('/api/order/list', {
+  feature: 'order.list',
 })
 
 // ---------- 订单详情 ----------
@@ -160,16 +189,21 @@ export const USERS: UserRow[] = Array.from({ length: 46 }, (_, i) => ({
   lastLogin: new Date(2026, 9, between(1, 22), between(8, 23), between(0, 59)).toISOString(),
 }))
 
-export const fetchUsers: PageFetcher<UserRow> = createPageRequest({
-  fetch: (query) =>
+/**
+ * 用户列表。
+ *
+ * 注意这里用的是 **B 形态**（传 fetcher）——
+ * 因为用户表的搜索字段和订单不同，需要把「哪些字段参与搜索」
+ * 传给 mock 后端。真实项目里如果所有列表参数名一致，用 A 形态即可。
+ */
+export const fetchUsers: PageFetcher<UserRow> = api.page(
+  (query) =>
     mockServerQuery(USERS, query, {
       searchFields: ['username', 'realName', 'email'],
       equals: ['role', 'enabled'],
     }),
-  rows: 'rows',
-  total: 'total',
-  scope: 'server-filtered',
-})
+  { feature: 'user.list' },
+)
 
 export async function toggleUser(id: number, enabled: boolean): Promise<void> {
   await delay(undefined, 80, 120)
