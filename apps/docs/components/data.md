@@ -42,17 +42,52 @@ export const fetchOrders = createPageRequest({
 
 ## 多个接口复用：`defineBackend`
 
-**一个项目通常只有 1-2 种响应形状。** 让每个接口重复描述它是浪费：
+### 为什么需要它：可审计性，不是省代码
+
+**先说清楚价值不在这里**：12 个接口省下 60 行代码，本身不构成什么收益。
+
+真正的理由是这个场景：
 
 ```ts
-// ❌ 12 个接口 × 6 行相同配置
-export const fetchOrders = createPageRequest({
-  fetch: ..., rows: 'content', total: 'totalElements',
-  isSuccess: (res) => res.code === 200,
-  errorMessage: (res) => res.msg,
-  feature: 'order.list',
-})
+// ❌ 没有抽象：12 个接口各写一遍
+// order.ts
+isSuccess: (res) => res.code === 200
+// user.ts
+isSuccess: (res) => res.code === 200
+// goods.ts
+isSuccess: (res) => res.code === 200 || res.code === 304   // 有人这么写过
+// ... 还有 9 处，你不知道它们是否一致
 ```
+
+三个月后后端说「加了新错误码需要特殊处理」。你要改 12 个地方，
+而且**你无法确认自己找全了**——可能有人写着变体，有人漏了。
+
+```ts
+// ✅ 有抽象：唯一一处
+isSuccess: (res) => res.code === 200
+```
+
+改一处，全项目生效。
+
+同类问题：
+
+| 变更 | 没有抽象 | 有抽象 |
+|---|---|---|
+| 后端把 `rows` 改名 | 全项目搜字符串 | 改一处 |
+| 加统一 token 刷新 | 每个 fetch 各写 | 改 `request` |
+| **数据级权限声明** | 容易漏某个接口 | 默认继承，不可能漏 |
+
+最后一条最典型：某个接口忘了写 `scope: 'server-filtered'`，
+那个接口的数据级权限声明就缺失了，而且**没有任何测试会发现**。
+
+### 什么时候引入
+
+**从第二个列表接口开始就值得。**
+
+不是「3-4 个才划算」——从第二个接口起，「两处不一致」的风险就已经存在。
+按接口数量决定要不要抽象，是拿错了尺子。
+
+### 写法
 
 改为「一次描述后端，每个接口只写自己的部分」：
 

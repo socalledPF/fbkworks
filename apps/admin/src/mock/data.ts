@@ -10,9 +10,18 @@
  * 真实项目中对应的是 HTTP 请求。
  */
 
-import { defineBackend, type PageFetcher } from '@fbk/data'
+import { defineBackend, type PageFetcher, type PageQuery } from '@fbk/data'
 import type { Status } from '@fbk/adapter-core'
-import { between, delay, makeRandom, mockServerQuery, pick, rand } from './server'
+import {
+  between,
+  delay,
+  makeRandom,
+  mockRoute,
+  mockServerQuery,
+  pick,
+  rand,
+  registerMockTable,
+} from './server'
 
 // ---------- 订单 ----------
 
@@ -77,48 +86,45 @@ export const ORDERS: OrderRow[] = Array.from({ length: 128 }, (_, i) => makeOrde
 /**
  * mock 后端的响应惯例 —— **全项目唯一一处**。
  *
- * 真实项目里这一段对应「你的 Spring / ruoyi 后端长什么样」：
- *   request     怎么发请求
- *   rows/total  列表与总数在哪
- *   isSuccess   业务码怎么判（本例的 mock 没有业务码，所以不传）
+ * 这一段对应真实项目里的：
  *
- * 定义一次之后，每个接口只写自己的 URL 和 feature。
- * 对比改造前：每个 fetchXxx 都要重复 6 行相同配置。
+ * ```ts
+ * export const api = defineBackend({
+ *   request: (url, params, signal) => http.get(url, { params, signal }).then((r) => r.data),
+ *   rows: 'content',
+ *   total: 'totalElements',
+ *   isSuccess: (res) => res.code === 200,
+ *   errorMessage: (res) => res.msg,
+ *   scope: 'server-filtered',
+ *   mapParams: ({ page, pageSize, params }) => ({ pageNum: page, pageSize, ...params }),
+ * })
+ * ```
+ *
+ * 本 demo 用一个内存 mock 代替 HTTP，所以 `request` 里有两处
+ * **mock 特有的权宜**（真实项目不需要）：
+ *
+ *   1. 按 url 分派到不同的内存表 —— 真实后端天然按 URL 路由
+ *   2. 用 mapParams 把筛选条件收进 filters —— 只是为了让 mockServerQuery
+ *      能区分「分页字段」和「筛选条件」；真实后端通常是摊平的
+ *
+ * 这两处不该被当成 defineBackend 的常规用法。
  */
 export const api = defineBackend<{ rows: unknown[]; total: number }>({
-  /* A 形态的基础：传输层。
-     真实项目里这里是 http.get(url, { params, signal })。
-
-     mock 的特别之处：不同接口对应不同内存表与不同筛选字段，
-     所以这里按 url 分派。真实后端由后端自己区分，不需要这一步。 */
-  request: (url, params, signal) => {
-    const query = {
+  // mock 权宜 1：真实项目这里是 http.get(url, { params, signal })
+  request: (url, params, signal) =>
+    mockRoute(url, {
       page: params.page,
       pageSize: params.pageSize,
       sort: params.sort ?? null,
       params: params.filters ?? {},
       signal,
-    }
-
-    if (url.includes('user')) {
-      return mockServerQuery(USERS, query, {
-        searchFields: ['username', 'realName', 'email'],
-        equals: ['role', 'enabled'],
-      })
-    }
-
-    return mockServerQuery(ORDERS, query, {
-      searchFields: ['orderNo', 'customer', 'phone'],
-      equals: ['status', 'channel'],
-    })
-  },
+    }),
 
   rows: 'rows',
   total: 'total',
   scope: 'server-filtered',
 
-  /* 把筛选条件收进 filters，其余分页字段留在顶层。
-     真实 Spring 项目通常不需要这么绕 —— 直接摊平即可。 */
+  // mock 权宜 2：真实项目通常是 ({ page, pageSize, ...params }) => ({ pageNum: page, pageSize, ...params })
   mapParams: ({ page, pageSize, sort, params }) => ({
     page,
     pageSize,
@@ -127,9 +133,36 @@ export const api = defineBackend<{ rows: unknown[]; total: number }>({
   }),
 })
 
-/** 订单列表。只剩「它是哪个接口」这一条信息。 */
+/* 注册 mock 表。真实项目里没有这段 —— 后端天然按 URL 路由。 */
+registerMockTable('order', (query: PageQuery) =>
+  mockServerQuery(ORDERS, query, {
+    searchFields: ['orderNo', 'customer', 'phone'],
+    equals: ['status', 'channel'],
+  }),
+)
+registerMockTable('user', (query: PageQuery) =>
+  mockServerQuery(USERS, query, {
+    searchFields: ['username', 'realName', 'email'],
+    equals: ['role', 'enabled'],
+  }),
+)
+
+/**
+ * 两个列表接口。
+ *
+ * **只剩「它是哪个接口」这一条信息** —— 这就是 defineBackend 的价值：
+ * 后端惯例（rows/total/scope/错误处理）在 12 个接口里只写一次。
+ *
+ * 注意：价值不在「省了 6 行」，而在**可审计性**——
+ * 后端把 total 字段改名时，只改上面一处；某个接口漏了
+ * scope 声明时，这里不可能漏。
+ */
 export const fetchOrders: PageFetcher<OrderRow> = api.page('/api/order/list', {
   feature: 'order.list',
+})
+
+export const fetchUsers: PageFetcher<UserRow> = api.page('/api/user/list', {
+  feature: 'user.list',
 })
 
 // ---------- 订单详情 ----------
@@ -188,22 +221,6 @@ export const USERS: UserRow[] = Array.from({ length: 46 }, (_, i) => ({
   enabled: rand() > 0.15,
   lastLogin: new Date(2026, 9, between(1, 22), between(8, 23), between(0, 59)).toISOString(),
 }))
-
-/**
- * 用户列表。
- *
- * 注意这里用的是 **B 形态**（传 fetcher）——
- * 因为用户表的搜索字段和订单不同，需要把「哪些字段参与搜索」
- * 传给 mock 后端。真实项目里如果所有列表参数名一致，用 A 形态即可。
- */
-export const fetchUsers: PageFetcher<UserRow> = api.page(
-  (query) =>
-    mockServerQuery(USERS, query, {
-      searchFields: ['username', 'realName', 'email'],
-      equals: ['role', 'enabled'],
-    }),
-  { feature: 'user.list' },
-)
 
 export async function toggleUser(id: number, enabled: boolean): Promise<void> {
   await delay(undefined, 80, 120)

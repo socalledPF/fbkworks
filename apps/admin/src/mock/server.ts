@@ -88,3 +88,38 @@ export async function mockServerQuery<TRow extends Record<string, any>>(
   const start = (query.page - 1) * query.pageSize
   return { rows: rows.slice(start, start + query.pageSize), total }
 }
+
+/**
+ * 按 URL 分派到不同的内存表 —— **这是 mock 特有的，真实项目没有这一步**。
+ *
+ * 真实后端天然按 URL 路由；mock 只有一个进程，只能自己分派。
+ * 把它放在 server.ts 而不是 data.ts，是为了让 data.ts 展示
+ * 「真实项目里 defineBackend 长什么样」。
+ *
+ * 这里的依赖是反向注入的：server.ts 不 import data.ts 里的 ORDERS/USERS，
+ * 而是由调用方通过 registerMockTables 注册，避免循环依赖。
+ */
+
+/** 查询函数签名 */
+type MockQueryFn = (query: PageQuery) => Promise<{ rows: unknown[]; total: number }>
+
+/** url 片段 → 查询函数 */
+const routes = new Map<string, MockQueryFn>()
+
+/**
+ * 注册一个 mock 表的查询函数。
+ *
+ * @param urlPart   用于匹配 url 的片段（如 'order' / 'user'）
+ * @param queryFn   (query) => Promise<{ rows, total }>
+ */
+export function registerMockTable(urlPart: string, queryFn: MockQueryFn) {
+  routes.set(urlPart, queryFn)
+}
+
+/** 按 url 找到对应的表并查询 */
+export function mockRoute(url: string, query: PageQuery) {
+  for (const [part, fn] of routes) {
+    if (url.includes(part)) return fn(query)
+  }
+  return Promise.reject(new Error(`[mock] 没有为 "${url}" 注册数据表`))
+}
