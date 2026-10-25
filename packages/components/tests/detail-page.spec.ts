@@ -234,3 +234,68 @@ describe('useDetail composable', () => {
     wrapper.unmount()
   })
 })
+
+describe('Descriptions 属性透传', () => {
+  /**
+   * 这一组防的是「漏透传」。
+   *
+   * DetailPage 的 items 复用了 DescriptionItem，所以「影响字段怎么显示」的
+   * 开关也应该能透传。否则业务方会发现「Descriptions 能调的，DetailPage
+   * 调不了」，只能用 extra 插槽绕 —— 那就失去了复用的意义。
+   *
+   * 实测背景：第一版 DetailPage 只透传了 column/groups/emptyText，
+   * 漏了 bordered/direction/size，导致 demo 里传 bordered 无效。
+   */
+
+  it('bordered 透传到 Descriptions', async () => {
+    const wrapper = mountPage({ bordered: true })
+    await flushPromises()
+
+    /* 注意：bordered 的 class 挂在**网格元素**（.fbk-descriptions__grid）上，
+       不是根元素 —— 因为每个分组可以有独立的边框表现。 */
+    expect(wrapper.find('.fbk-descriptions__grid.fbk-descriptions--bordered').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('不传 bordered 时默认无边框', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-descriptions--bordered').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('direction 透传', async () => {
+    const wrapper = mountPage({ direction: 'vertical' })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-descriptions__grid.fbk-descriptions--vertical').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('size 透传（走 CSS 变量而不是 class）', async () => {
+    const wrapper = mountPage({ size: 'sm' })
+    await flushPromises()
+
+    const el = wrapper.find('.fbk-descriptions')
+    expect(el.exists()).toBe(true)
+    // Descriptions 用 --fbk-descriptions-size 而不是修饰类
+    expect(el.attributes('style') ?? '').toContain('--fbk-descriptions-size')
+    wrapper.unmount()
+  })
+
+  it('column 透传（分组时生成 --fbk-cols-*）', async () => {
+    /* 注意：列数变量只挂在**分组元素**上（每组可有独立列数），
+       不是根元素。不传 groups 时 Descriptions 走单组路径，
+       column 只影响默认栅格，不生成变量 —— 所以这里必须带 groups。 */
+    const wrapper = mountPage({
+      column: 3,
+      groups: [{ key: 'g', title: '分组' }],
+      items: items.map((i) => ({ ...i, groups: ['g'] })),
+    })
+    await flushPromises()
+
+    expect(wrapper.html()).toContain('--fbk-cols-base')
+    wrapper.unmount()
+  })
+})

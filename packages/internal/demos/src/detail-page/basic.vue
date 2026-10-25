@@ -54,9 +54,10 @@ const timeline = [
     :request="fetchOrder"
     :items="items"
     :title="(data: Order) => `订单 ${data.orderNo}`"
-    subtitle="对比手写详情页：三态、面包屑、返回都不需要自己写"
+    subtitle="对比手写详情页：三态、面包屑、返回都不需要自己写；bordered 透传给 Descriptions"
     :breadcrumbs="[{ text: '订单列表' }, { text: '详情' }]"
     back
+    bordered
   >
     <template #extra>
       <div class="demo-extra">

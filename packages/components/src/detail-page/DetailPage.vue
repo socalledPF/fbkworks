@@ -28,6 +28,9 @@ const props = withDefaults(defineProps<DetailPageProps<T>>(), {
   column: 2,
   groups: undefined,
   emptyText: undefined,
+  bordered: false,
+  direction: 'horizontal',
+  size: 'md',
   immediate: true,
   showHeader: true,
 })
@@ -148,6 +151,9 @@ defineExpose({
         :column="column"
         :groups="groups"
         :empty-text="emptyText"
+        :bordered="bordered"
+        :direction="direction"
+        :size="size"
       >
         <!-- 字段级插槽透传：让业务方能覆盖单个字段的渲染 -->
         <template v-for="name in fieldSlots" #[name]="slotProps" :key="name">

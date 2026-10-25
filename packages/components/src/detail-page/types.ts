@@ -1,6 +1,7 @@
 import type { VNodeChild } from 'vue'
 import type { BreadcrumbItem } from '../page-container'
 import type { DescriptionGroup, DescriptionItem } from '../descriptions'
+import type { Size } from '@fbk/adapter-core'
 
 /**
  * 详情页 props。
@@ -34,14 +35,29 @@ export interface DetailPageProps<T extends Record<string, any> = Record<string, 
   /** 返回按钮。true 时用默认处理，也可传回调 */
   back?: boolean | (() => void)
 
-  /** 列数，透传 Descriptions */
+  /* ---------- 以下 5 项直接透传给 FbkDescriptions ----------
+     保持与 Descriptions 一致：既然 items 复用的是 DescriptionItem，
+     这些影响「字段怎么显示」的开关也应该能透传。
+     否则业务方会发现「Descriptions 能调的，DetailPage 调不了」，
+     只能去用 extra 插槽绕 —— 那就失去了复用的意义。 */
+
+  /** 列数 */
   column?: number | { xs?: number; sm?: number; md?: number; lg?: number }
 
-  /** 分组定义，透传 Descriptions */
+  /** 分组定义 */
   groups?: DescriptionGroup[]
 
   /** 字段为空时的占位文本 */
   emptyText?: string
+
+  /** 是否显示边框。影响「标签列是否有底色 + 单元格是否有分隔线」 */
+  bordered?: boolean
+
+  /** 标签与值的排布方向 */
+  direction?: 'horizontal' | 'vertical'
+
+  /** 尺寸 */
+  size?: Size
 
   /** 挂载即请求，默认 true */
   immediate?: boolean

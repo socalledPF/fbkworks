@@ -71,6 +71,7 @@ const timeline = [
       { text: '订单详情' },
     ]"
     back
+    bordered
     @back="navigate('/orders')"
   >
     <!-- 时间线：业务特有区块，不属于通用能力 -->
