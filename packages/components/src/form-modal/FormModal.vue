@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useAttrs, watch } from 'vue'
 import { toErrorEvent, useReporter } from '@fbk/adapter-core'
 import { useAdapter } from '@fbk/adapter-core'
 import { FbkFormGenerator } from '../form-generator'
@@ -32,6 +32,8 @@ const props = withDefaults(defineProps<FormModalProps<T>>(), {
   cancelText: '取消',
   maskClosableWhileSubmitting: true,
 })
+
+const attrs = useAttrs()
 
 const reporter = useReporter()
 
@@ -201,6 +203,7 @@ function onModelUpdate(next: Record<string, any>) {
 <template>
   <component
     :is="Dialog"
+    v-bind="attrs"
     :model-value="show"
     :title="title"
     :width="width"

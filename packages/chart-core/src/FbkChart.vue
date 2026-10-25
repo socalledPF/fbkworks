@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useAttrs, watch } from 'vue'
 import { init, type ECharts } from 'echarts/core'
 import { registerFbkCharts } from './register'
 import { resolveOptionVars } from './color'
@@ -60,6 +60,11 @@ const container = ref<HTMLDivElement>()
 const chart = shallowRef<ECharts>()
 /** 主题变化时递增，触发重新 init（ECharts 的主题只能在 init 时指定） */
 const themeVersion = ref(0)
+
+/* inheritAttrs: false 时必须手动转发 attrs，否则调用方的 class/style 会静默失效。
+   attrs 落点是根 div：它既是 .fbk-chart（position: relative）的定位容器，
+   也是 position: absolute; inset: 0 的 canvas 的父级 —— 外部 style 只有落在这里才会影响布局。 */
+const attrs = useAttrs()
 
 const style = computed(() => {
   const h = props.height
@@ -240,7 +245,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="fbk-chart" :style="style">
+  <div class="fbk-chart" v-bind="attrs" :style="style">
     <div
       v-show="!resolvedEmpty || loading"
       ref="container"

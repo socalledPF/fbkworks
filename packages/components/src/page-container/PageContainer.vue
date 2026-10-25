@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { useAdapter } from '@fbk/adapter-core'
 import { toCssSize } from '@fbk/shared'
 import type { PageContainerProps } from './types'
@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<PageContainerProps>(), {
   maxWidth: undefined,
   uiProps: undefined,
 })
+
+const attrs = useAttrs()
 
 const emit = defineEmits<{
   back: []
@@ -42,6 +44,7 @@ function onBack() {
 <template>
   <div
     class="fbk-page-container"
+    v-bind="attrs"
     :class="{ 'fbk-page-container--fixed': fixedHeader }"
     :style="style"
   >

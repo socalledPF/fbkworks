@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, h, ref, useSlots } from 'vue'
+import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter } from '@fbk/adapter-core'
 import type { SelectOption } from '@fbk/adapter-core'
@@ -21,6 +21,8 @@ const props = withDefaults(defineProps<FormGeneratorProps<T>>(), {
   resetText: '重置',
   uiProps: undefined,
 })
+
+const attrs = useAttrs()
 
 const emit = defineEmits<{
   'update:modelValue': [values: Record<string, any>]
@@ -266,7 +268,7 @@ defineExpose<FormGeneratorExpose>({
 </script>
 
 <template>
-  <div class="fbk-form-generator" :style="gridStyle">
+  <div class="fbk-form-generator" v-bind="attrs" :style="gridStyle">
     <component :is="Form" ref="formRef" v-bind="formProps">
       <section v-for="(group, groupIndex) in renderedGroups" :key="groupIndex" class="fbk-form-generator__group">
         <h3 v-if="group.title" class="fbk-form-generator__group-title">{{ group.title }}</h3>

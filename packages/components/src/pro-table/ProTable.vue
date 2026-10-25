@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, useSlots, watch, watchEffect } from 'vue'
+import { computed, ref, useAttrs, useSlots, watch, watchEffect } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter, useFbkTheme } from '@fbk/adapter-core'
 import type { SortState } from '@fbk/adapter-core'
@@ -28,6 +28,8 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
   sort: undefined,
   toolbar: true,
 })
+
+const attrs = useAttrs()
 
 const emit = defineEmits<{
   'update:selectedKeys': [keys: Key[]]
@@ -223,7 +225,7 @@ defineExpose<ProTableExpose<T>>({
 </script>
 
 <template>
-  <div class="fbk-pro-table" :class="{ 'fbk-pro-table--cards': adapter.capabilities.dataGrid.presentation === 'cards' }">
+  <div class="fbk-pro-table" v-bind="attrs" :class="{ 'fbk-pro-table--cards': adapter.capabilities.dataGrid.presentation === 'cards' }">
 
     <!-- toolbar 默认 true 只表示「允许工具栏」。没有插槽时不该渲染容器 ——
          虽然 :empty 能兜住，但少一个空节点对可访问性和 DOM 快照都更干净。 -->

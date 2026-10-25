@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { RESULT_DEFAULTS, type ResultProps, type ResultStatus } from './types'
 
 /**
@@ -17,6 +17,8 @@ const props = withDefaults(defineProps<ResultProps>(), {
   subtitle: undefined,
   extra: undefined,
 })
+
+const attrs = useAttrs()
 
 const isCode = computed(() => /^\d{3}$/.test(String(props.status)))
 
@@ -37,7 +39,7 @@ const tone = computed(() => {
 </script>
 
 <template>
-  <div class="fbk-result" :class="`fbk-result--${tone}`" :data-status="status">
+  <div class="fbk-result" v-bind="attrs" :class="`fbk-result--${tone}`" :data-status="status">
     <div class="fbk-result__icon">
       <slot name="icon">
         <span v-if="isCode" class="fbk-result__code">{{ status }}</span>

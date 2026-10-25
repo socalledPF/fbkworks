@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, useSlots } from 'vue'
+import { computed, ref, useAttrs, useSlots } from 'vue'
 import type { Key } from '@fbk/shared'
 import { FbkQueryForm } from '../query-form'
 import type { QueryFormExpose } from '../query-form'
@@ -26,6 +26,8 @@ const props = withDefaults(defineProps<CrudPageProps<T>>(), {
   immediate: true,
   defaultCollapsed: true,
 })
+
+const attrs = useAttrs()
 
 /* 显式标注 Slot 的键类型。
    不标注时，generic 组件里的 useSlots() 在 dts 构建阶段无法收敛，
@@ -99,7 +101,7 @@ const queryProps = computed(() => ({
 </script>
 
 <template>
-  <div class="fbk-crud-page">
+  <div class="fbk-crud-page" v-bind="attrs">
     <FbkQueryForm
       v-if="hasQuery"
       ref="queryRef"

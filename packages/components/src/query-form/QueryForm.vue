@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref, useSlots } from 'vue'
+import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter } from '@fbk/adapter-core'
 import type { SelectOption } from '@fbk/adapter-core'
@@ -22,6 +22,8 @@ const props = withDefaults(defineProps<QueryFormProps>(), {
   labelWidth: undefined,
   uiProps: undefined,
 })
+
+const attrs = useAttrs()
 
 const emit = defineEmits<{
   'update:modelValue': [values: Record<string, any>]
@@ -182,7 +184,7 @@ const formProps = computed(() => ({
 </script>
 
 <template>
-  <div class="fbk-query-form" :style="gridStyle">
+  <div class="fbk-query-form" v-bind="attrs" :style="gridStyle">
     <component :is="Form" ref="formRef" v-bind="formProps">
       <div class="fbk-query-form__grid">
         <component

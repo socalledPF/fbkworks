@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 import { resolveColumns, toCssSize } from '@fbk/shared'
 import type { DescriptionItem, DescriptionsProps, ResolvedGroup } from './types'
 
@@ -18,6 +18,8 @@ const props = withDefaults(defineProps<DescriptionsProps<T>>(), {
   labelWidth: undefined,
   groupGap: 'md',
 })
+
+const attrs = useAttrs()
 
 /**
  * 分组解析。
@@ -127,7 +129,7 @@ function renderItem(item: DescriptionItem<T>) {
 </script>
 
 <template>
-  <div class="fbk-descriptions" :class="`fbk-descriptions--gap-${groupGap}`" :style="style">
+  <div class="fbk-descriptions" v-bind="attrs" :class="`fbk-descriptions--gap-${groupGap}`" :style="style">
     <section
       v-for="group in resolvedGroups"
       :key="group.key"
