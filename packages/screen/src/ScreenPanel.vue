@@ -15,7 +15,6 @@ const props = withDefaults(defineProps<ScreenPanelProps>(), {
   extra: undefined,
   height: undefined,
   corners: true,
-  level: 'ok',
 })
 
 /* inheritAttrs: false 时必须手动转发 attrs，否则调用方的 class/style 会丢失 */
@@ -31,7 +30,7 @@ const style = computed(() => {
   <section class="fbk-screen-panel" v-bind="attrs" :class="{ 'fbk-screen-panel--corners': corners }" :style="style">
     <header v-if="title || $slots.extra" class="fbk-screen-panel__header">
       <div class="fbk-screen-panel__heading">
-        <span class="fbk-screen-panel__bar" :data-level="level" aria-hidden="true" />
+        <span class="fbk-screen-panel__bar" aria-hidden="true" />
         <h2 class="fbk-screen-panel__title">{{ title }}</h2>
       </div>
       <div class="fbk-screen-panel__extra">

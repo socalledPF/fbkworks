@@ -29,11 +29,6 @@ export interface ScreenHeaderProps {
   clock?: boolean
   /** 是否显示全屏按钮，默认 true */
   fullscreen?: boolean
-  /**
-   * 全局状态。监控界面的**第一信息** —— 值班人员先看这个再决定要不要看图表。
-   * 不传时不渲染状态灯。
-   */
-  status?: { level: 'ok' | 'warn' | 'alert'; text: string }
 }
 
 export interface ScreenPanelProps {
@@ -43,13 +38,8 @@ export interface ScreenPanelProps {
   extra?: string
   /** 面板高度（含标题区） */
   height?: string | number
-  /** 是否显示四角装饰，默认 true（新版已不绘制，保留仅为兼容） */
+  /** 是否显示四角装饰，默认 true */
   corners?: boolean
-  /**
-   * 该面板的健康状态。渲染成标题前的状态点 ——
-   * 让值班人员不必读图表就能发现哪个面板有问题。
-   */
-  level?: 'ok' | 'warn' | 'alert'
 }
 
 export interface ScreenPanelSlots {
@@ -122,13 +112,6 @@ export interface ScreenLineChartProps extends ScreenChartProps {
   smooth?: boolean
   /** 是否显示面积，默认 true */
   area?: boolean
-  /**
-   * 告警阈值。超过它画一条限值线 ——
-   * **监控图表的核心元素**：没有限值线，看图表的人不知道「多少算异常」。
-   */
-  threshold?: number
-  /** 阈值文案，默认「阈值」 */
-  thresholdLabel?: string
 }
 
 export interface ScreenBarChartProps extends ScreenChartProps {

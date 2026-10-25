@@ -48,8 +48,8 @@ describe('isCssVar', () => {
 
 describe('resolveCssValue', () => {
   it('把已定义的变量解析成真实值', () => {
-    setVar('--fbk-chart-1', '#1f3a8a')
-    expect(resolveCssValue('var(--fbk-chart-1)')).toBe('#1f3a8a')
+    setVar('--fbk-chart-1', '#2f6bff')
+    expect(resolveCssValue('var(--fbk-chart-1)')).toBe('#2f6bff')
   })
 
   it('变量未定义时用 fallback', () => {
@@ -68,9 +68,9 @@ describe('resolveCssValue', () => {
 
 describe('resolveOptionVars', () => {
   it('解析对象里的字符串变量', () => {
-    setVar('--fbk-chart-1', '#1f3a8a')
+    setVar('--fbk-chart-1', '#2f6bff')
     const option = { color: 'var(--fbk-chart-1)', title: { text: '标题' } }
-    expect(resolveOptionVars(option).color).toBe('#1f3a8a')
+    expect(resolveOptionVars(option).color).toBe('#2f6bff')
   })
 
   it('深度遍历嵌套对象', () => {
@@ -111,7 +111,7 @@ describe('resolveOptionVars', () => {
   })
 
   it('不修改原对象（避免污染业务侧数据）', () => {
-    setVar('--fbk-chart-1', '#1f3a8a')
+    setVar('--fbk-chart-1', '#2f6bff')
     const original = { color: 'var(--fbk-chart-1)' }
     resolveOptionVars(original)
     expect(original.color).toBe('var(--fbk-chart-1)')

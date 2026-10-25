@@ -129,19 +129,16 @@ export interface FbkTokens {
 
 export const defaultTokens: FbkTokens = {
   color: {
-    /* 与 tokens.css 的 --fbk-color-primary 系列保持同步。
-       这组值会被 toCssVars() 注入成运行时 :root，
-       **不同步就会覆盖掉 CSS 文件里的新值**（这个坑踩过）。 */
-    primary: '#1f3a8a',
-    primaryHover: '#4a5f8f',
-    primaryActive: '#16295f',
-    primaryText: '#1f3a8a',
-    primaryBg: '#f4f6fb',
-    primaryBgHover: '#e6ebf5',
-    primaryBorder: '#9aabd0',
+    primary: '#2f6bff',
+    primaryHover: '#5c8bff',
+    primaryActive: '#1f52d0',
+    primaryText: '#1f52d0',
+    primaryBg: '#f5f8ff',
+    primaryBgHover: '#eaf0ff',
+    primaryBorder: '#acc4ff',
     onPrimary: '#ffffff',
-    primaryFillHover: '#16295f',
-    primaryFillActive: '#0f1c3f',
+    primaryFillHover: '#1f52d0',
+    primaryFillActive: '#173d9a',
 
     success: '#18a058',
     warning: '#f0a020',
@@ -175,7 +172,7 @@ export const defaultTokens: FbkTokens = {
     fill: '#f0f1f2',
     fillHover: '#e8eaed',
 
-    focusRing: '#1f3a8a',
+    focusRing: '#2f6bff',
   },
   radius: {
     sm: '2px',
@@ -236,11 +233,10 @@ export const defaultTokens: FbkTokens = {
  * 暗色主题里同一个值变成暗底上的文字色。所以下面 -text 与浅色主题是两套值。
  */
 export const darkColorOverrides: Partial<FbkTokens['color']> = {
-  /* 暗色下墨蓝要提亮，否则在深底上看不清 */
-  primary: '#6a7fb0',
-  primaryHover: '#9aabd0',
-  primaryActive: '#4a5f8f',
-  primaryText: '#9aabd0',
+  primary: '#5c8bff',
+  primaryHover: '#7ba3ff',
+  primaryActive: '#2f6bff',
+  primaryText: '#7ba3ff',
   primaryBg: '#1a2340',
   primaryBgHover: '#1f2a4d',
   primaryBorder: '#2d3f6b',

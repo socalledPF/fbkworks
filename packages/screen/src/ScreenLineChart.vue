@@ -20,8 +20,6 @@ const props = withDefaults(defineProps<ScreenLineChartProps>(), {
   empty: false,
   smooth: true,
   area: true,
-  threshold: undefined,
-  thresholdLabel: '阈值',
 })
 
 /* inheritAttrs: false 时必须手动转发 attrs，否则调用方的 class/style 会丢失 */
@@ -32,22 +30,22 @@ const option = computed(() => ({
   tooltip: { trigger: 'axis' },
   legend:
     props.series.length > 1
-      ? { top: 0, right: 0, itemGap: 16, icon: 'roundRect', textStyle: { fontSize: 11, color: '#8b95a1' } }
+      ? { top: 0, right: 0, itemGap: 20, icon: 'roundRect', textStyle: { fontSize: 14 } }
       : undefined,
   xAxis: {
     type: 'category',
     data: props.categories,
     boundaryGap: false,
-    axisLine: { lineStyle: { color: '#2a313a', width: 1 } },
-    axisLabel: { color: '#6f7885', fontSize: 11 },
+    axisLine: { lineStyle: { color: 'var(--fbk-chart-axis-line)', width: 1 } },
+    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
     axisTick: { show: false },
   },
   yAxis: {
     type: 'value',
     min: 0,
     axisLine: { show: false },
-    axisLabel: { color: '#6f7885', fontSize: 11 },
-    splitLine: { lineStyle: { color: '#222831', type: 'solid' } },
+    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
+    splitLine: { lineStyle: { color: 'var(--fbk-chart-split-line)', type: 'dashed' } },
   },
   series: props.series.map((s, i) => {
     const color = s.color ?? `var(--fbk-chart-${(i % 8) + 1})`
@@ -57,33 +55,31 @@ const option = computed(() => ({
       data: s.data,
       smooth: props.smooth,
       symbol: 'circle',
-      symbolSize: 4,
-      // 监控图数据点密集，只在拐点显示符号会显得杂乱，默认全隐藏
-      showSymbol: false,
+      symbolSize: 7,
+      showSymbol: true,
       itemStyle: { color },
       lineStyle: {
-        // 2px 而不是 3px：监控图强调读数准确，不是视觉冲击
-        width: 2,
+        width: 3,
+        // 发光：大屏的视觉语言，浅色主题下不会用到这个组件
+        shadowColor: color,
+        shadowBlur: 10,
       },
-      areaStyle: props.area ? { opacity: 0.1 } : undefined,
-      /* 限值线：监控图表的核心元素。
-         没有它，看图表的人不知道「多少算异常」——
-         只能凭感觉，而凭感觉判断不出 87% 是不是危险。 */
-      markLine:
-        props.threshold !== undefined
-          ? {
-              silent: true,
-              symbol: 'none',
-              lineStyle: { color: '#c05a4a', type: 'dashed', width: 1 },
-              label: {
-                formatter: `${props.thresholdLabel} ${props.threshold}`,
-                position: 'insideEndTop',
-                color: '#c05a4a',
-                fontSize: 11,
-              },
-              data: [{ yAxis: props.threshold }],
-            }
-          : undefined,
+      areaStyle: props.area
+        ? {
+            opacity: 0.18,
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color },
+                { offset: 1, color: 'transparent' },
+              ],
+            },
+          }
+        : undefined,
     }
   }),
 }))

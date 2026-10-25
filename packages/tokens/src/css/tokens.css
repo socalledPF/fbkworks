@@ -17,16 +17,16 @@
 
 :root {
   /* ===== 主色 ===== */
-  --fbk-color-primary: var(--fbk-ink-700);
-  --fbk-color-primary-hover: var(--fbk-ink-500);
-  --fbk-color-primary-active: var(--fbk-ink-800);
+  --fbk-color-primary: var(--fbk-blue-600);
+  --fbk-color-primary-hover: var(--fbk-blue-500);
+  --fbk-color-primary-active: var(--fbk-blue-700);
   /* 主色作为「文字/图标」出现时的颜色（链接、可点击文本）。
      与填充色分开是因为对比度要求不同，见文件末尾的对比度说明。 */
-  --fbk-color-primary-text: var(--fbk-ink-700);
+  --fbk-color-primary-text: var(--fbk-blue-700);
   /* 主色的浅底：选中行、柔和标签、hover 背景 */
-  --fbk-color-primary-bg: var(--fbk-ink-50);
-  --fbk-color-primary-bg-hover: var(--fbk-ink-100);
-  --fbk-color-primary-border: var(--fbk-ink-300);
+  --fbk-color-primary-bg: var(--fbk-blue-50);
+  --fbk-color-primary-bg-hover: var(--fbk-blue-100);
+  --fbk-color-primary-border: var(--fbk-blue-300);
   /* 实色主色底上的文字色。单独起名是为了让「白字压在主色上」变成显式决定，
      而不是每个组件各自写 #fff。 */
   --fbk-color-on-primary: #ffffff;
@@ -37,8 +37,8 @@
        而实色底上压着 onPrimary 文字时，变浅会让文字对比度掉到 3.19:1（AA 不及格）。
      所以实色底的 hover 必须**变深**：实测 4.50 → 6.61（hover）→ 9.67（active），越按越清楚。
      一句话规则：hover 把底色推离文字色。 */
-  --fbk-color-primary-fill-hover: var(--fbk-ink-800);
-  --fbk-color-primary-fill-active: var(--fbk-ink-900);
+  --fbk-color-primary-fill-hover: var(--fbk-blue-700);
+  --fbk-color-primary-fill-active: var(--fbk-blue-800);
 
   /* ===== 状态色：填充态 =====
      用于描边、图标、进度条、实色标签底。这些场合对对比度要求较低（≥3:1）。 */
@@ -156,16 +156,14 @@
    后者在白底上只有 2.15:1，不满足图形元素的 3:1 底线。
    #bd7a18 是满足要求的最亮值（3.52 / 3.26）。 */
 
-  /* 墨蓝主导的低饱和序列：与主色同源，减少视觉噪音。
-     每个色对白底与沉底都 ≥3:1（图形元素要求），相邻 ΔE ≥10。 */
-  --fbk-chart-1: #1f3a8a;
-  --fbk-chart-2: #4a9d7f;
-  --fbk-chart-3: #a87a28;
-  --fbk-chart-4: #c2410c;
-  --fbk-chart-5: #6a7fb0;
-  --fbk-chart-6: #7a5f8f;
-  --fbk-chart-7: #3f7d8c;
-  --fbk-chart-8: #7d8794;
+  --fbk-chart-1: #2f6bff;
+  --fbk-chart-2: #18a058;
+  --fbk-chart-3: #bd7a18;
+  --fbk-chart-4: #d03050;
+  --fbk-chart-5: #2080f0;
+  --fbk-chart-6: #7c3aed;
+  --fbk-chart-7: #0e9aa7;
+  --fbk-chart-8: #868b93;
 
   /* 轴线与网格。分割线刻意很弱 —— 它是背景不是内容 */
   --fbk-chart-axis-line: var(--fbk-color-border);
@@ -176,21 +174,6 @@
   --fbk-chart-tooltip-bg: var(--fbk-color-bg-elevated);
   --fbk-chart-tooltip-border: var(--fbk-color-border-light);
   --fbk-chart-tooltip-text: var(--fbk-color-text);
-
-
-  /*
-   * 强调色（赤陶）。**只用于「需要注意」**：
-   * 负向变化、错误、危险操作。不作为装饰。
-   */
-  --fbk-color-accent: var(--fbk-clay-500);
-  --fbk-color-accent-text: var(--fbk-clay-600);
-  --fbk-color-accent-bg: var(--fbk-clay-50);
-  --fbk-color-accent-border: var(--fbk-clay-300);
-
-  /* 监控状态色。大屏与看板共用 */
-  --fbk-color-signal-ok: var(--fbk-signal-ok);
-  --fbk-color-signal-warn: var(--fbk-signal-warn);
-  --fbk-color-signal-alert: var(--fbk-signal-alert);
 
 }
 
