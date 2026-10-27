@@ -5,9 +5,13 @@
  * 业务侧写 `feedback.message.success('保存成功')`，而不是放一个组件到模板里。
  * 因此它们不放在 `primitives`（那是一张组件表），而是挂在 `UiAdapter.feedback`。
  *
- * 为什么现在才补：`capabilities.feedback` 早就声明了
- * message / notification / confirm / loading 四项能力，三个适配器都标了 true，
- * 但契约里没有任何对应的 API —— 业务方看到能力为 true 却找不到东西可用。
+ * 为什么现在才补：`capabilities.feedback` 曾经声明了
+ * message / notification / confirm / loading 四项能力并全部标 true，
+ * 但契约里只有前两个对应的 API —— 业务方看到能力为 true 却找不到东西可用。
+ *
+ * 现在只保留能兑现的声明：适配器的 `notification` / `loading` 位一律为 false，
+ * 与 `FeedbackApi` 的成员严格对齐。将来补 `notification` / `loading` API 时，
+ * 能力位跟随契约一起打开。
  */
 
 export type MessageType = 'success' | 'warning' | 'error' | 'info'

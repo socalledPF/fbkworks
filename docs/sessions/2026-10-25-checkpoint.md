@@ -151,7 +151,7 @@ naive 额外要把 `--n-action-space` 置 0——那个变量被 naive 用 CSS-i
 | 包 | 状态 |
 |---|---|
 | `dashboard`（7 个组件） | ✅ 正确转发（`useAttrs()` + `v-bind="attrs"`） |
-| `screen`（11 个组件） | ✅ 正确转发 |
+| `screen`（10 个组件） | ✅ 正确转发 |
 | `components` 的 `DetailPage` | ✅ 正确转发 |
 | **`components` 其余 8 个** | ✅ **已修**：`crud-page` `descriptions` `form-generator` `form-modal` `page-container` `pro-table` `query-form` `result` |
 | **`chart-core` 的 `FbkChart`** | ✅ **已修** |
@@ -406,7 +406,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 | 「600 tests」 | **600 / 44 文件** ✓ | `pnpm test` |
 | 「15 demos」 | **15** ✓ | `grep -c "group:"` |
 
-## 附录 B：仓库里已发现的过期文档（尚未修）
+## 附录 B：仓库里已发现的过期文档（已修）
 
 写这份文档时顺手发现的，**已于 2026-10-25 续修完**（下表 4 项全部落地）：
 

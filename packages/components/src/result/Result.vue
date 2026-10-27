@@ -22,7 +22,15 @@ const attrs = useAttrs()
 
 const isCode = computed(() => /^\d{3}$/.test(String(props.status)))
 
-const defaults = computed(() => RESULT_DEFAULTS[props.status as ResultStatus])
+/**
+ * 未知 status 回退到 info。
+ *
+ * status 是运行时字符串，后端返回码（401 / 402 / 422 …）永远比 ResultStatus 宽；
+ * 直接下标取默认值会拿到 undefined，随后读 .title 整块白屏。
+ */
+const defaults = computed(
+  () => RESULT_DEFAULTS[props.status as ResultStatus] ?? RESULT_DEFAULTS.info,
+)
 
 const title = computed(() => props.title ?? defaults.value.title)
 const subtitle = computed(() => props.subtitle ?? defaults.value.subtitle)

@@ -34,7 +34,8 @@ export const naiveCapabilities: Capabilities = {
   },
   overlay: { kind: 'dialog', supportsDrawer: true, supportsTeleport: true },
   pagination: { mode: 'pages', pageSizes: true, jumper: true },
-  feedback: { message: true, notification: true, confirm: true, loading: true },
+  // 只有契约里真实存在的两个 API；notification / loading 没有对应实现，不声明
+  feedback: { message: true, notification: false, confirm: true, loading: false },
   theme: { darkMode: true, cssVariables: false, provider: true },
   features: { 'table.fixedColumns': true, 'table.summary': true, 'form.inline': true },
 }

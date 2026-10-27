@@ -43,14 +43,23 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Build
-        run: pnpm build
-
       - name: Test
         run: pnpm test
 
+      - name: Build
+        run: pnpm build
+
       - name: 公开类型面
         run: pnpm check:surface
+
+      - name: 样式接入（gap/flex 静默失效）
+        run: pnpm check:styles
+
+      - name: 样式入口完整性
+        run: pnpm check:style-entries
+
+      - name: 发布产物依赖（第三道门禁）
+        run: pnpm check:runtime-deps
 
       - name: publint
         run: pnpm check:packages
@@ -61,7 +70,8 @@ jobs:
       - name: 消费者烟雾测试
         run: pnpm check:consumer
 
-      # 与 verify 保持一致：架构图语法错误不该等到发布前才被发现
+      # 本 job 覆盖 verify 的全部步骤（额外只有 verify:data-contract 这一道）：
+      # 架构图语法错误不该等到发布前才被发现。
       - name: 架构图
         run: pnpm check:diagrams
 

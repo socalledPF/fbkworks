@@ -34,7 +34,8 @@ export const vantCapabilities: Capabilities = {
   },
   overlay: { kind: 'popup', supportsDrawer: false, supportsTeleport: true },
   pagination: { mode: 'infinite', pageSizes: false, jumper: false },
-  feedback: { message: true, notification: true, confirm: true, loading: true },
+  // 只有契约里真实存在的两个 API；notification / loading 没有对应实现，不声明
+  feedback: { message: true, notification: false, confirm: true, loading: false },
   theme: { darkMode: true, cssVariables: true, provider: true },
   features: { 'table.fixedColumns': false, 'table.summary': false, 'form.inline': false },
 }

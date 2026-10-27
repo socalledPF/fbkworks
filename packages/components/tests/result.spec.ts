@@ -97,4 +97,24 @@ describe('FbkResult', () => {
     const wrapper = mount(FbkResult, { props: { status: '403' } })
     expect(wrapper.attributes('data-status')).toBe('403')
   })
+
+  it('未知 status（后端返回码）回退到中性默认文案而不是崩溃', () => {
+    // 401 / 402 / 422 是后端最常见的未授权与校验失败码，却不在 ResultStatus 里。
+    // 运行时字符串永远比类型宽，组件必须兜底。
+    for (const status of ['401', '402', '422', 'oops']) {
+      const wrapper = mount(FbkResult, { props: { status: status as any } })
+      expect(wrapper.find('.fbk-result__title').text(), status).toBe(RESULT_DEFAULTS.info.title)
+    }
+  })
+
+  it('未知数字码仍渲染成大号状态码，语义色回退到中性', () => {
+    const wrapper = mount(FbkResult, { props: { status: '401' as any } })
+    expect(wrapper.find('.fbk-result__code').text()).toBe('401')
+    expect(wrapper.classes()).toContain('fbk-result--info')
+  })
+
+  it('数字类型的未知码同样兜底（:code="401" 是常见写法）', () => {
+    const wrapper = mount(FbkResult, { props: { status: 401 as any } })
+    expect(wrapper.find('.fbk-result__title').text()).toBe(RESULT_DEFAULTS.info.title)
+  })
 })

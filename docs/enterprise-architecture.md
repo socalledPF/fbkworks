@@ -144,7 +144,7 @@ app.use(createBusinessKit({
 ## 验证
 
 - `pnpm verify` 全绿：**614 用例 / 46 个测试文件**（P0-P2 阶段由 452 增至 512）
-- `scripts/visual/verify-admin.py`：**22 项**端到端检查
+- `scripts/visual/verify-admin.py`：**34 项**端到端检查（不在 CI 中，仅手工调用）
   含权限移除验证（DOM 里查不到，不是 `display:none`）、上报事件可达
 
 ---

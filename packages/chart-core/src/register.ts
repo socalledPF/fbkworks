@@ -22,6 +22,7 @@ import {
   VisualMapComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { warnOnce } from '@fbk/shared'
 import type { FbkChartType, RegisterChartsOptions } from './types'
 
 /**
@@ -98,14 +99,36 @@ export function registerFbkCharts(options: RegisterChartsOptions = {}): void {
 
   if (!pendingCharts.length && !pendingComponents.length) return
 
+  // FbkChartType / FbkChartComponent 比映射表宽（'map' / 'geo' / 'toolbox' 尚无实现）。
+  // 类型能过、ECharts 侧却没东西可用 —— 只把真正注册成功的项标记为完成，
+  // 否则未登记项会被当成"已注册"，既不重试也没有任何线索。
+  const resolvedCharts = pendingCharts.filter((c) => {
+    if ((CHART_MAP as Record<string, any>)[c]) return true
+    warnOnce(
+      `chart:unresolved:chart:${c}`,
+      `图表类型 "${c}" 尚未在 @fbk/chart-core 中实现，已跳过注册（该类型的图表会空白）。`,
+    )
+    return false
+  })
+  const resolvedComponents = pendingComponents.filter((c) => {
+    if ((COMPONENT_MAP as Record<string, any>)[c]) return true
+    warnOnce(
+      `chart:unresolved:component:${c}`,
+      `图表组件 "${c}" 尚未在 @fbk/chart-core 中实现，已跳过注册（依赖它的图表会空白）。`,
+    )
+    return false
+  })
+
+  if (!resolvedCharts.length && !resolvedComponents.length) return
+
   echarts.use([
-    ...pendingCharts.map((c) => (CHART_MAP as Record<string, any>)[c]).filter(Boolean),
-    ...pendingComponents.map((c) => (COMPONENT_MAP as Record<string, any>)[c]).filter(Boolean),
+    ...resolvedCharts.map((c) => (CHART_MAP as Record<string, any>)[c]),
+    ...resolvedComponents.map((c) => (COMPONENT_MAP as Record<string, any>)[c]),
     CanvasRenderer,
   ])
 
-  pendingCharts.forEach((c) => doneCharts.add(c))
-  pendingComponents.forEach((c) => doneComponents.add(c))
+  resolvedCharts.forEach((c) => doneCharts.add(c))
+  resolvedComponents.forEach((c) => doneComponents.add(c))
   registered = true
 }
 

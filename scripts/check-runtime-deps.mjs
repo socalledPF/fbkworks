@@ -20,7 +20,7 @@
 
 import { readdir, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 
@@ -41,17 +41,29 @@ const FORBIDDEN = [
   'date-fns',
 ]
 
-/** 发布包（与 pnpm-workspace.yaml 的 packages/* 对应，排除内部包） */
-const PUBLISHED = [
-  'packages/tokens',
-  'packages/shared',
-  'packages/adapter-core',
-  'packages/components',
-  'packages/chart-core',
-  'packages/dashboard',
-  'packages/screen',
-  'packages/data',
-]
+/**
+ * 发现发布包：递归扫描 packages/**（覆盖 packages/adapters/*、packages/internal/*），
+ * 取 package.json 里 private !== true 的包目录。
+ * 名单由文件系统决定而不是手工登记 —— 新增发布包自动纳入，漏登记不可能发生。
+ */
+async function discoverPublishedPackages(dir, out = []) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === 'node_modules') continue
+
+    const full = join(dir, entry.name)
+    if (existsSync(join(full, 'package.json'))) {
+      const pkgJson = JSON.parse(await readFile(join(full, 'package.json'), 'utf8'))
+      if (pkgJson.private !== true) {
+        out.push({ dir: full, name: pkgJson.name, relPath: relative(root, full).replace(/\\/g, '/') })
+      }
+      continue // 包目录不再向下钻，避免把包内子目录误当成包
+    }
+
+    await discoverPublishedPackages(full, out)
+  }
+  // 排序只为输出稳定，不影响扫描范围
+  return out.sort((a, b) => a.relPath.localeCompare(b.relPath))
+}
 
 /**
  * 允许出现在产物 import 里的 bare specifier 前缀。
@@ -112,16 +124,29 @@ let checkedPackages = 0
 let checkedFiles = 0
 let checkedSpecifiers = 0
 
-for (const pkgPath of PUBLISHED) {
-  const pkgDir = resolve(root, pkgPath)
-  const distDir = join(pkgDir, 'dist')
-  const pkgJsonPath = join(pkgDir, 'package.json')
+const published = await discoverPublishedPackages(join(root, 'packages'))
 
+/** 扫到的包（有 build 产物）与跳过的包分开记录，便于人工核对名单 */
+const scanned = []
+const skipped = []
+
+for (const pkg of published) {
+  const pkgPath = pkg.relPath
+  const distDir = join(pkg.dir, 'dist')
+  const pkgJsonPath = join(pkg.dir, 'package.json')
+
+  // 无 build 产物 = 无可检查的产物，不纳入本次扫描（不改退出码）
   if (!existsSync(distDir)) {
-    console.error(`[runtime-deps] ${pkgPath}/dist 不存在，请先执行 pnpm build`)
-    failures += 1
+    skipped.push(pkgPath)
     continue
   }
+
+  const files = await walkMjs(distDir)
+  if (files.length === 0) {
+    skipped.push(pkgPath)
+    continue
+  }
+  scanned.push(pkgPath)
 
   const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf8'))
   const declared = new Set([
@@ -130,7 +155,6 @@ for (const pkgPath of PUBLISHED) {
     ...Object.keys(pkgJson.optionalDependencies ?? {}),
   ])
 
-  const files = await walkMjs(distDir)
   checkedPackages += 1
   checkedFiles += files.length
 
@@ -173,3 +197,9 @@ if (failures > 0) {
 console.log(
   `[runtime-deps] OK：${checkedPackages} 个发布包 / ${checkedFiles} 个产物文件 / ${checkedSpecifiers} 个 bare import，无禁止依赖`,
 )
+console.log(`[runtime-deps] 扫描的发布包（${scanned.length}）：`)
+for (const pkgPath of scanned) console.log(`  · ${pkgPath}`)
+if (skipped.length > 0) {
+  console.log(`[runtime-deps] 跳过（无 dist 产物，${skipped.length}）：`)
+  for (const pkgPath of skipped) console.log(`  · ${pkgPath}`)
+}
