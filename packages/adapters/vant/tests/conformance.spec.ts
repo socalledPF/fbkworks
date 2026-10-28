@@ -17,6 +17,39 @@ runAdapterConformance({
 })
 
 /**
+ * 卡片列表的 loading 反馈。
+ *
+ * 共享契约只在「data 非空 + loading」下断言标记存在 —— 那种情况本来就是
+ * 列表上面盖一条 van-loading。真正会被用户看到的是首屏：data 还是空数组、
+ * loading 已经 true，此时既没有 Empty 也没有 loading 条，整个列表区一片空白。
+ */
+describe('adapter: vant / 卡片列表 loading 态', () => {
+  const columns = [{ key: 'name', title: '名称', dataIndex: 'name' }]
+
+  const mountGrid = (props: Record<string, any> = {}) =>
+    mountWithProvider(vantAdapter.primitives.DataGrid, {
+      adapter: vantAdapter,
+      props: { columns, data: [], rowKey: 'id', emptyText: '没有记录', ...props },
+    })
+
+  it('空数据 + loading 时仍有加载标记，且不同时喊「没有记录」', async () => {
+    const wrapper = mountGrid({ data: [], loading: true })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-vant-grid__loading').exists(), '首次加载时列表区一片空白').toBe(true)
+    expect(wrapper.text()).not.toContain('没有记录')
+  })
+
+  it('空数据 + 非 loading 时只有空态，没有加载标记', async () => {
+    const wrapper = mountGrid({ data: [], loading: false })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-vant-grid__loading').exists()).toBe(false)
+    expect(wrapper.text()).toContain('没有记录')
+  })
+})
+
+/**
  * vant 专属：卡片列表是 FBK 自己渲染的 DOM，不是 vant 的组件，
  * 所以键盘可达性得自己兜。element-plus / naive-ui 的行由各自库渲染，改不动，
  * 不在共享契约套件里断言——放这里才不会让另外两个适配器无谓失败。

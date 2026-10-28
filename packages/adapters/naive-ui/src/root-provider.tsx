@@ -35,7 +35,7 @@ export const RootProvider = defineComponent({
     /** 已由 core 计算好的 provider props；优先使用 */
     themeOverrides: { type: Object as PropType<Record<string, any>>, default: undefined },
   },
-  setup(props, { slots }) {
+  setup(props, { attrs, slots }) {
     const config = computed(() => {
       // 不要把 mode 提前降级成 dark/light —— cyber 需要它自己的色板，
       // 只有 naiveProviderProps 内部知道 cyber 该用哪套 themeOverrides。
@@ -62,7 +62,10 @@ export const RootProvider = defineComponent({
     )
 
     return () => (
+      /* NConfigProvider 自己渲染一层元素（tag 默认 'div'，class="n-config-provider"），
+         attrs 交给它落到那层元素上；attrs 在前，显式配置优先。 */
       <NConfigProvider
+        {...attrs}
         theme={config.value.theme ?? null}
         themeOverrides={config.value.themeOverrides}
         locale={localePack.value.locale}

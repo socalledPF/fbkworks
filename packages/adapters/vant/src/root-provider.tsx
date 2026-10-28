@@ -16,9 +16,12 @@ export const RootProvider = defineComponent({
     locale: { type: String, default: 'zh-CN' },
     size: { type: String, default: 'md' },
   },
-  setup(props, { slots }) {
+  setup(props, { attrs, slots }) {
     return () => (
-      <ConfigProvider theme={props.mode === 'dark' ? 'dark' : 'light'}>
+      /* ConfigProvider 自己渲染一层元素（tag 默认 'div'，class="van-config-provider"），
+         attrs 交给它就能落到真实 DOM，不必再套一层。
+         attrs 在前：显式的 theme / provider props 优先。 */
+      <ConfigProvider {...attrs} theme={props.mode === 'dark' ? 'dark' : 'light'}>
         {slots.default?.()}
       </ConfigProvider>
     )

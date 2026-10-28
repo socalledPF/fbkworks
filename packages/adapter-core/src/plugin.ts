@@ -4,6 +4,8 @@ import {
   getCurrentInstance,
   h,
   inject,
+  mergeProps,
+  onUnmounted,
   provide,
   ref,
   watch,
@@ -73,6 +75,43 @@ function resolveTheme(mode: ThemeMode): Exclude<ThemeMode, 'system'> {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/**
+ * `system` 档位的实时明暗。
+ *
+ * resolveTheme() 在 apply 时只读一次 matchMedia().matches 快照 —— 系统切换深浅色后
+ * 界面不会跟随。这里把快照变成响应式，change 监听随组件卸载移除（须在 setup 内调用）。
+ */
+function useSystemDark() {
+  const query =
+    typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-color-scheme: dark)')
+      : null
+  const prefersDark = ref(query?.matches ?? false)
+  if (query) {
+    const onChange = (event: MediaQueryListEvent) => {
+      prefersDark.value = event.matches
+    }
+    query.addEventListener('change', onChange)
+    onUnmounted(() => query.removeEventListener('change', onChange))
+  }
+  return prefersDark
+}
+
+/**
+ * 正在挂载的 Provider 的主题写回函数，按挂载顺序入栈。
+ *
+ * 卸载时要把「仍然在挂载的那一个」重新 apply 回去：watchEffect 随 scope 一起停掉，
+ * 少了这一步，data-fbk-theme 与 :root 变量会停在被卸载的档位上
+ * （实测嵌套 [light, dark] 卸载内层后主题仍是 dark）。
+ * 用栈而不是直接取 inject 到的父级：兄弟 Provider 并存时（微前端 / 多根 / Playground），
+ * 卸载其中一个不该把另一个正在生效的档位一起抹掉。
+ */
+const mountedProviders: Array<() => void> = []
+
+function applyContextTheme(ctx: AdapterContext): void {
+  ctx.adapter.theme.apply(resolveTheme(ctx.themeMode.value), ctx.tokens)
+}
+
 export function createAdapterContext(options: BusinessKitOptions): AdapterContext {
   const { adapter } = options
   const tokens = options.tokens ?? defaultTokens
@@ -130,6 +169,9 @@ export function createBusinessKit(options: BusinessKitOptions): Plugin {
  */
 export const FbkProvider = defineComponent({
   name: 'FbkProvider',
+  // attrs 由自己转发：隐式 fallthrough 只在「渲染根恰好是单个组件」时成立，
+  // 一旦根结构变化就会静默失效，而这正是 RootProvider 侧丢 class 的同源缺陷。
+  inheritAttrs: false,
   props: {
     adapter: { type: Object as PropType<UiAdapter>, default: undefined },
     theme: { type: String as PropType<ThemeMode>, default: undefined },
@@ -146,7 +188,7 @@ export const FbkProvider = defineComponent({
       default: undefined,
     },
   },
-  setup(props, { slots }) {
+  setup(props, { attrs, slots }) {
     const parent = inject(ADAPTER_CONTEXT, null)
     const adapter = props.adapter ?? parent?.adapter
     if (!adapter) {
@@ -216,26 +258,50 @@ export const FbkProvider = defineComponent({
       },
     )
 
+    const prefersDark = useSystemDark()
+    const resolvedTheme = computed<Exclude<ThemeMode, 'system'>>(() =>
+      ctx.themeMode.value === 'system'
+        ? prefersDark.value
+          ? 'dark'
+          : 'light'
+        : ctx.themeMode.value,
+    )
+
     watchEffect(() => {
-      ctx.adapter.theme.apply(resolveTheme(ctx.themeMode.value), ctx.tokens)
+      ctx.adapter.theme.apply(resolvedTheme.value, ctx.tokens)
     })
 
     const providerProps = computed(() => {
-      const mode = resolveTheme(ctx.themeMode.value)
+      const mode = resolvedTheme.value
       return ctx.adapter.theme.providerProps?.(mode, ctx.tokens) ?? {}
+    })
+
+    /* 卸载时把手里的主题交还回去：优先给仍在挂载的上一个 Provider，
+       否则回到 inject 到的外层（插件的全局上下文）。 */
+    const reapplyTheme = () => ctx.adapter.theme.apply(resolvedTheme.value, ctx.tokens)
+    mountedProviders.push(reapplyTheme)
+    onUnmounted(() => {
+      const index = mountedProviders.indexOf(reapplyTheme)
+      if (index !== -1) mountedProviders.splice(index, 1)
+      const previous = mountedProviders[mountedProviders.length - 1]
+      if (previous) previous()
+      else if (parent) applyContextTheme(parent)
     })
 
     return () => {
       const Root = ctx.adapter.RootProvider
       return h(
         Root,
-        {
-          ...providerProps.value,
-          mode: resolveTheme(ctx.themeMode.value),
-          tokens: ctx.tokens,
-          locale: ctx.locale.value,
-          size: ctx.size.value,
-        },
+        mergeProps(
+          {
+            ...providerProps.value,
+            mode: resolvedTheme.value,
+            tokens: ctx.tokens,
+            locale: ctx.locale.value,
+            size: ctx.size.value,
+          },
+          attrs,
+        ),
         slots,
       )
     }

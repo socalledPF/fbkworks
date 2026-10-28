@@ -23,13 +23,16 @@ export const RootProvider = defineComponent({
     locale: { type: String, default: 'zh-CN' },
     size: { type: String, default: 'md' },
   },
-  setup(props, { slots }) {
+  setup(props, { attrs, slots }) {
     return () => (
       <ElConfigProvider
         locale={locales[props.locale] ?? zhCn}
         size={props.size === 'md' ? 'default' : props.size === 'sm' ? 'small' : 'large'}
       >
-        {slots.default?.()}
+        {/* ElConfigProvider 的 render 是 renderSlot(slots, 'default')，渲染成 fragment，
+            把 attrs 绑到它身上只会得到 Vue 的 "Extraneous non-props attributes" 并被丢弃。
+            这里自己落一层元素承载 class / style / data-*。 */}
+        <div {...attrs}>{slots.default?.()}</div>
       </ElConfigProvider>
     )
   },

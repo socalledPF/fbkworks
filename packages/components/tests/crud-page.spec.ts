@@ -74,6 +74,49 @@ describe('CrudPage 联动', () => {
     )
   })
 
+  /**
+   * 一次重置只能发一个请求。
+   *
+   * 表单重置会把 params 换成默认值，useTableRequest 的 watch 已经负责
+   * 「回到第 1 页 + 重新查询」；reset() 里再 await refresh() 就多打一发，
+   * 两个请求必有一个被 requestId 丢弃（结果对，但白花一次带宽）。
+   */
+  it('点一次重置只发一个请求，且是第 1 页 + 新条件', async () => {
+    // 按条件给出不同数据：重置后表格里必须真的换成「无筛选」那份
+    const request = vi
+      .fn()
+      .mockImplementation((p: { params: Record<string, any> }) =>
+        Promise.resolve(
+          p.params.keyword === 'abc'
+            ? { list: [{ id: 9, name: 'filtered' }], total: 1 }
+            : { list: rows, total: 1 },
+        ),
+      )
+    const wrapper = mountCrud({ request })
+    await flushPromises()
+
+    await wrapper.findAll('input[data-fbk-part="input"]')[0].setValue('abc')
+    await wrapper.findAll('button').find((b) => b.text() === '查询')!.trigger('click')
+    await flushPromises()
+
+    // 先翻到第 2 页：重置必须把页码也拉回 1
+    await wrapper.find('[data-fbk-part="next"]').trigger('click')
+    await flushPromises()
+    expect(request).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }))
+
+    request.mockClear()
+    await (wrapper.findComponent(FbkCrudPage).vm as any).reset()
+
+    // reset() 返回时那一次查询已经发出，否则 await 之后再断言就测不到它
+    expect(request.mock.calls.length, '一次重置发了多个请求').toBe(1)
+    await flushPromises()
+    expect(request.mock.calls.length, '重置之后又补发了一个请求').toBe(1)
+    const sent = request.mock.calls[0][0] as { page: number; params: Record<string, any> }
+    expect(sent.page, '重置后没回到第 1 页').toBe(1)
+    expect(sent.params.keyword, '重置后还带着旧条件').not.toBe('abc')
+    expect((wrapper.findComponent(FbkCrudPage).vm as any).getData(), '表格里还是筛选后的旧数据').toEqual(rows)
+  })
+
   it('没有查询字段时不渲染查询区', async () => {
     const wrapper = mountWithAdapter(FbkCrudPage, {
       props: { columns, request: vi.fn().mockResolvedValue({ list: rows, total: 1 }), rowKey: 'id' },
@@ -81,6 +124,19 @@ describe('CrudPage 联动', () => {
     await flushPromises()
     expect(wrapper.find('.fbk-query-form').exists()).toBe(false)
     expect(wrapper.find('.fbk-pro-table').exists()).toBe(true)
+  })
+
+  it('没有查询区时 reset 仍然重新查询 —— params 不变就没有 watch 兜底', async () => {
+    const request = vi.fn().mockResolvedValue({ list: rows, total: 1 })
+    const wrapper = mountWithAdapter(FbkCrudPage, {
+      props: { columns, request, rowKey: 'id' },
+    })
+    await flushPromises()
+
+    request.mockClear()
+    await (wrapper.findComponent(FbkCrudPage).vm as any).reset()
+    await flushPromises()
+    expect(request).toHaveBeenCalledTimes(1)
   })
 
   it('暴露 refresh / reset / getParams / getData', async () => {

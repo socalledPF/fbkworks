@@ -43,6 +43,77 @@ const fbkClasses = (html: string): string[] =>
     .filter((c) => c.startsWith('fbk-'))
     .sort()
 
+/** 两库各自的 DataGrid 根元素类名，只用于在 DOM 里定位 vendor 根 */
+const vendorGrid = {
+  'element-plus': { prefix: 'el-', root: 'el-table' },
+  'naive-ui': { prefix: 'n-', root: 'n-data-table' },
+} as const
+
+/**
+ * 把「boundary → target」之间的元素链归一化成标签数组。
+ *
+ * boundary 由调用方传入：DataGrid 组件根元素的父元素，也就是适配器自己开始
+ * 负责的那一层。Provider 贡献的包裹层（element 用来承载 attrs 的 div、
+ * naive 的 .n-config-provider）不在这个用例的范围内，因此不参与比较。
+ *
+ * 只留标签名：类名、data-* 属性、行内样式在两库里天然不同
+ * （naive 把一批 CSS 变量写在 .n-data-table 的行内 style 上），
+ * 它们不构成层级差异，参与比较只会产生假阳性。
+ * vendor 自有元素按类名前缀剔除 —— 那段层级由库决定
+ * （element 把一张表拆成 header/body 两个 table，naive 是单表 + scrollbar），
+ * 与「适配器有没有多包一层」无关。
+ */
+function shellTags(boundary: HTMLElement, target: HTMLElement, vendorPrefix: string): string[] {
+  const tags: string[] = []
+  for (let cur = target.parentElement; cur && cur !== boundary; cur = cur.parentElement) {
+    const vendorOwned = [...cur.classList].some((c) => c.startsWith(vendorPrefix))
+    if (!vendorOwned) tags.unshift(cur.tagName.toLowerCase())
+  }
+  return tags
+}
+
+/**
+ * 切分 style.css 的规则块。
+ * 先去掉注释：注释里常写着示例规则的 { } 和选择器，会把解析带偏。
+ * at-rule（@media 等）只当容器，不作为规则本身返回。
+ */
+function cssRules(source: string): Array<{ selector: string; body: string }> {
+  const css = source.replace(/\/\*[\s\S]*?\*\//g, '')
+  const rules: Array<{ selector: string; body: string }> = []
+  const open: Array<{ selector: string; from: number }> = []
+  let boundary = 0
+  for (let i = 0; i < css.length; i += 1) {
+    if (css[i] === '{') {
+      open.push({ selector: css.slice(boundary, i).trim().replace(/\s+/g, ' '), from: i + 1 })
+      boundary = i + 1
+    } else if (css[i] === '}') {
+      const rule = open.pop()
+      if (rule && !rule.selector.startsWith('@')) {
+        rules.push({ selector: rule.selector, body: css.slice(rule.from, i) })
+      }
+      boundary = i + 1
+    }
+  }
+  return rules
+}
+
+/**
+ * 取指定选择器的规则体并解析成「属性 → 值」。
+ * 全文件 toContain 会被同文件任意一处满足（--fbk-spacing-sm 就在多处出现），
+ * 断言必须落在具体规则块里。
+ */
+function declarationsOf(css: string, selector: string): Record<string, string> {
+  const matched = cssRules(css).filter((rule) => rule.selector === selector)
+  expect(matched.length, `style.css 里应恰好有一条 ${selector} 规则`).toBe(1)
+  const declarations: Record<string, string> = {}
+  for (const part of matched[0].body.split(';')) {
+    const at = part.indexOf(':')
+    if (at < 0) continue
+    declarations[part.slice(0, at).trim()] = part.slice(at + 1).trim().replace(/\s+/g, ' ')
+  }
+  return declarations
+}
+
 describe('桌面端双适配器一致性', () => {
   it('两个适配器都声明为 desktop', () => {
     for (const [name, adapter] of adapters) {
@@ -185,24 +256,54 @@ describe('桌面端双适配器一致性', () => {
    * （按钮紧贴），naive 是 12px。PC 端 element 与 naive 都用于桌面，
    * 这种差异必须消除。统一到 --fbk-spacing-sm（8px）。
    *
-   * jsdom 没有布局引擎、量不出实际间距，因此这里断言 CSS 里
-   * 确实存在对应规则 —— 配合浏览器实测脚本一起守住。
+   * jsdom 没有布局引擎、量不出实际间距，因此断言 CSS 规则本身。
+   * 但断言必须落在**具体规则块**上：原先是对整个 style.css 做
+   * toContain('--fbk-spacing-sm')，而同文件的 .fbk-pagination__suffix
+   * 也用了这个令牌，于是把确认框的 gap 改成写死像素、甚至删掉，
+   * 断言照样绿 —— 验证的根本不是这两条规则。
    */
   it('两个桌面适配器的 style.css 都约束了确认框按钮间距', () => {
-    const cases: Record<string, { file: string; selector: string }> = {
-      'element-plus': { file: 'element-plus', selector: '.el-message-box__btns' },
-      'naive-ui': { file: 'naive-ui', selector: '--n-action-space' },
+    const cases: Record<
+      string,
+      { file: string; rules: Array<{ selector: string; expected: Record<string, string> }> }
+    > = {
+      'element-plus': {
+        file: 'element-plus',
+        rules: [
+          {
+            selector: '.el-message-box__btns',
+            expected: { display: 'flex', gap: 'var(--fbk-spacing-sm)' },
+          },
+        ],
+      },
+      'naive-ui': {
+        file: 'naive-ui',
+        rules: [
+          {
+            selector: '.n-dialog__action',
+            expected: { display: 'flex', gap: 'var(--fbk-spacing-sm)' },
+          },
+          // naive 自带的按钮间距来自行内变量 --n-action-space（默认 12px），必须归零
+          { selector: '.n-dialog', expected: { '--n-action-space': '0 !important' } },
+        ],
+      },
     }
 
     for (const [name] of adapters) {
-      const { file, selector } = cases[name]
+      const { file, rules } = cases[name]
       const css = readFileSync(
         join(import.meta.dirname, '..', '..', '..', 'adapters', file, 'src', 'style.css'),
         'utf8',
       )
-      expect(css, `${name} 缺少确认框按钮间距规则`).toContain(selector)
-      // 必须引用间距令牌，而不是写死像素
-      expect(css, `${name} 的确认框间距应使用 --fbk-spacing-sm`).toContain('--fbk-spacing-sm')
+      for (const { selector, expected } of rules) {
+        const declarations = declarationsOf(css, selector)
+        for (const [property, value] of Object.entries(expected)) {
+          expect(
+            declarations[property],
+            `${name} 的 ${selector} 应声明 ${property}: ${value}（实际：${declarations[property] ?? '缺失'}）`,
+          ).toBe(value)
+        }
+      }
     }
   })
 
@@ -276,26 +377,49 @@ describe('桌面端双适配器一致性', () => {
   })
 
   /**
-   * 结构归一化后，两个适配器的 DataGrid 顶层容器应当等价。
-   * 这条最严格 —— 它抓的是「某侧多包了一层 div」这类会让
-   * margin/padding 计算分叉的问题。
+   * 适配器不得替 vendor 的 DataGrid 再包一层。
+   * 多出来的一层会让 margin/padding 计算分叉（业务方给 DataGrid 设的
+   * width/height/flex 也会落在错误的那一层上）。
+   *
+   * 前身比的是「两侧 fbk- 类名集合相等」，可 element-plus 与 naive 的
+   * DataGrid 都不产出 fbk- 类名（fbk-numeric 只在 numeric 列上出现，
+   * 本用例的 columns 里没有），两边都是 []，toEqual([]) 恒真 ——
+   * 给某侧多包一层 div 也照样绿。
+   *
+   * 现在比的是归一化后的结构层级：从 DataGrid 自己那一层走到 vendor 的 DataGrid 根，
+   * 只保留「不属于任何一方 UI 库」的元素，且只留标签名（见 shellTags）。
    */
-  it('DataGrid 顶层结构与 fbk 类名集合一致', async () => {
+  it('DataGrid 不在 vendor 根之上额外包裹元素', async () => {
     const columns = [{ key: 'name', title: '名称', dataIndex: 'name' }]
     const data = [{ id: 1, name: 'A' }]
 
-    const shapes = adapters.map(([name, adapter]) => {
+    const shapes: Array<{ name: string; shell: string[] }> = []
+    for (const [name, adapter] of adapters) {
       const wrapper = mountPrimitive(adapter, adapter.primitives.DataGrid, {
         columns,
         data,
         rowKey: 'id',
       })
-      return { name, html: wrapper.html(), fbk: fbkClasses(wrapper.html()) }
-    })
+      await flushPromises()
+      /* 边界取 DataGrid 组件根元素的父元素：包一层 div 会让组件根变成那个 div，
+         父元素仍然是同一个 —— 边界本身不受变异影响，层级差就落在被比较的区间里。 */
+      const gridRoot = wrapper.findComponent(adapter.primitives.DataGrid).element as HTMLElement
+      const boundary = gridRoot.parentElement
+      expect(boundary, `${name} 的 DataGrid 根元素没有父元素`).toBeTruthy()
+      const { prefix, root } = vendorGrid[name as keyof typeof vendorGrid]
+      const all = [...(wrapper.element as HTMLElement).querySelectorAll<HTMLElement>('*')]
+      const vendorRoot = all.find((el) => el.classList.contains(root))
+      expect(vendorRoot, `${name} 没能定位到 vendor 的 DataGrid 根元素 .${root}`).toBeTruthy()
+      shapes.push({ name, shell: shellTags(boundary!, vendorRoot!, prefix) })
+    }
 
-    // 两个库的根容器类名不同（.el-table / .n-data-table），
-    // 但 fbk-* 标记必须一致
+    for (const { name, shell } of shapes) {
+      expect(
+        shell,
+        `${name} 在 vendor 的 DataGrid 根之上多了包裹元素：${shell.join(' > ') || '（无）'}`,
+      ).toEqual([])
+    }
     const [a, b] = shapes
-    expect(a.fbk, `${a.name} 与 ${b.name} 的 fbk 类名不一致`).toEqual(b.fbk)
+    expect(a.shell, `${a.name} 与 ${b.name} 的 DataGrid 包裹层级不一致`).toEqual(b.shell)
   })
 })

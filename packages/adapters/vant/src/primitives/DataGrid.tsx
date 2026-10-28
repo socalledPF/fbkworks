@@ -133,7 +133,9 @@ export const DataGrid = defineComponent({
           />
         ) : null}
 
-        {props.loading && !props.loadMore && props.data.length > 0 ? (
+        {/* 不要求 data 非空：首屏 data 还是空数组时，Empty 被 loading 挡住，
+            没有这条加载条整个列表区就是一片空白。 */}
+        {props.loading && !props.loadMore ? (
           <div class="fbk-vant-grid__loading">
             <Loading size="20">加载中...</Loading>
           </div>

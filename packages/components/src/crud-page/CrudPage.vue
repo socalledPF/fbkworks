@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
-import { computed, ref, useAttrs, useSlots } from 'vue'
+import { computed, nextTick, ref, useAttrs, useSlots } from 'vue'
 import type { SortState } from '@fbk/adapter-core'
 import type { Key } from '@fbk/shared'
 import { FbkQueryForm } from '../query-form'
@@ -89,9 +89,17 @@ async function refresh() {
 }
 
 async function reset() {
-  // 先重置表单（会触发 reset 事件把 params 同步成默认值），再刷新表格
-  queryRef.value?.reset()
-  await refresh()
+  /* 只重置表单就够了：reset 事件同步把 params 换成默认值，
+     useTableRequest 的 watch 负责回到第 1 页并重新查询。
+     再补一次 refresh() 只是多打一发，两个响应必被 requestId 丢掉一个。
+     没有查询区时 params 不会变、watch 不触发，才需要自己刷。 */
+  if (!queryRef.value) {
+    await refresh()
+    return
+  }
+  queryRef.value.reset()
+  // 等 watch 把那一次查询派发出去，reset() 返回时请求已经在路上
+  await nextTick()
 }
 
 defineExpose<CrudPageExpose<T>>({
