@@ -1,5 +1,6 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { h } from 'vue'
 import { createMockAdapter, mountWithAdapter } from '@fbk/test-utils'
 import { FbkProTable } from '../src/pro-table'
 
@@ -179,5 +180,93 @@ describe('FbkProTable', () => {
     await flushPromises()
 
     expect(grid().props('selectedKeys')).toEqual([])
+  })
+})
+
+/**
+ * 请求失败必须有可见呈现。
+ *
+ * use-table-request 早就把 error 存进 ref 并 emit 了，但组件从不读它 ——
+ * reject 后 data 仍是 []，DataGrid 老老实实渲染 emptyText「暂无数据」：
+ * 用户读到的结论是「没有数据」，实际是「加载失败」。
+ */
+describe('FbkProTable 请求失败的错误态', () => {
+  it('reject 时显示错误态，不再显示「暂无数据」', async () => {
+    const request = vi.fn().mockRejectedValue(new Error('network down'))
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id' },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-fbk-part="empty"]').exists(), '失败仍在渲染空态').toBe(false)
+    expect(wrapper.find('[data-fbk-part="data-grid"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('加载失败')
+    expect(wrapper.text()).toContain('network down')
+  })
+
+  it('错误态可重试，重试成功后回到正常表格', async () => {
+    const request = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce({ list: rows, total: 2 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id' },
+    })
+    await flushPromises()
+
+    await wrapper.find('.fbk-pro-table__retry').trigger('click')
+    await flushPromises()
+
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(wrapper.find('.fbk-result').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Alice')
+  })
+
+  it('error 插槽可整体定制，并拿到 error 与 retry', async () => {
+    const request = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce({ list: rows, total: 2 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id' },
+      slots: {
+        error: (slotProps: any) =>
+          h('div', { 'data-test': 'custom-error' }, [
+            (slotProps.error as Error).message,
+            h('button', { 'data-test': 'custom-retry', onClick: slotProps.retry }, '再来一次'),
+          ]),
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-result').exists(), '传了插槽仍渲染默认错误态').toBe(false)
+    expect(wrapper.find('[data-test="custom-error"]').text()).toContain('boom')
+
+    await wrapper.find('[data-test="custom-retry"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Alice')
+  })
+
+  it('请求成功不显示错误态', async () => {
+    const request = vi.fn().mockResolvedValue({ list: rows, total: 2 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id' },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-result').exists()).toBe(false)
+    expect(wrapper.find('[data-fbk-part="data-grid"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Alice')
+  })
+
+  it('请求成功但列表为空时仍是「暂无数据」，不是错误态', async () => {
+    const request = vi.fn().mockResolvedValue({ list: [], total: 0 })
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, rowKey: 'id' },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.fbk-result').exists(), '空数据被误判成错误').toBe(false)
+    expect(wrapper.find('[data-fbk-part="empty"]').text()).toContain('暂无数据')
   })
 })

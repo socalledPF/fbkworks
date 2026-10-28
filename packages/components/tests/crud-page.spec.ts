@@ -1,6 +1,7 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { defineComponent, h } from 'vue'
+import { createMockAdapter, mountWithAdapter } from '@fbk/test-utils'
 import { FbkCrudPage } from '../src/crud-page'
 
 const fields = [
@@ -155,5 +156,133 @@ describe('CrudPage 联动', () => {
       preserveOnReload: true,
     })
     expect(wrapper.find('.fbk-pro-table__select-all').exists()).toBe(true)
+  })
+})
+
+/**
+ * 事件透出。
+ *
+ * CrudPage 此前没有 defineEmits —— <FbkCrudPage @error="..."> 的 onError 留在
+ * attrs 里，被 v-bind="attrs" 挂成根 div 上的**原生** error 监听器，
+ * 表格请求失败时父组件一次也收不到。补 emits 必须显式转发，
+ * 并且 onError 不再落到根元素（这是修复，不是回归，下面钉住）。
+ */
+describe('CrudPage 事件透出', () => {
+  /** 经过父级渲染才能测 emit 链路：直接 mount 时 attrs 与监听器没有父组件可依附 */
+  const hostWith = (props: Record<string, any>, listeners: Record<string, any>) =>
+    mountWithAdapter(
+      defineComponent({
+        name: 'FbkCrudPageHost',
+        setup: () => () => h(FbkCrudPage as any, { ...props, ...listeners }),
+      }),
+      {},
+    )
+
+  const okRequest = () => vi.fn().mockResolvedValue({ list: rows, total: 1 })
+
+  it('表格请求失败时父组件收到 @error，且它不再是根元素上的原生监听器', async () => {
+    const error = new Error('boom')
+    const onError = vi.fn()
+    const wrapper = hostWith(
+      { columns, request: vi.fn().mockRejectedValue(error), rowKey: 'id' },
+      { onError },
+    )
+    await flushPromises()
+
+    expect(onError, 'CrudPage 没有把表格的 error 透出').toHaveBeenCalledTimes(1)
+    expect(onError.mock.calls[0][0]).toBe(error)
+
+    // 修复前 onError 挂在根 div 上，一次原生 error 事件就能触发它
+    wrapper.find('.fbk-crud-page').element.dispatchEvent(new Event('error'))
+    expect(onError, '@error 仍被当作根元素的原生监听器').toHaveBeenCalledTimes(1)
+  })
+
+  it('请求失败时页面显示可识别的错误态，不是「暂无数据」', async () => {
+    const wrapper = mountCrud({ request: vi.fn().mockRejectedValue(new Error('boom')) })
+    await flushPromises()
+
+    expect(wrapper.find('[data-fbk-part="empty"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('加载失败')
+  })
+
+  it('error 插槽透传给表格，可定制错误态', async () => {
+    const wrapper = mountWithAdapter(FbkCrudPage, {
+      props: { columns, request: vi.fn().mockRejectedValue(new Error('boom')), rowKey: 'id' },
+      slots: {
+        error: (slotProps: any) =>
+          h('div', { 'data-test': 'crud-error' }, (slotProps.error as Error).message),
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-test="crud-error"]').text()).toContain('boom')
+    expect(wrapper.find('.fbk-result').exists()).toBe(false)
+  })
+
+  it('load 透出，参数与表格一致', async () => {
+    const onLoad = vi.fn()
+    hostWith({ columns, request: okRequest(), rowKey: 'id' }, { onLoad })
+    await flushPromises()
+
+    expect(onLoad).toHaveBeenCalledTimes(1)
+    expect(onLoad.mock.calls[0][0]).toEqual({ list: rows, total: 1 })
+    expect(onLoad.mock.calls[0][1]).toEqual(expect.objectContaining({ page: 1, params: {} }))
+  })
+
+  it('row-click 透出', async () => {
+    const onRowClick = vi.fn()
+    const wrapper = hostWith({ columns, request: okRequest(), rowKey: 'id' }, { onRowClick })
+    await flushPromises()
+
+    await wrapper.find('[data-fbk-part="grid-row"]').trigger('click')
+    expect(onRowClick).toHaveBeenCalledTimes(1)
+    expect(onRowClick.mock.calls[0][0]).toEqual(rows[0])
+  })
+
+  it('update:pageSize 透出 —— kebab 事件名必须真的接上', async () => {
+    const adapter = createMockAdapter()
+    // mock 的分页没有改页大小的控件，这里换一个只会 emit update:pageSize 的
+    ;(adapter.primitives as any).Pagination = defineComponent({
+      name: 'PageSizePagination',
+      props: { page: Number, pageSize: Number, total: Number },
+      emits: ['update:page', 'update:pageSize'],
+      setup(_props, { emit }) {
+        return () =>
+          h('button', { 'data-test': 'set-size', onClick: () => emit('update:pageSize', 50) }, 'size')
+      },
+    })
+
+    const onPageSize = vi.fn()
+    const wrapper = mountWithAdapter(
+      defineComponent({
+        name: 'FbkCrudPageSizeHost',
+        setup: () => () =>
+          h(FbkCrudPage as any, {
+            columns,
+            request: okRequest(),
+            rowKey: 'id',
+            'onUpdate:pageSize': onPageSize,
+          }),
+      }),
+      { adapter },
+    )
+    await flushPromises()
+
+    await wrapper.find('[data-test="set-size"]').trigger('click')
+    await flushPromises()
+    expect(onPageSize).toHaveBeenCalledWith(50)
+  })
+
+  it('update:page 透出', async () => {
+    const onPage = vi.fn()
+    const wrapper = hostWith(
+      { columns, request: okRequest(), rowKey: 'id' },
+      { 'onUpdate:page': onPage },
+    )
+    await flushPromises()
+
+    await wrapper.find('[data-fbk-part="next"]').trigger('click')
+    await flushPromises()
+    expect(onPage).toHaveBeenCalledWith(2)
   })
 })

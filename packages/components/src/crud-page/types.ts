@@ -64,6 +64,8 @@ export interface CrudPageSlots {
   toolbar?: (props: { params: Record<string, any>; selectedKeys: Key[] }) => VNodeChild
   /** 批量操作区 */
   'bulk-actions'?: (props: { selectedKeys: Key[]; clear: () => void }) => VNodeChild
+  /** 覆盖表格的错误态（加载失败时替代表格出现） */
+  error?: (props: { error: unknown; retry: () => void }) => VNodeChild
   /** 弹窗表单等：放在页面任意位置，业务方自行控制显隐 */
   form?: () => VNodeChild
   /** 覆盖某一列的单元格 */

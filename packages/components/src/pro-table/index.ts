@@ -5,6 +5,7 @@ export type {
   ProTableColumn,
   ProTableExpose,
   ProTableProps,
+  ProTableSlots,
   ProTableUiProps,
   TableRequest,
   TableRequestParams,

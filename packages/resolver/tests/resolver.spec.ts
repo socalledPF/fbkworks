@@ -33,6 +33,10 @@ describe('FbkResolver', () => {
       'FbkFormGenerator',
       'FbkPageContainer',
       'FbkDescriptions',
+      'FbkCrudPage',
+      'FbkFormModal',
+      'FbkResult',
+      'FbkDetailPage',
     ]
 
     for (const name of names) {

@@ -11,5 +11,9 @@ export default defineVueLib({
     'form-generator/index': 'src/form-generator/index.ts',
     'page-container/index': 'src/page-container/index.ts',
     'descriptions/index': 'src/descriptions/index.ts',
+    'crud-page/index': 'src/crud-page/index.ts',
+    'form-modal/index': 'src/form-modal/index.ts',
+    'result/index': 'src/result/index.ts',
+    'detail-page/index': 'src/detail-page/index.ts',
   },
 })

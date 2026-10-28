@@ -1,3 +1,4 @@
+import type { VNodeChild } from 'vue'
 import type { DataGridColumn, SortState, Status } from '@fbk/adapter-core'
 import type { Key } from '@fbk/shared'
 import type { Page, PageQuery } from '@fbk/data'
@@ -117,6 +118,19 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
   sort?: SortState | null
   toolbar?: boolean
   uiProps?: ProTableUiProps
+}
+
+export interface ProTableSlots {
+  /** 表格上方工具栏 */
+  toolbar?: (props: { selectedKeys: Key[]; reload: () => Promise<void> }) => VNodeChild
+  /** 批量操作区，仅在选中行时渲染 */
+  'bulk-actions'?: (props: { selectedKeys: Key[]; clear: () => void }) => VNodeChild
+  /** 卡片模式下每张卡片的页脚，参数由适配器决定 */
+  'card-footer'?: (props: any) => VNodeChild
+  /** 请求失败时替代表格出现的错误态 */
+  error?: (props: { error: unknown; retry: () => Promise<void> }) => VNodeChild
+  /** 覆盖某一列的单元格，插槽名 `cell-${key}` */
+  [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined
 }
 
 export interface ProTableExpose<T = any> {

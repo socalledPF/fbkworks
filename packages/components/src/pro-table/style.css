@@ -52,6 +52,40 @@
   display: none;
 }
 
+/* 错误态：内容与外观都由 FbkResult 提供，这里只管它在容器里的位置 */
+.fbk-pro-table__error {
+  display: flex;
+  justify-content: center;
+  padding: var(--fbk-spacing-xxl) var(--fbk-spacing-md);
+}
+
+/* 默认重试按钮。与 DetailPage 的同名按钮同规格 —— 组件内部不依赖业务样式，
+   两处一致，业务方不必为「重试」再写一次 CSS。 */
+.fbk-pro-table__retry {
+  padding: 4px var(--fbk-spacing-md);
+  font-family: var(--fbk-font-family);
+  font-size: var(--fbk-font-size-md);
+  line-height: 24px;
+  color: var(--fbk-color-text);
+  cursor: pointer;
+  background: var(--fbk-color-bg-container);
+  border: none;
+  border-radius: var(--fbk-radius-md);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border);
+}
+
+.fbk-pro-table__retry:hover {
+  background: var(--fbk-color-fill-hover);
+  box-shadow: inset 0 0 0 1px var(--fbk-color-border-strong);
+}
+
+.fbk-pro-table__retry:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px var(--fbk-color-primary),
+    var(--fbk-shadow-focus-ring);
+}
+
 .fbk-pro-table__pagination {
   display: flex;
   justify-content: flex-end;

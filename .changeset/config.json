@@ -6,11 +6,15 @@
     [
       "@fbk/tokens",
       "@fbk/shared",
+      "@fbk/data",
       "@fbk/adapter-core",
+      "@fbk/chart-core",
       "@fbk/adapter-element-plus",
       "@fbk/adapter-vant",
       "@fbk/adapter-naive-ui",
       "@fbk/components",
+      "@fbk/dashboard",
+      "@fbk/screen",
       "@fbk/resolver"
     ]
   ],

@@ -27,6 +27,13 @@ const map: Record<string, { from: string; style: string }> = {
     from: '@fbk/components/descriptions',
     style: '@fbk/components/descriptions/style.css',
   },
+  FbkCrudPage: { from: '@fbk/components/crud-page', style: '@fbk/components/crud-page/style.css' },
+  FbkFormModal: { from: '@fbk/components/form-modal', style: '@fbk/components/form-modal/style.css' },
+  FbkResult: { from: '@fbk/components/result', style: '@fbk/components/result/style.css' },
+  FbkDetailPage: {
+    from: '@fbk/components/detail-page',
+    style: '@fbk/components/detail-page/style.css',
+  },
 }
 
 export function FbkResolver(options: ResolverOptions = {}): ComponentResolver {

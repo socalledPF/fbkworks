@@ -1,10 +1,15 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useAttrs, useSlots } from 'vue'
+import type { SortState } from '@fbk/adapter-core'
 import type { Key } from '@fbk/shared'
 import { FbkQueryForm } from '../query-form'
 import type { QueryFormExpose } from '../query-form'
 import { FbkProTable } from '../pro-table'
 import type { ProTableExpose } from '../pro-table'
+import type { TableResponse } from '../pro-table'
+// 直接取具名类型而不是经 PageQuery 别名：defineEmits 里的别名
+// 会被 dts 生成器内联，产物中出现 import('packages/data/dist') 这类坏路径。
+import type { PageQuery } from '@fbk/data'
 import type { CrudPageExpose, CrudPageProps } from './types'
 
 /**
@@ -29,6 +34,23 @@ const props = withDefaults(defineProps<CrudPageProps<T>>(), {
 
 const attrs = useAttrs()
 
+/* 表格事件必须显式声明并转发。
+   不声明时 onError 会留在 attrs 里，被根元素的 v-bind="attrs" 挂成**原生**
+   error 监听器 —— 表格请求失败时父组件一次也收不到，且没有任何报错。
+   声明之后 onError 被 emits 拦截，所以下面每一条都要真的转发出去。 */
+const emit = defineEmits<{
+  /** 表格请求成功 */
+  load: [result: TableResponse<T>, params: PageQuery]
+  /** 表格请求失败 */
+  error: [error: unknown, params: PageQuery]
+  /** 表格开始重新查询 */
+  refresh: []
+  'row-click': [row: T, index: number, event: Event]
+  'update:page': [page: number]
+  'update:pageSize': [size: number]
+  'update:sort': [sort: SortState | null]
+}>()
+
 /* 显式标注 Slot 的键类型。
    不标注时，generic 组件里的 useSlots() 在 dts 构建阶段无法收敛，
    会报 TS7022（隐式 any）—— 这个错误只在 build 时出现，typecheck 看不到。 */
@@ -48,6 +70,18 @@ function onSubmit(values: Record<string, any>) {
 
 function onReset(values: Record<string, any>) {
   params.value = { ...values }
+}
+
+function onLoad(result: TableResponse<T>, requestParams: PageQuery) {
+  emit('load', result, requestParams)
+}
+
+function onError(error: unknown, requestParams: PageQuery) {
+  emit('error', error, requestParams)
+}
+
+function onRowClick(row: T, index: number, event: Event) {
+  emit('row-click', row, index, event)
 }
 
 async function refresh() {
@@ -89,7 +123,12 @@ const tableProps = computed(() => ({
  */
 const passedSlots = computed((): string[] =>
   Object.keys(slots ?? {}).filter(
-    (name) => name === 'toolbar' || name === 'bulk-actions' || name === 'card-footer' || name.startsWith('cell-'),
+    (name) =>
+      name === 'toolbar' ||
+      name === 'bulk-actions' ||
+      name === 'card-footer' ||
+      name === 'error' ||
+      name.startsWith('cell-'),
   ),
 )
 
@@ -110,7 +149,18 @@ const queryProps = computed(() => ({
       @reset="onReset"
     />
 
-    <FbkProTable ref="tableRef" v-bind="tableProps" v-model:selected-keys="selectedKeys">
+    <FbkProTable
+      ref="tableRef"
+      v-bind="tableProps"
+      v-model:selected-keys="selectedKeys"
+      @load="onLoad"
+      @error="onError"
+      @refresh="emit('refresh')"
+      @row-click="onRowClick"
+      @update:page="emit('update:page', $event)"
+      @update:page-size="emit('update:pageSize', $event)"
+      @update:sort="emit('update:sort', $event)"
+    >
       <!--
         插槽声明用 v-for + 名字数组，而不是 `<template v-if #name>`。
         后者不会被 Vue 编译成具名插槽（实测 toolbar 与 bulk-actions 静默丢失）。

@@ -5,6 +5,7 @@ import { useAdapter, useFbkTheme } from '@fbk/adapter-core'
 import type { SortState } from '@fbk/adapter-core'
 import type { Key, RowKeyGetter } from '@fbk/shared'
 import { getRowKey } from '@fbk/shared'
+import { FbkResult } from '../result'
 import type { ProTableColumn, ProTableExpose, ProTableProps } from './types'
 import { useTableRequest } from './use-table-request'
 import { resolveColumnRenderer } from './value-renderer'
@@ -75,6 +76,19 @@ const rows = computed<T[]>(() => (isControlledData.value ? (props.data ?? []) : 
 const total = computed(() => props.total ?? requestState.total.value)
 const loading = computed(() => props.loading ?? requestState.loading.value)
 
+/**
+ * 请求失败态。requestState.error 此前没人读 —— reject 后 data 仍是 []，
+ * 表格渲染「暂无数据」，用户读到的是「没有数据」而不是「加载失败」。
+ *
+ * 受控 data 模式下 request 不会被调用，error 恒为 null；这里仍显式短路，
+ * 避免运行时从 request 切到 data 后留下一块拆不掉的错误页。
+ */
+const errorState = computed(() => (isControlledData.value ? null : requestState.error.value))
+
+const errorSubtitle = computed(() =>
+  errorState.value instanceof Error ? errorState.value.message : String(errorState.value),
+)
+
 const selectionEnabled = computed(
   () => props.selection !== false && adapter.capabilities.dataGrid.selection,
 )
@@ -117,7 +131,11 @@ const gridProps = computed(() => ({
 }))
 
 const showPagination = computed(
-  () => props.pagination !== false && !isControlledData.value && !isInfinite.value,
+  () =>
+    props.pagination !== false &&
+    !isControlledData.value &&
+    !isInfinite.value &&
+    !errorState.value,
 )
 
 /**
@@ -206,6 +224,11 @@ async function reload(options: { resetPage?: boolean } = {}) {
   await requestState.reload(options)
 }
 
+/** 显式转一层：插槽把 retry 当 onClick 用时会把 MouseEvent 传进 options */
+function retry() {
+  return reload()
+}
+
 function clearSelection() {
   innerSelected.value = []
   emit('update:selectedKeys', [])
@@ -239,7 +262,7 @@ defineExpose<ProTableExpose<T>>({
          早期放在工具栏之前，导致「新建」被挤到批量条下方，层级颠倒。
          卡片模式（vant）没有表头，放在工具栏里反而更自然。 -->
     <div
-      v-if="selectionEnabled && rowKeys.length > 0"
+      v-if="selectionEnabled && rowKeys.length > 0 && !errorState"
       class="fbk-pro-table__bulk"
       :class="{ 'fbk-pro-table__bulk--cards': adapter.capabilities.dataGrid.presentation === 'cards' }"
     >
@@ -260,7 +283,20 @@ defineExpose<ProTableExpose<T>>({
       <slot name="bulk-actions" :selected-keys="innerSelected" :clear="clearSelection" />
     </div>
 
+    <!-- 失败时整块换成错误态，不叠在表格上方：翻页失败时 data 里
+         还留着上一页的行，错误提示与旧数据并存，用户分不清看到的是哪一页。 -->
+    <div v-if="errorState" class="fbk-pro-table__error">
+      <slot name="error" :error="errorState" :retry="retry">
+        <FbkResult status="error" title="加载失败" :subtitle="errorSubtitle">
+          <template #default>
+            <button type="button" class="fbk-pro-table__retry" @click="retry">重试</button>
+          </template>
+        </FbkResult>
+      </slot>
+    </div>
+
     <component
+      v-else
       :is="DataGrid"
       v-bind="gridProps"
       @update:selected-keys="onSelectedKeys"

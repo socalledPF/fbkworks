@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
-import { readFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { existsSync } from 'node:fs'
+import { readdir, readFile } from 'node:fs/promises'
+import { join, relative, resolve } from 'node:path'
 import { promisify } from 'node:util'
 
 /**
@@ -25,24 +26,97 @@ const dryRun = process.argv.includes('--dry-run')
 const ORDER = [
   'packages/tokens',
   'packages/shared',
+  'packages/data',
   'packages/adapter-core',
+  'packages/chart-core',
   'packages/adapters/element-plus',
   'packages/adapters/vant',
   'packages/adapters/naive-ui',
   'packages/components',
+  'packages/dashboard',
+  'packages/screen',
   'packages/resolver',
 ]
+
+/** 递归找 public 包；包目录不再向下钻，避免把包内子目录误当成包 */
+async function discoverPublicPackages(dir, out = []) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === 'node_modules') continue
+
+    const full = join(dir, entry.name)
+    if (existsSync(join(full, 'package.json'))) {
+      const pkg = JSON.parse(await readFile(join(full, 'package.json'), 'utf8'))
+      if (pkg.private !== true) {
+        out.push({
+          dir: relative(root, full).replace(/\\/g, '/'),
+          name: pkg.name,
+          // 三种声明都会让消费者侧去解析包名，顺序都得成立
+          deps: Object.keys({
+            ...pkg.dependencies,
+            ...pkg.peerDependencies,
+            ...pkg.optionalDependencies,
+          }),
+        })
+      }
+      continue
+    }
+
+    await discoverPublicPackages(full, out)
+  }
+  return out
+}
+
+/**
+ * ORDER 是手写清单，一定会漂移（这一版就漏了 4 个包，发布出去 components 会依赖
+ * 一个从未上架的 @fbk/data）。所以每次发布前用文件系统核对，绝不靠人记。
+ *
+ * 两个不变量：
+ *   · 覆盖：public 包集合 == ORDER 集合
+ *   · 拓扑：包声明的每个 @fbk 依赖都排在它前面
+ */
+async function assertOrder() {
+  const published = await discoverPublicPackages(join(root, 'packages'))
+  const index = new Map(ORDER.map((dir, i) => [dir, i]))
+  const byName = new Map(published.map((p) => [p.name, p]))
+  const problems = []
+
+  for (const pkg of published) {
+    if (!index.has(pkg.dir)) problems.push(`ORDER 漏了 public 包 ${pkg.name}（${pkg.dir}）`)
+  }
+  for (const dir of ORDER) {
+    if (!published.some((p) => p.dir === dir)) {
+      problems.push(`ORDER 里的 ${dir} 不是 public 包（已私有或已删除）`)
+    }
+  }
+  for (const pkg of published) {
+    const self = index.get(pkg.dir)
+    for (const dep of pkg.deps) {
+      if (!dep.startsWith('@fbk/')) continue
+      const target = byName.get(dep)
+      const depIndex = target ? index.get(target.dir) : undefined
+      if (depIndex === undefined) problems.push(`${pkg.name} 依赖 ${dep}，但它在 ORDER 里不存在`)
+      else if (self !== undefined && depIndex > self) {
+        problems.push(`${pkg.name} 依赖 ${dep}，但 ORDER 里 ${dep} 排在它后面`)
+      }
+    }
+  }
+
+  if (problems.length) {
+    for (const problem of problems) console.error(`[publish] ${problem}`)
+    console.error(`\n[publish] ORDER 校验失败（${problems.length} 项），未发布任何包`)
+    process.exit(1)
+  }
+
+  console.log(`[publish] ORDER 校验通过：${published.length} 个 public 包全覆盖，拓扑序成立`)
+}
+
+await assertOrder()
 
 const results = []
 
 for (const dir of ORDER) {
   const cwd = join(root, dir)
   const pkg = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8'))
-
-  if (pkg.private) {
-    console.log(`[publish] 跳过私有包 ${pkg.name}`)
-    continue
-  }
 
   const args = ['publish', '--access', 'public', '--no-git-checks']
   if (dryRun) args.push('--dry-run')

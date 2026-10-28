@@ -41,6 +41,27 @@
       "import": "./dist/descriptions/index.mjs"
     },
     "./descriptions/style.css": "./dist/descriptions/style.css",
+    "./crud-page": {
+      "types": "./dist/crud-page/index.d.ts",
+      "import": "./dist/crud-page/index.mjs"
+    },
+    "./crud-page/style.css": "./dist/crud-page/style.css",
+    "./form-modal": {
+      "types": "./dist/form-modal/index.d.ts",
+      "import": "./dist/form-modal/index.mjs"
+    },
+    "./form-modal/style.css": "./dist/form-modal/style.css",
+    "./result": {
+      "types": "./dist/result/index.d.ts",
+      "import": "./dist/result/index.mjs"
+    },
+    "./result/style.css": "./dist/result/style.css",
+    "./detail-page": {
+      "types": "./dist/detail-page/index.d.ts",
+      "import": "./dist/detail-page/index.mjs"
+    },
+    "./detail-page/style.css": "./dist/detail-page/style.css",
+    "./styles/index.css": "./dist/styles/index.css",
     "./style.css": "./dist/style.css",
     "./package.json": "./package.json"
   },

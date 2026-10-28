@@ -11,6 +11,10 @@ import { FbkQueryForm } from '@fbk/components/query-form'
 import { FbkFormGenerator } from '@fbk/components/form-generator'
 import { FbkPageContainer } from '@fbk/components/page-container'
 import { FbkDescriptions } from '@fbk/components/descriptions'
+import { FbkCrudPage } from '@fbk/components/crud-page'
+import { FbkFormModal } from '@fbk/components/form-modal'
+import { FbkResult } from '@fbk/components/result'
+import { FbkDetailPage, useDetail } from '@fbk/components/detail-page'
 import { createBusinessKit, useAdapter } from '@fbk/adapter-core'
 import type { ProTableColumn, TableRequestParams } from '@fbk/components/pro-table'
 import type { SortState, UiAdapter } from '@fbk/adapter-core'
@@ -42,6 +46,10 @@ export const components = [
   FbkFormGenerator,
   FbkPageContainer,
   FbkDescriptions,
+  FbkCrudPage,
+  FbkFormModal,
+  FbkResult,
+  FbkDetailPage,
 ]
 
 export const adapters: UiAdapter[] = [elementPlusAdapter, vantAdapter, naiveUiAdapter]
@@ -50,4 +58,4 @@ export const plugin = createBusinessKit({ adapter: elementPlusAdapter })
 
 export const resolver = FbkResolver()
 
-export { columns, request, useTableRequest, useAdapter }
+export { columns, request, useTableRequest, useAdapter, useDetail }
