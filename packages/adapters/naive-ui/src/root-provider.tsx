@@ -9,9 +9,9 @@ import {
   enUS,
   dateEnUS,
 } from 'naive-ui'
-import type { ThemeMode } from '@fbk/adapter-core'
+import type { Size, ThemeMode } from '@fbk/adapter-core'
 import type { FbkTokens } from '@fbk/tokens'
-import { naiveProviderProps } from './theme'
+import { naiveProviderProps, naiveSizeHeights } from './theme'
 import { installFeedback } from './feedback'
 import { PAGINATION_SUFFIX } from './locale-context'
 
@@ -42,13 +42,25 @@ export const RootProvider = defineComponent({
       // 早期这里写了 `props.mode === 'dark' ? 'dark' : 'light'`，
       // 结果 cyber 被当成 light，主按钮保持默认蓝（实测 rgb(47,107,255)）。
       if (props.tokens) {
-        const { theme, themeOverrides } = naiveProviderProps(props.mode, props.tokens)
+        const { theme, themeOverrides } = naiveProviderProps(
+          props.mode,
+          props.tokens,
+          props.size as Size,
+        )
         // naiveProviderProps 返回的是 'dark' | 'light' 字符串，这里换成真正的 theme 对象
         return { theme: theme === 'dark' ? darkTheme : null, themeOverrides }
       }
+      /* 没有 tokens 时高度用的是 naive 自己的默认值，md 正是那一档 —— 注入会改默认视觉，
+         所以只有显式要求 sm / lg 时才补。调用方自带的 themeOverrides 原样保留。 */
+      const sizeHeights = props.size === 'md' ? undefined : naiveSizeHeights(props.size as Size)
       return {
         theme: props.mode === 'light' ? null : darkTheme,
-        themeOverrides: props.themeOverrides,
+        themeOverrides: sizeHeights
+          ? {
+              ...props.themeOverrides,
+              common: { ...props.themeOverrides?.common, ...sizeHeights },
+            }
+          : props.themeOverrides,
       }
     })
 

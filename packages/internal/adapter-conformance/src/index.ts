@@ -24,6 +24,13 @@ export interface ConformanceOptions {
      * 两个方向都断言，避免适配器拿一个常驻元素糊弄过去。
      */
     loading?: string
+    /**
+     * 可排序列的表头排序控件（点击目标）。形态因库而异：
+     * element-plus 是 <button class="caret-wrapper">，naive-ui 是
+     * <span class="n-data-table-sorter">。契约只要求「点了要发 update:sort」，
+     * 所以入口由适配器自己声明，不假设类名。
+     */
+    sortTrigger?: string
   }
   /** 当前环境无法满足的契约项（需在文档中说明原因） */
   skip?: Array<'selection' | 'pagination' | 'sort'>
@@ -51,8 +58,16 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     selection: 'input[type="checkbox"]',
     nextPage: '.el-pagination .btn-next, .van-pagination__next, .n-pagination-item--button:last-child',
     loading: '[data-fbk-part="loading"]',
+    sortTrigger: '.caret-wrapper, .n-data-table-sorter',
     ...options.selectors,
   }
+
+  /* 被 skip 的契约项仍然注册用例（it.skip），不用 if 把 it 整条藏掉：
+     跳过必须在测试输出里以 skipped 出现。否则契约项等于无声消失 ——
+     本套件最初就在 skip 类型里声明了 'sort' 而一条 sort 用例都没有，
+     skip: ['sort'] 传与不传完全没区别。 */
+  const itUnlessSkipped = (name: 'selection' | 'pagination' | 'sort') =>
+    skip.includes(name) ? it.skip : it
 
   describe(`adapter: ${adapter.meta.name}`, () => {
     it('声明兼容的 apiVersion', () => {
@@ -179,45 +194,89 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(idle.find(selectors.loading).exists(), 'loading=false 时不应有 loading 标记').toBe(false)
     })
 
-    if (!skip.includes('selection')) {
-      it('DataGrid 支持选择', async () => {
-        const wrapper = mount(p.DataGrid, {
-          columns,
-          data: rows,
-          rowKey: 'id',
-          selectionEnabled: true,
-          selectedKeys: [],
-        })
-        await flushPromises()
-        const checkbox = wrapper.find(selectors.selection)
-        expect(checkbox.exists()).toBe(true)
-
-        // 各库的选择控件形态不同：原生 input 需要 change，自定义控件用 click。
-        // 这里两种都触发，只要产生正确的归一化事件即视为满足契约。
-        const element = checkbox.element as HTMLInputElement
-        if (element.tagName === 'INPUT') {
-          element.checked = true
-          element.dispatchEvent(new Event('change', { bubbles: true }))
-        } else {
-          await checkbox.trigger('click')
-        }
-        await flushPromises()
-
-        const emitted = wrapper.findComponent(p.DataGrid).emitted('update:selectedKeys')
-        expect(emitted).toBeTruthy()
-        expect(emitted?.at(-1)?.[0]).toEqual([1])
+    itUnlessSkipped('selection')('DataGrid 支持选择', async () => {
+      const wrapper = mount(p.DataGrid, {
+        columns,
+        data: rows,
+        rowKey: 'id',
+        selectionEnabled: true,
+        selectedKeys: [],
       })
-    }
+      await flushPromises()
+      const checkbox = wrapper.find(selectors.selection)
+      expect(checkbox.exists()).toBe(true)
 
-    if (!skip.includes('pagination')) {
-      it('Pagination 触发 update:page', async () => {
-        const wrapper = mount(p.Pagination, { page: 1, pageSize: 20, total: 100 })
-        const next = wrapper.find(selectors.nextPage)
-        expect(next.exists()).toBe(true)
-        await next.trigger('click')
-        expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
-      })
-    }
+      // 各库的选择控件形态不同：原生 input 需要 change，自定义控件用 click。
+      // 这里两种都触发，只要产生正确的归一化事件即视为满足契约。
+      const element = checkbox.element as HTMLInputElement
+      if (element.tagName === 'INPUT') {
+        element.checked = true
+        element.dispatchEvent(new Event('change', { bubbles: true }))
+      } else {
+        await checkbox.trigger('click')
+      }
+      await flushPromises()
+
+      const emitted = wrapper.findComponent(p.DataGrid).emitted('update:selectedKeys')
+      expect(emitted).toBeTruthy()
+      expect(emitted?.at(-1)?.[0]).toEqual([1])
+    })
+
+    itUnlessSkipped('sort')('DataGrid 可排序列点表头发出 update:sort', async () => {
+      /* 列的 key 与 dataIndex 取同一个字符串：契约里 dataIndex 可选、也没规定
+         update:sort 的 field 取自哪一方，实测 element-plus 回传 dataIndex、
+         naive-ui 回传 column.key（A8 未收敛），两者只在 key === dataIndex 时
+         给出同一个字符串。这里断言那个共同且具体的真相（field === 'name'），
+         不把断言写成「field 是任意非空字符串」—— 那等于没测字段语义。 */
+      const sortableColumns = [
+        { key: 'name', title: '名称', dataIndex: 'name', sortable: true },
+        { key: 'age', title: '年龄', dataIndex: 'age', sortable: true },
+      ]
+      const wrapper = mount(p.DataGrid, { columns: sortableColumns, data: rows, rowKey: 'id' })
+      await flushPromises()
+
+      const trigger = (index: number) => wrapper.findAll(selectors.sortTrigger)[index]
+      // 两列都可排序 → 恰好两个排序控件，索引与列一一对应
+      expect(wrapper.findAll(selectors.sortTrigger).length, 'sortable 列必须渲染可点的排序控件').toBe(2)
+
+      const sortOf = (): any => wrapper.findComponent(p.DataGrid).emitted('update:sort')?.at(-1)?.[0]
+
+      // 首次点击只钉「字段就是被点的这一列」：起点方向各家默认不同
+      // （element-plus 先 asc，naive-ui 先 desc），契约没有规定看哪一方
+      await trigger(0).trigger('click')
+      await flushPromises()
+      const first = sortOf()
+      expect(Object.keys(first ?? {}).sort(), 'update:sort 的 payload 必须是 { field, order }').toEqual([
+        'field',
+        'order',
+      ])
+      expect(first.field).toBe('name')
+      expect(['asc', 'desc']).toContain(first.order)
+
+      // 同一列再点一次必须换向，而不是重复发同一个方向
+      await trigger(0).trigger('click')
+      await flushPromises()
+      expect(sortOf().field).toBe('name')
+      expect(sortOf().order).toBe(first.order === 'asc' ? 'desc' : 'asc')
+
+      // 第三次回到未排序，payload 必须是 null，业务侧才清得掉查询条件
+      await trigger(0).trigger('click')
+      await flushPromises()
+      expect(sortOf()).toBeNull()
+
+      // 换一列，field 跟着列走
+      await trigger(1).trigger('click')
+      await flushPromises()
+      expect(sortOf().field).toBe('age')
+    })
+
+    itUnlessSkipped('pagination')('Pagination 触发 update:page', async () => {
+      const wrapper = mount(p.Pagination, { page: 1, pageSize: 20, total: 100 })
+      const next = wrapper.find(selectors.nextPage)
+      expect(next.exists()).toBe(true)
+      await next.trigger('click')
+      expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
+    })
 
 
     it('提供 feedback：message 四种语义 + confirm', () => {

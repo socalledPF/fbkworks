@@ -356,7 +356,11 @@ export default tseslint.config(
   // 桌面端一致性对照测试：职责就是同时 import 两个桌面适配器做比对，
   // 这不是「业务组件依赖具体适配器」，而是测试本身的意义所在。
   {
-    files: ['packages/internal/adapter-conformance/tests/desktop-parity.spec.ts'],
+    /* 一致性测试的**全部职责**就是对比具体适配器：桌面端 parity 要比 element-plus 与
+       naive-ui，sort 语义对照要比这两家的 update:sort 载荷。src/ 仍受约束——
+       它必须是泛型的，不能绑死某一家。原先是单文件豁免，新增第二个对照用例时
+       就得再补一条，索性按目录给。 */
+    files: ['packages/internal/adapter-conformance/tests/*.spec.ts'],
     rules: {
       'no-restricted-imports': 'off',
     },

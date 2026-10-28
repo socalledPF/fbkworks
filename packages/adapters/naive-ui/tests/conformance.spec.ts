@@ -12,5 +12,7 @@ runAdapterConformance({
     nextPage: '.n-pagination > .n-pagination-item--button:not(.n-pagination-item--disabled)',
     // NDataTable 的 loading 浮层（内部主表格上方那层，只在 loading 时挂载）
     loading: '.n-data-table-loading-wrapper',
+    // sortable 列的表头排序图标容器
+    sortTrigger: '.n-data-table-thead .n-data-table-sorter',
   },
 })

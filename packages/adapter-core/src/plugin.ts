@@ -15,7 +15,7 @@ import {
   type PropType,
   type Plugin,
 } from 'vue'
-import { defaultTokens, type FbkTokens } from '@fbk/tokens'
+import { defaultTokens, toCssText, type FbkTokens } from '@fbk/tokens'
 import { warnOnce } from '@fbk/shared'
 import { assertAdapterCompatible, type UiAdapter } from './contracts/adapter'
 import type { Size } from './contracts/primitives'
@@ -112,6 +112,51 @@ function applyContextTheme(ctx: AdapterContext): void {
   ctx.adapter.theme.apply(resolveTheme(ctx.themeMode.value), ctx.tokens)
 }
 
+/**
+ * 自定义令牌的样式表。**用 cssText 写 <style>，不往根元素写行内变量**：
+ * 行内变量（element.style.setProperty）会无条件压过 dark.css / cyber.css 的
+ * html[data-fbk-theme] 规则，主题切换直接失效（checkpoint §6.7）。
+ * 写 <style> 则与其它 CSS 同源：基础令牌与 tokens.css 同为 :root，靠文档顺序取胜；
+ * 主题覆盖的 html[data-fbk-theme] 特异性更高，仍然胜出。
+ *
+ * 固定 id 并复用同一个元素 —— 重复 install / 多个 Provider 只能有一个 <style>。
+ */
+const TOKEN_STYLE_ID = 'fbk-custom-tokens'
+
+/** 自定义令牌层，按挂载顺序入栈；<style> 的内容永远是栈顶那一层 */
+const tokenLayers: Array<{ text: string }> = []
+
+function renderTokenStyle(): void {
+  let style = document.getElementById(TOKEN_STYLE_ID) as HTMLStyleElement | null
+  if (!tokenLayers.length) {
+    style?.remove()
+    return
+  }
+  if (!style) {
+    style = document.createElement('style')
+    style.id = TOKEN_STYLE_ID
+  }
+  style.textContent = tokenLayers[tokenLayers.length - 1].text
+  /* 每次插入都重新 append（移动而非复制）：同为 :root 时胜负只由文档顺序决定，
+     而应用样式可能在我们之后才注入（HMR、异步 chunk），那时它会插到前面去。 */
+  document.head.appendChild(style)
+}
+
+/** 入栈一层自定义令牌并返回撤销函数；没传 tokens 时什么都不做 */
+function addTokenLayer(tokens: FbkTokens | undefined): (() => void) | undefined {
+  // SSR 没有 DOM 可注入，也就不用入栈：否则层会随着每次请求在模块里堆起来
+  if (!tokens || typeof document === 'undefined') return undefined
+  const layer = { text: toCssText(tokens) }
+  tokenLayers.push(layer)
+  renderTokenStyle()
+  return () => {
+    const index = tokenLayers.indexOf(layer)
+    if (index === -1) return
+    tokenLayers.splice(index, 1)
+    renderTokenStyle()
+  }
+}
+
 export function createAdapterContext(options: BusinessKitOptions): AdapterContext {
   const { adapter } = options
   const tokens = options.tokens ?? defaultTokens
@@ -139,6 +184,12 @@ export function createBusinessKit(options: BusinessKitOptions): Plugin {
       assertAdapterCompatible(options.adapter)
       const ctx = createAdapterContext(options)
       app.provide(ADAPTER_CONTEXT, ctx)
+
+      /* 自定义令牌：只在**显式传了 tokens** 时注入 —— 默认令牌已经由 tokens.css
+         编译进 CSS，重复注入只会多一份与主题同特异性竞争的声明。
+         样式跟随 app 生命周期：app.onUnmount 撤掉，不留悬空的 <style>。 */
+      const releaseTokens = addTokenLayer(options.tokens)
+      if (releaseTokens) app.onUnmount(releaseTokens)
 
       /* 权限上下文与指令。
          没有 permissions 时也 provide —— 让指令统一走「无权限」分支，
@@ -207,6 +258,12 @@ export const FbkProvider = defineComponent({
       onTelemetry: props.onTelemetry ?? parent?.reporter.handlers.onTelemetry,
     })
     provide(ADAPTER_CONTEXT, ctx)
+
+    /* 同理只认**显式传入**的 tokens：继承来的那份由上层（插件 install 或外层
+       Provider）负责注入，这里再注入一次就是同一份样式写两遍。
+       卸载时撤掉自己这一层，栈顶回到外层或全局那份。 */
+    const releaseTokens = addTokenLayer(props.tokens)
+    if (releaseTokens) onUnmounted(releaseTokens)
 
     /* 权限上下文。
        未传时继承上层（插件 install 提供的那份），与 adapter/theme/locale 一致。

@@ -12,5 +12,7 @@ runAdapterConformance({
     nextPage: '.el-pagination .btn-next',
     // v-loading 指令挂出来的遮罩
     loading: '.el-table .el-loading-mask',
+    // sortable 列的表头排序按钮（里面有 ascending/descending 两个箭头）
+    sortTrigger: '.el-table__header .caret-wrapper',
   },
 })

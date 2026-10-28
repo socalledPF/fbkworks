@@ -367,3 +367,17 @@ export function toCssVars(tokens: FbkTokens = defaultTokens): Record<string, str
   walk('--fbk', tokens)
   return vars
 }
+
+/**
+ * 把令牌序列化成一条 CSS 规则，供运行时以 <style> 注入（调用方是 adapter-core 的
+ * createBusinessKit / FbkProvider）。
+ *
+ * 只产出文本、不碰 DOM —— 注入位置与生命周期归调用方管。
+ * 值原样拼进声明，不做转义：令牌值本身就是 CSS 值，font-family 里的逗号和引号都得保住。
+ */
+export function toCssText(tokens: FbkTokens = defaultTokens, selector = ':root'): string {
+  const declarations = Object.entries(toCssVars(tokens))
+    .map(([name, value]) => `${name}: ${value};`)
+    .join('')
+  return `${selector}{${declarations}}`
+}

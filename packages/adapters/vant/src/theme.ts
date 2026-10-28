@@ -1,4 +1,4 @@
-import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
+import type { Size, ThemeBridge, ThemeMode } from '@fbk/adapter-core'
 import { THEME_IS_DARK } from '@fbk/adapter-core'
 import type { FbkTokens } from '@fbk/tokens'
 
@@ -19,6 +19,42 @@ function toVantVars(tokens: FbkTokens): Record<string, string> {
     '--van-font-size-md': tokens.font.size.md,
     '--van-base-font': tokens.font.family,
   }
+}
+
+/**
+ * provider size 的比例尺。三个适配器共用同一套相对关系：
+ * md 是基准，sm 是它的 0.75 倍，lg 是 1.25 倍 ——
+ * element-plus 的 small/default/large 正好是 24/32/40px。
+ */
+const SIZE_SCALE: Record<Size, number> = { sm: 0.75, md: 1, lg: 1.25 }
+
+/**
+ * 缩放对象。vant 4.10 的 ConfigProvider **没有 size 能力**（props 只有 tag /
+ * theme / zIndex / themeVars / themeVarsDark / themeVarsLight / themeVarsScope /
+ * iconPrefix），控件几何全部由 --van-* 变量顶着，themeVars 是唯一的注入口。
+ * 基准值取自 vant 自己的 lib/index.css；只缩控件几何，不缩字号与行高 ——
+ * 字号归 tokens.font.size 管，跟着缩会把可读性拖下水。
+ */
+const CONTROL_HEIGHTS = {
+  buttonDefaultHeight: 44,
+  buttonSmallHeight: 32,
+  buttonMiniHeight: 24,
+  buttonLargeHeight: 50,
+  cellVerticalPadding: 10,
+} as const
+
+const toPx = (value: number) => `${Number.isInteger(value) ? value : Number(value.toFixed(2))}px`
+
+/**
+ * md 返回 undefined：vant 的默认值就是 md 这一档，注入一份等值变量等于把
+ * 库的默认值钉死在这份快照上，vant 将来调默认值时这里会静默错位。
+ */
+export function vantSizeVars(size: Size = 'md'): Record<string, string> | undefined {
+  const scale = SIZE_SCALE[size] ?? 1
+  if (scale === 1) return undefined
+  const vars: Record<string, string> = {}
+  for (const [name, base] of Object.entries(CONTROL_HEIGHTS)) vars[name] = toPx(base * scale)
+  return vars
 }
 
 export const vantTheme: ThemeBridge = {

@@ -1,4 +1,4 @@
-import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
+import type { Size, ThemeBridge, ThemeMode } from '@fbk/adapter-core'
 import { THEME_IS_DARK } from '@fbk/adapter-core'
 import { cyberColorOverrides, darkColorOverrides } from '@fbk/tokens'
 import type { FbkTokens } from '@fbk/tokens'
@@ -26,10 +26,42 @@ function resolveTokens(mode: ThemeMode, tokens: FbkTokens): FbkTokens {
 }
 
 /**
+ * provider size 的比例尺。三个适配器共用同一套相对关系：
+ * md 是基准，sm 是它的 0.75 倍，lg 是 1.25 倍 ——
+ * element-plus 的 small/default/large 正好是 24/32/40px。
+ */
+const SIZE_SCALE: Record<Size, number> = { sm: 0.75, md: 1, lg: 1.25 }
+
+/** 控件高度阶梯的 md 档，与下面 common 里的默认值同源 */
+const HEIGHTS_MD = { heightSmall: 28, heightMedium: 32, heightLarge: 40 } as const
+
+const toPx = (value: number) => `${Number.isInteger(value) ? value : Number(value.toFixed(2))}px`
+
+/**
+ * size 在 naive 下只能落在这一处：naive-ui 2.45 的 NConfigProvider 没有 size
+ * 能力（props 里只有 theme / themeOverrides / componentOptions / locale 等），
+ * themeOverrides.common.height* 是唯一的中枢 —— 它会写成每个控件行内的
+ * --n-height，控件自身的 CSS 读的就是这个变量。整体缩放而不是只改一档：
+ * 业务方在 size="sm" 的 Provider 里写 size="large" 的控件时，两者都要跟着降。
+ */
+export function naiveSizeHeights(size: Size = 'md'): {
+  heightSmall: string
+  heightMedium: string
+  heightLarge: string
+} {
+  const scale = SIZE_SCALE[size] ?? 1
+  return {
+    heightSmall: toPx(HEIGHTS_MD.heightSmall * scale),
+    heightMedium: toPx(HEIGHTS_MD.heightMedium * scale),
+    heightLarge: toPx(HEIGHTS_MD.heightLarge * scale),
+  }
+}
+
+/**
  * naive-ui 没有 CSS 变量，主题必须通过 NConfigProvider 的 theme + themeOverrides。
  * 因此 providerProps 是必需的；只调用 apply() 不会让暗色生效。
  */
-export function naiveProviderProps(mode: ThemeMode, tokens: FbkTokens) {
+export function naiveProviderProps(mode: ThemeMode, tokens: FbkTokens, size: Size = 'md') {
   const t = resolveTokens(mode, tokens)
 
   return {
@@ -58,14 +90,13 @@ export function naiveProviderProps(mode: ThemeMode, tokens: FbkTokens) {
            行高、内边距全线错位。字号由组件样式自己声明（见各 style.css）。 */
 
         /**
-         * 控件高度对齐 element-plus。
+         * 控件高度对齐 element-plus，并由 provider 的 size 缩放。
          *
          * naive 默认 heightMedium = 34px，element-plus 默认尺寸是 32px。
          * 同一个 QueryForm 在两个适配器下输入框差 2px，整行跟着错位。
+         * md 档保持 28/32/40 —— 与引入 size 之前逐像素一致。
          */
-        heightSmall: '28px',
-        heightMedium: '32px',
-        heightLarge: '40px',
+        ...naiveSizeHeights(size),
       },
 
       /**
