@@ -450,3 +450,109 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 **C4. `win_bash` 是持久 shell，`cd` 会残留。**
 一次 `cd packages/components` 之后的命令全在错误目录下执行，`npx vitest run` 因此报 17 failed 的假象。
 每次命令都显式 `cd <repo root> &&` 前缀。
+
+---
+
+## 附录 D：全仓库代码审查（2026-10-25 续，第二轮）
+
+> 上一轮（附录 C）修的是 attrs 转发与文档过期。这一轮是**整体代码审查**：
+> 7 个独立审查者按子系统并行读完全部 19 个有 src 的包，产出 26 项确认缺陷，
+> 分六批修复并提交。门禁从 614 用例 / 46 文件到 **723 通过 + 1 skipped / 64 文件**。
+
+### D.1 三类问题，一个共同病根
+
+| 类别 | 数量 | 例子 |
+|---|---|---|
+| 声明与实现脱节 | 11 | 死 prop、`options.append` 声明不读、`notification` 能力没有 API、`register.ts` 误标已注册 |
+| 门禁假绿 | 6 | 不在 CI、硬编码名单、运算符优先级 bug、恒真断言、豁免架空 |
+| 无兜底 | 5 | Result 越界 status 白屏、ProTable 失败显示「暂无数据」、Date 被熔毁 |
+
+**病根不是写错了，而是没有机制保证「声明的东西被实现」。**
+类型检查只保证声明被类型兼容，不保证被读取；门禁只保证已有断言成立，
+不保证新行为被覆盖。两者合力，让「声明与实现脱节」成为唯一不被拦截的缺陷类型。
+
+**至少 4 处的注释当时就写明了问题，但代码没改**：
+`feedback.ts` 说「能力声明了但契约里没有」、`plugin.ts` 说「用局部指令避免覆盖」
+（代码是全局）、`vant/DatePicker.tsx` 说「静默丢时分比报错更糟」（然后丢了）、
+`check-runtime-deps.mjs` 说「与 workspace 对应」（硬编码 8 个）。
+
+### D.2 最严重的五项（都已修）
+
+1. **`@fbk/components` 的 exports 缺 4 个组件** —— 消费者装到包后子路径导入直接
+   `ERR_PACKAGE_PATH_NOT_EXPORTED`。admin 与 demos 靠 vite alias 直连 src 才活着。
+2. **发版会发出装不上的包** —— `publish-all.mjs` 的 ORDER 只有 8 个包，
+   而 `@fbk/components` 依赖 `@fbk/data`，data 从未上架。
+3. **无限滚动一次触底发两个请求**，第一页数据被覆盖，且因竞争表现为「偶现」。
+4. **vant 把用户选的时分静默改写成 `00:00:00`**（`time` 类型），daterange 只取第一个值。
+5. **`v-permission` 多实例互踩** —— `app.use` 配好权限后再套 `<FbkProvider>`，
+   按钮成片消失；且绑定值变化后 DOM 不更新。
+
+### D.3 门禁的三层失效
+
+这是本轮最重要的结构性发现，**同一个缺陷能穿三层**：
+
+1. **不在 CI**：`check:styles` / `check:style-entries` / `check:runtime-deps`
+   在 `verify` 里但 CI 只跑 12 步。而 `style-guide.md` 称 `check:runtime-deps`
+   为「最关键的一道」。
+2. **在但防不住**：`check-styles` 的 `baseSelector` 把修饰符全剥掉，恰好豁免了它
+   该抓的失败；`check-style-entries` 的运算符优先级把 vant/naive 静默排除；
+   `check-runtime-deps` 硬编码 8 个包，注释却声称与 workspace 对应。
+3. **覆盖面错**：`check-style-entries` 把路径映射到 `src` 而非 `exports`，
+   `isCovered` 对 `@fbk/components/` 前缀一律放行 —— 这两条让 F6 长期无人发现。
+
+**教训：靠人工维护的清单一定会漂移。** 本轮在三处独立证明
+（`PUBLISHED` / `publish-all` 的 ORDER / changeset 的 `fixed` 分组），
+修法一律改成从文件系统发现 + 启动前自我校验。
+
+### D.4 测试可信度的两个盲区
+
+- **组件测试全部跑在 `createMockAdapter` 上**，48 处断言依赖只存在于 mock 的
+  `data-fbk-part` 标记（mock 26 处 / element-plus 1 处 / naive 0 处 / vant 4 处）。
+  这些断言在真实适配器上会全部失败。但注意：**本轮修的 P0 没有一项是它导致的**
+  —— loadMore、错误态、插槽命名都是与 UI 库无关的编排逻辑。真正的盲区是
+  「编排逻辑几乎无行为测试」，而不是「没用真实适配器」。
+- **恒真断言**：`desktop-parity` 的类名集合比较（两边都是 `[]`）、
+  conformance 的 loading 态（只断言 `html()` 非空）、确认框间距（对整份 CSS 做
+  `toContain`，被同文件别处满足）。已重写并做过变异实验。
+
+### D.5 本轮新增的坑
+
+**D5.1 `<script setup generic>` 里的类型别名会被 dts 内联成坏路径。**
+在 `defineEmits` 里用 `TableRequestParams`（= `PageQuery`）时，dts 生成器把别名
+展开成 `import('packages/data/dist')`，`check:consumer` 立刻报 TS2307。
+改为直接取 `@fbk/data` 的具名类型。**这类问题只有跑 build 才暴露**。
+
+**D5.2 `perl` 在本机不存在，用 `sed` 批量替换同名标识符会制造递归。**
+把 `function createAdapter()` 替换成 `createMockAdapter` 时，函数体内部的
+`createAdapter()` 调用也一起被替换 → 函数自我递归。**批量替换在定义处与调用处
+同名时会静默制造递归。**
+
+**D5.3 `win_bash` 是持久 shell，`cd` 会残留。**
+一次 `cd packages/components` 之后的命令全在错误目录执行，`npx vitest run`
+因此报 17 failed 的假象。每条命令显式 `cd <repo root> &&` 前缀。
+
+**D5.4 jsdom 不实现 CSS 特异性**（只按文档顺序取胜者，
+`style-rules.js:177-178`）。所以 `getComputedStyle` 在 jsdom 里**无法证明**
+「主题样式压过注入的基础样式」这类断言。需要按级联规范自行求解，
+或用真实浏览器（本轮用 Chromium + CDP 实测过一次）。
+
+### D.6 仍待决策
+
+| 项 | 阻塞点 |
+|---|---|
+| **A8** `update:sort` 的 `field` 取 `key` 还是 `dataIndex` | element-plus 取 dataIndex、naive 取 key。已用 `sort-field-a8.spec.ts` 钉住现状，收敛后删该文件 |
+| **vant 移动端排序入口** | 卡片列表无表头，需产品方案（下拉 / 筛选栏 / 顶栏菜单）。当前 `skip: ['sort']` |
+| `<FbkProvider>` 在 element-plus 下多一层 div | 无预设样式；若布局依赖 `height: 100%` 链需自行补高度 |
+| **样式四项** | F20 饼图选择器失配、`check:styles` 的豁免与扫描范围、18 处硬编码间距、639/640 断点混用 —— 按项目约定需先出设计稿 |
+| P4-2 详情抽屉 / 9 个变更集的发布节奏 | 上一轮遗留 |
+
+### D.7 审查方法本身的两个教训
+
+1. **审查报告是证据，不是结论。** 本轮至少三次，报告的主张与实测不符：
+   「三个适配器都不读 size」（element-plus 其实读了）、
+   「`FbkProvider` 丢 attrs」（真实断点在三个 RootProvider）、
+   「两个 attrs.spec.ts 是探针文件」（是 118/138 行的真实测试）。
+2. **验证断言要验证「它能不能抓到问题」，而不是「它是否通过」。**
+   `desktop-parity` 那两条恒真断言在施加两个变异后仍 16/16 全绿 —— 这才是它们
+   恒真的证据。只看绿灯永远发现不了。
+
