@@ -76,7 +76,6 @@ const stats = [
             :data="channelShare"
             :center-value="12480"
             center-label="总订单"
-            height="100%"
           />
         </FbkScreenPanel>
       </div>
@@ -183,14 +182,14 @@ const stats = [
 .screen-bottom {
   width: 100%;
   height: 260px;
-  margin-top: 16px;
+  margin-top: var(--fbk-spacing-lg);
   grid-auto-rows: minmax(0, 1fr);
 }
 
 .screen-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--fbk-spacing-lg);
   min-height: 0;
 }
 
@@ -201,13 +200,13 @@ const stats = [
 .screen-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--fbk-spacing-lg);
 }
 
 .screen-stats__item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--fbk-space-6);
 }
 
 .screen-stats__label {
@@ -218,7 +217,7 @@ const stats = [
 .screen-rank {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--fbk-spacing-md);
   padding: 0;
   margin: 0;
   list-style: none;
@@ -227,7 +226,7 @@ const stats = [
 .screen-rank__row {
   display: grid;
   grid-template-columns: 18px minmax(70px, 1fr) minmax(60px, 1fr) auto;
-  gap: 10px;
+  gap: var(--fbk-spacing-md);
   align-items: center;
   font-size: 13px;
   color: #e6f7fb;
@@ -273,7 +272,7 @@ const stats = [
 .screen-bignum {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--fbk-spacing-sm);
   align-items: center;
   justify-content: center;
   height: 100%;
@@ -287,7 +286,7 @@ const stats = [
 .screen-health {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--fbk-spacing-lg);
   justify-content: center;
   height: 100%;
 }
@@ -295,7 +294,7 @@ const stats = [
 .screen-health__row {
   display: grid;
   grid-template-columns: 40px 1fr 48px;
-  gap: 12px;
+  gap: var(--fbk-spacing-md);
   align-items: center;
   font-size: 13px;
 }

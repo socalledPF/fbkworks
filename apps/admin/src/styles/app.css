@@ -39,7 +39,7 @@ body {
   gap: var(--fbk-spacing-xs);
   align-items: center;
   justify-content: center;
-  padding: 4px var(--fbk-spacing-md);
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
   line-height: 24px;

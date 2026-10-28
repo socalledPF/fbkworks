@@ -43,7 +43,7 @@
 }
 
 .fbk-vant-grid__title {
-  padding-right: 32px;
+  padding-right: var(--fbk-spacing-xxl);
   margin-bottom: var(--fbk-spacing-sm);
   font-size: var(--fbk-pro-table-cell-font-size);
   font-weight: var(--fbk-font-weight-semibold);

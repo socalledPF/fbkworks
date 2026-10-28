@@ -131,7 +131,7 @@ const timeline = [
   flex-shrink: 0;
   width: 10px;
   height: 10px;
-  margin-top: 5px;
+  margin-top: var(--fbk-spacing-xs);
   background: var(--fbk-color-border);
   border-radius: var(--fbk-radius-round);
 }
@@ -144,7 +144,7 @@ const timeline = [
 .detail__timeline-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--fbk-space-2);
 }
 
 .detail__timeline-text {

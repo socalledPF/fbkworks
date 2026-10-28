@@ -26,7 +26,7 @@
   /* 与业务组件的 md 尺寸控件同高，视觉上才在同一栅格里 */
   height: 32px;
   /* 内边距照搬业务 Select：4px 12px */
-  padding: 4px var(--fbk-spacing-md);
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
   color: var(--fbk-color-text);
   white-space: nowrap;
   cursor: pointer;

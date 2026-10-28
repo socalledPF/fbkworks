@@ -144,7 +144,7 @@
 }
 
 /* 窄屏下 extra 折叠到标题下方 */
-@container (max-width: 640px) {
+@container (max-width: 639px) {
   .fbk-page-container__header {
     flex-direction: column;
     align-items: stretch;

@@ -185,8 +185,8 @@
    --fbk-button-padding-x-md（12px）—— 后者是契约档位，
    naive 实际用的内边距是 15px，按 12px 补会把按钮压窄。 */
 .n-button:not(.fbk-button--text) {
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: var(--fbk-spacing-lg);
+  padding-right: var(--fbk-spacing-lg);
 }
 
 /* ============================================================

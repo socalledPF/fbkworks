@@ -18,7 +18,7 @@
   gap: var(--fbk-spacing-lg) var(--fbk-spacing-xl);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .fbk-detail-page__skeleton {
     grid-template-columns: 1fr;
   }
@@ -65,7 +65,7 @@
 /* ---- 默认按钮（错误态的重试 / 404 的返回）----
    与 admin demo 的 .admin-btn 同规格：组件内部不依赖业务样式。 */
 .fbk-detail-page__btn {
-  padding: 4px var(--fbk-spacing-md);
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
   line-height: 24px;

@@ -38,6 +38,17 @@ export default defineConfig({
         replacement: r('../../packages/adapters/$1/src/$2'),
       },
       { find: /^@fbk\/demos$/, replacement: r('../../packages/internal/demos/src/index.ts') },
+      /* 图表三兄弟原本没有 alias，走 package.json 的 exports 即加载 dist ——
+         改这三个包的 src/style.css 在 playground 里看不到任何变化，必须先 build。
+         而 style-guide 说 playground 是唯一的可视化验证环境，
+         「改了看不到」会让「测试全绿、肉眼全坏」再发生一次。
+         同样：CSS 子路径规则必须排在裸包名之前。 */
+      { find: /^@fbk\/chart-core\/(.*\.css)$/, replacement: r('../../packages/chart-core/src/$1') },
+      { find: /^@fbk\/chart-core$/, replacement: r('../../packages/chart-core/src/index.ts') },
+      { find: /^@fbk\/dashboard\/(.*\.css)$/, replacement: r('../../packages/dashboard/src/$1') },
+      { find: /^@fbk\/dashboard$/, replacement: r('../../packages/dashboard/src/index.ts') },
+      { find: /^@fbk\/screen\/(.*\.css)$/, replacement: r('../../packages/screen/src/$1') },
+      { find: /^@fbk\/screen$/, replacement: r('../../packages/screen/src/index.ts') },
     ],
   },
   server: {

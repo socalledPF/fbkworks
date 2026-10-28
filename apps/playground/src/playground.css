@@ -123,7 +123,7 @@ body {
 .pg-sidebar__group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--fbk-space-2);
 }
 
 .pg-sidebar__group-title {
@@ -140,7 +140,7 @@ body {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 6px var(--fbk-spacing-sm);
+  padding: var(--fbk-space-6) var(--fbk-spacing-sm);
   color: var(--fbk-color-text-secondary);
   background: transparent;
   border: 0;
@@ -278,7 +278,7 @@ body {
 
 .pg__badge {
   flex-shrink: 0;
-  padding: 2px var(--fbk-spacing-sm);
+  padding: var(--fbk-space-2) var(--fbk-spacing-sm);
   color: var(--fbk-color-primary-text);
   background: var(--fbk-color-primary-bg);
   border-radius: var(--fbk-radius-round);
@@ -307,7 +307,7 @@ body {
 
 .pg__id {
   flex-shrink: 0;
-  padding: 2px var(--fbk-spacing-xs);
+  padding: var(--fbk-space-2) var(--fbk-spacing-xs);
   color: var(--fbk-color-text-tertiary);
   background: var(--fbk-color-bg-container);
   border-radius: var(--fbk-radius-sm);

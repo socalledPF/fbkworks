@@ -266,7 +266,7 @@
 
   --fbk-tag-height: 22px;
   --fbk-tag-radius: var(--fbk-radius-sm);
-  --fbk-tag-padding-x: 2px;
+  --fbk-tag-padding-x: var(--fbk-space-2);
 
   --fbk-query-form-padding: var(--fbk-spacing-xl);
   --fbk-query-form-row-gap: var(--fbk-spacing-lg);

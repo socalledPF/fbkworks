@@ -63,7 +63,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--fbk-space-2);
   padding: var(--fbk-spacing-sm);
   overflow-y: auto;
 }
@@ -124,7 +124,7 @@
 .admin-menu-group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--fbk-space-2);
 }
 
 .admin-menu-group__label {
@@ -315,7 +315,7 @@
 }
 
 .admin-telemetry__list li {
-  padding: 2px 0;
+  padding: var(--fbk-space-2) 0;
   color: var(--fbk-color-text-secondary);
   font-family: ui-monospace, Menlo, monospace;
   font-size: 11px;

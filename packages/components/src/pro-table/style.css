@@ -62,7 +62,7 @@
 /* 默认重试按钮。与 DetailPage 的同名按钮同规格 —— 组件内部不依赖业务样式，
    两处一致，业务方不必为「重试」再写一次 CSS。 */
 .fbk-pro-table__retry {
-  padding: 4px var(--fbk-spacing-md);
+  padding: var(--fbk-spacing-xs) var(--fbk-spacing-md);
   font-family: var(--fbk-font-family);
   font-size: var(--fbk-font-size-md);
   line-height: 24px;
@@ -97,7 +97,7 @@
   display: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .fbk-pro-table__pagination {
     justify-content: center;
   }

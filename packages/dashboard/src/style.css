@@ -60,7 +60,7 @@
 
 .fbk-stat-card__value {
   display: flex;
-  gap: 2px;
+  gap: var(--fbk-space-2);
   align-items: baseline;
   margin-top: var(--fbk-spacing-xs);
 }
@@ -234,7 +234,7 @@
   left: 38%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--fbk-space-2);
   align-items: center;
   pointer-events: none;
   transform: translate(-50%, -50%);
