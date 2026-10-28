@@ -20,7 +20,9 @@ export const vantCapabilities: Capabilities = {
   dataGrid: {
     presentation: 'cards',
     selection: true,
-    sort: 'custom',
+    /* 卡片列表没有表头，全文也没有一处 emit('update:sort')；
+       补齐移动端排序入口（下拉 / 筛选栏 / 顶栏菜单）需要产品方案，故声明为 none。 */
+    sort: 'none',
     expandable: false,
     tree: false,
     virtualScroll: false,

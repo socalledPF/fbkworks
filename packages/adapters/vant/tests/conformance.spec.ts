@@ -17,9 +17,9 @@ runAdapterConformance({
   /*
    * 排序：vant 不满足，显式声明而不是让 sort 用例无声地不存在。
    *
-   * DataGrid 的 emits 里声明了 update:sort（capabilities.dataGrid.sort = 'custom'），
-   * 但卡片列表既没有表头也没有任何排序入口，全文没有一处 emit('update:sort') ——
-   * 声明与实现是断开的。补齐需要先有产品决策（移动端排序是下拉、筛选栏还是顶栏菜单），
+   * 卡片列表既没有表头也没有任何排序入口，全文没有一处 emit('update:sort')，
+   * 因此 capabilities.dataGrid.sort 已改为 'none'（声明与实现对齐）。
+   * 补齐需要先有产品决策（移动端排序是下拉、筛选栏还是顶栏菜单），
    * 在这之前用 skip 把它标成「本环境不满足的契约项」，而不是改实现硬凑一个入口。
    */
   skip: ['sort'],

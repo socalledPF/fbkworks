@@ -223,14 +223,12 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     })
 
     itUnlessSkipped('sort')('DataGrid 可排序列点表头发出 update:sort', async () => {
-      /* 列的 key 与 dataIndex 取同一个字符串：契约里 dataIndex 可选、也没规定
-         update:sort 的 field 取自哪一方，实测 element-plus 回传 dataIndex、
-         naive-ui 回传 column.key（A8 未收敛），两者只在 key === dataIndex 时
-         给出同一个字符串。这里断言那个共同且具体的真相（field === 'name'），
-         不把断言写成「field 是任意非空字符串」—— 那等于没测字段语义。 */
+      /* field 的来源是契约的一部分：取 column.dataIndex，缺省时回退 column.key。
+         这里刻意让 key ≠ dataIndex —— key === dataIndex 会把两家适配器的分歧
+         掩盖成同一个字符串，只有两个值不同时取错一方才会红。 */
       const sortableColumns = [
-        { key: 'name', title: '名称', dataIndex: 'name', sortable: true },
-        { key: 'age', title: '年龄', dataIndex: 'age', sortable: true },
+        { key: 'userName', title: '名称', dataIndex: 'name', sortable: true },
+        { key: 'userAge', title: '年龄', dataIndex: 'age', sortable: true },
       ]
       const wrapper = mount(p.DataGrid, { columns: sortableColumns, data: rows, rowKey: 'id' })
       await flushPromises()
@@ -250,7 +248,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'field',
         'order',
       ])
-      expect(first.field).toBe('name')
+      expect(first.field, 'field 必须取 column.dataIndex，而不是 column.key').toBe('name')
       expect(['asc', 'desc']).toContain(first.order)
 
       // 同一列再点一次必须换向，而不是重复发同一个方向
@@ -264,10 +262,26 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       await flushPromises()
       expect(sortOf()).toBeNull()
 
-      // 换一列，field 跟着列走
+      // 换一列，field 跟着列走（仍是 dataIndex，不是 key）
       await trigger(1).trigger('click')
       await flushPromises()
       expect(sortOf().field).toBe('age')
+
+      /* dataIndex 在 DataGridColumn 上是可选字段，缺省时必须回退到 column.key，
+         否则后端收到的是 undefined。这条用例同时钉住两家的回退行为。 */
+      const fallback = mount(p.DataGrid, {
+        columns: [{ key: 'userName', title: '名称', sortable: true }],
+        data: [{ id: 1, userName: 'Alice' }],
+        rowKey: 'id',
+      })
+      await flushPromises()
+      const fallbackTriggers = fallback.findAll(selectors.sortTrigger)
+      expect(fallbackTriggers.length, 'dataIndex 缺省的 sortable 列也必须渲染排序控件').toBe(1)
+      await fallbackTriggers[0].trigger('click')
+      await flushPromises()
+      const fallbackSort = fallback.findComponent(p.DataGrid).emitted('update:sort')?.at(-1)?.[0] as any
+      expect(fallbackSort?.field, 'dataIndex 缺省时 field 必须回退到 column.key').toBe('userName')
+      expect(['asc', 'desc']).toContain(fallbackSort?.order)
     })
 
     itUnlessSkipped('pagination')('Pagination 触发 update:page', async () => {

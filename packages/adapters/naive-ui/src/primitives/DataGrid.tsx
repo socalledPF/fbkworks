@@ -77,8 +77,12 @@ export const DataGrid = defineComponent({
             emit('update:sort', null)
             return
           }
+          /* 列的 key 只用于定位（sorter.columnKey 就是它），
+             update:sort 的 field 取 dataIndex、缺省回退 key —— 与 element-plus 同一语义。 */
+          const columnKey = String(sorter.columnKey ?? sorter.column?.key)
+          const source = props.columns.find((column) => column.key === columnKey)
           emit('update:sort', {
-            field: String(sorter.columnKey ?? sorter.column?.key),
+            field: String(source?.dataIndex ?? columnKey),
             order: sorter.order === 'ascend' ? 'asc' : 'desc',
           })
         }}

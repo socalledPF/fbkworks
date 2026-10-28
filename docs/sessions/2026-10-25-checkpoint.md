@@ -540,7 +540,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 
 | 项 | 阻塞点 |
 |---|---|
-| **A8** `update:sort` 的 `field` 取 `key` 还是 `dataIndex` | element-plus 取 dataIndex、naive 取 key。已用 `sort-field-a8.spec.ts` 钉住现状，收敛后删该文件 |
+| ~~**A8** `update:sort` 的 `field` 取 `key` 还是 `dataIndex`~~ | **已决策并落地**：一律取 `dataIndex`、缺省回退 `key`。`sort-field-a8.spec.ts` 已删除，共享 sort 用例改用 `key ≠ dataIndex` 的列并断言回退 |
 | **vant 移动端排序入口** | 卡片列表无表头，需产品方案（下拉 / 筛选栏 / 顶栏菜单）。当前 `skip: ['sort']` |
 | `<FbkProvider>` 在 element-plus 下多一层 div | 无预设样式；若布局依赖 `height: 100%` 链需自行补高度 |
 | **样式四项** | F20 饼图选择器失配、`check:styles` 的豁免与扫描范围、18 处硬编码间距、639/640 断点混用 —— 按项目约定需先出设计稿 |

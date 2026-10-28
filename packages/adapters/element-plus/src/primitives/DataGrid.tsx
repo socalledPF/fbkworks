@@ -63,7 +63,9 @@ export const DataGrid = defineComponent({
         {props.columns.map((column) => (
           <ElTableColumn
             key={column.key}
-            prop={column.dataIndex as string | undefined}
+            /* prop 同时是 sort-change 回传的字段名：dataIndex 可选，
+               缺省时回退 key，否则点击排序只会发出 null。 */
+            prop={(column.dataIndex ?? column.key) as string}
             label={column.title}
             width={column.width}
             minWidth={column.minWidth}

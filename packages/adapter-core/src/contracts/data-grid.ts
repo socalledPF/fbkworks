@@ -68,6 +68,11 @@ export interface DataGridProps<T = any> {
 
 export interface DataGridEmits<T = any> {
   'update:selectedKeys': [keys: Array<string | number>]
+  /**
+   * `sort.field` 一律取 `column.dataIndex`，dataIndex 缺省时回退 `column.key` ——
+   * 三个适配器共用这一语义，后端收到的字段名不随适配器改变。
+   * 撤销排序时 payload 整体为 null。
+   */
   'update:sort': [sort: SortState | null]
   'row-click': [row: T, index: number, event: Event]
   'load-more': []

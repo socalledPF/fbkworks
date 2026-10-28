@@ -1,4 +1,4 @@
-import { defineComponent, h, type PropType } from 'vue'
+import { defineComponent, h, ref, watch, type PropType } from 'vue'
 import { ADAPTER_API_VERSION } from '@fbk/adapter-core'
 import type {
   Capabilities,
@@ -8,6 +8,8 @@ import type {
   MessageApi,
   MessageOptions,
   MessageType,
+  SortOrder,
+  SortState,
   UiAdapter,
   UiPrimitives,
 } from '@fbk/adapter-core'
@@ -275,11 +277,46 @@ function createMockPrimitives(): UiPrimitives {
       emptyText: String,
       loadMore: Boolean,
       finished: Boolean,
+      sort: { type: Object as PropType<SortState | null>, default: null },
     },
     emits: ['update:selectedKeys', 'update:sort', 'row-click', 'load-more'],
     setup(props, { emit }) {
       const keyOf = (row: any, index: number) =>
         typeof props.rowKey === 'function' ? props.rowKey(row) : (row[props.rowKey] ?? index)
+
+      /* 排序状态必须自己记一份：契约要求同一列连点循环 asc → desc → null，
+         只看 props.sort 的话，没有 v-model 的挂载会一直停在第一个方向。
+         真实适配器同理（el-table 内部排序状态 + defaultSort 初始化）；
+         这里在 props.sort 变化时同步，ProTable 的受控回流就走这条路径。 */
+      const innerSort = ref<SortState | null>(props.sort ?? null)
+      watch(
+        () => props.sort,
+        (value) => (innerSort.value = value ?? null),
+      )
+
+      const fieldOf = (column: DataGridColumn<any>) => (column.dataIndex ?? column.key) as string
+
+      const orderOf = (field: string): SortOrder =>
+        innerSort.value?.field === field ? innerSort.value.order : null
+
+      function toggleSort(field: string) {
+        const current = innerSort.value
+        const order: SortOrder =
+          current?.field !== field
+            ? 'asc'
+            : current.order === 'asc'
+              ? 'desc'
+              : current.order === 'desc'
+                ? null
+                : 'asc'
+        const next: SortState | null = order ? { field, order } : null
+        innerSort.value = next
+        emit('update:sort', next)
+      }
+
+      /* 三列形态与真实适配器一致：列标题 + 可排序列上的排序控件。
+         未排序时显示 ↕，升序 ↑，降序 ↓ —— 用户靠它判断当前排序。 */
+      const SORT_GLYPH: Record<'asc' | 'desc' | 'none', string> = { asc: '↑', desc: '↓', none: '↕' }
 
       return () =>
         h(
@@ -290,9 +327,39 @@ function createMockPrimitives(): UiPrimitives {
             'data-loading': String(props.loading),
             'data-selection-width': props.selectionEnabled ? String(props.selectionWidth) : undefined,
           },
-          props.data.length === 0
-            ? h('div', { 'data-fbk-part': 'empty' }, props.emptyText ?? '暂无数据')
-            : props.data.map((row, index) => {
+          [
+            /* 表头常驻：真实表格即便没有数据也渲染表头，
+               排序控件因此永远是可达的，不会随空数据消失。 */
+            h(
+              'div',
+              { 'data-fbk-part': 'grid-header' },
+              props.columns.map((column) => {
+                const field = fieldOf(column)
+                const order = orderOf(field)
+                return h(
+                  'div',
+                  { 'data-fbk-part': 'header-cell', 'data-column': column.key },
+                  [
+                    h('span', { 'data-fbk-part': 'header-title' }, column.title),
+                    column.sortable
+                      ? h(
+                          'button',
+                          {
+                            type: 'button',
+                            'data-fbk-part': 'sort-trigger',
+                            'data-sort-order': order ?? 'none',
+                            onClick: () => toggleSort(field),
+                          },
+                          SORT_GLYPH[order ?? 'none'],
+                        )
+                      : null,
+                  ],
+                )
+              }),
+            ),
+            props.data.length === 0
+              ? h('div', { 'data-fbk-part': 'empty' }, props.emptyText ?? '暂无数据')
+              : props.data.map((row, index) => {
                 const cells = props.columns.map((column) => {
                   const key = (column.dataIndex ?? column.key) as string
                   const value = row[key]
@@ -332,6 +399,7 @@ function createMockPrimitives(): UiPrimitives {
                   ],
                 )
               }),
+          ],
         )
     },
   })
