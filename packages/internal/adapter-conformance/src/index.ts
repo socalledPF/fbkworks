@@ -19,6 +19,11 @@ export interface ConformanceOptions {
     selection?: string
     /** 下一页按钮 */
     nextPage?: string
+    /**
+     * loading 态的可见标记：loading=true 时必须存在，loading=false 时必须消失。
+     * 两个方向都断言，避免适配器拿一个常驻元素糊弄过去。
+     */
+    loading?: string
   }
   /** 当前环境无法满足的契约项（需在文档中说明原因） */
   skip?: Array<'selection' | 'pagination' | 'sort'>
@@ -45,6 +50,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     row: 'tbody tr',
     selection: 'input[type="checkbox"]',
     nextPage: '.el-pagination .btn-next, .van-pagination__next, .n-pagination-item--button:last-child',
+    loading: '[data-fbk-part="loading"]',
     ...options.selectors,
   }
 
@@ -160,9 +166,17 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(wrapper.text()).toContain('没有记录')
     })
 
-    it('DataGrid 渲染 loading 态', () => {
-      const wrapper = mount(p.DataGrid, { columns, data: rows, loading: true })
-      expect(wrapper.html()).toBeTruthy()
+    it('DataGrid 渲染 loading 态', async () => {
+      /* 只断言「渲染出了 HTML」恒真，等于没测：element-plus 声明了 loading 却从不使用
+         也能过。这里改成正反两个方向 —— loading 时必须出现适配器声明的 loading 标记，
+         不 loading 时必须没有，任何一侧漏接都会红。 */
+      const busy = mount(p.DataGrid, { columns, data: rows, loading: true })
+      await flushPromises()
+      expect(busy.find(selectors.loading).exists(), 'loading=true 时必须渲染 loading 标记').toBe(true)
+
+      const idle = mount(p.DataGrid, { columns, data: rows, loading: false })
+      await flushPromises()
+      expect(idle.find(selectors.loading).exists(), 'loading=false 时不应有 loading 标记').toBe(false)
     })
 
     if (!skip.includes('selection')) {

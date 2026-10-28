@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { h } from 'vue'
 import { FbkDescriptions } from '../src/descriptions'
 
 // Descriptions 不依赖适配器，直接 mount 即可——这是架构上的有意设计。
@@ -39,6 +40,20 @@ describe('FbkDescriptions', () => {
     const grid = wrapper.find('.fbk-descriptions__grid').element as HTMLElement
     expect(grid.style.getPropertyValue('--fbk-cols-xs')).toBe('1')
     expect(grid.style.getPropertyValue('--fbk-cols-md')).toBe('2')
+  })
+
+  // Descriptions 自己的单字段插槽叫 item-${key}，DetailPage 靠它做转发，不能被改坏
+  it('item- 前缀插槽覆盖单个字段的渲染', () => {
+    const wrapper = mount(FbkDescriptions, {
+      props: {
+        data: { name: 'Alice' },
+        items: [{ key: 'name', label: '姓名' }],
+      },
+      slots: {
+        'item-name': ({ value }: any) => h('span', { class: 'custom-name' }, `[${value}]`),
+      },
+    })
+    expect(wrapper.find('.custom-name').text()).toBe('[Alice]')
   })
 
   it('size 映射到组件令牌，而不是写死像素', () => {

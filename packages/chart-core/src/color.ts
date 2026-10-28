@@ -32,12 +32,22 @@ export function resolveCssValue(value: string): string {
   return resolved || fallback?.trim() || value
 }
 
+/** 纯对象：原型是 Object 或 null。只有它的键值能安全地拆开重建 */
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
 /**
  * 深度遍历 option，把所有 `var(--x)` 字符串解析成真实色值。
  *
  * 为什么深度遍历而不是只在几个已知字段上处理：
  * option 结构由业务方决定（gradient 的 colorStops、markLine 的 lineStyle 等
  * 都可能有颜色），逐字段枚举必然漏。遍历成本很低（option 是纯对象）。
+ *
+ * 只重建纯对象。Date / TypedArray / Map / 类实例的键值不是它的语义
+ * （dataset.source 里的 Date 拆开就是 {}，Float32Array 拆开就是数字键对象），
+ * 重建等于把它们毁掉 —— 图表不会报错，只会静默空白或时间轴 NaN。
  */
 export function resolveOptionVars<T>(input: T): T {
   if (typeof input === 'string') {
@@ -46,7 +56,7 @@ export function resolveOptionVars<T>(input: T): T {
   if (Array.isArray(input)) {
     return input.map((item) => resolveOptionVars(item)) as unknown as T
   }
-  if (input && typeof input === 'object') {
+  if (input && typeof input === 'object' && isPlainObject(input)) {
     const out: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
       out[key] = resolveOptionVars(value)

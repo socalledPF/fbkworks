@@ -11,6 +11,8 @@ runAdapterConformance({
     row: '.fbk-vant-grid__card',
     selection: '.fbk-vant-grid__check',
     nextPage: '.van-pagination__item--next button',
+    // 卡片列表自己渲染的 loading 条（van-loading），数据非空且 loading 时出现
+    loading: '.fbk-vant-grid__loading',
   },
 })
 

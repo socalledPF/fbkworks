@@ -53,10 +53,9 @@ const APP_ENTRIES = [
   {
     name: 'playground',
     file: 'apps/playground/src/styles.ts',
-    // playground 要评审全部组件，需要每个有样式的包
-    requires: Object.keys(PACKAGES_WITH_STYLE).filter(
-      (p) => p !== '@fbk/demos' && !p.startsWith('@fbk/adapter-') || p === '@fbk/adapter-element-plus',
-    ),
+    // 全部纳入：playground 评审全部组件，也是唯一同时挂三个适配器的应用。
+    // 不要按包名写排除式 —— 混用 && / || 的排除式曾把 vant / naive-ui 静默排除在外。
+    requires: Object.keys(PACKAGES_WITH_STYLE),
   },
   {
     name: 'docs',
@@ -103,25 +102,36 @@ async function collectStyleRefs(file) {
   return refs
 }
 
-/** 把 @fbk 包名映射成它对外暴露的样式路径前缀 */
-const styleEntryFor = (pkg) => {
-  switch (pkg) {
-    case '@fbk/tokens':
-      return '@fbk/tokens/css'
-    case '@fbk/components':
-      return '@fbk/components/styles'
-    default:
-      return `${pkg}/style.css`
-  }
+/**
+ * 每个包对外暴露的聚合样式入口。
+ *
+ * 只认聚合入口本身（含它内部的路径），子组件样式不算：
+ * 引一个 `@fbk/components/pro-table/style.css` ≠ 接入了整个组件库 ——
+ * 「任意子路径都算覆盖」正是 exports 缺 4 个组件却长期没人发现的原因。
+ *
+ * components 有两个指向同一份完整样式表的等价入口：
+ *   · `@fbk/components/styles/index.css` 源码聚合，逐条 @import 各子组件
+ *   · `@fbk/components/style.css`        构建产物，由 bundle-css.mjs 把上面那份拼成单文件
+ */
+const AGGREGATE_STYLE_ENTRIES = {
+  '@fbk/tokens': ['@fbk/tokens/css'],
+  '@fbk/components': ['@fbk/components/styles', '@fbk/components/style.css'],
 }
 
-/** 某个包是否已被引入（考虑聚合入口间接引入） */
+/** 包的聚合样式入口候选（默认就是 <pkg>/style.css） */
+const styleEntriesFor = (pkg) => AGGREGATE_STYLE_ENTRIES[pkg] ?? [`${pkg}/style.css`]
+
+/** 报错文案里用作「期望引入的入口」 */
+const styleEntryFor = (pkg) => styleEntriesFor(pkg)[0]
+
+/** ref 是否命中了该包的聚合样式入口 */
+const isAggregateRef = (pkg, ref) =>
+  styleEntriesFor(pkg).some((entry) => ref === entry || ref.startsWith(`${entry}/`))
+
+/** 某个包是否已被引入：必须命中聚合入口本身，而不是任意子路径 */
 function isCovered(pkg, refs) {
-  const entry = styleEntryFor(pkg)
   for (const ref of refs) {
-    if (ref.startsWith(entry)) return true
-    // components 的聚合入口会带上所有子组件样式
-    if (pkg === '@fbk/components' && ref.startsWith('@fbk/components/')) return true
+    if (isAggregateRef(pkg, ref)) return true
   }
   return false
 }
@@ -167,7 +177,7 @@ for (const app of APP_ENTRIES) {
   if (!refs) continue
   for (const ref of refs) {
     // @fbk/components/pro-table/style.css → packages/components/src/pro-table/style.css
-    if (ref.startsWith('@fbk/components/') && !ref.startsWith('@fbk/components/styles')) {
+    if (ref.startsWith('@fbk/components/') && !isAggregateRef('@fbk/components', ref)) {
       const rel = ref.replace('@fbk/components/', '')
       const abs = resolve(root, 'packages/components/src', rel)
       if (!existsSync(abs)) report(`${app.name} 引用了不存在的路径：${ref}`)

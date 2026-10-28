@@ -122,4 +122,48 @@ describe('resolveOptionVars', () => {
     const input = { series: [{ data: [1, 2], lineStyle: { color: 'var(--fbk-chart-4)' } }] }
     expect(resolveOptionVars(input).series[0].lineStyle.color).toBe('#d03050')
   })
+
+  /**
+   * 以下四条防的是「把不该重建的对象当纯对象拆了」。
+   *
+   * 实测背景：只要 typeof === 'object' 就 Object.entries 重建，于是
+   * dataset.source 里的 Date（time 轴的标准写法）变成 {}、
+   * Float32Array 变成 { 0: x, 1: y }，图表静默空白或时间轴 NaN。
+   */
+  it('Date 原样返回（不被重建为空对象）', () => {
+    const date = new Date('2026-01-02T03:04:05.000Z')
+    const option = { dataset: { source: [[date, 1]] } }
+    expect(resolveOptionVars(option).dataset.source[0][0]).toBe(date)
+  })
+
+  it('TypedArray 原样返回（不被重建为数字键普通对象）', () => {
+    const data = new Float32Array([1.5, 2.5, 3.5])
+    const option = { series: [{ data }] }
+    expect(resolveOptionVars(option).series[0].data).toBe(data)
+  })
+
+  it('Map 原样返回', () => {
+    const map = new Map([['a', 1]])
+    const option = { meta: map }
+    expect(resolveOptionVars(option).meta).toBe(map)
+  })
+
+  it('类实例原样返回（不被拍平成普通对象）', () => {
+    class Point {
+      x = 1
+      y = 2
+    }
+    const point = new Point()
+    const option = { point }
+    expect(resolveOptionVars(option).point).toBe(point)
+  })
+
+  it('纯对象仍被深度遍历（CSS 变量照旧解析，且不污染入参）', () => {
+    setVar('--fbk-chart-5', '#7048e8')
+    const source = { series: [{ itemStyle: { color: 'var(--fbk-chart-5)' } }] }
+    const out = resolveOptionVars(source)
+    expect(out.series[0].itemStyle.color).toBe('#7048e8')
+    expect(out).not.toBe(source)
+    expect(source.series[0].itemStyle.color).toBe('var(--fbk-chart-5)')
+  })
 })

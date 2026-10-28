@@ -1,5 +1,5 @@
-import { computed, defineComponent, type PropType } from 'vue'
-import { ElTable, ElTableColumn } from 'element-plus'
+import { computed, defineComponent, withDirectives, type PropType } from 'vue'
+import { ElTable, ElTableColumn, vLoading } from 'element-plus'
 import {
   renderCell,
   type DataGridColumn,
@@ -33,7 +33,9 @@ export const DataGrid = defineComponent({
       props.size === 'sm' ? 'small' : props.size === 'lg' ? 'large' : 'default',
     )
 
-    return () => (
+    /* element-plus 没有独立 Spin，loading 只能靠 v-loading 指令挂遮罩；
+       这里用 withDirectives 直接绑指令对象，不要求业务侧全局注册 v-loading。 */
+    return () => withDirectives(
       <ElTable
         {...attrs}
         data={props.data}
@@ -80,7 +82,8 @@ export const DataGrid = defineComponent({
             }}
           />
         ))}
-      </ElTable>
+      </ElTable>,
+      [[vLoading, props.loading]],
     )
   },
 })

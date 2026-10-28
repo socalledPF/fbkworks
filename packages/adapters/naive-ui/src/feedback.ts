@@ -66,11 +66,17 @@ const confirm = (content: string, options: ConfirmOptions = {}) =>
       resolve(ok)
       return
     }
-    dialogApi[options.danger ? 'warning' : 'warning']({
+    /* danger 只改确认按钮的配色（契约即「确认按钮用危险色」），图标语义不动 ——
+       与 element-plus 的 el-button--danger、vant 的 confirmButtonColor 对齐。
+       naive 没有专门的 danger 开关，红按钮只能靠按钮的 type 传下去。
+       dialog 的 type 由方法名决定（typedApi 里 type 是后写的），所以这里按 type 选方法。 */
+    const type: MessageType = options.danger ? 'warning' : (options.type ?? 'warning')
+    dialogApi[type]({
       title: options.title ?? '提示',
       content,
       positiveText: options.confirmText ?? '确定',
       negativeText: options.cancelText ?? '取消',
+      positiveButtonProps: options.danger ? { type: 'error' } : undefined,
       onPositiveClick: () => resolve(true),
       onNegativeClick: () => resolve(false),
       onClose: () => resolve(false),

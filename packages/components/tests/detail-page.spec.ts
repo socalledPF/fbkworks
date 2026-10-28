@@ -150,6 +150,69 @@ describe('插槽', () => {
     expect(wrapper.find('.fbk-detail-page__extra').exists()).toBe(false)
     wrapper.unmount()
   })
+
+  /**
+   * 对外契约：单字段覆盖插槽叫 field-${key}。
+   * 依据 types.ts:86-87 与 docs/design/2026-10-25-detail-page.md:91。
+   *
+   * 实测背景：DetailPage 把收到的 field- 原样转发给 FbkDescriptions，
+   * 而 Descriptions 只读 item-${key}，两边前缀对不上，
+   * 于是 field- 与 item- 两种写法都不生效，且不报错不警告。
+   */
+  it('field- 前缀插槽覆盖单个字段的渲染', async () => {
+    const wrapper = mountWithAdapter(FbkDetailPage, {
+      props: { request: async () => ({ orderNo: 'SO001', amount: 100 }), items },
+      slots: {
+        'field-amount': ({ value }: any) => h('span', { class: 'custom-amount' }, `¥${value}`),
+      },
+      attachTo: document.body,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.custom-amount').text()).toBe('¥100')
+    // 只覆盖被点名的字段，其它字段照旧渲染
+    expect(wrapper.text()).toContain('SO001')
+    wrapper.unmount()
+  })
+
+  it('多个 field- 插槽各管各的字段', async () => {
+    const wrapper = mountWithAdapter(FbkDetailPage, {
+      props: { request: async () => ({ orderNo: 'SO001', amount: 100 }), items },
+      slots: {
+        'field-orderNo': ({ value }: any) => h('span', { class: 'custom-no' }, `NO:${value}`),
+        'field-amount': ({ value }: any) => h('span', { class: 'custom-amount' }, `¥${value}`),
+      },
+      attachTo: document.body,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.custom-no').text()).toBe('NO:SO001')
+    expect(wrapper.find('.custom-amount').text()).toBe('¥100')
+    // 两个字段各自被自己的插槽接管，不是只有第一个生效
+    const cells = wrapper.findAll('.fbk-descriptions__value')
+    expect(cells).toHaveLength(2)
+    expect(cells.every((cell) => cell.find('[class^="custom-"]').exists())).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('field- 插槽同时收到 data 与 value', async () => {
+    let received: any
+    const wrapper = mountWithAdapter(FbkDetailPage, {
+      props: { request: async () => ({ orderNo: 'SO001', amount: 100 }), items },
+      slots: {
+        'field-amount': (slotProps: any) => {
+          received = slotProps
+          return h('span', { class: 'custom-amount' }, 'ok')
+        },
+      },
+      attachTo: document.body,
+    })
+    await flushPromises()
+
+    expect(received.value).toBe(100)
+    expect(received.data).toMatchObject({ orderNo: 'SO001' })
+    wrapper.unmount()
+  })
 })
 
 describe('事件', () => {

@@ -75,10 +75,21 @@ const resolvedTitle = computed(() => {
  */
 const notFound = computed(() => !loading.value && !error.value && data.value === null)
 
-/** 要转发给 Descriptions 的字段插槽名 */
+const FIELD_SLOT_PREFIX = 'field-'
+const ITEM_SLOT_PREFIX = 'item-'
+
+/** 调用方传进来的单字段插槽名（对外公开的是 field-${key}） */
 const fieldSlots = computed(() =>
-  Object.keys(slots).filter((name) => name.startsWith('field-')),
+  Object.keys(slots).filter((name) => name.startsWith(FIELD_SLOT_PREFIX)),
 )
+
+/**
+ * 自己的公开插槽是 field-${key}，Descriptions 读的是 item-${key}。
+ * 两个名字必须在这层对齐：原样转发会让 field- 静默失效。
+ */
+function toItemSlotName(name: string) {
+  return `${ITEM_SLOT_PREFIX}${name.slice(FIELD_SLOT_PREFIX.length)}`
+}
 
 function onBack() {
   if (typeof props.back === 'function') props.back()
@@ -155,8 +166,8 @@ defineExpose({
         :direction="direction"
         :size="size"
       >
-        <!-- 字段级插槽透传：让业务方能覆盖单个字段的渲染 -->
-        <template v-for="name in fieldSlots" #[name]="slotProps" :key="name">
+        <!-- 字段级插槽透传：把对外的 field- 前缀映射成 Descriptions 认的 item- 前缀 -->
+        <template v-for="name in fieldSlots" #[toItemSlotName(name)]="slotProps" :key="name">
           <slot :name="name" :data="data" v-bind="slotProps" />
         </template>
       </FbkDescriptions>

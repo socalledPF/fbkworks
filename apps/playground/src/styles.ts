@@ -10,6 +10,9 @@ import '@fbk/adapter-vant/style.css'
 import '@fbk/adapter-vant/dark.css'
 import '@fbk/adapter-naive-ui/style.css'
 import '@fbk/adapter-naive-ui/dark.css'
+// 组件库聚合入口：一次性覆盖全部子组件（check:style-entries 要求命中的就是这一条）
+import '@fbk/components/styles/index.css'
+// 子组件样式仍需逐条登记：check:styles 按组件名逐个校验本文件
 import '@fbk/components/pro-table/style.css'
 import '@fbk/components/query-form/style.css'
 import '@fbk/components/form-generator/style.css'

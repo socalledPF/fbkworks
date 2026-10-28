@@ -10,5 +10,7 @@ runAdapterConformance({
     row: '.el-table__body tbody tr',
     selection: '.el-table__body .el-checkbox__original',
     nextPage: '.el-pagination .btn-next',
+    // v-loading 指令挂出来的遮罩
+    loading: '.el-table .el-loading-mask',
   },
 })
