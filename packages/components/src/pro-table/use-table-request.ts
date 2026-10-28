@@ -28,8 +28,15 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
 
   let requestId = 0
   let controller: AbortController | null = null
+  /** 最近一次请求用的页码：watch 靠它认出「这次改页码是 loadMore/reload 自己干的」 */
+  let issuedPage: number | null = null
 
-  async function load(append = false) {
+  /** 追加还是替换由 options.append 决定，不再靠调用方传参 */
+  function isAppend() {
+    return options.append?.() ?? false
+  }
+
+  async function load(append = isAppend()) {
     const request = options.request()
     if (!request) return
 
@@ -44,6 +51,7 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       params: options.params(),
       signal: controller.signal,
     }
+    issuedPage = requestParams.page
 
     loading.value = true
     error.value = null
@@ -55,13 +63,8 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       // 过期响应直接丢弃，防止快速翻页时旧数据覆盖新数据
       if (id !== requestId) return
 
-      if (append) {
-        data.value = [...data.value, ...result.list]
-        finished.value = result.hasMore === false
-      } else {
-        data.value = result.list
-        finished.value = result.hasMore === false
-      }
+      data.value = append ? [...data.value, ...result.list] : result.list
+      finished.value = result.hasMore === false
       total.value = result.total ?? data.value.length
       options.onLoad?.(result, requestParams)
 
@@ -105,20 +108,43 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
     if (options_.resetPage) options.page.value = 1
     data.value = []
     finished.value = false
-    return load(false)
+    return load()
   }
 
   function loadMore() {
     if (loading.value || finished.value) return
     options.page.value += 1
-    return load(true)
+    return load()
+  }
+
+  /* 用户翻页、改排序、改筛选都是「重新查」：替换而不是接着往后拼。
+     无限滚动下旧行已经过期，先清掉，否则新一页会拼在旧数据后面。 */
+  function refresh() {
+    if (isAppend()) data.value = []
+    return load()
   }
 
   watch(
-    () => [options.page.value, options.pageSize.value, options.sort(), options.params()],
-    () => {
+    () => [options.page.value, options.pageSize.value, options.sort(), options.params()] as const,
+    (next, prev) => {
       if (!options.request()) return
-      load(false)
+      /* 这一次变化是不是我们自己改页码造成的？loadMore、reload({ resetPage })
+         以及下面那次「筛选变化回第一页」都算：它们改完页码就自己发过请求了，
+         这里再发一次就是「一次触底两个 page=2 请求」。 */
+      const selfPageChange =
+        prev !== undefined &&
+        next[1] === prev[1] &&
+        next[2] === prev[2] &&
+        next[3] === prev[3] &&
+        next[0] !== prev[0] &&
+        next[0] === issuedPage
+      if (selfPageChange) return
+
+      /* 筛选条件（params / sort / pageSize）变了就回到第一页：
+         停在第 3 页查一个只有 1 页结果的关键词会拿到空列表，用户看到「暂无数据」。
+         翻页本身不改页码 —— 用户点第几页就查第几页。 */
+      if (prev !== undefined && next[0] === prev[0]) options.page.value = 1
+      refresh()
     },
     { deep: true, immediate: true },
   )

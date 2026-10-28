@@ -1,4 +1,5 @@
 import { defineComponent, h, type PropType } from 'vue'
+import { ADAPTER_API_VERSION } from '@fbk/adapter-core'
 import type {
   Capabilities,
   ConfirmOptions,
@@ -444,7 +445,9 @@ export function createMockFeedback() {
 export function createMockAdapter(overrides?: DeepPartial<Capabilities>): UiAdapter {
   return {
     meta: {
-      apiVersion: 1,
+      // 必须与 core 契约同版本：mock 代表一个真实适配器，版本落后会让
+      // 任何经 assertAdapterCompatible 的装配路径在测试里抛错，测试基座反而不像真实环境。
+      apiVersion: ADAPTER_API_VERSION,
       name: 'mock',
       version: '0.0.0',
       uiLibrary: { name: 'mock', version: '0.0.0' },

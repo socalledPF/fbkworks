@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref, resolveDirective, withDirectives } from 'vue'
 import { resetWarnCache } from '@fbk/shared'
 import { hasPermission, usePermission } from '../src/permission'
 import { createPermissionDirective } from '../src/permission-directive'
@@ -189,5 +189,82 @@ describe('v-permission 指令', () => {
     expect(container.childNodes.length).toBe(0)
 
     document.body.removeChild(container)
+  })
+
+  it('绑定值变更：有权限 → 无权限元素消失，反向回来', async () => {
+    const el = document.createElement('button')
+    const container = document.createElement('div')
+    container.appendChild(el)
+    document.body.appendChild(container)
+
+    const dir = createPermissionDirective(() => ['order:edit']) as any
+    dir.mounted(el, { value: 'order:edit' })
+    await nextTick()
+    expect(container.querySelector('button')).not.toBeNull()
+
+    // 绑定值换成用户没有的权限点
+    dir.updated(el, { value: 'order:delete', oldValue: 'order:edit' })
+    await nextTick()
+    expect(container.querySelector('button')).toBeNull()
+
+    // 换回来
+    dir.updated(el, { value: 'order:edit', oldValue: 'order:delete' })
+    await nextTick()
+    expect(container.querySelector('button')).not.toBeNull()
+
+    dir.unmounted(el)
+    document.body.removeChild(container)
+  })
+
+  it('数组绑定值变更同样生效', async () => {
+    const el = document.createElement('button')
+    const container = document.createElement('div')
+    container.appendChild(el)
+    document.body.appendChild(container)
+
+    const dir = createPermissionDirective(() => ['order:edit']) as any
+    dir.mounted(el, { value: ['order:edit', 'user:edit'] })
+    await nextTick()
+    expect(container.querySelector('button')).not.toBeNull()
+
+    dir.updated(el, { value: ['order:delete', 'user:delete'], oldValue: ['order:edit', 'user:edit'] })
+    await nextTick()
+    expect(container.querySelector('button')).toBeNull()
+
+    dir.updated(el, { value: ['order:edit'], oldValue: ['order:delete', 'user:delete'] })
+    await nextTick()
+    expect(container.querySelector('button')).not.toBeNull()
+
+    dir.unmounted(el)
+    document.body.removeChild(container)
+  })
+
+  it('真实更新路径：父组件重渲染时绑定值变化驱动 DOM 切换', async () => {
+    const required = ref<string | string[]>('order:edit')
+    const Comp = defineComponent({
+      directives: { permission: createPermissionDirective(() => ['order:edit']) },
+      setup() {
+        return () =>
+          h('div', [
+            withDirectives(h('button', { id: 'btn' }, '编辑'), [
+              [resolveDirective('permission')!, required.value],
+            ]),
+          ])
+      },
+    })
+
+    const wrapper = mount(Comp, { attachTo: document.body })
+    await nextTick()
+    expect(wrapper.find('#btn').exists()).toBe(true)
+
+    required.value = 'order:delete'
+    await nextTick()
+    expect(wrapper.find('#btn').exists()).toBe(false)
+
+    required.value = 'order:edit'
+    await nextTick()
+    expect(wrapper.find('#btn').exists()).toBe(true)
+
+    wrapper.unmount()
   })
 })

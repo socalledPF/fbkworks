@@ -1,4 +1,11 @@
-import { effectScope, watchEffect, type Directive, type DirectiveBinding } from 'vue'
+import {
+  effectScope,
+  shallowRef,
+  watchEffect,
+  type Directive,
+  type DirectiveBinding,
+  type ShallowRef,
+} from 'vue'
 import { hasPermission, type PermissionResolver } from './permission'
 import { warnOnce } from '@fbk/shared'
 
@@ -26,7 +33,8 @@ import { warnOnce } from '@fbk/shared'
  */
 
 interface PermissionState {
-  required: string | string[]
+  /** 必须是响应式来源：watchEffect 只追踪 ref/reactive，普通属性赋值不会让它重跑 */
+  required: ShallowRef<string | string[]>
   placeholder: Comment
   scope: ReturnType<typeof effectScope>
   removed: boolean
@@ -68,7 +76,7 @@ export function createPermissionDirective(resolver: PermissionResolver): Directi
       }
 
       const state: PermissionState = {
-        required,
+        required: shallowRef(required),
         placeholder: document.createComment(' v-permission '),
         scope: effectScope(),
         removed: false,
@@ -79,7 +87,7 @@ export function createPermissionDirective(resolver: PermissionResolver): Directi
       state.scope.run(() => {
         watchEffect(() => {
           // resolver 内部读响应式数据，权限变化时这里会自动重跑
-          const allowed = hasPermission(resolver(), state.required)
+          const allowed = hasPermission(resolver(), state.required.value)
           if (allowed) attach(el, state)
           else detach(el, state)
         })
@@ -88,10 +96,9 @@ export function createPermissionDirective(resolver: PermissionResolver): Directi
 
     updated(el, binding: DirectiveBinding<string | string[]>) {
       const state = el.__fbkPermission
-      // 绑定值变了（如从 'a' 改成 'b'），需要更新条件
-      if (state && binding.value !== binding.oldValue) {
-        state.required = binding.value
-      }
+      if (!state) return
+      // 写回 ref 才会让上面的 watchEffect 重跑；同值赋值本身是空操作，不必比 oldValue
+      state.required.value = binding.value
     },
 
     unmounted(el) {

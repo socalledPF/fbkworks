@@ -167,18 +167,26 @@ export const FbkProvider = defineComponent({
     provide(ADAPTER_CONTEXT, ctx)
 
     /* 权限上下文。
-       未传时用空解析器 —— 指令统一走「无权限」分支，不崩。 */
-    const getPermissions: PermissionResolver = props.permissions ?? (() => [])
+       未传时继承上层（插件 install 提供的那份），与 adapter/theme/locale 一致。
+       早期这里直接退化成 () => []：外面 app.use 配好权限、里面套一个
+       <FbkProvider>，权限判定就被清空成「全部无权限」了。
+       都没有时才用空解析器 —— 统一走「无权限」分支，不崩。 */
+    const parentPermission = inject(PERMISSION_CONTEXT, null)
+    const getPermissions: PermissionResolver =
+      props.permissions ?? parentPermission?.getPermissions ?? (() => [])
     provide(PERMISSION_CONTEXT, { getPermissions })
 
     /* 注册 v-permission 指令。
        必须在这里也注册：应用用 <FbkProvider> 而不是 app.use(createBusinessKit())
        时，指令不会走插件的 install，导致模板里报
        "Failed to resolve directive: permission" 且静默失效。
-       用局部指令（当前实例作用域）而不是全局，避免多实例互相覆盖。 */
-    const instance = getCurrentInstance()
-    if (instance) {
-      instance.appContext.app.directive('permission', createPermissionDirective(getPermissions))
+       但**已注册时不能再注册**：指令挂在 app 级指令表上，Vue 是「后注册顶掉
+       先注册」且只 dev warn，多挂一个 Provider 就能把插件配的解析器换成
+       () => []，按钮全部消失却没有报错。
+       判重按 app 做（不能用模块级标记）：多 app 各有一份指令表，互不干扰。 */
+    const app = getCurrentInstance()?.appContext.app
+    if (app && !app.directive('permission')) {
+      app.directive('permission', createPermissionDirective(getPermissions))
     }
 
     /*
