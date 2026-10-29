@@ -8,8 +8,8 @@ import {
   resolveDirective,
   withDirectives,
 } from 'vue'
-import { resetWarnCache } from '@fbk/shared'
-import { createMockAdapter } from '@fbk/test-utils'
+import { resetWarnCache } from '@fbkworks/shared'
+import { createMockAdapter } from '@fbkworks/test-utils'
 import { createBusinessKit, FbkProvider } from '../src/plugin'
 import { usePermission } from '../src/permission'
 import { createPermissionDirective } from '../src/permission-directive'

@@ -7,8 +7,8 @@ describe('FbkResolver', () => {
   it('解析已注册的组件并带上样式副作用', () => {
     expect(resolver.resolve('FbkProTable')).toEqual({
       name: 'FbkProTable',
-      from: '@fbk/components/pro-table',
-      sideEffects: '@fbk/components/pro-table/style.css',
+      from: '@fbkworks/components/pro-table',
+      sideEffects: '@fbkworks/components/pro-table/style.css',
     })
   })
 
@@ -21,7 +21,7 @@ describe('FbkResolver', () => {
     const noStyle = FbkResolver({ importStyle: false })
     expect(noStyle.resolve('FbkQueryForm')).toEqual({
       name: 'FbkQueryForm',
-      from: '@fbk/components/query-form',
+      from: '@fbkworks/components/query-form',
       sideEffects: undefined,
     })
   })
@@ -42,7 +42,7 @@ describe('FbkResolver', () => {
     for (const name of names) {
       const hit = resolver.resolve(name)
       expect(hit, name).toBeDefined()
-      expect(hit!.from).toMatch(/^@fbk\/components\/[a-z-]+$/)
+      expect(hit!.from).toMatch(/^@fbkworks\/components\/[a-z-]+$/)
       expect(hit!.sideEffects).toBe(`${hit!.from}/style.css`)
     }
   })

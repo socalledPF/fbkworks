@@ -51,7 +51,7 @@ naive-ui 的 `theme.cssVariables === false`。只 `apply()` 不包 `<FbkProvider
 ## 读取能力
 
 ```ts
-import { useAdapter } from '@fbk/adapter-core'
+import { useAdapter } from '@fbkworks/adapter-core'
 
 const adapter = useAdapter()
 if (adapter.capabilities.dataGrid.selection) {

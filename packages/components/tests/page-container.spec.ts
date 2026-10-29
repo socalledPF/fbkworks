@@ -1,6 +1,6 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkPageContainer } from '../src/page-container'
 
 describe('FbkPageContainer', () => {

@@ -1,9 +1,9 @@
 ---
-"@fbk/adapter-core": minor
-"@fbk/adapter-element-plus": minor
-"@fbk/adapter-naive-ui": minor
-"@fbk/adapter-vant": minor
-"@fbk/components": minor
+"@fbkworks/adapter-core": minor
+"@fbkworks/adapter-element-plus": minor
+"@fbkworks/adapter-naive-ui": minor
+"@fbkworks/adapter-vant": minor
+"@fbkworks/components": minor
 ---
 
 新增 `Drawer` 原语与 `FbkDetailDrawer` 组件（P4-2）

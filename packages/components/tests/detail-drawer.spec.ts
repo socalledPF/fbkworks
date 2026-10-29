@@ -1,8 +1,8 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import { h, nextTick } from 'vue'
-import { ADAPTER_CONTEXT, createAdapterContext } from '@fbk/adapter-core'
-import { createMockAdapter, mountWithAdapter } from '@fbk/test-utils'
+import { ADAPTER_CONTEXT, createAdapterContext } from '@fbkworks/adapter-core'
+import { createMockAdapter, mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkDetailDrawer } from '../src/detail-drawer'
 import * as pkgBarrel from '../src/index'
 

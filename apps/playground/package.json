@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/playground",
+  "name": "@fbkworks/playground",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,21 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:*",
-    "@fbk/adapter-element-plus": "workspace:*",
-    "@fbk/adapter-naive-ui": "workspace:*",
-    "@fbk/adapter-vant": "workspace:*",
-    "@fbk/components": "workspace:*",
-    "@fbk/demos": "workspace:*",
-    "@fbk/tokens": "workspace:*",
+    "@fbkworks/adapter-core": "workspace:*",
+    "@fbkworks/adapter-element-plus": "workspace:*",
+    "@fbkworks/adapter-naive-ui": "workspace:*",
+    "@fbkworks/adapter-vant": "workspace:*",
+    "@fbkworks/components": "workspace:*",
+    "@fbkworks/demos": "workspace:*",
+    "@fbkworks/tokens": "workspace:*",
     "element-plus": "^2.8.8",
     "naive-ui": "^2.40.3",
     "vant": "^4.9.15",
     "vue": "^3.5.13",
-    "@fbk/dashboard": "workspace:^",
-    "@fbk/screen": "workspace:^",
+    "@fbkworks/dashboard": "workspace:^",
+    "@fbkworks/screen": "workspace:^",
     "echarts": "^6.0.0",
-    "@fbk/chart-core": "workspace:^"
+    "@fbkworks/chart-core": "workspace:^"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",

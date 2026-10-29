@@ -7,7 +7,7 @@ import './layout.css'
 /**
  * 后台布局壳。
  *
- * 这里**刻意不使用** @fbk/components 的组件 —— 布局壳属于「应用框架」，
+ * 这里**刻意不使用** @fbkworks/components 的组件 —— 布局壳属于「应用框架」，
  * 组件库的 PageContainer 是给「单个页面」用的，不是给「全局框架」用的。
  * 混用会让 PageContainer 承担它不该承担的职责。
  *

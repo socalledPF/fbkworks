@@ -45,8 +45,8 @@ naive-ui 没有可覆盖的 CSS 变量体系。如果你只 `apply()` 而不包 
 适配器在下一次 `apply()` 时读取当前令牌值。若要运行时换肤，调用：
 
 ```ts
-import { defaultTokens } from '@fbk/tokens'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { defaultTokens } from '@fbkworks/tokens'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 
 elementPlusAdapter.theme.apply('light', { ...defaultTokens, color: { ...defaultTokens.color, primary: '#7c3aed' } })
 ```
@@ -65,7 +65,7 @@ createBusinessKit({ adapter: elementPlusAdapter, theme: 'dark' })
 </FbkProvider>
 ```
 
-- element-plus：额外引入 `@fbk/adapter-element-plus/dark.css`（内部 `@import 'element-plus/theme-chalk/dark/css-vars.css'`）。
+- element-plus：额外引入 `@fbkworks/adapter-element-plus/dark.css`（内部 `@import 'element-plus/theme-chalk/dark/css-vars.css'`）。
 - vant：适配器设置 `van-config-provider` 的 `theme="dark"`。
 - naive-ui：`providerProps()` 返回 `{ theme: darkTheme }`。
 
@@ -75,9 +75,9 @@ createBusinessKit({ adapter: elementPlusAdapter, theme: 'dark' })
 的完整配色方案：
 
 ```ts
-import '@fbk/tokens/css'
-import '@fbk/tokens/dark.css'
-import '@fbk/tokens/cyber.css'   // 新增
+import '@fbkworks/tokens/css'
+import '@fbkworks/tokens/dark.css'
+import '@fbkworks/tokens/cyber.css'   // 新增
 
 createBusinessKit({ adapter: elementPlusAdapter, theme: 'cyber' })
 ```

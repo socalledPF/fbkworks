@@ -18,8 +18,8 @@
 
 ```vue
 <script setup lang="ts">
-import { FbkDetailPage } from '@fbk/components/detail-page'
-import type { DescriptionItem } from '@fbk/components/descriptions'
+import { FbkDetailPage } from '@fbkworks/components/detail-page'
+import type { DescriptionItem } from '@fbkworks/components/descriptions'
 
 const items: DescriptionItem<Order>[] = [
   { key: 'orderNo', label: '订单号', dataIndex: 'orderNo' },
@@ -98,7 +98,7 @@ const items: DescriptionItem<Order>[] = [
 需要完全自定义模板时用它，两者共用同一份实现：
 
 ```ts
-import { useDetail } from '@fbk/components/detail-page'
+import { useDetail } from '@fbkworks/components/detail-page'
 
 const { data, loading, error, reload } = useDetail({
   fetcher: () => fetchOrder(id),
@@ -109,7 +109,7 @@ const { data, loading, error, reload } = useDetail({
 `id` 变化时自动重新请求：
 
 ```ts
-import { useDetailWatch } from '@fbk/components/detail-page'
+import { useDetailWatch } from '@fbkworks/components/detail-page'
 
 const { data } = useDetailWatch({
   fetcher: () => fetchOrder(id.value),

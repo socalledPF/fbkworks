@@ -1,4 +1,4 @@
-import type { FbkRule } from '@fbk/adapter-core'
+import type { FbkRule } from '@fbkworks/adapter-core'
 import type { QueryField } from '../query-form/types'
 
 export type FormFieldType =

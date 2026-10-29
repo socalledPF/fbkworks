@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, type PropType } from 'vue'
 import { NForm, NFormItem, type FormInst, type FormRules } from 'naive-ui'
-import type { FbkRule, FormProps, Size } from '@fbk/adapter-core'
+import type { FbkRule, FormProps, Size } from '@fbkworks/adapter-core'
 
 function toNaiveRules(rules: FbkRule[] | undefined): FormRules | undefined {
   if (!rules?.length) return undefined

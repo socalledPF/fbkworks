@@ -60,7 +60,7 @@ export function defineVueLib(options: VueLibOptions): UserConfig {
       rollupOptions: {
         external: [
           /^vue($|\/)/,
-          /^@fbk\//,
+          /^@fbkworks\//,
           /^element-plus($|\/)/,
           /^vant($|\/)/,
           /^naive-ui($|\/)/,

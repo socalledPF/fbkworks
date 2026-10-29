@@ -1,8 +1,8 @@
 ---
-"@fbk/adapter-core": minor
-"@fbk/tokens": minor
-"@fbk/adapter-naive-ui": minor
-"@fbk/adapter-vant": minor
+"@fbkworks/adapter-core": minor
+"@fbkworks/tokens": minor
+"@fbkworks/adapter-naive-ui": minor
+"@fbkworks/adapter-vant": minor
 ---
 
 让 `size` 与自定义 `tokens` 真正生效

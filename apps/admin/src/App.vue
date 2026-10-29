@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { FbkProvider } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { FbkProvider } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 import AdminLayout from './layout/AdminLayout.vue'
 import LoginPage from './pages/LoginPage.vue'
 import WorkbenchPage from './pages/WorkbenchPage.vue'

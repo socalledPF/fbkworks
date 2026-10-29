@@ -1,6 +1,6 @@
 /**
  * Barrel 只做 re-export，不 import CSS —— 保证 tree-shaking。
- * 样式按子路径显式导入：`@fbk/components/pro-table/style.css`。
+ * 样式按子路径显式导入：`@fbkworks/components/pro-table/style.css`。
  */
 export { FbkProTable, useTableRequest } from './pro-table'
 export type {

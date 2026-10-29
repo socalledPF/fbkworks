@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FbkResult } from '@fbk/components/result'
-import { FbkPageContainer } from '@fbk/components/page-container'
+import { FbkResult } from '@fbkworks/components/result'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
 import { navigate, route } from '../router'
 
 /**

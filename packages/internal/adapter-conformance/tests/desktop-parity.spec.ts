@@ -4,9 +4,9 @@ import { mount } from '@vue/test-utils'
 import { defineComponent, h, type Component } from 'vue'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
-import { naiveUiAdapter } from '@fbk/adapter-naive-ui'
-import type { UiAdapter } from '@fbk/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
+import { naiveUiAdapter } from '@fbkworks/adapter-naive-ui'
+import type { UiAdapter } from '@fbkworks/adapter-core'
 
 /**
  * 桌面端双适配器一致性约束（element-plus ↔ naive-ui）。

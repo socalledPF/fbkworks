@@ -1,7 +1,7 @@
 import { defineComponent, ref, type PropType } from 'vue'
 import { Form as VanForm, Field } from 'vant'
 import type { FieldRule } from 'vant'
-import type { FbkRule, FormProps } from '@fbk/adapter-core'
+import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
 
 /**
  * vant 没有「按最宽标签统一」的能力。

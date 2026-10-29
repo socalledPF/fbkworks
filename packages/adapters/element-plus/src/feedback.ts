@@ -1,5 +1,5 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbk/adapter-core'
+import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbkworks/adapter-core'
 
 /**
  * element-plus 的命令式反馈。

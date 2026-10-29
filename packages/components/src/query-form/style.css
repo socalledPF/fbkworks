@@ -2,7 +2,7 @@
  * QueryForm 的容器与栅格。
  *
  * 列数解析：组件把 columns 展开成 --fbk-cols-base / --fbk-cols-xs|sm|md|lg
- * 行内变量（见 @fbk/shared 的 resolveColumns），这里按断点挑一个。
+ * 行内变量（见 @fbkworks/shared 的 resolveColumns），这里按断点挑一个。
  *
  * 为什么用 var() 回退链而不是每档写一条媒体查询：
  * 媒体查询只能表达「这个断点是多少列」，表达不了「没传就沿用更小的断点」。

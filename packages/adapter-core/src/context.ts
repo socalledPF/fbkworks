@@ -1,5 +1,5 @@
 import { inject, type InjectionKey, type Ref } from 'vue'
-import type { FbkTokens } from '@fbk/tokens'
+import type { FbkTokens } from '@fbkworks/tokens'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'
 import type { UiAdapter } from './contracts/adapter'

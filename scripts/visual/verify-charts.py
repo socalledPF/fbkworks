@@ -1,4 +1,4 @@
-"""图表组件（@fbk/chart-core / dashboard / screen）的真实浏览器验证。
+"""图表组件（@fbkworks/chart-core / dashboard / screen）的真实浏览器验证。
 
 单元测试在 jsdom 里跑，ECharts 无法真实绘制，所以只能验证编排逻辑。
 **这个脚本补上真实渲染的验证**，覆盖 jsdom 覆盖不到的问题：

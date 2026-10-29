@@ -15,7 +15,7 @@
 
 | 入口 | 服务对象 | 漏掉的后果 |
 |---|---|---|
-| `packages/components/src/styles/index.css` | 走 `@fbk/components/style.css` 全量引入的业务方 | 全量引入时该组件没有样式 |
+| `packages/components/src/styles/index.css` | 走 `@fbkworks/components/style.css` 全量引入的业务方 | 全量引入时该组件没有样式 |
 | `apps/playground/src/styles.ts` | Playground 与文档站 demo | **开发和评审时看不到真实效果** |
 
 第二条是最危险的：Playground 是唯一的可视化验证环境，漏了它就会出现
@@ -27,7 +27,7 @@
 
 - [ ] 写 `src/<component>/style.css`
 - [ ] 在 `src/styles/index.css` 加 `@import '../<component>/style.css';`
-- [ ] 在 `apps/playground/src/styles.ts` 加 `import '@fbk/components/<component>/style.css'`
+- [ ] 在 `apps/playground/src/styles.ts` 加 `import '@fbkworks/components/<component>/style.css'`
 - [ ] 跑 `pnpm check:styles`（新增的自动校验，见下）
 - [ ] 在 Playground 里**实际看一眼**，不只看测试
 
@@ -214,7 +214,7 @@ PC 端 element-plus 与 naive-ui 必须看起来一致。这条由
 
 **核心库不做后端适配。**
 
-`@fbk/components` 的 `request` 是纯函数契约：
+`@fbkworks/components` 的 `request` 是纯函数契约：
 
 ```ts
 type TableRequest<T> = (params: {
@@ -249,7 +249,7 @@ const ruoyiRequest: TableRequest<Row> = async ({ page, pageSize, params, signal 
 ```
 
 如果多个项目重复写同一套转换，**再**考虑抽成独立的可选包
-（`@fbk/request-adapters`），且必须满足：
+（`@fbkworks/request-adapters`），且必须满足：
 
 - 不进任何核心包的 `dependencies`
 - 传输层仍然注入（`createRuoyiRequest(http, options)`），不内置 axios

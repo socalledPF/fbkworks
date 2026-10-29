@@ -118,12 +118,12 @@
 
 ### 1.3.1 一个必须知道的坑（本轮踩到）
 
-`apps/playground/vite.config.ts` 的 alias **没有覆盖** `@fbk/screen` / `@fbk/dashboard` /
-`@fbk/chart-core`——这三个包在 playground 里走 `package.json` 的 `exports`，
+`apps/playground/vite.config.ts` 的 alias **没有覆盖** `@fbkworks/screen` / `@fbkworks/dashboard` /
+`@fbkworks/chart-core`——这三个包在 playground 里走 `package.json` 的 `exports`，
 即加载 **`dist/` 构建产物**，不是 `src/`。
 
 后果：改 `packages/screen/src/style.css` 在 playground 里**看不到任何变化**，
-必须先 `pnpm --filter @fbk/screen build`。而 build 脚本是
+必须先 `pnpm --filter @fbkworks/screen build`。而 build 脚本是
 `vite build && copy-css.mjs && bundle-css.mjs`——
 **单独跑 `npx vite build` 会清空 dist 却不生成 `style.css`**，页面直接坏掉。
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkResult } from '@fbk/components/result'
-import type { ResultStatus } from '@fbk/components/result'
+import { FbkResult } from '@fbkworks/components/result'
+import type { ResultStatus } from '@fbkworks/components/result'
 
 /**
  * 异常状态页。纯展示组件，不依赖适配器 ——

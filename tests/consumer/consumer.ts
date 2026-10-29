@@ -3,25 +3,25 @@
  *
  * 它验证的是"发布出去之后"的形态：
  * - d.ts 里的相对说明符能解析（node16/nodenext 不做目录索引查找）；
- * - @fbk/* 的跨包引用走包名而不是源码相对路径；
+ * - @fbkworks/* 的跨包引用走包名而不是源码相对路径；
  * - 公开 API 不含 UI 库类型。
  */
-import { FbkProTable, useTableRequest } from '@fbk/components/pro-table'
-import { FbkQueryForm } from '@fbk/components/query-form'
-import { FbkFormGenerator } from '@fbk/components/form-generator'
-import { FbkPageContainer } from '@fbk/components/page-container'
-import { FbkDescriptions } from '@fbk/components/descriptions'
-import { FbkCrudPage } from '@fbk/components/crud-page'
-import { FbkFormModal } from '@fbk/components/form-modal'
-import { FbkResult } from '@fbk/components/result'
-import { FbkDetailPage, useDetail } from '@fbk/components/detail-page'
-import { createBusinessKit, useAdapter } from '@fbk/adapter-core'
-import type { ProTableColumn, TableRequestParams } from '@fbk/components/pro-table'
-import type { SortState, UiAdapter } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
-import { vantAdapter } from '@fbk/adapter-vant'
-import { naiveUiAdapter } from '@fbk/adapter-naive-ui'
-import { FbkResolver } from '@fbk/resolver'
+import { FbkProTable, useTableRequest } from '@fbkworks/components/pro-table'
+import { FbkQueryForm } from '@fbkworks/components/query-form'
+import { FbkFormGenerator } from '@fbkworks/components/form-generator'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
+import { FbkDescriptions } from '@fbkworks/components/descriptions'
+import { FbkCrudPage } from '@fbkworks/components/crud-page'
+import { FbkFormModal } from '@fbkworks/components/form-modal'
+import { FbkResult } from '@fbkworks/components/result'
+import { FbkDetailPage, useDetail } from '@fbkworks/components/detail-page'
+import { createBusinessKit, useAdapter } from '@fbkworks/adapter-core'
+import type { ProTableColumn, TableRequestParams } from '@fbkworks/components/pro-table'
+import type { SortState, UiAdapter } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
+import { vantAdapter } from '@fbkworks/adapter-vant'
+import { naiveUiAdapter } from '@fbkworks/adapter-naive-ui'
+import { FbkResolver } from '@fbkworks/resolver'
 
 interface Order {
   id: number

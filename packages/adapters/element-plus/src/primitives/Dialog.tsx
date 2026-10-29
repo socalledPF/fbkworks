@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { ElDialog } from 'element-plus'
-import type { DialogProps } from '@fbk/adapter-core'
+import type { DialogProps } from '@fbkworks/adapter-core'
 
 /**
  * placement 必须真的生效。element-plus 侧落在两处：

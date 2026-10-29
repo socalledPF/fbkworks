@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref } from 'vue'
-import { createMockAdapter } from '@fbk/test-utils'
+import { createMockAdapter } from '@fbkworks/test-utils'
 import { FbkProvider } from '../src/plugin'
 import type { ThemeMode, UiAdapter } from '../src'
 

@@ -10,7 +10,7 @@ import { h } from 'vue'
  * 构图是否一致。这块逻辑纯计算，可以精确断言。
  */
 
-vi.mock('@fbk/chart-core', () => ({
+vi.mock('@fbkworks/chart-core', () => ({
   FbkChart: {
     name: 'FbkChart',
     props: ['option', 'height', 'loading', 'isEmpty', 'emptyText'],

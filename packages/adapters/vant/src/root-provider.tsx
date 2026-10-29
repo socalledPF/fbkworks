@@ -1,7 +1,7 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ConfigProvider } from 'vant'
-import type { Size, ThemeMode } from '@fbk/adapter-core'
-import type { FbkTokens } from '@fbk/tokens'
+import type { Size, ThemeMode } from '@fbkworks/adapter-core'
+import type { FbkTokens } from '@fbkworks/tokens'
 import { vantSizeVars } from './theme'
 
 /**

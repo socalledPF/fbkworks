@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { resetWarnCache } from '@fbk/shared'
-import { mountWithProvider } from '@fbk/test-utils'
+import { resetWarnCache } from '@fbkworks/shared'
+import { mountWithProvider } from '@fbkworks/test-utils'
 import { vantAdapter } from '../src'
 
 /**

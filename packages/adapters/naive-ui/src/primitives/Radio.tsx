@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { NRadioGroup, NRadio } from 'naive-ui'
-import type { RadioProps, Size } from '@fbk/adapter-core'
+import type { RadioProps, Size } from '@fbkworks/adapter-core'
 
 const sizeOf = { sm: 'small', md: 'medium', lg: 'large' } as const
 

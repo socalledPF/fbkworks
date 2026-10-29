@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkCrudPage } from '@fbk/components/crud-page'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import type { QueryField } from '@fbk/components/query-form'
+import { FbkCrudPage } from '@fbkworks/components/crud-page'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import type { QueryField } from '@fbkworks/components/query-form'
 import { orderStatusEnum, queryOrders, type OrderRow } from '../data'
 
 /**

@@ -11,12 +11,12 @@
  * 第 2 步最容易漏。漏了的话业务组件结构还在，但 element-plus 的原生
  * input/select 会裸奔（实测登录页表单变成浏览器默认样式、间距失控）。
  */
-import '@fbk/tokens/css'
-import '@fbk/tokens/dark.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/tokens/dark.css'
 import 'element-plus/dist/index.css'
-import '@fbk/adapter-element-plus/style.css'
-import '@fbk/adapter-element-plus/dark.css'
-import '@fbk/components/styles/index.css'
-import '@fbk/chart-core/style.css'
-import '@fbk/dashboard/style.css'
+import '@fbkworks/adapter-element-plus/style.css'
+import '@fbkworks/adapter-element-plus/dark.css'
+import '@fbkworks/components/styles/index.css'
+import '@fbkworks/chart-core/style.css'
+import '@fbkworks/dashboard/style.css'
 import './app.css'

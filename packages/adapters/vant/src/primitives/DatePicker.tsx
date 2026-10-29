@@ -1,7 +1,7 @@
 import { computed, defineComponent, ref, watch, type PropType } from 'vue'
 import { Field, Popup, DatePicker as VanDatePicker } from 'vant'
-import { warnOnce } from '@fbk/shared'
-import type { DatePickerProps, DatePickerType, Size } from '@fbk/adapter-core'
+import { warnOnce } from '@fbkworks/shared'
+import type { DatePickerProps, DatePickerType, Size } from '@fbkworks/adapter-core'
 
 /**
  * 日期选择（移动端）。只有 type="date" 真正可用。

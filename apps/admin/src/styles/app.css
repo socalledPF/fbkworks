@@ -5,7 +5,7 @@
  *   1. 全局 reset（组件库不管这个，是应用的职责）
  *   2. .admin-btn —— demo 自己的按钮
  *
- * 注意 .admin-btn 刻意不复用 @fbk/components 的 Button：
+ * 注意 .admin-btn 刻意不复用 @fbkworks/components 的 Button：
  * 这个 demo 要检验的是**业务组件**（ProTable/CrudPage/FormGenerator），
  * 按钮只是脚手架。用被测组件当脚手架会让问题归因变得模糊。
  */

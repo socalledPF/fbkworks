@@ -4,7 +4,7 @@
  * ESLint 检查的是"文件里写了什么 import"，dependency-cruiser 检查的是
  * "解析后的真实依赖图"，能抓住路径别名、re-export 链、循环依赖等 ESLint 看不到的问题。
  *
- * 关键配置：doNotFollow 必须排除 @fbk，否则 depcruise 会顺着 pnpm 的 workspace
+ * 关键配置：doNotFollow 必须排除 @fbkworks，否则 depcruise 会顺着 pnpm 的 workspace
  * 符号链接钻进 node_modules 里的 dist，既慢又会误报。
  */
 export default {
@@ -61,7 +61,7 @@ export default {
     {
       name: 'tokens-must-stay-leaf',
       severity: 'error',
-      comment: 'tokens 是最底层，不能依赖任何其他 @fbk 包。',
+      comment: 'tokens 是最底层，不能依赖任何其他 @fbkworks 包。',
       from: { path: '^packages/tokens/' },
       to: { path: '^packages/(shared|adapter-core|adapters|components)/' },
     },

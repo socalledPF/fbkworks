@@ -7,7 +7,7 @@
 
 | 级别 | 内容 | 状态 |
 |---|---|---|
-| P0 | 契约层 `@fbk/data` | ✅ 已落地 |
+| P0 | 契约层 `@fbkworks/data` | ✅ 已落地 |
 | P1 | 权限三层 | ✅ 已落地（操作级 + 数据级声明） |
 | P2 | 可观测性统一出口 | ✅ 已落地 |
 | P3 | 工程基建补强 | ✅ 已落地（P3-1 变更影响分析） |
@@ -27,7 +27,7 @@
 
 ---
 
-## P0：契约层 `@fbk/data`
+## P0：契约层 `@fbkworks/data`
 
 ### 解决什么
 
@@ -36,7 +36,7 @@
 ### API
 
 ```ts
-import { createPageRequest } from '@fbk/data'
+import { createPageRequest } from '@fbkworks/data'
 
 export const fetchOrders = createPageRequest({
   fetch: ({ page, pageSize, params, signal }) =>

@@ -7,7 +7,7 @@ import {
   type ShallowRef,
 } from 'vue'
 import { hasPermission, type PermissionResolver } from './permission'
-import { warnOnce } from '@fbk/shared'
+import { warnOnce } from '@fbkworks/shared'
 
 /**
  * `v-permission` 指令。

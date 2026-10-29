@@ -2,8 +2,8 @@ import { defineComponent, type PropType } from 'vue'
 import { ElConfigProvider } from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
-import type { ThemeMode } from '@fbk/adapter-core'
-import type { FbkTokens } from '@fbk/tokens'
+import type { ThemeMode } from '@fbkworks/adapter-core'
+import type { FbkTokens } from '@fbkworks/tokens'
 
 const locales: Record<string, any> = { 'zh-CN': zhCn, en }
 

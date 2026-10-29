@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { Button as VanButton } from 'vant'
-import type { ButtonProps, Size, Status } from '@fbk/adapter-core'
+import type { ButtonProps, Size, Status } from '@fbkworks/adapter-core'
 
 const statusType = {
   primary: 'primary',

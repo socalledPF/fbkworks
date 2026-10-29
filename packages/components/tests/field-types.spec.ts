@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { mountWithAdapter } from '@fbk/test-utils'
-import { resetWarnCache } from '@fbk/shared'
+import { mountWithAdapter } from '@fbkworks/test-utils'
+import { resetWarnCache } from '@fbkworks/shared'
 import { FbkFormGenerator } from '../src/form-generator'
 import { FbkQueryForm } from '../src/query-form'
 

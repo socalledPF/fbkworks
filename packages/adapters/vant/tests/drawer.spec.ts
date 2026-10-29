@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { mountWithProvider } from '@fbk/test-utils'
+import { mountWithProvider } from '@fbkworks/test-utils'
 import { vantAdapter } from '../src'
 
 /**

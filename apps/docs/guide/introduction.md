@@ -13,11 +13,11 @@ FBK 的答案是：**只归一化原语与交互语义，不归一化业务语�
 
 | 层 | 职责 |
 |---|---|
-| `@fbk/tokens` | 设计令牌，只产出 `--fbk-*` CSS 变量 |
-| `@fbk/shared` | 无 UI 语义的工具与 composables（受控状态、行 key、格式化） |
-| `@fbk/adapter-core` | 契约、注入、能力声明、主题桥、默认单元格渲染 |
-| `@fbk/adapter-*` | 把契约落到具体 UI 库，拥有 DOM 与交互 |
-| `@fbk/components` | 业务组件：拥有布局与状态，不拥有 DOM 细节 |
+| `@fbkworks/tokens` | 设计令牌，只产出 `--fbk-*` CSS 变量 |
+| `@fbkworks/shared` | 无 UI 语义的工具与 composables（受控状态、行 key、格式化） |
+| `@fbkworks/adapter-core` | 契约、注入、能力声明、主题桥、默认单元格渲染 |
+| `@fbkworks/adapter-*` | 把契约落到具体 UI 库，拥有 DOM 与交互 |
+| `@fbkworks/components` | 业务组件：拥有布局与状态，不拥有 DOM 细节 |
 
 依赖方向是单向的：
 

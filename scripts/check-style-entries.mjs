@@ -18,7 +18,7 @@
  *
  * 1. 每个发布包的 `src/style.css` 都出现在**组件库聚合入口**里
  *    （`packages/components/src/styles/index.css` 或各自的 `styles/index.css`）
- * 2. 三个应用（playground / docs / admin）用到的每个 `@fbk/*` 包，
+ * 2. 三个应用（playground / docs / admin）用到的每个 `@fbkworks/*` 包，
  *    其 style.css 都被引入（直接或通过聚合入口间接引入）
  * 3. 入口文件里引用的路径真实存在（防手滑写错）
  */
@@ -31,23 +31,23 @@ const root = resolve(import.meta.dirname, '..')
 
 /** 有样式的发布包 → 它的 style.css 路径 */
 const PACKAGES_WITH_STYLE = {
-  '@fbk/tokens': ['packages/tokens/src/css/tokens.css', 'packages/tokens/src/css/dark.css'],
-  '@fbk/adapter-element-plus': ['packages/adapters/element-plus/src/style.css'],
-  '@fbk/adapter-vant': ['packages/adapters/vant/src/style.css'],
-  '@fbk/adapter-naive-ui': ['packages/adapters/naive-ui/src/style.css'],
-  '@fbk/components': ['packages/components/src/styles/index.css'],
-  '@fbk/chart-core': ['packages/chart-core/src/style.css'],
-  '@fbk/dashboard': ['packages/dashboard/src/style.css'],
-  '@fbk/screen': ['packages/screen/src/style.css'],
-  '@fbk/demos': ['packages/internal/demos/src/demo.css'],
+  '@fbkworks/tokens': ['packages/tokens/src/css/tokens.css', 'packages/tokens/src/css/dark.css'],
+  '@fbkworks/adapter-element-plus': ['packages/adapters/element-plus/src/style.css'],
+  '@fbkworks/adapter-vant': ['packages/adapters/vant/src/style.css'],
+  '@fbkworks/adapter-naive-ui': ['packages/adapters/naive-ui/src/style.css'],
+  '@fbkworks/components': ['packages/components/src/styles/index.css'],
+  '@fbkworks/chart-core': ['packages/chart-core/src/style.css'],
+  '@fbkworks/dashboard': ['packages/dashboard/src/style.css'],
+  '@fbkworks/screen': ['packages/screen/src/style.css'],
+  '@fbkworks/demos': ['packages/internal/demos/src/demo.css'],
 }
 
 /**
  * 应用入口：每个应用**使用**哪些包，就必须引入对应的样式。
  *
- * `uses` 是应用 package.json 里真实声明依赖的 @fbk 包；
+ * `uses` 是应用 package.json 里真实声明依赖的 @fbkworks 包；
  * 这里手工列出，是因为不是所有依赖都需要样式
- * （如 @fbk/shared / @fbk/data 是纯逻辑，无样式）。
+ * （如 @fbkworks/shared / @fbkworks/data 是纯逻辑，无样式）。
  */
 const APP_ENTRIES = [
   {
@@ -61,12 +61,12 @@ const APP_ENTRIES = [
     name: 'docs',
     file: 'apps/docs/.vitepress/theme/index.ts',
     // 文档站渲染 demo，需要 components + demos；图表 demo 需要 chart-core
-    requires: ['@fbk/components', '@fbk/chart-core', '@fbk/dashboard', '@fbk/screen', '@fbk/demos'],
+    requires: ['@fbkworks/components', '@fbkworks/chart-core', '@fbkworks/dashboard', '@fbkworks/screen', '@fbkworks/demos'],
   },
   {
     name: 'admin',
     file: 'apps/admin/src/styles/index.ts',
-    requires: ['@fbk/components', '@fbk/chart-core', '@fbk/dashboard'],
+    requires: ['@fbkworks/components', '@fbkworks/chart-core', '@fbkworks/dashboard'],
   },
 ]
 
@@ -76,7 +76,7 @@ const report = (msg) => {
   failures += 1
 }
 
-/** 从入口文件里提取所有 @fbk 样式引用（import 语句与 @import 都算） */
+/** 从入口文件里提取所有 @fbkworks 样式引用（import 语句与 @import 都算） */
 async function collectStyleRefs(file) {
   const abs = resolve(root, file)
   if (!existsSync(abs)) {
@@ -87,17 +87,17 @@ async function collectStyleRefs(file) {
   const refs = new Set()
 
   // 两种写法都要采集：
-  //   import '@fbk/x/style.css'   —— 带 .css 后缀
-  //   import '@fbk/tokens/css'    —— tokens 的聚合入口不带后缀
-  for (const m of source.matchAll(/['"](@fbk\/[^'"]*\.css)['"]/g)) {
+  //   import '@fbkworks/x/style.css'   —— 带 .css 后缀
+  //   import '@fbkworks/tokens/css'    —— tokens 的聚合入口不带后缀
+  for (const m of source.matchAll(/['"](@fbkworks\/[^'"]*\.css)['"]/g)) {
     refs.add(m[1])
   }
-  for (const m of source.matchAll(/['"](@fbk\/tokens\/css)['"]/g)) {
+  for (const m of source.matchAll(/['"](@fbkworks\/tokens\/css)['"]/g)) {
     refs.add(m[1])
   }
   // components 用的相对路径：@import '../pro-table/style.css'
   for (const m of source.matchAll(/['"]\.\.\/([a-z-]+)\/style\.css['"]/g)) {
-    refs.add(`@fbk/components/${m[1]}/style.css`)
+    refs.add(`@fbkworks/components/${m[1]}/style.css`)
   }
   return refs
 }
@@ -106,16 +106,16 @@ async function collectStyleRefs(file) {
  * 每个包对外暴露的聚合样式入口。
  *
  * 只认聚合入口本身（含它内部的路径），子组件样式不算：
- * 引一个 `@fbk/components/pro-table/style.css` ≠ 接入了整个组件库 ——
+ * 引一个 `@fbkworks/components/pro-table/style.css` ≠ 接入了整个组件库 ——
  * 「任意子路径都算覆盖」正是 exports 缺 4 个组件却长期没人发现的原因。
  *
  * components 有两个指向同一份完整样式表的等价入口：
- *   · `@fbk/components/styles/index.css` 源码聚合，逐条 @import 各子组件
- *   · `@fbk/components/style.css`        构建产物，由 bundle-css.mjs 把上面那份拼成单文件
+ *   · `@fbkworks/components/styles/index.css` 源码聚合，逐条 @import 各子组件
+ *   · `@fbkworks/components/style.css`        构建产物，由 bundle-css.mjs 把上面那份拼成单文件
  */
 const AGGREGATE_STYLE_ENTRIES = {
-  '@fbk/tokens': ['@fbk/tokens/css'],
-  '@fbk/components': ['@fbk/components/styles', '@fbk/components/style.css'],
+  '@fbkworks/tokens': ['@fbkworks/tokens/css'],
+  '@fbkworks/components': ['@fbkworks/components/styles', '@fbkworks/components/style.css'],
 }
 
 /** 包的聚合样式入口候选（默认就是 <pkg>/style.css） */
@@ -176,9 +176,9 @@ for (const app of APP_ENTRIES) {
   const refs = await collectStyleRefs(app.file)
   if (!refs) continue
   for (const ref of refs) {
-    // @fbk/components/pro-table/style.css → packages/components/src/pro-table/style.css
-    if (ref.startsWith('@fbk/components/') && !isAggregateRef('@fbk/components', ref)) {
-      const rel = ref.replace('@fbk/components/', '')
+    // @fbkworks/components/pro-table/style.css → packages/components/src/pro-table/style.css
+    if (ref.startsWith('@fbkworks/components/') && !isAggregateRef('@fbkworks/components', ref)) {
+      const rel = ref.replace('@fbkworks/components/', '')
       const abs = resolve(root, 'packages/components/src', rel)
       if (!existsSync(abs)) report(`${app.name} 引用了不存在的路径：${ref}`)
     }

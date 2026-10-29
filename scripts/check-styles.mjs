@@ -62,7 +62,7 @@ for (const name of components) {
       `[接入] 组件 "${name}" 的 style.css 没有登记到 packages/components/src/styles/index.css`,
     )
   }
-  if (!playgroundCss.includes(`@fbk/components/${name}/style.css`)) {
+  if (!playgroundCss.includes(`@fbkworks/components/${name}/style.css`)) {
     problems.push(
       `[接入] 组件 "${name}" 的 style.css 没有登记到 apps/playground/src/styles.ts` +
         '（漏了这条，开发与评审时看不到真实效果）',
@@ -501,7 +501,7 @@ for (const { rel, line, classes } of elementClasses) {
  * 与被演示的组件完全是两套视觉语言。
  *
  * 认可以下几种前缀：
- *   fbk-demo-*     @fbk/demos 的脚手架样式
+ *   fbk-demo-*     @fbkworks/demos 的脚手架样式
  *   playground__*  Playground 旧命名（BEM）
  *   pg__*          Playground 新命名（布局骨架）
  *   pg-sidebar__*  Playground 侧边栏

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
-import { toCssSize } from '@fbk/shared'
+import { useAdapter } from '@fbkworks/adapter-core'
+import { toCssSize } from '@fbkworks/shared'
 import type { PageContainerProps } from './types'
 
 defineOptions({ name: 'FbkPageContainer', inheritAttrs: false })

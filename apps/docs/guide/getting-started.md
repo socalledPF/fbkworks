@@ -7,17 +7,17 @@
 ::: code-group
 
 ```bash [element-plus 桌面端]
-pnpm add @fbk/components @fbk/adapter-element-plus
+pnpm add @fbkworks/components @fbkworks/adapter-element-plus
 pnpm add -D element-plus
 ```
 
 ```bash [vant4 移动端]
-pnpm add @fbk/components @fbk/adapter-vant
+pnpm add @fbkworks/components @fbkworks/adapter-vant
 pnpm add -D vant
 ```
 
 ```bash [naive-ui 桌面端]
-pnpm add @fbk/components @fbk/adapter-naive-ui
+pnpm add @fbkworks/components @fbkworks/adapter-naive-ui
 pnpm add -D naive-ui
 ```
 
@@ -28,13 +28,13 @@ pnpm add -D naive-ui
 ```ts
 // main.ts
 import { createApp } from 'vue'
-import { createBusinessKit } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { createBusinessKit } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 import App from './App.vue'
 
-import '@fbk/tokens/css'
-import '@fbk/adapter-element-plus/style.css'
-import '@fbk/components/style.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/adapter-element-plus/style.css'
+import '@fbkworks/components/style.css'
 
 createApp(App)
   .use(createBusinessKit({ adapter: elementPlusAdapter, theme: 'light' }))
@@ -52,8 +52,8 @@ UI 库本体样式仍由应用自己引入（`element-plus/dist/index.css` 等�
 
 ```vue
 <script setup lang="ts">
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn } from '@fbk/components/pro-table'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
 
 interface Order {
   id: number
@@ -89,10 +89,10 @@ const request = async ({ page, pageSize, signal }: any) => {
 改两行：
 
 ```diff
-- import { elementPlusAdapter } from '@fbk/adapter-element-plus'
-+ import { naiveUiAdapter } from '@fbk/adapter-naive-ui'
-- import '@fbk/adapter-element-plus/style.css'
-+ import '@fbk/adapter-naive-ui/style.css'
+- import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
++ import { naiveUiAdapter } from '@fbkworks/adapter-naive-ui'
+- import '@fbkworks/adapter-element-plus/style.css'
++ import '@fbkworks/adapter-naive-ui/style.css'
 
 -   .use(createBusinessKit({ adapter: elementPlusAdapter }))
 +   .use(createBusinessKit({ adapter: naiveUiAdapter }))
@@ -104,7 +104,7 @@ const request = async ({ page, pageSize, signal }: any) => {
 
 ```vue
 <script setup lang="ts">
-import { FbkProvider } from '@fbk/adapter-core'
+import { FbkProvider } from '@fbkworks/adapter-core'
 </script>
 
 <template>

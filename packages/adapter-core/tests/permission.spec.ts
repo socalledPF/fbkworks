@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, resolveDirective, withDirectives } from 'vue'
-import { resetWarnCache } from '@fbk/shared'
+import { resetWarnCache } from '@fbkworks/shared'
 import { hasPermission, usePermission } from '../src/permission'
 import { createPermissionDirective } from '../src/permission-directive'
 

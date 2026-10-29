@@ -9,7 +9,7 @@
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkFormModal } from '@fbk/components/form-modal'
+import { FbkFormModal } from '@fbkworks/components/form-modal'
 
 const show = ref(false)
 const mode = ref<'create' | 'edit'>('create')

@@ -1,6 +1,6 @@
 import { defineComponent, type CSSProperties, type PropType } from 'vue'
 import { NModal, NCard } from 'naive-ui'
-import type { DialogProps } from '@fbk/adapter-core'
+import type { DialogProps } from '@fbkworks/adapter-core'
 
 const toCssSize = (value: string | number) => (typeof value === 'number' ? `${value}px` : value)
 

@@ -15,8 +15,8 @@ import {
   type PropType,
   type Plugin,
 } from 'vue'
-import { defaultTokens, toCssText, type FbkTokens } from '@fbk/tokens'
-import { warnOnce } from '@fbk/shared'
+import { defaultTokens, toCssText, type FbkTokens } from '@fbkworks/tokens'
+import { warnOnce } from '@fbkworks/shared'
 import { assertAdapterCompatible, type UiAdapter } from './contracts/adapter'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'

@@ -1,5 +1,5 @@
 ---
-"@fbk/data": minor
+"@fbkworks/data": minor
 ---
 
 feat(data): 新增 `defineBackend`，后端惯例只写一次

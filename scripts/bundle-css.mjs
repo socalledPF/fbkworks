@@ -9,17 +9,17 @@ import { fileURLToPath } from 'node:url'
  * 而本项目的约定是"样式不进入 JS barrel"（否则 tree-shaking 失效、SSR 报错）。
  * 因此 dist/style.css 这个聚合入口必须由构建脚本单独拼出来。
  *
- * 只支持本项目用到的两种写法：相对路径与 @fbk/* 包路径。
+ * 只支持本项目用到的两种写法：相对路径与 @fbkworks/* 包路径。
  */
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 const packageCss = {
-  '@fbk/tokens/css': 'packages/tokens/src/css/tokens.css',
-  '@fbk/tokens/dark.css': 'packages/tokens/src/css/dark.css',
+  '@fbkworks/tokens/css': 'packages/tokens/src/css/tokens.css',
+  '@fbkworks/tokens/dark.css': 'packages/tokens/src/css/dark.css',
   /* chart-core 的样式被 dashboard / screen 的聚合入口 @import，
      必须在这里登记，否则 bundle-css 会抛「未登记的包路径」。 */
-  '@fbk/chart-core/style.css': 'packages/chart-core/src/style.css',
+  '@fbkworks/chart-core/style.css': 'packages/chart-core/src/style.css',
 }
 
 const IMPORT_RE = /@import\s+(?:url\()?['"]([^'"]+)['"]\)?\s*;/g
@@ -37,7 +37,7 @@ async function inline(entry, seen = new Set()) {
 
   for (const match of source.matchAll(IMPORT_RE)) {
     const specifier = match[1]
-    if (specifier.startsWith('@fbk/') && !packageCss[specifier]) {
+    if (specifier.startsWith('@fbkworks/') && !packageCss[specifier]) {
       throw new Error(`[bundle-css] 未登记的包路径：${specifier}（${abs}）`)
     }
     parts.push(await inline(specifier.startsWith('@') ? specifier : resolve(dirname(abs), specifier), seen))

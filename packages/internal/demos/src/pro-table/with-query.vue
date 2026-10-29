@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import { FbkQueryForm } from '@fbk/components/query-form'
-import type { QueryField } from '@fbk/components/query-form'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import { FbkQueryForm } from '@fbkworks/components/query-form'
+import type { QueryField } from '@fbkworks/components/query-form'
 import { orderStatusEnum, queryOrders, type OrderRow } from '../data'
 
 /**

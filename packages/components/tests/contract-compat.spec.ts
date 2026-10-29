@@ -1,12 +1,12 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import type { SortState } from '@fbk/adapter-core'
-import type { Page, PageFetcher, PageQuery, PageSort } from '@fbk/data'
+import type { SortState } from '@fbkworks/adapter-core'
+import type { Page, PageFetcher, PageQuery, PageSort } from '@fbkworks/data'
 import type { TableRequest, TableRequestParams, TableResponse } from '../src/pro-table/types'
 
 /**
  * 契约一致性（跨包）。
  *
- * 把「@fbk/data 与 @fbk/components 的分页契约同形」从**注释里的承诺**
+ * 把「@fbkworks/data 与 @fbkworks/components 的分页契约同形」从**注释里的承诺**
  * 变成**编译期检查**。
  *
  * 背景：之前两处各写一份同形接口，注释声称「保证 TableRequest 能无缝迁移」，

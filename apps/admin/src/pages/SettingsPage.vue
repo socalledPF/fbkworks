@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkPageContainer } from '@fbk/components/page-container'
-import { FbkFormGenerator } from '@fbk/components/form-generator'
-import type { FormField, FormSchema } from '@fbk/components/form-generator'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
+import { FbkFormGenerator } from '@fbkworks/components/form-generator'
+import type { FormField, FormSchema } from '@fbkworks/components/form-generator'
 
 /**
  * 系统设置。
@@ -15,7 +15,7 @@ const saved = ref(false)
 
 const model = ref<Record<string, any>>({
   siteName: 'FBK Admin',
-  siteDesc: '基于 @fbk 组件库构建的后台管理系统',
+  siteDesc: '基于 @fbkworks 组件库构建的后台管理系统',
   contactEmail: 'admin@example.com',
   region: 'cn',
   timezone: 'Asia/Shanghai',

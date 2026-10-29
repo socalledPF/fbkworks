@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/admin",
+  "name": "@fbkworks/admin",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,16 +8,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:*",
-    "@fbk/adapter-element-plus": "workspace:*",
-    "@fbk/chart-core": "workspace:*",
-    "@fbk/components": "workspace:*",
-    "@fbk/dashboard": "workspace:*",
-    "@fbk/shared": "workspace:*",
-    "@fbk/tokens": "workspace:*",
+    "@fbkworks/adapter-core": "workspace:*",
+    "@fbkworks/adapter-element-plus": "workspace:*",
+    "@fbkworks/chart-core": "workspace:*",
+    "@fbkworks/components": "workspace:*",
+    "@fbkworks/dashboard": "workspace:*",
+    "@fbkworks/shared": "workspace:*",
+    "@fbkworks/tokens": "workspace:*",
     "echarts": "^6.0.0",
     "element-plus": "^2.8.8",
     "vue": "^3.5.13",
-    "@fbk/data": "workspace:*"
+    "@fbkworks/data": "workspace:*"
   }
 }

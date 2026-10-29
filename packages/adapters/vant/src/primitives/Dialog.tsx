@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { Popup } from 'vant'
-import type { DialogProps } from '@fbk/adapter-core'
+import type { DialogProps } from '@fbkworks/adapter-core'
 
 /** 移动端统一用 Popup 承载弹窗：placement=center 时是居中卡片，bottom 时是底部抽屉。 */
 export const Dialog = defineComponent({

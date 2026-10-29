@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/adapter-core",
+  "name": "@fbkworks/adapter-core",
   "version": "0.1.0",
   "type": "module",
   "sideEffects": false,
@@ -20,8 +20,8 @@
     "build": "unbuild"
   },
   "dependencies": {
-    "@fbk/shared": "workspace:^",
-    "@fbk/tokens": "workspace:^"
+    "@fbkworks/shared": "workspace:^",
+    "@fbkworks/tokens": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

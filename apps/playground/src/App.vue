@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { FbkProvider } from '@fbk/adapter-core'
-import type { ThemeMode } from '@fbk/adapter-core'
-import { demosByGroup, getDemo, getDemoSource } from '@fbk/demos'
+import { FbkProvider } from '@fbkworks/adapter-core'
+import type { ThemeMode } from '@fbkworks/adapter-core'
+import { demosByGroup, getDemo, getDemoSource } from '@fbkworks/demos'
 import { adapters, adapterNames, type AdapterName } from './adapters'
 /*
  * 顶部控件直接用 element-plus 的组件。

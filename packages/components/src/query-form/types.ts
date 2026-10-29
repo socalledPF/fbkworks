@@ -1,5 +1,5 @@
 import type { VNodeChild } from 'vue'
-import type { FbkRule, SelectOption } from '@fbk/adapter-core'
+import type { FbkRule, SelectOption } from '@fbkworks/adapter-core'
 
 export type QueryFieldType =
   | 'input'

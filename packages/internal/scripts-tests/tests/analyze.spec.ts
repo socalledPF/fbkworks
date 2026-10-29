@@ -158,26 +158,26 @@ describe('包级传播', () => {
 
   const pkgCtx = {
     dirs: new Map([
-      ['@fbk/data', 'packages/data'],
-      ['@fbk/components', 'packages/components'],
+      ['@fbkworks/data', 'packages/data'],
+      ['@fbkworks/components', 'packages/components'],
     ]),
     packageOfFile: (f: string) =>
-      f.startsWith('packages/data') ? '@fbk/data' : f.startsWith('packages/components') ? '@fbk/components' : null,
+      f.startsWith('packages/data') ? '@fbkworks/data' : f.startsWith('packages/components') ? '@fbkworks/components' : null,
     // components 依赖 data
-    affectedPackages: () => new Set(['@fbk/data', '@fbk/components']),
+    affectedPackages: () => new Set(['@fbkworks/data', '@fbkworks/components']),
   }
 
   it('依赖包整包受影响，但不拆成文件清单', () => {
     const result = analyzeImpact(graph, ['packages/data/src/types.ts'], pkgCtx)
 
-    expect(result.affectedPackages).toContain('@fbk/components')
+    expect(result.affectedPackages).toContain('@fbkworks/components')
     // 不把 components 的文件塞进清单
     expect(result.map((r) => r.file)).not.toContain('packages/components/src/pro-table/ProTable.vue')
   })
 
   it('种子包自己不算「受影响」（它是改动来源）', () => {
     const result = analyzeImpact(graph, ['packages/data/src/types.ts'], pkgCtx)
-    expect(result.affectedPackages).not.toContain('@fbk/data')
+    expect(result.affectedPackages).not.toContain('@fbkworks/data')
   })
 
   it('没传 pkgCtx 时行为不变（向后兼容）', () => {
@@ -238,19 +238,19 @@ describe('suggestChecks', () => {
   it('受影响的包跑对应单测', () => {
     const summary = { packages: ['components'], affectedPackages: [], apps: [] }
     const checks = suggestChecks(summary, [])
-    expect(checks).toContain('pnpm --filter @fbk/components test')
+    expect(checks).toContain('pnpm --filter @fbkworks/components test')
   })
 
   it('整包受影响的包也要跑单测', () => {
     // 改了 data 的契约，components 的类型依赖它，必须重跑
     const summary = {
       packages: ['data'],
-      affectedPackages: ['@fbk/components'],
+      affectedPackages: ['@fbkworks/components'],
       apps: [],
     }
     const checks = suggestChecks(summary, [])
-    expect(checks).toContain('pnpm --filter @fbk/data test')
-    expect(checks).toContain('pnpm --filter @fbk/components test')
+    expect(checks).toContain('pnpm --filter @fbkworks/data test')
+    expect(checks).toContain('pnpm --filter @fbkworks/components test')
   })
 
   it('受影响应用跑对应浏览器实测', () => {

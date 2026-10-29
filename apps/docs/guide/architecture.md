@@ -95,7 +95,7 @@ const isInfinite = computed(() => adapter.capabilities.pagination.mode === 'infi
 ## 测试分三类
 
 1. **纯逻辑单测**：`shared`、`adapter-core` 工具、`useTableRequest`。
-2. **适配器契约测试**：`@fbk/adapter-conformance` 提供 15 条断言，每个适配器一行接入。
+2. **适配器契约测试**：`@fbkworks/adapter-conformance` 提供 15 条断言，每个适配器一行接入。
    三个适配器跑同一套断言，保证"换适配器只改注入"这句话是真的。
 3. **业务组件测试**：用 mock adapter，只测语义，不测 UI 库 DOM。
 

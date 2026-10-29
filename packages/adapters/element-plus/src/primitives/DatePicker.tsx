@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElDatePicker } from 'element-plus'
-import type { DatePickerProps, Size } from '@fbk/adapter-core'
+import type { DatePickerProps, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 /**

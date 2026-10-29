@@ -1,5 +1,5 @@
 ---
-"@fbk/shared": minor
+"@fbkworks/shared": minor
 ---
 
 fix(L1): 行 key 回退值加命名空间，格式化支持 locale，缓存键稳定化
@@ -38,5 +38,5 @@ fix(L1): 行 key 回退值加命名空间，格式化支持 locale，缓存键�
 
 ### 测试
 
-`@fbk/shared` 的导出从"14 个里只有 1 个有测试"补齐为全部覆盖，
+`@fbkworks/shared` 的导出从"14 个里只有 1 个有测试"补齐为全部覆盖，
 新增 58 个用例（format / keys / utils / warn / controllable / locale 端到端）。

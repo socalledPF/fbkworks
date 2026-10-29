@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElInput } from 'element-plus'
-import type { InputProps, Size } from '@fbk/adapter-core'
+import type { InputProps, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 export const Input = defineComponent({

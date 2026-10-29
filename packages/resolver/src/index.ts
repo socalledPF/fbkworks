@@ -13,26 +13,26 @@ interface ResolverOptions {
 }
 
 const map: Record<string, { from: string; style: string }> = {
-  FbkProTable: { from: '@fbk/components/pro-table', style: '@fbk/components/pro-table/style.css' },
-  FbkQueryForm: { from: '@fbk/components/query-form', style: '@fbk/components/query-form/style.css' },
+  FbkProTable: { from: '@fbkworks/components/pro-table', style: '@fbkworks/components/pro-table/style.css' },
+  FbkQueryForm: { from: '@fbkworks/components/query-form', style: '@fbkworks/components/query-form/style.css' },
   FbkFormGenerator: {
-    from: '@fbk/components/form-generator',
-    style: '@fbk/components/form-generator/style.css',
+    from: '@fbkworks/components/form-generator',
+    style: '@fbkworks/components/form-generator/style.css',
   },
   FbkPageContainer: {
-    from: '@fbk/components/page-container',
-    style: '@fbk/components/page-container/style.css',
+    from: '@fbkworks/components/page-container',
+    style: '@fbkworks/components/page-container/style.css',
   },
   FbkDescriptions: {
-    from: '@fbk/components/descriptions',
-    style: '@fbk/components/descriptions/style.css',
+    from: '@fbkworks/components/descriptions',
+    style: '@fbkworks/components/descriptions/style.css',
   },
-  FbkCrudPage: { from: '@fbk/components/crud-page', style: '@fbk/components/crud-page/style.css' },
-  FbkFormModal: { from: '@fbk/components/form-modal', style: '@fbk/components/form-modal/style.css' },
-  FbkResult: { from: '@fbk/components/result', style: '@fbk/components/result/style.css' },
+  FbkCrudPage: { from: '@fbkworks/components/crud-page', style: '@fbkworks/components/crud-page/style.css' },
+  FbkFormModal: { from: '@fbkworks/components/form-modal', style: '@fbkworks/components/form-modal/style.css' },
+  FbkResult: { from: '@fbkworks/components/result', style: '@fbkworks/components/result/style.css' },
   FbkDetailPage: {
-    from: '@fbk/components/detail-page',
-    style: '@fbk/components/detail-page/style.css',
+    from: '@fbkworks/components/detail-page',
+    style: '@fbkworks/components/detail-page/style.css',
   },
 }
 

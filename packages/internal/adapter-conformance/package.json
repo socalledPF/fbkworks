@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/adapter-conformance",
+  "name": "@fbkworks/adapter-conformance",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,8 +7,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:*",
-    "@fbk/shared": "workspace:*"
+    "@fbkworks/adapter-core": "workspace:*",
+    "@fbkworks/shared": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

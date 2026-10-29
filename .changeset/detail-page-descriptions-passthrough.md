@@ -1,5 +1,5 @@
 ---
-"@fbk/components": patch
+"@fbkworks/components": patch
 ---
 
 fix(components): `DetailPage` 补齐 `Descriptions` 的属性透传

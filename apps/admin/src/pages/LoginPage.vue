@@ -7,8 +7,8 @@ import { ref } from 'vue'
  * 用组件库的 FormGenerator 而不是手写表单 —— 这是对 FormGenerator
  * 的一次真实检验：登录表单有校验、有禁用态、有 loading。
  */
-import { FbkFormGenerator } from '@fbk/components/form-generator'
-import type { FormField, FormSchema } from '@fbk/components/form-generator'
+import { FbkFormGenerator } from '@fbkworks/components/form-generator'
+import type { FormField, FormSchema } from '@fbkworks/components/form-generator'
 
 const emit = defineEmits<{ success: [user: { name: string; role: string }] }>()
 
@@ -72,7 +72,7 @@ async function submit() {
         <span class="login__logo">F</span>
         <div>
           <h1 class="login__title">FBK Admin</h1>
-          <p class="login__subtitle">基于 @fbk 组件库的后台管理系统</p>
+          <p class="login__subtitle">基于 @fbkworks 组件库的后台管理系统</p>
         </div>
       </div>
 

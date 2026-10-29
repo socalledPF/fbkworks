@@ -1,7 +1,7 @@
-import type { Size, ThemeBridge, ThemeMode } from '@fbk/adapter-core'
-import { THEME_IS_DARK } from '@fbk/adapter-core'
-import { cyberColorOverrides, darkColorOverrides } from '@fbk/tokens'
-import type { FbkTokens } from '@fbk/tokens'
+import type { Size, ThemeBridge, ThemeMode } from '@fbkworks/adapter-core'
+import { THEME_IS_DARK } from '@fbkworks/adapter-core'
+import { cyberColorOverrides, darkColorOverrides } from '@fbkworks/tokens'
+import type { FbkTokens } from '@fbkworks/tokens'
 
 /**
  * 按模式取令牌。naive 的暗色走 theme="dark"，但 themeOverrides 里的颜色

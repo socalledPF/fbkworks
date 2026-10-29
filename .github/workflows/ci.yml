@@ -75,7 +75,7 @@ jobs:
       - name: 架构图
         run: pnpm check:diagrams
 
-      # 用真实 HTTP 验证 @fbk/data 契约对真实响应形状的适应性。
+      # 用真实 HTTP 验证 @fbkworks/data 契约对真实响应形状的适应性。
       # 单测里 fetch 是 stub，永远「形状正确」；真实后端会给字符串数字、
       # HTML 错误页、空 body —— 这些只有真打 HTTP 才能覆盖。
       # 只在 Linux 上跑：验证的是契约逻辑，与平台无关。

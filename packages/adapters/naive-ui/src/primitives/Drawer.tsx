@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { NDrawer, NDrawerContent } from 'naive-ui'
-import type { DrawerProps } from '@fbk/adapter-core'
+import type { DrawerProps } from '@fbkworks/adapter-core'
 
 /**
  * naive 的 NDrawer 只有 direction 与尺寸，没有标题栏：标题与关闭按钮由

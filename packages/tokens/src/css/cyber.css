@@ -4,7 +4,7 @@
  * 与 dark.css 是**同一层**：都只覆盖语义令牌，不碰原始层。
  * 用法：
  *
- *   import '@fbk/tokens/cyber.css'
+ *   import '@fbkworks/tokens/cyber.css'
  *   <html data-fbk-theme="cyber">
  *
  * 设计意图（不是随手换个色）：

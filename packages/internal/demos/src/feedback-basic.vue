@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
+import { useAdapter } from '@fbkworks/adapter-core'
 
 /**
  * feedback 命令式 API 的验证页。

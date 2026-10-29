@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElTag } from 'element-plus'
-import type { Size, Status } from '@fbk/adapter-core'
+import type { Size, Status } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 const statusType = {

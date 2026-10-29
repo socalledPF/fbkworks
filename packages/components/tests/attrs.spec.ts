@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent, h, type Component } from 'vue'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import * as FbkComponents from '../src/index'
 
 /**

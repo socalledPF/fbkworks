@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { resetWarnCache } from '@fbk/shared'
+import { resetWarnCache } from '@fbkworks/shared'
 import { createPageRequest } from '../src/create'
 import { FbkDataError } from '../src/error'
 import type { PageQuery } from '../src/types'

@@ -1,4 +1,4 @@
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import { describe, expect, it } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { nextTick, ref } from 'vue'

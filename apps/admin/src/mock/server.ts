@@ -6,7 +6,7 @@
  * 把它单独放，是为了让 data.ts 里的业务代码量可诚实对比。
  */
 
-import type { PageQuery } from '@fbk/data'
+import type { PageQuery } from '@fbkworks/data'
 
 /** 确定性伪随机，保证每次刷新数据一致 */
 export function makeRandom(seed: number) {

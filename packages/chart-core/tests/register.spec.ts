@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { resetWarnCache } from '@fbk/shared'
+import { resetWarnCache } from '@fbkworks/shared'
 import { __resetChartRegistration, isFbkChartsRegistered, registerFbkCharts } from '../src/register'
 
 /**

@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useAttrs } from 'vue'
-import { resolveColumns, toCssSize } from '@fbk/shared'
+import { resolveColumns, toCssSize } from '@fbkworks/shared'
 import type { DescriptionItem, DescriptionsProps, ResolvedGroup } from './types'
 
 /**

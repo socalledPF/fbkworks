@@ -1,7 +1,7 @@
 import type { VNodeChild } from 'vue'
 import type { BreadcrumbItem } from '../page-container'
 import type { DescriptionGroup, DescriptionItem } from '../descriptions'
-import type { Size } from '@fbk/adapter-core'
+import type { Size } from '@fbkworks/adapter-core'
 
 /**
  * 详情页 props。

@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, type PropType } from 'vue'
 import { ElForm, ElFormItem, type FormInstance } from 'element-plus'
-import type { FormProps, FbkRule, Size } from '@fbk/adapter-core'
+import type { FormProps, FbkRule, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 function toElementRules(rules: FbkRule[] | undefined) {

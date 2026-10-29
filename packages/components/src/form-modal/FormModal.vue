@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useAttrs, watch } from 'vue'
-import { toErrorEvent, useReporter } from '@fbk/adapter-core'
-import { useAdapter } from '@fbk/adapter-core'
+import { toErrorEvent, useReporter } from '@fbkworks/adapter-core'
+import { useAdapter } from '@fbkworks/adapter-core'
 import { FbkFormGenerator } from '../form-generator'
 import type { FormGeneratorExpose } from '../form-generator'
 import type { FormModalExpose, FormModalMode, FormModalProps } from './types'

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkCrudPage } from '@fbk/components/crud-page'
-import { FbkPageContainer } from '@fbk/components/page-container'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import type { QueryField } from '@fbk/components/query-form'
+import { FbkCrudPage } from '@fbkworks/components/crud-page'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import type { QueryField } from '@fbkworks/components/query-form'
 import { fetchUsers, toggleUser, type UserRow } from '../mock/data'
 
 /**

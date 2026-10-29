@@ -1,4 +1,4 @@
-# @fbk/shared
+# @fbkworks/shared
 
 FBK 业务组件库的无 UI 语义工具层（L1）。不依赖任何 UI 库，也不依赖 Vue 之外的运行时。
 
@@ -6,7 +6,7 @@ L1 是**纯函数层**：不读注入上下文、不感知主题与 locale 设�
 由调用方（L2/L4）把 locale 显式传进来。
 
 ```bash
-pnpm add @fbk/shared
+pnpm add @fbkworks/shared
 ```
 
 ## 内容
@@ -22,7 +22,7 @@ pnpm add @fbk/shared
 | `warn` / `warnOnce` | 开发期告警，同一 key 只提示一次 |
 
 ```ts
-import { formatMoney, getRowKey, useControllableState } from '@fbk/shared'
+import { formatMoney, getRowKey, useControllableState } from '@fbkworks/shared'
 
 // 金额：默认 zh-CN，不输出货币符号
 formatMoney(1234.5)            // '1,234.50'

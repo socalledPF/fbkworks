@@ -23,7 +23,7 @@ interface UiPrimitives {
 }
 ```
 
-每个原语的 props 见 `@fbk/adapter-core` 的 `contracts/primitives.ts`。
+每个原语的 props 见 `@fbkworks/adapter-core` 的 `contracts/primitives.ts`。
 关键约定：
 
 - 受控一律用 `modelValue` + `update:modelValue`；
@@ -81,8 +81,8 @@ export const arcoAdapter: UiAdapter = {
 
 ```ts
 // packages/adapters/arco/tests/conformance.spec.ts
-import { runAdapterConformance } from '@fbk/adapter-conformance'
-import { mountWithProvider } from '@fbk/test-utils'
+import { runAdapterConformance } from '@fbkworks/adapter-conformance'
+import { mountWithProvider } from '@fbkworks/test-utils'
 import { arcoAdapter } from '../src'
 
 runAdapterConformance({
@@ -114,11 +114,11 @@ Checkbox 布尔值、Form `validate()`、DataGrid 渲染与事件、选择/排�
 | 用 `v-model:show` 而不是 `modelValue` | Dialog 打不开 | 在适配器内部转换，契约只认 `modelValue` |
 | 表格渲染是异步的 | jsdom 里取不到单元格文本 | 测试里 `await flushPromises()` |
 | 选择事件不回传整行 | 拿不到 row | 适配器内部用 rowKey 反查 |
-| 直接 import 另一个适配器的工具 | 依赖混乱 | 通用逻辑放 `@fbk/shared` |
+| 直接 import 另一个适配器的工具 | 依赖混乱 | 通用逻辑放 `@fbkworks/shared` |
 | 主题只能走 provider | 暗色不生效 | 实现 `theme.providerProps()`，并确认 `RootProvider` 渲染了它 |
 
 ## 6. 不要做的事
 
-- 不要在适配器里 import `@fbk/components`（反向依赖）。
+- 不要在适配器里 import `@fbkworks/components`（反向依赖）。
 - 不要把 UI 库的 props 类型暴露到契约里（`uiProps` 是 `Record<string, any>`）。
 - 不要试图让三个库像素一致。平台差异是特性，不是 bug。

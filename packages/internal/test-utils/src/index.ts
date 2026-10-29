@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, type Component, type PropType } from 'vue'
-import { ADAPTER_CONTEXT, createAdapterContext, type UiAdapter } from '@fbk/adapter-core'
+import { ADAPTER_CONTEXT, createAdapterContext, type UiAdapter } from '@fbkworks/adapter-core'
 import { createMockAdapter } from './mock-adapter'
 
 export { createMockAdapter, defaultMockCapabilities } from './mock-adapter'

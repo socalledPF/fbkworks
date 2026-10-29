@@ -3,8 +3,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref, type App } from 'vue'
-import { createMockAdapter } from '@fbk/test-utils'
-import { defaultTokens, type FbkTokens } from '@fbk/tokens'
+import { createMockAdapter } from '@fbkworks/test-utils'
+import { defaultTokens, type FbkTokens } from '@fbkworks/tokens'
 import { createBusinessKit, FbkProvider } from '../src/plugin'
 
 /**

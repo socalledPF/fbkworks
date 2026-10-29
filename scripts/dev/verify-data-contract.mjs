@@ -27,7 +27,7 @@
  *   1. 业务方拿到的就是 dist —— 测它才是测真实交付物
  *   2. TS 源码里的相对导入不带扩展名，Node 直接跑不了
  *
- * 前置：先 pnpm --filter @fbk/data build
+ * 前置：先 pnpm --filter @fbkworks/data build
  */
 import { FbkDataError, createPageRequest, defineBackend } from '../../packages/data/dist/index.mjs'
 

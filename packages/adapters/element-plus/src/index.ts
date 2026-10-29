@@ -1,4 +1,4 @@
-import type { Capabilities, UiAdapter } from '@fbk/adapter-core'
+import type { Capabilities, UiAdapter } from '@fbkworks/adapter-core'
 import { Button } from './primitives/Button'
 import { Input } from './primitives/Input'
 import { Select } from './primitives/Select'

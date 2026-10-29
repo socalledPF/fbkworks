@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import { useDetail } from '../src/detail-page/use-detail'
 import FbkDetailPage from '../src/detail-page/DetailPage.vue'
 

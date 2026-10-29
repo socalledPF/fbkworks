@@ -11,7 +11,7 @@ import { h } from 'vue'
  */
 
 // 图表组件依赖 echarts，测试里替换成占位组件，只验证外层编排
-vi.mock('@fbk/chart-core', () => ({
+vi.mock('@fbkworks/chart-core', () => ({
   FbkChart: {
     name: 'FbkChart',
     props: ['option', 'height', 'loading', 'isEmpty', 'emptyText', 'themed'],

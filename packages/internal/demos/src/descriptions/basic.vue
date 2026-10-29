@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FbkDescriptions } from '@fbk/components/descriptions'
+import { FbkDescriptions } from '@fbkworks/components/descriptions'
 
 /**
  * 分组详情：基本信息 / 联系方式 / 扩展属性。

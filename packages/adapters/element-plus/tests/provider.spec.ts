@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import { FbkProvider } from '@fbk/adapter-core'
+import { FbkProvider } from '@fbkworks/adapter-core'
 import { elementPlusAdapter } from '../src'
 
 /**

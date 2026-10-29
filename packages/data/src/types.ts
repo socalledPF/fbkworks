@@ -1,20 +1,20 @@
 /**
  * 数据层契约类型。
  *
- * **这里是分页契约的唯一定义处。** `@fbk/components` 的
+ * **这里是分页契约的唯一定义处。** `@fbkworks/components` 的
  * `TableRequestParams` / `TableResponse` / `TableRequest` 都是
  * 本文件类型的别名 —— 改这里就会一起变，不存在两处漂移。
  *
  * 设计原则（见 docs/design/2026-10-25-fbk-data-contract.md）：
  *   · 与**后端规范无关** —— 不认识 ruoyi、Spring、GraphQL
- *   · 与 **UI 库无关** —— 不依赖 @fbk/adapter-core
+ *   · 与 **UI 库无关** —— 不依赖 @fbkworks/adapter-core
  *   · 传输层注入 —— 不内置 axios / fetch
  */
 
 /**
  * 排序状态。
  *
- * 与 `@fbk/adapter-core` 的 `SortState` 结构一致，但这里独立声明：
+ * 与 `@fbkworks/adapter-core` 的 `SortState` 结构一致，但这里独立声明：
  * 数据层不该为了一个两字段的结构去依赖 UI 适配层。
  * 一致性由 `packages/data/tests/contract.spec.ts` 的类型断言保证。
  */

@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/consumer-smoke",
+  "name": "@fbkworks/consumer-smoke",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,12 +7,12 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:*",
-    "@fbk/adapter-element-plus": "workspace:*",
-    "@fbk/adapter-naive-ui": "workspace:*",
-    "@fbk/adapter-vant": "workspace:*",
-    "@fbk/components": "workspace:*",
-    "@fbk/resolver": "workspace:*",
+    "@fbkworks/adapter-core": "workspace:*",
+    "@fbkworks/adapter-element-plus": "workspace:*",
+    "@fbkworks/adapter-naive-ui": "workspace:*",
+    "@fbkworks/adapter-vant": "workspace:*",
+    "@fbkworks/components": "workspace:*",
+    "@fbkworks/resolver": "workspace:*",
     "element-plus": "^2.8.8",
     "naive-ui": "^2.40.3",
     "vant": "^4.9.15",

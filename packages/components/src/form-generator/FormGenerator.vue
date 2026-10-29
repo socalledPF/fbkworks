@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
-import type { SelectOption } from '@fbk/adapter-core'
-import { resolveColumns, warnOnce } from '@fbk/shared'
+import { useAdapter } from '@fbkworks/adapter-core'
+import type { SelectOption } from '@fbkworks/adapter-core'
+import { resolveColumns, warnOnce } from '@fbkworks/shared'
 import type { FormField, FormGeneratorExpose, FormGeneratorProps } from './types'
 import type { QueryField } from '../query-form/types'
 import { useQueryModel } from '../query-form/use-query-model'

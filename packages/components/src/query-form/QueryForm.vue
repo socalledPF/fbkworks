@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
-import type { SelectOption } from '@fbk/adapter-core'
-import { resolveColumns, warnOnce } from '@fbk/shared'
+import { useAdapter } from '@fbkworks/adapter-core'
+import type { SelectOption } from '@fbkworks/adapter-core'
+import { resolveColumns, warnOnce } from '@fbkworks/shared'
 import type { QueryField, QueryFormExpose, QueryFormProps } from './types'
 import { useQueryModel } from './use-query-model'
 

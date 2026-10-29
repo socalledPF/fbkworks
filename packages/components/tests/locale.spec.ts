@@ -1,6 +1,6 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkProTable } from '../src/pro-table'
 import { resolveColumnRenderer } from '../src/pro-table/value-renderer'
 

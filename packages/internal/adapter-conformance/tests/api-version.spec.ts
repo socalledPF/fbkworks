@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ADAPTER_API_VERSION, assertAdapterCompatible, type UiAdapter } from '@fbk/adapter-core'
-import { createMockAdapter } from '@fbk/test-utils'
+import { ADAPTER_API_VERSION, assertAdapterCompatible, type UiAdapter } from '@fbkworks/adapter-core'
+import { createMockAdapter } from '@fbkworks/test-utils'
 
 /**
  * 契约版本 3：Drawer 成为必填原语。

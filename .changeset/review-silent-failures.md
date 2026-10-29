@@ -1,10 +1,10 @@
 ---
-"@fbk/components": minor
-"@fbk/adapter-vant": minor
-"@fbk/adapter-element-plus": patch
-"@fbk/adapter-naive-ui": patch
-"@fbk/adapter-core": patch
-"@fbk/resolver": patch
+"@fbkworks/components": minor
+"@fbkworks/adapter-vant": minor
+"@fbkworks/adapter-element-plus": patch
+"@fbkworks/adapter-naive-ui": patch
+"@fbkworks/adapter-core": patch
+"@fbkworks/resolver": patch
 ---
 
 修复一轮全仓库代码审查发现的静默失效缺陷
@@ -46,10 +46,10 @@
   但 `FeedbackApi` 里没有这两个成员——按能力位探测后调不到任何东西。现置 false。
   契约本身不变，将来补 API 时把位打开即可。
 
-- **补齐 `@fbk/components` 的 4 个缺失子路径**：`crud-page` / `form-modal` / `result` /
+- **补齐 `@fbkworks/components` 的 4 个缺失子路径**：`crud-page` / `form-modal` / `result` /
   `detail-page` 及其 `style.css`，以及 `./styles/index.css`，此前均未进入 `exports`，
   消费者装到包后子路径导入直接 `ERR_PACKAGE_PATH_NOT_EXPORTED`。
-  `@fbk/resolver` 的自动导入映射同步补齐（5 → 9），两者本是同一份清单的两处漂移。
+  `@fbkworks/resolver` 的自动导入映射同步补齐（5 → 9），两者本是同一份清单的两处漂移。
 
 - **`FbkResult` 未知 `status` 不再崩溃**：`status` 是运行时字符串，后端返回 401 / 422
   时原代码读 `undefined.title`，整块白屏。现在回退到中性默认，合法数字码语义不变。

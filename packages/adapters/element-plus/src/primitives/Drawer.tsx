@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { ElDrawer } from 'element-plus'
-import type { DrawerProps } from '@fbk/adapter-core'
+import type { DrawerProps } from '@fbkworks/adapter-core'
 
 /**
  * 桌面抽屉：ElDrawer 用的是方向（direction）而不是位置语义。

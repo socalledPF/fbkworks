@@ -109,9 +109,9 @@ export async function getChangedFiles(root, { base = 'HEAD~1', head = 'HEAD' } =
 /**
  * 读所有 workspace 包的 package.json，建**包级**反向依赖图。
  *
- * 为什么需要它：dependency-cruiser 的 `doNotFollow` 排除了 `@fbk/*`，
+ * 为什么需要它：dependency-cruiser 的 `doNotFollow` 排除了 `@fbkworks/*`，
  * 所以跨包依赖（components → data）不出现在文件级图里。
- * 结果就是「改了 @fbk/data 的契约，却分析不出 components 受影响」——
+ * 结果就是「改了 @fbkworks/data 的契约，却分析不出 components 受影响」——
  * 而这恰恰是最需要提醒的跨包破坏性变更。
  *
  * 这一层补上包级别的传播：data 变了 → 所有依赖 data 的包都受影响。
@@ -159,7 +159,7 @@ export async function loadPackageGraph(root, scanDirs) {
         ...Object.keys(pkg.peerDependencies ?? {}),
       ]
       for (const dep of deps) {
-        if (!dep.startsWith('@fbk/')) continue
+        if (!dep.startsWith('@fbkworks/')) continue
         if (!reverse.has(dep)) reverse.set(dep, [])
         reverse.get(dep).push(pkg.name)
       }

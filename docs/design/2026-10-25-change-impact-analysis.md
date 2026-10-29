@@ -9,7 +9,7 @@
 现状是**靠人记**：
 
 - 改 `use-table-request.ts` → 谁会坏？
-- 改了 `@fbk/data` 的 `Page` 类型 → 哪些页面要跟着改？
+- 改了 `@fbkworks/data` 的 `Page` 类型 → 哪些页面要跟着改？
 - 删了一个导出 → 有没有人在用？
 
 CI 只能告诉你「构建通过」，构建通过**不等于**功能没坏。
@@ -106,7 +106,7 @@ BFS：
   apps/playground (1 个 demo)
 
 建议验证：
-  pnpm --filter @fbk/components test
+  pnpm --filter @fbkworks/components test
   python scripts/visual/verify-admin.py
 ```
 

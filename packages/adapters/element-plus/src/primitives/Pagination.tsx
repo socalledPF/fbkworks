@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElPagination } from 'element-plus'
-import type { PaginationProps } from '@fbk/adapter-core'
+import type { PaginationProps } from '@fbkworks/adapter-core'
 
 export const Pagination = defineComponent({
   name: 'FbkElPagination',

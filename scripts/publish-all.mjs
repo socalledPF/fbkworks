@@ -68,11 +68,11 @@ async function discoverPublicPackages(dir, out = []) {
 
 /**
  * ORDER 是手写清单，一定会漂移（这一版就漏了 4 个包，发布出去 components 会依赖
- * 一个从未上架的 @fbk/data）。所以每次发布前用文件系统核对，绝不靠人记。
+ * 一个从未上架的 @fbkworks/data）。所以每次发布前用文件系统核对，绝不靠人记。
  *
  * 两个不变量：
  *   · 覆盖：public 包集合 == ORDER 集合
- *   · 拓扑：包声明的每个 @fbk 依赖都排在它前面
+ *   · 拓扑：包声明的每个 @fbkworks 依赖都排在它前面
  */
 async function assertOrder() {
   const published = await discoverPublicPackages(join(root, 'packages'))
@@ -91,7 +91,7 @@ async function assertOrder() {
   for (const pkg of published) {
     const self = index.get(pkg.dir)
     for (const dep of pkg.deps) {
-      if (!dep.startsWith('@fbk/')) continue
+      if (!dep.startsWith('@fbkworks/')) continue
       const target = byName.get(dep)
       const depIndex = target ? index.get(target.dir) : undefined
       if (depIndex === undefined) problems.push(`${pkg.name} 依赖 ${dep}，但它在 ORDER 里不存在`)

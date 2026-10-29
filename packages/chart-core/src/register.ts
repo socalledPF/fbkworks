@@ -22,7 +22,7 @@ import {
   VisualMapComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { warnOnce } from '@fbk/shared'
+import { warnOnce } from '@fbkworks/shared'
 import type { FbkChartType, RegisterChartsOptions } from './types'
 
 /**
@@ -106,7 +106,7 @@ export function registerFbkCharts(options: RegisterChartsOptions = {}): void {
     if ((CHART_MAP as Record<string, any>)[c]) return true
     warnOnce(
       `chart:unresolved:chart:${c}`,
-      `图表类型 "${c}" 尚未在 @fbk/chart-core 中实现，已跳过注册（该类型的图表会空白）。`,
+      `图表类型 "${c}" 尚未在 @fbkworks/chart-core 中实现，已跳过注册（该类型的图表会空白）。`,
     )
     return false
   })
@@ -114,7 +114,7 @@ export function registerFbkCharts(options: RegisterChartsOptions = {}): void {
     if ((COMPONENT_MAP as Record<string, any>)[c]) return true
     warnOnce(
       `chart:unresolved:component:${c}`,
-      `图表组件 "${c}" 尚未在 @fbk/chart-core 中实现，已跳过注册（依赖它的图表会空白）。`,
+      `图表组件 "${c}" 尚未在 @fbkworks/chart-core 中实现，已跳过注册（依赖它的图表会空白）。`,
     )
     return false
   })

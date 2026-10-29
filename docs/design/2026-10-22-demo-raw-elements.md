@@ -37,7 +37,7 @@
 不放在各 demo 的 `<style>` 里（会重复 16 次），也不放 Playground
 （demo 同时被文档站使用）。
 
-**采用**：`@fbk/demos` 包内新增 `src/demo.css`，由 `registry` 或
+**采用**：`@fbkworks/demos` 包内新增 `src/demo.css`，由 `registry` 或
 demo 入口统一引入。命名前缀 `fbk-demo-*`，避免与组件样式冲突。
 
 ### 决策 3：视觉规格

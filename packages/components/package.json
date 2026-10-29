@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/components",
+  "name": "@fbkworks/components",
   "version": "0.1.0",
   "type": "module",
   "sideEffects": [
@@ -69,10 +69,10 @@
     "build": "vite build && node ../../scripts/copy-css.mjs src dist && node ../../scripts/bundle-css.mjs src/styles/index.css dist/style.css"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:^",
-    "@fbk/shared": "workspace:^",
-    "@fbk/tokens": "workspace:^",
-    "@fbk/data": "workspace:^"
+    "@fbkworks/adapter-core": "workspace:^",
+    "@fbkworks/shared": "workspace:^",
+    "@fbkworks/tokens": "workspace:^",
+    "@fbkworks/data": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

@@ -1,21 +1,21 @@
-# @fbk/adapter-naive-ui
+# @fbkworks/adapter-naive-ui
 
 FBK 业务组件库的 Naive UI 适配器（桌面端，DataGrid 渲染为表格）。
 
 ```bash
-pnpm add @fbk/components @fbk/adapter-naive-ui
+pnpm add @fbkworks/components @fbkworks/adapter-naive-ui
 pnpm add -D naive-ui
 ```
 
 ## 使用
 
 ```ts
-import { createBusinessKit } from '@fbk/adapter-core'
-import { naiveUiAdapter } from '@fbk/adapter-naive-ui'
+import { createBusinessKit } from '@fbkworks/adapter-core'
+import { naiveUiAdapter } from '@fbkworks/adapter-naive-ui'
 
-import '@fbk/tokens/css'
-import '@fbk/adapter-naive-ui/style.css'
-import '@fbk/components/style.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/adapter-naive-ui/style.css'
+import '@fbkworks/components/style.css'
 
 createApp(App).use(createBusinessKit({ adapter: naiveUiAdapter }))
 ```

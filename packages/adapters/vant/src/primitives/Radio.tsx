@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { RadioGroup, Radio as VanRadio } from 'vant'
-import type { RadioProps, Size } from '@fbk/adapter-core'
+import type { RadioProps, Size } from '@fbkworks/adapter-core'
 
 /** 单选组（移动端）。vant 的 RadioGroup 用 `modelValue` + `update:modelValue`。 */
 export const Radio = defineComponent({

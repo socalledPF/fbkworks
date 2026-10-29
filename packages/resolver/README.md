@@ -1,15 +1,15 @@
-# @fbk/resolver
+# @fbkworks/resolver
 
-`@fbk/components` 的 unplugin-vue-components 解析器。
+`@fbkworks/components` 的 unplugin-vue-components 解析器。
 
 ```bash
-pnpm add -D unplugin-vue-components @fbk/resolver
+pnpm add -D unplugin-vue-components @fbkworks/resolver
 ```
 
 ```ts
 // vite.config.ts
 import Components from 'unplugin-vue-components/vite'
-import { FbkResolver } from '@fbk/resolver'
+import { FbkResolver } from '@fbkworks/resolver'
 
 export default defineConfig({
   plugins: [Components({ resolvers: [FbkResolver()] })],

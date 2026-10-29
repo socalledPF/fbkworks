@@ -1,9 +1,9 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, ref } from 'vue'
-import { ADAPTER_CONTEXT, createAdapterContext } from '@fbk/adapter-core'
-import { createMockAdapter } from '@fbk/test-utils'
+import { ADAPTER_CONTEXT, createAdapterContext } from '@fbkworks/adapter-core'
+import { createMockAdapter } from '@fbkworks/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { mountWithAdapter } from '@fbk/test-utils'
+import { mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkFormModal } from '../src/form-modal'
 
 const schema = {

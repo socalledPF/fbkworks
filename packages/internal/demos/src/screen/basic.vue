@@ -11,7 +11,7 @@ import {
   FbkScreenBarChart,
   FbkScreenPieChart,
   FbkScreenGaugeChart,
-} from '@fbk/screen'
+} from '@fbkworks/screen'
 import { alerts, channelShare, hourlyTrend, regionSales, topProducts } from './data'
 
 /**

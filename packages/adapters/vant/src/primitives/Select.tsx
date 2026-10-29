@@ -1,6 +1,6 @@
 import { computed, defineComponent, ref, type PropType } from 'vue'
 import { Field, Popup, Picker, Checkbox, CheckboxGroup, Cell } from 'vant'
-import type { SelectOption, SelectProps } from '@fbk/adapter-core'
+import type { SelectOption, SelectProps } from '@fbkworks/adapter-core'
 
 /**
  * vant 没有 select：用 只读 Field + Popup + Picker（单选）/ CheckboxGroup（多选）组合。

@@ -172,7 +172,7 @@ for (const pkg of published) {
         continue
       }
 
-      // 检查 2：内部 @fbk 包必须在 dependencies 里声明
+      // 检查 2：内部 @fbkworks 包必须在 dependencies 里声明
       const name = packageName(specifier)
       if (ALLOWED_ALWAYS.includes(name)) continue
 

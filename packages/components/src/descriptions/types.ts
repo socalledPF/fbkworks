@@ -1,5 +1,5 @@
 import type { VNodeChild } from 'vue'
-import type { Size } from '@fbk/adapter-core'
+import type { Size } from '@fbkworks/adapter-core'
 
 export interface DescriptionItem<T = Record<string, any>> {
   key: string

@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/test-utils",
+  "name": "@fbkworks/test-utils",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,9 +7,9 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:*",
-    "@fbk/shared": "workspace:*",
-    "@fbk/tokens": "workspace:*"
+    "@fbkworks/adapter-core": "workspace:*",
+    "@fbkworks/shared": "workspace:*",
+    "@fbkworks/tokens": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.5.0"

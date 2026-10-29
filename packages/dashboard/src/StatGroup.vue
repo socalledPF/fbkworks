@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { resolveColumns } from '@fbk/shared'
+import { resolveColumns } from '@fbkworks/shared'
 import type { StatGroupProps } from './types'
 
 /**
  * 指标卡栅格。
  *
  * 列数用 `--fbk-cols-*` 变量 + CSS var() 回退链，
- * 与 QueryForm / FormGenerator 同一套机制（见 @fbk/shared 的 resolveColumns）。
+ * 与 QueryForm / FormGenerator 同一套机制（见 @fbkworks/shared 的 resolveColumns）。
  */
 defineOptions({ name: 'FbkStatGroup', inheritAttrs: false })
 

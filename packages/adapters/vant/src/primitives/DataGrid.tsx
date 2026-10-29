@@ -5,8 +5,8 @@ import {
   type DataGridColumn,
   type DataGridProps,
   type SortState,
-} from '@fbk/adapter-core'
-import { getRowKey } from '@fbk/shared'
+} from '@fbkworks/adapter-core'
+import { getRowKey } from '@fbkworks/shared'
 
 /**
  * vant 没有 Table。这里把同一份列描述渲染成卡片列表：

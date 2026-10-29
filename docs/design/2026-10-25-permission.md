@@ -78,7 +78,7 @@ canAll(['a', 'b'])                   // 全部
 
 所以库能做的只有两件事：
 
-1. **提供显式声明位**（已在 P0 的 `@fbk/data` 里实现 `scope`）
+1. **提供显式声明位**（已在 P0 的 `@fbkworks/data` 里实现 `scope`）
 2. **在写错时提醒**
 
 ### 3.2 已实现的提醒
@@ -98,7 +98,7 @@ createPageRequest({
 给不方便用 `createPageRequest` 的场景（比如自研请求层）一个显式检查：
 
 ```ts
-import { assertServerScope } from '@fbk/data'
+import { assertServerScope } from '@fbkworks/data'
 
 // 在获取「含敏感字段」的数据后调用
 assertServerScope('order:list')   // 仅 dev 环境 warn，生产无开销

@@ -17,7 +17,7 @@ importers:
       '@eslint/js':
         specifier: ^9.0.0
         version: 9.39.5
-      '@fbk/build-config':
+      '@fbkworks/build-config':
         specifier: workspace:*
         version: link:packages/internal/build-config
       '@types/node':
@@ -86,28 +86,28 @@ importers:
 
   apps/admin:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../packages/adapter-core
-      '@fbk/adapter-element-plus':
+      '@fbkworks/adapter-element-plus':
         specifier: workspace:*
         version: link:../../packages/adapters/element-plus
-      '@fbk/chart-core':
+      '@fbkworks/chart-core':
         specifier: workspace:*
         version: link:../../packages/chart-core
-      '@fbk/components':
+      '@fbkworks/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@fbk/dashboard':
+      '@fbkworks/dashboard':
         specifier: workspace:*
         version: link:../../packages/dashboard
-      '@fbk/data':
+      '@fbkworks/data':
         specifier: workspace:*
         version: link:../../packages/data
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       echarts:
@@ -122,34 +122,34 @@ importers:
 
   apps/docs:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../packages/adapter-core
-      '@fbk/adapter-element-plus':
+      '@fbkworks/adapter-element-plus':
         specifier: workspace:*
         version: link:../../packages/adapters/element-plus
-      '@fbk/adapter-naive-ui':
+      '@fbkworks/adapter-naive-ui':
         specifier: workspace:*
         version: link:../../packages/adapters/naive-ui
-      '@fbk/adapter-vant':
+      '@fbkworks/adapter-vant':
         specifier: workspace:*
         version: link:../../packages/adapters/vant
-      '@fbk/chart-core':
+      '@fbkworks/chart-core':
         specifier: workspace:*
         version: link:../../packages/chart-core
-      '@fbk/components':
+      '@fbkworks/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@fbk/dashboard':
+      '@fbkworks/dashboard':
         specifier: workspace:*
         version: link:../../packages/dashboard
-      '@fbk/demos':
+      '@fbkworks/demos':
         specifier: workspace:*
         version: link:../../packages/internal/demos
-      '@fbk/screen':
+      '@fbkworks/screen':
         specifier: workspace:*
         version: link:../../packages/screen
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       echarts:
@@ -189,34 +189,34 @@ importers:
 
   apps/playground:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../packages/adapter-core
-      '@fbk/adapter-element-plus':
+      '@fbkworks/adapter-element-plus':
         specifier: workspace:*
         version: link:../../packages/adapters/element-plus
-      '@fbk/adapter-naive-ui':
+      '@fbkworks/adapter-naive-ui':
         specifier: workspace:*
         version: link:../../packages/adapters/naive-ui
-      '@fbk/adapter-vant':
+      '@fbkworks/adapter-vant':
         specifier: workspace:*
         version: link:../../packages/adapters/vant
-      '@fbk/chart-core':
+      '@fbkworks/chart-core':
         specifier: workspace:^
         version: link:../../packages/chart-core
-      '@fbk/components':
+      '@fbkworks/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@fbk/dashboard':
+      '@fbkworks/dashboard':
         specifier: workspace:^
         version: link:../../packages/dashboard
-      '@fbk/demos':
+      '@fbkworks/demos':
         specifier: workspace:*
         version: link:../../packages/internal/demos
-      '@fbk/screen':
+      '@fbkworks/screen':
         specifier: workspace:^
         version: link:../../packages/screen
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       echarts:
@@ -247,10 +247,10 @@ importers:
 
   packages/adapter-core:
     dependencies:
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../tokens
       vue:
@@ -259,13 +259,13 @@ importers:
 
   packages/adapters/element-plus:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:^
         version: link:../../adapter-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../../tokens
       element-plus:
@@ -277,13 +277,13 @@ importers:
 
   packages/adapters/naive-ui:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:^
         version: link:../../adapter-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../../tokens
       naive-ui:
@@ -295,13 +295,13 @@ importers:
 
   packages/adapters/vant:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:^
         version: link:../../adapter-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../../tokens
       vant:
@@ -313,10 +313,10 @@ importers:
 
   packages/chart-core:
     dependencies:
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../tokens
       echarts:
@@ -328,16 +328,16 @@ importers:
 
   packages/components:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:^
         version: link:../adapter-core
-      '@fbk/data':
+      '@fbkworks/data':
         specifier: workspace:^
         version: link:../data
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../tokens
       vue:
@@ -346,13 +346,13 @@ importers:
 
   packages/dashboard:
     dependencies:
-      '@fbk/chart-core':
+      '@fbkworks/chart-core':
         specifier: workspace:^
         version: link:../chart-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../tokens
       echarts:
@@ -364,16 +364,16 @@ importers:
 
   packages/data:
     dependencies:
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
 
   packages/internal/adapter-conformance:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../adapter-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:*
         version: link:../../shared
       vue:
@@ -404,13 +404,13 @@ importers:
 
   packages/internal/demos:
     dependencies:
-      '@fbk/components':
+      '@fbkworks/components':
         specifier: workspace:*
         version: link:../../components
-      '@fbk/dashboard':
+      '@fbkworks/dashboard':
         specifier: workspace:^
         version: link:../../dashboard
-      '@fbk/screen':
+      '@fbkworks/screen':
         specifier: workspace:^
         version: link:../../screen
       vue:
@@ -421,13 +421,13 @@ importers:
 
   packages/internal/test-utils:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../adapter-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:*
         version: link:../../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:*
         version: link:../../tokens
       vue:
@@ -442,13 +442,13 @@ importers:
 
   packages/screen:
     dependencies:
-      '@fbk/chart-core':
+      '@fbkworks/chart-core':
         specifier: workspace:^
         version: link:../chart-core
-      '@fbk/shared':
+      '@fbkworks/shared':
         specifier: workspace:^
         version: link:../shared
-      '@fbk/tokens':
+      '@fbkworks/tokens':
         specifier: workspace:^
         version: link:../tokens
       echarts:
@@ -468,22 +468,22 @@ importers:
 
   tests/consumer:
     dependencies:
-      '@fbk/adapter-core':
+      '@fbkworks/adapter-core':
         specifier: workspace:*
         version: link:../../packages/adapter-core
-      '@fbk/adapter-element-plus':
+      '@fbkworks/adapter-element-plus':
         specifier: workspace:*
         version: link:../../packages/adapters/element-plus
-      '@fbk/adapter-naive-ui':
+      '@fbkworks/adapter-naive-ui':
         specifier: workspace:*
         version: link:../../packages/adapters/naive-ui
-      '@fbk/adapter-vant':
+      '@fbkworks/adapter-vant':
         specifier: workspace:*
         version: link:../../packages/adapters/vant
-      '@fbk/components':
+      '@fbkworks/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@fbk/resolver':
+      '@fbkworks/resolver':
         specifier: workspace:*
         version: link:../../packages/resolver
       element-plus:

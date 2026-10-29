@@ -2,7 +2,7 @@
 
 Vue 3 企业级业务组件库。**一套业务组件，三种 UI 适配器**：element-plus（桌面）、vant4（移动）、naive-ui（桌面）。
 
-业务页面只依赖 `@fbk/adapter-core` 的契约，不出现任何 UI 库类型。切换适配器只改应用入口的两行注入代码。
+业务页面只依赖 `@fbkworks/adapter-core` 的契约，不出现任何 UI 库类型。切换适配器只改应用入口的两行注入代码。
 
 ```text
 tokens ← shared ← adapter-core ← adapters
@@ -14,14 +14,14 @@ tokens ← shared ← adapter-core ← adapters
 
 | 包 | 说明 |
 |---|---|
-| `@fbk/tokens` | 设计令牌，产出 `--fbk-*` CSS 变量 |
-| `@fbk/shared` | 无 UI 语义的工具与 composables |
-| `@fbk/adapter-core` | 契约、注入、能力声明、主题桥、默认单元格渲染 |
-| `@fbk/adapter-element-plus` | element-plus 适配器 |
-| `@fbk/adapter-vant` | vant4 适配器（DataGrid 渲染为卡片列表） |
-| `@fbk/adapter-naive-ui` | naive-ui 适配器（provider 型主题） |
-| `@fbk/components` | 业务组件：ProTable / QueryForm / FormGenerator / PageContainer / Descriptions |
-| `@fbk/resolver` | 可选的 unplugin-vue-components 解析器 |
+| `@fbkworks/tokens` | 设计令牌，产出 `--fbk-*` CSS 变量 |
+| `@fbkworks/shared` | 无 UI 语义的工具与 composables |
+| `@fbkworks/adapter-core` | 契约、注入、能力声明、主题桥、默认单元格渲染 |
+| `@fbkworks/adapter-element-plus` | element-plus 适配器 |
+| `@fbkworks/adapter-vant` | vant4 适配器（DataGrid 渲染为卡片列表） |
+| `@fbkworks/adapter-naive-ui` | naive-ui 适配器（provider 型主题） |
+| `@fbkworks/components` | 业务组件：ProTable / QueryForm / FormGenerator / PageContainer / Descriptions |
+| `@fbkworks/resolver` | 可选的 unplugin-vue-components 解析器 |
 
 ## 快速开始
 
@@ -35,12 +35,12 @@ pnpm docs:dev     # VitePress 文档站
 业务应用接入：
 
 ```ts
-import { createBusinessKit } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { createBusinessKit } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 
-import '@fbk/tokens/css'
-import '@fbk/adapter-element-plus/style.css'
-import '@fbk/components/style.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/adapter-element-plus/style.css'
+import '@fbkworks/components/style.css'
 
 createApp(App)
   .use(createBusinessKit({ adapter: elementPlusAdapter, theme: 'light' }))
@@ -73,7 +73,7 @@ pnpm verify        # 一次跑完全部门禁
 
 ```text
 apps/
-  docs/                  VitePress 文档站（demo 来自 @fbk/demos）
+  docs/                  VitePress 文档站（demo 来自 @fbkworks/demos）
   playground/            三适配器调试台
   admin/                 后台管理系统 demo（吃自己的狗粮测试）
 packages/
@@ -109,7 +109,7 @@ tests/consumer/          消费者烟雾测试（按 exports 解析 dist，不�
 
 ## 发布
 
-发布到公开 npm，scope 为 `@fbk`（需要在 npm 上创建同名组织并拥有发布权限）。
+发布到公开 npm，scope 为 `@fbkworks`（需要在 npm 上创建同名组织并拥有发布权限）。
 
 **首次发布 `0.1.0`**（8 个包版本号当前都已是 `0.1.0`，不需要跑 `version-packages`）：
 

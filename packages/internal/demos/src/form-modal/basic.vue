@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkFormModal } from '@fbk/components/form-modal'
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import type { FormSchema } from '@fbk/components/form-generator'
-import { useAdapter } from '@fbk/adapter-core'
+import { FbkFormModal } from '@fbkworks/components/form-modal'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import type { FormSchema } from '@fbkworks/components/form-generator'
+import { useAdapter } from '@fbkworks/adapter-core'
 import { orderStatusEnum, queryOrders, type OrderRow } from '../data'
 
 /**

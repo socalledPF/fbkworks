@@ -51,7 +51,7 @@ el.style.display = 'none'
 ### 组合式 API
 
 ```ts
-import { usePermission } from '@fbk/adapter-core'
+import { usePermission } from '@fbkworks/adapter-core'
 
 const { can, canAny, canAll } = usePermission()
 can('order:delete')          // 数组语义为「任一」

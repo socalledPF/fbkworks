@@ -4,18 +4,18 @@
   "commit": false,
   "fixed": [
     [
-      "@fbk/tokens",
-      "@fbk/shared",
-      "@fbk/data",
-      "@fbk/adapter-core",
-      "@fbk/chart-core",
-      "@fbk/adapter-element-plus",
-      "@fbk/adapter-vant",
-      "@fbk/adapter-naive-ui",
-      "@fbk/components",
-      "@fbk/dashboard",
-      "@fbk/screen",
-      "@fbk/resolver"
+      "@fbkworks/tokens",
+      "@fbkworks/shared",
+      "@fbkworks/data",
+      "@fbkworks/adapter-core",
+      "@fbkworks/chart-core",
+      "@fbkworks/adapter-element-plus",
+      "@fbkworks/adapter-vant",
+      "@fbkworks/adapter-naive-ui",
+      "@fbkworks/components",
+      "@fbkworks/dashboard",
+      "@fbkworks/screen",
+      "@fbkworks/resolver"
     ]
   ],
   "linked": [],
@@ -23,11 +23,11 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@fbk/docs",
-    "@fbk/playground",
-    "@fbk/adapter-conformance",
-    "@fbk/test-utils",
-    "@fbk/build-config",
-    "@fbk/demos"
+    "@fbkworks/docs",
+    "@fbkworks/playground",
+    "@fbkworks/adapter-conformance",
+    "@fbkworks/test-utils",
+    "@fbkworks/build-config",
+    "@fbkworks/demos"
   ]
 }

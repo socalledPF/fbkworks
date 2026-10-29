@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch, type Ref } from 'vue'
-import { toErrorEvent, useReporter } from '@fbk/adapter-core'
+import { toErrorEvent, useReporter } from '@fbkworks/adapter-core'
 
 /**
  * 详情数据获取。

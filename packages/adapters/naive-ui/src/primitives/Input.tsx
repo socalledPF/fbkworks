@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
-import type { InputProps, Size } from '@fbk/adapter-core'
+import type { InputProps, Size } from '@fbkworks/adapter-core'
 
 export const Input = defineComponent({
   name: 'FbkNaiveInput',

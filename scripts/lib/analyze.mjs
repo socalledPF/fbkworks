@@ -106,7 +106,7 @@ export function analyzeImpact(graph, changedFiles, pkgCtx) {
   }
 
   /* 包级传播。
-     文件级图里 components 引用的是 `@fbk/data` 包名，
+     文件级图里 components 引用的是 `@fbkworks/data` 包名，
      depcruise 的 doNotFollow 把它排除了，所以「改了 data 的契约」
      分析不出 components 受影响。
 
@@ -250,7 +250,7 @@ export function suggestChecks(summary, globals) {
        summary.packages      —— 文件级影响到的包
        summary.affectedPackages —— 因包级依赖而整包受影响的
 
-     后者尤其重要：改了 @fbk/data 的契约，components 的测试必须重跑，
+     后者尤其重要：改了 @fbkworks/data 的契约，components 的测试必须重跑，
      否则「类型不兼容」要靠运行时才发现。 */
   const TESTABLE = [
     'tokens',
@@ -264,11 +264,11 @@ export function suggestChecks(summary, globals) {
   ]
   const fromFiles = summary.packages.filter((p) => TESTABLE.includes(p))
   const fromPackages = (summary.affectedPackages ?? [])
-    .map((p) => p.replace('@fbk/', ''))
+    .map((p) => p.replace('@fbkworks/', ''))
     .filter((p) => TESTABLE.includes(p))
 
   for (const pkg of [...new Set([...fromFiles, ...fromPackages])]) {
-    out.push(`pnpm --filter @fbk/${pkg} test`)
+    out.push(`pnpm --filter @fbkworks/${pkg} test`)
   }
 
   // 受影响的应用 → 跑对应的浏览器实测

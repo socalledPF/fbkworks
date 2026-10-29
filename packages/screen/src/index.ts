@@ -1,6 +1,6 @@
 /**
  * 可视化大屏组件。Barrel 只做 re-export，不 import CSS。
- * 样式按需导入：`@fbk/screen/style.css`
+ * 样式按需导入：`@fbkworks/screen/style.css`
  */
 export { default as FbkScreenPage } from './ScreenPage.vue'
 export { default as FbkScreenHeader } from './ScreenHeader.vue'

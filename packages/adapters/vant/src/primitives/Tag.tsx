@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { Tag as VanTag } from 'vant'
-import type { Status } from '@fbk/adapter-core'
+import type { Status } from '@fbkworks/adapter-core'
 
 const statusType = {
   primary: 'primary',

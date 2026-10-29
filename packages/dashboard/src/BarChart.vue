@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbk/chart-core'
+import { FbkChart } from '@fbkworks/chart-core'
 import FbkChartCard from './ChartCard.vue'
 import type { BarChartProps } from './types'
 

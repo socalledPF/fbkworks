@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { FbkPageContainer } from '@fbk/components/page-container'
-import { FbkDescriptions } from '@fbk/components/descriptions'
-import { useAdapter } from '@fbk/adapter-core'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
+import { FbkDescriptions } from '@fbkworks/components/descriptions'
+import { useAdapter } from '@fbkworks/adapter-core'
 
 const adapter = useAdapter()
 const { Button } = adapter.primitives

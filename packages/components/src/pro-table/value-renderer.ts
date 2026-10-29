@@ -1,6 +1,6 @@
 import { h, type VNodeChild } from 'vue'
-import { formatDate, formatMoney, formatNumber } from '@fbk/shared'
-import type { CellRenderContext } from '@fbk/adapter-core'
+import { formatDate, formatMoney, formatNumber } from '@fbkworks/shared'
+import type { CellRenderContext } from '@fbkworks/adapter-core'
 import type { ProTableAction, ProTableColumn } from './types'
 
 interface RendererContext {

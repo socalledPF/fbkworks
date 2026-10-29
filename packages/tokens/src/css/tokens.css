@@ -145,7 +145,7 @@
     border-color var(--fbk-duration-fast) var(--fbk-easing-standard);
   --fbk-transition-shadow: box-shadow var(--fbk-duration-fast) var(--fbk-easing-standard);
 /* ============================================================
-   图表（@fbk/chart-core / dashboard / screen）
+   图表（@fbkworks/chart-core / dashboard / screen）
    ============================================================
    色板经过脚本验证（见 docs/design/2026-10-22-dashboard-screen.md）：
      · 每个色对背景 ≥ 3:1（WCAG 1.4.11 非文本对比）

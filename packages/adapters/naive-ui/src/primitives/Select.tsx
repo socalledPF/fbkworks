@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { NSelect } from 'naive-ui'
-import type { SelectOption, SelectProps, Size } from '@fbk/adapter-core'
+import type { SelectOption, SelectProps, Size } from '@fbkworks/adapter-core'
 
 export const Select = defineComponent({
   name: 'FbkNaiveSelect',

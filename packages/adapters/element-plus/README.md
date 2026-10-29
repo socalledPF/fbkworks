@@ -1,21 +1,21 @@
-# @fbk/adapter-element-plus
+# @fbkworks/adapter-element-plus
 
 FBK 业务组件库的 Element Plus 适配器（桌面端，DataGrid 渲染为表格）。
 
 ```bash
-pnpm add @fbk/components @fbk/adapter-element-plus
+pnpm add @fbkworks/components @fbkworks/adapter-element-plus
 pnpm add -D element-plus
 ```
 
 ## 使用
 
 ```ts
-import { createBusinessKit } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { createBusinessKit } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 
-import '@fbk/tokens/css'
-import '@fbk/adapter-element-plus/style.css'
-import '@fbk/components/style.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/adapter-element-plus/style.css'
+import '@fbkworks/components/style.css'
 import 'element-plus/dist/index.css'
 
 createApp(App).use(createBusinessKit({ adapter: elementPlusAdapter }))
@@ -24,7 +24,7 @@ createApp(App).use(createBusinessKit({ adapter: elementPlusAdapter }))
 暗色模式额外引入：
 
 ```ts
-import '@fbk/adapter-element-plus/dark.css'
+import '@fbkworks/adapter-element-plus/dark.css'
 ```
 
 ## 能力

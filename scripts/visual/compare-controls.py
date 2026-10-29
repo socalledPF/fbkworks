@@ -1,7 +1,7 @@
 """全量对比：Playground header 控件 vs 所有 demo 里的 .fbk-demo-btn。
 
 为什么需要这个脚本：header 与 demo 的按钮样式分别定义在
-playground.css 与 @fbk/demos/style.css 两个文件里，很容易改了一处漏了另一处。
+playground.css 与 @fbkworks/demos/style.css 两个文件里，很容易改了一处漏了另一处。
 而且组件样式可能以更高特异性压过业务方的类（实测发生过：
 ProTable 的 `.fbk-pro-table__bulk button` 压掉了 .fbk-demo-btn）。
 

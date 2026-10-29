@@ -1,4 +1,4 @@
-import type { Size } from '@fbk/adapter-core'
+import type { Size } from '@fbkworks/adapter-core'
 
 export const toElementSize = (size: Size = 'md'): 'small' | 'default' | 'large' => {
   if (size === 'sm') return 'small'

@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/chart-core",
+  "name": "@fbkworks/chart-core",
   "version": "0.1.0",
   "type": "module",
   "sideEffects": ["**/*.css"],
@@ -17,8 +17,8 @@
     "build": "vite build && node ../../scripts/copy-css.mjs src dist && node ../../scripts/bundle-css.mjs src/styles/index.css dist/style.css"
   },
   "dependencies": {
-    "@fbk/shared": "workspace:^",
-    "@fbk/tokens": "workspace:^"
+    "@fbkworks/shared": "workspace:^",
+    "@fbkworks/tokens": "workspace:^"
   },
   "peerDependencies": {
     "echarts": "^6.0.0",

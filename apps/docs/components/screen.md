@@ -14,8 +14,8 @@ import {
   FbkScreenHeader,
   FbkScreenPanel,
   FbkScreenLineChart,
-} from '@fbk/screen'
-import '@fbk/screen/style.css'
+} from '@fbkworks/screen'
+import '@fbkworks/screen/style.css'
 </script>
 
 <template>

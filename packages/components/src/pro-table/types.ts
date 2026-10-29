@@ -1,14 +1,14 @@
 import type { VNodeChild } from 'vue'
-import type { DataGridColumn, SortState, Status } from '@fbk/adapter-core'
-import type { Key } from '@fbk/shared'
-import type { Page, PageQuery } from '@fbk/data'
+import type { DataGridColumn, SortState, Status } from '@fbkworks/adapter-core'
+import type { Key } from '@fbkworks/shared'
+import type { Page, PageQuery } from '@fbkworks/data'
 
 /*
- * 分页契约的**唯一定义处是 @fbk/data**，这里是别名。
+ * 分页契约的**唯一定义处是 @fbkworks/data**，这里是别名。
  *
  * 之前两处各写一份同形接口，靠注释声称「保证兼容」——
  * 实际没有任何类型保障：改了一处，另一处不会报错，注释继续说兼容。
- * 现在改 @fbk/data 就会在这里一起生效。
+ * 现在改 @fbkworks/data 就会在这里一起生效。
  *
  * 唯一的语义差异：`TableResponse.total` 可选，`Page.total` 必填。
  * 业务方手写 fetcher 时可能拿不到总数（这时组件用 list.length 兜底），

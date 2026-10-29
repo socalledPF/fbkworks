@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { getDemo, getDemoSource } from '@fbk/demos'
+import { getDemo, getDemoSource } from '@fbkworks/demos'
 
 const props = defineProps<{
   /** demo 注册表里的 id，例如 `pro-table/basic` */
@@ -40,7 +40,7 @@ async function copySource() {
 
     <div class="fbk-demo__preview">
       <!--
-        示例来自 @fbk/demos，与 Playground 是同一份源码。
+        示例来自 @fbkworks/demos，与 Playground 是同一份源码。
         ClientOnly：UI 库在 SSR 下需要额外的 id / z-index provider，而 demo 本身是交互式的，
         服务端渲染没有收益，只在客户端挂载可以避免 hydration 噪音。
       -->

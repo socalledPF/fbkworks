@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import { FbkProvider } from '@fbk/adapter-core'
+import { FbkProvider } from '@fbkworks/adapter-core'
 import { vantAdapter } from '../src'
 
 /**

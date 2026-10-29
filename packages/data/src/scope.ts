@@ -1,4 +1,4 @@
-import { warnOnce } from '@fbk/shared'
+import { warnOnce } from '@fbkworks/shared'
 
 /**
  * 数据级权限提醒。

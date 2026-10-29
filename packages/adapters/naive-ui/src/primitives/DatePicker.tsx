@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { NDatePicker } from 'naive-ui'
-import type { DatePickerProps, Size } from '@fbk/adapter-core'
+import type { DatePickerProps, Size } from '@fbkworks/adapter-core'
 
 /**
  * 日期/时间选择。

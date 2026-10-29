@@ -1,5 +1,5 @@
 import { onBeforeUnmount, ref, shallowRef, watch, type Ref } from 'vue'
-import { toErrorEvent, useReporter, type SortState } from '@fbk/adapter-core'
+import { toErrorEvent, useReporter, type SortState } from '@fbkworks/adapter-core'
 import type { TableRequest, TableRequestParams, TableResponse } from './types'
 
 export interface UseTableRequestOptions<T> {

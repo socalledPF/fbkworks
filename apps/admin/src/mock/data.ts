@@ -1,7 +1,7 @@
 /**
  * 业务数据访问层。
  *
- * **这是 `@fbk/data` 契约层的真实用法。**
+ * **这是 `@fbkworks/data` 契约层的真实用法。**
  *
  * 对比改造前，每个 `fetchXxx` 都要手写：解析筛选字段、排序逻辑、
  * 分页切片、组装 { list, total }。现在只剩「数据从哪来」+「字段在哪」。
@@ -10,8 +10,8 @@
  * 真实项目中对应的是 HTTP 请求。
  */
 
-import { defineBackend, type PageFetcher, type PageQuery } from '@fbk/data'
-import type { Status } from '@fbk/adapter-core'
+import { defineBackend, type PageFetcher, type PageQuery } from '@fbkworks/data'
+import type { Status } from '@fbkworks/adapter-core'
 import {
   between,
   delay,

@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElOption, ElSelect } from 'element-plus'
-import type { SelectOption, SelectProps, Size } from '@fbk/adapter-core'
+import type { SelectOption, SelectProps, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 export const Select = defineComponent({

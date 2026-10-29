@@ -1,20 +1,20 @@
-# @fbk/tokens
+# @fbkworks/tokens
 
 FBK 业务组件库的设计令牌层。只描述语义，不绑定任何 UI 库，产出 `--fbk-*` CSS 变量。
 
 ```bash
-pnpm add @fbk/tokens
+pnpm add @fbkworks/tokens
 ```
 
 ## 使用
 
 ```ts
-import '@fbk/tokens/css'      // 亮色令牌
-import '@fbk/tokens/dark.css' // 暗色覆盖（html[data-fbk-theme='dark']）
+import '@fbkworks/tokens/css'      // 亮色令牌
+import '@fbkworks/tokens/dark.css' // 暗色覆盖（html[data-fbk-theme='dark']）
 ```
 
 ```ts
-import { defaultTokens, toCssVars, darkColorOverrides } from '@fbk/tokens'
+import { defaultTokens, toCssVars, darkColorOverrides } from '@fbkworks/tokens'
 
 document.documentElement.style.cssText += toCssVars(defaultTokens)
 ```

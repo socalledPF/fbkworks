@@ -1,4 +1,4 @@
-# 设计稿：`@fbk/data` 契约层
+# 设计稿：`@fbkworks/data` 契约层
 
 > 企业级前端架构优先级计划的 P0。见 `docs/enterprise-architecture.md`。
 
@@ -57,12 +57,12 @@ return { list: res.data.rows, total: res.data.total }
 ### 2.1 分层
 
 ```
-@fbk/data          通用契约（与后端无关）
+@fbkworks/data          通用契约（与后端无关）
    ↑
 业务方              只写「字段在哪」
 ```
 
-**`@fbk/data` 不知道任何后端规范**（不知道 ruoyi、不知道 Spring Page）。
+**`@fbkworks/data` 不知道任何后端规范**（不知道 ruoyi、不知道 Spring Page）。
 它只知道「怎么从任意形状里取出一页数据」。
 
 ### 2.2 核心类型
@@ -205,8 +205,8 @@ packages/data/
     create.spec.ts
 ```
 
-**依赖**：`@fbk/shared`（仅类型）、`@fbk/tokens`（无运行时用途，但保持依赖图一致）
-**不依赖**：`@fbk/adapter-core`（数据层与 UI 无关）
+**依赖**：`@fbkworks/shared`（仅类型）、`@fbkworks/tokens`（无运行时用途，但保持依赖图一致）
+**不依赖**：`@fbkworks/adapter-core`（数据层与 UI 无关）
 
 ---
 
@@ -215,7 +215,7 @@ packages/data/
 | 门禁 | 动作 |
 |---|---|
 | `PUBLISHED_PACKAGES`（eslint + dependency-cruiser + check-runtime-deps） | 加入 `packages/data` |
-| `check-type-surface` | 扩展：`@fbk/data` 的 d.ts 不得出现第三方 SDK 类型 |
+| `check-type-surface` | 扩展：`@fbkworks/data` 的 d.ts 不得出现第三方 SDK 类型 |
 | `check-styles` | 无样式，跳过 |
 | `verify` | build 自动覆盖 |
 
@@ -252,4 +252,4 @@ packages/data/
 
 | 日期 | 改动 | 验收 |
 |---|---|---|
-| 2026-10-25 | 新增 `@fbk/data` 契约层 | 见第五节 |
+| 2026-10-25 | 新增 `@fbkworks/data` 契约层 | 见第五节 |

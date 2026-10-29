@@ -1,5 +1,5 @@
 ---
-"@fbk/components": minor
+"@fbkworks/components": minor
 ---
 
 feat(components): 新增 `DetailPage`，`options` 支持函数形式

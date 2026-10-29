@@ -1,19 +1,19 @@
-# @fbk/adapter-core
+# @fbkworks/adapter-core
 
 FBK 业务组件库的适配器契约层：定义 UI 原语契约、能力声明、注入与主题桥。
 业务组件只依赖这个包，不依赖任何具体 UI 库。
 
 ```bash
-pnpm add @fbk/adapter-core
+pnpm add @fbkworks/adapter-core
 # 再选一个适配器
-pnpm add @fbk/adapter-element-plus   # 或 @fbk/adapter-vant / @fbk/adapter-naive-ui
+pnpm add @fbkworks/adapter-element-plus   # 或 @fbkworks/adapter-vant / @fbkworks/adapter-naive-ui
 ```
 
 ## 使用
 
 ```ts
-import { createBusinessKit } from '@fbk/adapter-core'
-import { elementPlusAdapter } from '@fbk/adapter-element-plus'
+import { createBusinessKit } from '@fbkworks/adapter-core'
+import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 
 createApp(App).use(createBusinessKit({ adapter: elementPlusAdapter, theme: 'light' }))
 ```
@@ -36,7 +36,7 @@ createApp(App).use(createBusinessKit({ adapter: elementPlusAdapter, theme: 'ligh
 
 ## 写自己的适配器
 
-实现 12 个原语 → 声明能力 → 导出 `UiAdapter` → 跑 `@fbk/adapter-conformance`。
+实现 12 个原语 → 声明能力 → 导出 `UiAdapter` → 跑 `@fbkworks/adapter-conformance`。
 详见文档「编写自定义适配器」。
 
 ## License

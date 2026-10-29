@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn } from '@fbk/components/pro-table'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
 import { orderStatusEnum, queryOrders, type OrderRow } from '../data'
 
 const columns: ProTableColumn<OrderRow>[] = [

@@ -1,6 +1,6 @@
-import type { Size, ThemeBridge, ThemeMode } from '@fbk/adapter-core'
-import { THEME_IS_DARK } from '@fbk/adapter-core'
-import type { FbkTokens } from '@fbk/tokens'
+import type { Size, ThemeBridge, ThemeMode } from '@fbkworks/adapter-core'
+import { THEME_IS_DARK } from '@fbkworks/adapter-core'
+import type { FbkTokens } from '@fbkworks/tokens'
 
 function toVantVars(tokens: FbkTokens): Record<string, string> {
   return {

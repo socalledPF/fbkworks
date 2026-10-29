@@ -43,7 +43,7 @@ export const fetchUsers = createPageRequest({
 
 ```ts
 // src/api/backend.ts —— 全项目唯一一处描述后端惯例
-import { defineBackend } from '@fbk/data'
+import { defineBackend } from '@fbkworks/data'
 
 export const api = defineBackend({
   /* A 形态的基础：传输层。

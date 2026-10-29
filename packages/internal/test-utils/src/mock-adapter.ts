@@ -1,5 +1,5 @@
 import { defineComponent, h, ref, watch, type PropType } from 'vue'
-import { ADAPTER_API_VERSION } from '@fbk/adapter-core'
+import { ADAPTER_API_VERSION } from '@fbkworks/adapter-core'
 import type {
   Capabilities,
   ConfirmOptions,
@@ -12,7 +12,7 @@ import type {
   SortState,
   UiAdapter,
   UiPrimitives,
-} from '@fbk/adapter-core'
+} from '@fbkworks/adapter-core'
 
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]

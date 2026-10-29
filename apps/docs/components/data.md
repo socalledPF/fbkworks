@@ -1,6 +1,6 @@
 # 数据层契约
 
-`@fbk/data` 把「任意形状的后端响应」映射成组件库期望的 `Page<T>`。
+`@fbkworks/data` 把「任意形状的后端响应」映射成组件库期望的 `Page<T>`。
 业务方只写「字段在哪」，不写分页、错误处理、类型转换。
 
 **它是分页契约的唯一定义处** —— `ProTable` / `CrudPage` 的
@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-pnpm add @fbk/data
+pnpm add @fbkworks/data
 ```
 
 无运行时依赖，也不需要 UI 库。
@@ -17,7 +17,7 @@ pnpm add @fbk/data
 ## 基础用法
 
 ```ts
-import { createPageRequest } from '@fbk/data'
+import { createPageRequest } from '@fbkworks/data'
 
 export const fetchOrders = createPageRequest({
   // 传输层由你注入：axios / fetch / 自研都行
@@ -93,7 +93,7 @@ isSuccess: (res) => res.code === 200
 
 ```ts
 // src/api/backend.ts —— 全项目唯一一处
-import { defineBackend } from '@fbk/data'
+import { defineBackend } from '@fbkworks/data'
 
 export const api = defineBackend({
   request: (url, params, signal) =>

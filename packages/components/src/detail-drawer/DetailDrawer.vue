@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, shallowRef, useAttrs, useSlots, watch } from 'vue'
-import { useAdapter } from '@fbk/adapter-core'
+import { useAdapter } from '@fbkworks/adapter-core'
 import { FbkDetailPage } from '../detail-page'
 import type { DetailPageExpose } from '../detail-page'
 import { useMobileViewport } from './use-mobile'

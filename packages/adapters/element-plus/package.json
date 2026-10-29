@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/adapter-element-plus",
+  "name": "@fbkworks/adapter-element-plus",
   "version": "0.1.0",
   "type": "module",
   "sideEffects": [
@@ -24,9 +24,9 @@
     "build": "vite build && node ../../../scripts/copy-css.mjs src dist"
   },
   "dependencies": {
-    "@fbk/adapter-core": "workspace:^",
-    "@fbk/shared": "workspace:^",
-    "@fbk/tokens": "workspace:^"
+    "@fbkworks/adapter-core": "workspace:^",
+    "@fbkworks/shared": "workspace:^",
+    "@fbkworks/tokens": "workspace:^"
   },
   "peerDependencies": {
     "element-plus": "^2.8.0",

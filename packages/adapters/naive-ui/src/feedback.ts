@@ -1,5 +1,5 @@
 import { useMessage, useDialog } from 'naive-ui'
-import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbk/adapter-core'
+import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbkworks/adapter-core'
 
 /**
  * naive-ui 的命令式反馈。

@@ -26,29 +26,29 @@ FBK 的解法：**只归一化原语与交互语义，不归一化业务语义**
 ```mermaid
 flowchart TB
   subgraph L5["L5 · 页面级组合（P2）"]
-    blocks["@fbk/blocks<br/>CrudPage / DetailPage"]
+    blocks["@fbkworks/blocks<br/>CrudPage / DetailPage"]
   end
 
   subgraph L4["L4 · 业务组件"]
-    components["@fbk/components<br/>ProTable · QueryForm · FormGenerator<br/>PageContainer · Descriptions"]
+    components["@fbkworks/components<br/>ProTable · QueryForm · FormGenerator<br/>PageContainer · Descriptions"]
   end
 
   subgraph L3["L3 · 适配器"]
-    ep["@fbk/adapter-element-plus"]
-    vant["@fbk/adapter-vant"]
-    naive["@fbk/adapter-naive-ui"]
+    ep["@fbkworks/adapter-element-plus"]
+    vant["@fbkworks/adapter-vant"]
+    naive["@fbkworks/adapter-naive-ui"]
   end
 
   subgraph L2["L2 · 契约层"]
-    core["@fbk/adapter-core<br/>UiAdapter · Capabilities<br/>注入 · 主题桥 · renderCell"]
+    core["@fbkworks/adapter-core<br/>UiAdapter · Capabilities<br/>注入 · 主题桥 · renderCell"]
   end
 
   subgraph L1["L1 · 工具层"]
-    shared["@fbk/shared<br/>useControllableState · getRowKey<br/>formatMoney · mergeUiProps"]
+    shared["@fbkworks/shared<br/>useControllableState · getRowKey<br/>formatMoney · mergeUiProps"]
   end
 
   subgraph L0["L0 · 令牌层"]
-    tokens["@fbk/tokens<br/>--fbk-* CSS 变量"]
+    tokens["@fbkworks/tokens<br/>--fbk-* CSS 变量"]
   end
 
   subgraph UI["第三方 UI 库"]
@@ -360,7 +360,7 @@ flowchart TB
   end
 
   subgraph conformance["契约测试（核心）"]
-    c1["@fbk/adapter-conformance<br/>15 条断言"]
+    c1["@fbkworks/adapter-conformance<br/>15 条断言"]
     c2["element-plus"]
     c3["vant"]
     c4["naive-ui"]

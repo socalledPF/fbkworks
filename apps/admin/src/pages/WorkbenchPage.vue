@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { FbkPageContainer } from '@fbk/components/page-container'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
 import {
   FbkStatCard,
   FbkStatGroup,
@@ -8,18 +8,18 @@ import {
   FbkPieChart,
   FbkRankList,
   FbkChartCard,
-} from '@fbk/dashboard'
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import type { Status } from '@fbk/adapter-core'
-import { FbkResult } from '@fbk/components/result'
+} from '@fbkworks/dashboard'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import type { Status } from '@fbkworks/adapter-core'
+import { FbkResult } from '@fbkworks/components/result'
 import { fetchDashboard, ORDER_STATUS_MAP, type DashboardStats, type OrderRow } from '../mock/data'
 import { navigate } from '../router'
 
 /**
  * 工作台。
  *
- * 这是对 @fbk/dashboard 的真实检验：指标卡 + 趋势 + 环形 + 排行榜
+ * 这是对 @fbkworks/dashboard 的真实检验：指标卡 + 趋势 + 环形 + 排行榜
  * 组合在一个页面里，能否在真实布局约束下正常工作。
  */
 const loading = ref(true)

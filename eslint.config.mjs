@@ -12,7 +12,7 @@ import vueParser from 'vue-eslint-parser'
  */
 
 const uiLibraryMessage =
-  '业务代码不得直接依赖 UI 库（含 import type）。请通过 @fbk/adapter-core 的契约访问原语；' +
+  '业务代码不得直接依赖 UI 库（含 import type）。请通过 @fbkworks/adapter-core 的契约访问原语；' +
   '需要新增能力时先扩展 UiPrimitives 契约，再在 packages/adapters/* 中实现。'
 
 const noUiImports = [
@@ -32,18 +32,18 @@ const noUiImports = [
     allowTypeImports: false,
   },
   {
-    name: '@fbk/adapter-element-plus',
-    message: '业务组件不得依赖具体适配器，只能依赖 @fbk/adapter-core。',
+    name: '@fbkworks/adapter-element-plus',
+    message: '业务组件不得依赖具体适配器，只能依赖 @fbkworks/adapter-core。',
     allowTypeImports: false,
   },
   {
-    name: '@fbk/adapter-vant',
-    message: '业务组件不得依赖具体适配器，只能依赖 @fbk/adapter-core。',
+    name: '@fbkworks/adapter-vant',
+    message: '业务组件不得依赖具体适配器，只能依赖 @fbkworks/adapter-core。',
     allowTypeImports: false,
   },
   {
-    name: '@fbk/adapter-naive-ui',
-    message: '业务组件不得依赖具体适配器，只能依赖 @fbk/adapter-core。',
+    name: '@fbkworks/adapter-naive-ui',
+    message: '业务组件不得依赖具体适配器，只能依赖 @fbkworks/adapter-core。',
     allowTypeImports: false,
   },
 ]
@@ -197,7 +197,7 @@ export default tseslint.config(
               message: runtimeDepMessage,
             },
             {
-              group: ['@fbk/resolver', '@fbk/demos', '@fbk/test-utils'],
+              group: ['@fbkworks/resolver', '@fbkworks/demos', '@fbkworks/test-utils'],
               message: '发布包不得依赖内部工具包。',
             },
           ],
@@ -244,7 +244,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@fbk/components', '@fbk/components/*'],
+              group: ['@fbkworks/components', '@fbkworks/components/*'],
               message: '适配器禁止反向依赖业务组件：依赖方向只能是 components → adapter-core ← adapters。',
             },
           ],
@@ -306,11 +306,11 @@ export default tseslint.config(
         {
           paths: [
             {
-              name: '@fbk/adapter-vant',
+              name: '@fbkworks/adapter-vant',
               message: 'admin demo 只接 element-plus 一个适配器（模拟真实项目）。',
             },
             {
-              name: '@fbk/adapter-naive-ui',
+              name: '@fbkworks/adapter-naive-ui',
               message: 'admin demo 只接 element-plus 一个适配器（模拟真实项目）。',
             },
           ],

@@ -1,6 +1,6 @@
 import type { DescriptionGroup, DescriptionItem } from '../descriptions'
 import type { DetailPageSlots } from '../detail-page'
-import type { Size } from '@fbk/adapter-core'
+import type { Size } from '@fbkworks/adapter-core'
 
 /**
  * 详情抽屉 props。设计见 docs/design/2026-10-28-p4-2-detail-drawer.md。

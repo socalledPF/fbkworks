@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { Popup } from 'vant'
-import type { DrawerProps } from '@fbk/adapter-core'
+import type { DrawerProps } from '@fbkworks/adapter-core'
 
 const toCssSize = (value: string | number) => (typeof value === 'number' ? `${value}px` : value)
 

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { hasPermission, usePermission } from '@fbk/adapter-core'
-import { FbkCrudPage } from '@fbk/components/crud-page'
-import { FbkPageContainer } from '@fbk/components/page-container'
-import { FbkFormModal } from '@fbk/components/form-modal'
-import type { ProTableColumn } from '@fbk/components/pro-table'
-import type { Status } from '@fbk/adapter-core'
-import type { QueryField } from '@fbk/components/query-form'
-import type { FormSchema } from '@fbk/components/form-generator'
+import { hasPermission, usePermission } from '@fbkworks/adapter-core'
+import { FbkCrudPage } from '@fbkworks/components/crud-page'
+import { FbkPageContainer } from '@fbkworks/components/page-container'
+import { FbkFormModal } from '@fbkworks/components/form-modal'
+import type { ProTableColumn } from '@fbkworks/components/pro-table'
+import type { Status } from '@fbkworks/adapter-core'
+import type { QueryField } from '@fbkworks/components/query-form'
+import type { FormSchema } from '@fbkworks/components/form-generator'
 import {
   deleteOrders,
   fetchOrders,

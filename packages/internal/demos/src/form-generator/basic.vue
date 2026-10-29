@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkFormGenerator } from '@fbk/components/form-generator'
-import type { FormSchema } from '@fbk/components/form-generator'
+import { FbkFormGenerator } from '@fbkworks/components/form-generator'
+import type { FormSchema } from '@fbkworks/components/form-generator'
 
 /**
  * 覆盖全部已实现字段类型。

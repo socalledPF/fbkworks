@@ -1,12 +1,12 @@
 # 数据看板
 
 嵌入 B 端后台页面的统计模块。**白底卡片、细边框、与 ProTable 同一视觉语言** ——
-它是后台的一部分，不是独立的可视化大屏（大屏见 [@fbk/screen](/components/screen)）。
+它是后台的一部分，不是独立的可视化大屏（大屏见 [@fbkworks/screen](/components/screen)）。
 
 ## 安装
 
 ```bash
-pnpm add @fbk/dashboard @fbk/chart-core echarts
+pnpm add @fbkworks/dashboard @fbkworks/chart-core echarts
 ```
 
 `echarts` 是 **peerDependency**（可选），不装图表组件就无法工作。
@@ -15,8 +15,8 @@ pnpm add @fbk/dashboard @fbk/chart-core echarts
 
 ```vue
 <script setup lang="ts">
-import { FbkStatCard, FbkStatGroup, FbkTrendChart } from '@fbk/dashboard'
-import '@fbk/dashboard/style.css'
+import { FbkStatCard, FbkStatGroup, FbkTrendChart } from '@fbkworks/dashboard'
+import '@fbkworks/dashboard/style.css'
 </script>
 
 <template>
@@ -67,12 +67,12 @@ import '@fbk/dashboard/style.css'
 
 ## 自定义图表
 
-需要图表库里其他类型时，直接用 `@fbk/chart-core` 的 `FbkChart`：
+需要图表库里其他类型时，直接用 `@fbkworks/chart-core` 的 `FbkChart`：
 
 ```vue
 <script setup lang="ts">
-import { FbkChart } from '@fbk/chart-core'
-import '@fbk/chart-core/style.css'
+import { FbkChart } from '@fbkworks/chart-core'
+import '@fbkworks/chart-core/style.css'
 
 const option = { /* ECharts option */ }
 </script>

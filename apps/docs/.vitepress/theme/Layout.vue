@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DefaultTheme from 'vitepress/theme'
-import { FbkProvider } from '@fbk/adapter-core'
-import type { ThemeMode } from '@fbk/adapter-core'
+import { FbkProvider } from '@fbkworks/adapter-core'
+import type { ThemeMode } from '@fbkworks/adapter-core'
 import { adapters, adapterNames, type AdapterName } from './adapters'
 
 const adapterName = ref<AdapterName>('element-plus')

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { mountWithProvider } from '@fbk/test-utils'
+import { mountWithProvider } from '@fbkworks/test-utils'
 import { elementPlusAdapter } from '../src'
 
 /**

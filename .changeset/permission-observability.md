@@ -1,5 +1,5 @@
 ---
-"@fbk/adapter-core": minor
+"@fbkworks/adapter-core": minor
 ---
 
 feat(adapter-core): 新增权限指令与可观测性出口

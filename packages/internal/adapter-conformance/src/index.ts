@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import type { Component } from 'vue'
-import { ADAPTER_API_VERSION, type UiAdapter } from '@fbk/adapter-core'
-import { defaultTokens } from '@fbk/tokens'
+import { ADAPTER_API_VERSION, type UiAdapter } from '@fbkworks/adapter-core'
+import { defaultTokens } from '@fbkworks/tokens'
 
 export interface ConformanceOptions {
   adapter: UiAdapter

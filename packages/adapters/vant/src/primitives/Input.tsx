@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { Field } from 'vant'
-import type { InputProps } from '@fbk/adapter-core'
+import type { InputProps } from '@fbkworks/adapter-core'
 
 export const Input = defineComponent({
   name: 'FbkVantInput',

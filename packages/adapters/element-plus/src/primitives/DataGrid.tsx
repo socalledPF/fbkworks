@@ -5,8 +5,8 @@ import {
   type DataGridColumn,
   type DataGridProps,
   type SortState,
-} from '@fbk/adapter-core'
-import { getRowKey } from '@fbk/shared'
+} from '@fbkworks/adapter-core'
+import { getRowKey } from '@fbkworks/shared'
 
 export const DataGrid = defineComponent({
   name: 'FbkElDataGrid',

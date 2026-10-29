@@ -8,7 +8,7 @@ import {
   FbkPieChart,
   FbkRankList,
   FbkChartCard,
-} from '@fbk/dashboard'
+} from '@fbkworks/dashboard'
 
 /**
  * 数据看板：嵌入后台页面的统计模块。

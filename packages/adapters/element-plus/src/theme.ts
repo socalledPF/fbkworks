@@ -1,7 +1,7 @@
-import type { ThemeBridge, ThemeMode } from '@fbk/adapter-core'
-import { THEME_IS_DARK } from '@fbk/adapter-core'
-import { cyberColorOverrides, darkColorOverrides } from '@fbk/tokens'
-import type { FbkTokens } from '@fbk/tokens'
+import type { ThemeBridge, ThemeMode } from '@fbkworks/adapter-core'
+import { THEME_IS_DARK } from '@fbkworks/adapter-core'
+import { cyberColorOverrides, darkColorOverrides } from '@fbkworks/tokens'
+import type { FbkTokens } from '@fbkworks/tokens'
 
 /**
  * 按模式取令牌。

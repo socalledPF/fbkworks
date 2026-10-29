@@ -9,8 +9,8 @@ import {
   enUS,
   dateEnUS,
 } from 'naive-ui'
-import type { Size, ThemeMode } from '@fbk/adapter-core'
-import type { FbkTokens } from '@fbk/tokens'
+import type { Size, ThemeMode } from '@fbkworks/adapter-core'
+import type { FbkTokens } from '@fbkworks/tokens'
 import { naiveProviderProps, naiveSizeHeights } from './theme'
 import { installFeedback } from './feedback'
 import { PAGINATION_SUFFIX } from './locale-context'

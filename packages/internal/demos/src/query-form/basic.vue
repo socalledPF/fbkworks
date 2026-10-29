@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkQueryForm } from '@fbk/components/query-form'
-import type { QueryField } from '@fbk/components/query-form'
+import { FbkQueryForm } from '@fbkworks/components/query-form'
+import type { QueryField } from '@fbkworks/components/query-form'
 
 const fields: QueryField[] = [
   { name: 'keyword', label: '关键词', type: 'input', placeholder: '订单号 / 客户' },

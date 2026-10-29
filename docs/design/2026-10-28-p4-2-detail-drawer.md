@@ -55,7 +55,7 @@ export interface DialogProps {
   `{ modelValue, title, width, placement: 'right' | 'bottom', closeOnClickModal, showClose }`
 - 三个适配器各实现：element-plus → `ElDrawer`、vant → `van-popup position="right"`、
   naive-ui → `NDrawer`
-- `@fbk/components` 新增 `FbkDetailDrawer`：内部复用 `DetailPage` 的字段渲染
+- `@fbkworks/components` 新增 `FbkDetailDrawer`：内部复用 `DetailPage` 的字段渲染
   （`Descriptions` + `field-*` 插槽），数据走既有 `useDetail`
 - 与 `CrudPage` 的关系：**通过 slot 组合**，不改 `CrudPage` 的任何 props
 

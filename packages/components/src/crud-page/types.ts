@@ -1,5 +1,5 @@
 import type { VNodeChild } from 'vue'
-import type { Key } from '@fbk/shared'
+import type { Key } from '@fbkworks/shared'
 import type { ProTableColumn, ProTableProps, TableRequest } from '../pro-table/types'
 import type { QueryField, QueryFormProps } from '../query-form/types'
 

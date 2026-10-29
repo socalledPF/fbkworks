@@ -1,6 +1,6 @@
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { createMockAdapter, mountWithAdapter } from '@fbk/test-utils'
+import { createMockAdapter, mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkProTable } from '../src/pro-table'
 
 const columns = [{ key: 'name', title: '名称', dataIndex: 'name' }]

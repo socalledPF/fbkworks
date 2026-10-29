@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart, chartColor } from '@fbk/chart-core'
+import { FbkChart, chartColor } from '@fbkworks/chart-core'
 import FbkChartCard from './ChartCard.vue'
 import type { TrendChartProps } from './types'
 

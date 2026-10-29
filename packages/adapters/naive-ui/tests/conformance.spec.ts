@@ -1,5 +1,5 @@
-import { runAdapterConformance } from '@fbk/adapter-conformance'
-import { mountWithProvider } from '@fbk/test-utils'
+import { runAdapterConformance } from '@fbkworks/adapter-conformance'
+import { mountWithProvider } from '@fbkworks/test-utils'
 import { naiveUiAdapter } from '../src'
 
 runAdapterConformance({

@@ -1,9 +1,9 @@
 ---
-"@fbk/adapter-core": minor
-"@fbk/adapter-element-plus": minor
-"@fbk/adapter-vant": minor
-"@fbk/adapter-naive-ui": minor
-"@fbk/components": patch
+"@fbkworks/adapter-core": minor
+"@fbkworks/adapter-element-plus": minor
+"@fbkworks/adapter-vant": minor
+"@fbkworks/adapter-naive-ui": minor
+"@fbkworks/components": patch
 ---
 
 Provider 层补齐 attrs 转发、嵌套主题回滚与 system 主题跟随

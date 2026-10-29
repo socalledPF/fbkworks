@@ -1,4 +1,4 @@
-import type { FbkTokens } from '@fbk/tokens'
+import type { FbkTokens } from '@fbkworks/tokens'
 
 /**
  * 主题模式。

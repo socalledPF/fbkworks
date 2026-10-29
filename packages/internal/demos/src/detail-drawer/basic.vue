@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FbkProTable } from '@fbk/components/pro-table'
-import type { ProTableColumn, TableRequest } from '@fbk/components/pro-table'
-import { FbkDetailDrawer } from '@fbk/components/detail-drawer'
-import type { DescriptionItem } from '@fbk/components/descriptions'
-import { useAdapter } from '@fbk/adapter-core'
+import { FbkProTable } from '@fbkworks/components/pro-table'
+import type { ProTableColumn, TableRequest } from '@fbkworks/components/pro-table'
+import { FbkDetailDrawer } from '@fbkworks/components/detail-drawer'
+import type { DescriptionItem } from '@fbkworks/components/descriptions'
+import { useAdapter } from '@fbkworks/adapter-core'
 import { orderStatusEnum, queryOrders, type OrderRow } from '../data'
 
 /**

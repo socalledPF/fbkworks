@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { NTag } from 'naive-ui'
-import type { Size, Status } from '@fbk/adapter-core'
+import type { Size, Status } from '@fbkworks/adapter-core'
 
 const statusType = {
   primary: 'info',

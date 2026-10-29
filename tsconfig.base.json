@@ -23,49 +23,49 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@fbk/tokens": [
+      "@fbkworks/tokens": [
         "packages/tokens/src/index.ts"
       ],
-      "@fbk/tokens/css": [
+      "@fbkworks/tokens/css": [
         "packages/tokens/src/css/tokens.css"
       ],
-      "@fbk/tokens/dark.css": [
+      "@fbkworks/tokens/dark.css": [
         "packages/tokens/src/css/dark.css"
       ],
-      "@fbk/shared": [
+      "@fbkworks/shared": [
         "packages/shared/src/index.ts"
       ],
-      "@fbk/adapter-core": [
+      "@fbkworks/adapter-core": [
         "packages/adapter-core/src/index.ts"
       ],
-      "@fbk/adapter-element-plus": [
+      "@fbkworks/adapter-element-plus": [
         "packages/adapters/element-plus/src/index.ts"
       ],
-      "@fbk/adapter-vant": [
+      "@fbkworks/adapter-vant": [
         "packages/adapters/vant/src/index.ts"
       ],
-      "@fbk/adapter-naive-ui": [
+      "@fbkworks/adapter-naive-ui": [
         "packages/adapters/naive-ui/src/index.ts"
       ],
-      "@fbk/components": [
+      "@fbkworks/components": [
         "packages/components/src/index.ts"
       ],
-      "@fbk/components/*": [
+      "@fbkworks/components/*": [
         "packages/components/src/*"
       ],
-      "@fbk/resolver": [
+      "@fbkworks/resolver": [
         "packages/resolver/src/index.ts"
       ],
-      "@fbk/demos": [
+      "@fbkworks/demos": [
         "packages/internal/demos/src/index.ts"
       ],
-      "@fbk/test-utils": [
+      "@fbkworks/test-utils": [
         "packages/internal/test-utils/src/index.ts"
       ],
-      "@fbk/adapter-conformance": [
+      "@fbkworks/adapter-conformance": [
         "packages/internal/adapter-conformance/src/index.ts"
       ],
-      "@fbk/build-config": [
+      "@fbkworks/build-config": [
         "packages/internal/build-config/src/index.ts"
       ]
     },

@@ -1,5 +1,5 @@
 import { inject, type InjectionKey } from 'vue'
-import { warnOnce } from '@fbk/shared'
+import { warnOnce } from '@fbkworks/shared'
 
 /**
  * 操作级权限。

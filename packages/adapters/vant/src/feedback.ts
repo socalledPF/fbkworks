@@ -1,5 +1,5 @@
 import { showToast, showSuccessToast, showFailToast, showConfirmDialog } from 'vant'
-import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbk/adapter-core'
+import type { ConfirmOptions, FeedbackApi, MessageApi, MessageOptions, MessageType } from '@fbkworks/adapter-core'
 
 /**
  * vant 的命令式反馈（移动端）。

@@ -1,6 +1,6 @@
 ---
-"@fbk/components": patch
-"@fbk/chart-core": patch
+"@fbkworks/components": patch
+"@fbkworks/chart-core": patch
 ---
 
 fix(components, chart-core): `inheritAttrs: false` 下补齐 attrs 转发，`class` / `style` / `data-*` 不再静默失效
@@ -22,12 +22,12 @@ fix(components, chart-core): `inheritAttrs: false` 下补齐 attrs 转发，`cla
 
 受影响组件在根元素上补 `v-bind="attrs"`：
 
-- `@fbk/components`：`ProTable`、`CrudPage`、`QueryForm`、`FormGenerator`、
+- `@fbkworks/components`：`ProTable`、`CrudPage`、`QueryForm`、`FormGenerator`、
   `FormModal`、`PageContainer`、`Descriptions`、`Result`
-- `@fbk/chart-core`：`FbkChart`（attrs 落在根 `div` 上 —— 它是
+- `@fbkworks/chart-core`：`FbkChart`（attrs 落在根 `div` 上 —— 它是
   `position: absolute; inset: 0` 的 canvas 的父级，外部 `style` 只有落在这里才影响布局）
 
-`@fbk/dashboard` 与 `@fbk/screen` 的组件此前已正确转发，本次无需改动。
+`@fbkworks/dashboard` 与 `@fbkworks/screen` 的组件此前已正确转发，本次无需改动。
 
 ### 注意
 

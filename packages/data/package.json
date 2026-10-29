@@ -1,5 +1,5 @@
 {
-  "name": "@fbk/data",
+  "name": "@fbkworks/data",
   "version": "0.1.0",
   "type": "module",
   "sideEffects": false,
@@ -16,7 +16,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@fbk/shared": "workspace:^"
+    "@fbkworks/shared": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

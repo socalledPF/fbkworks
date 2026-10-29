@@ -1,4 +1,4 @@
-import { warnOnce } from '@fbk/shared'
+import { warnOnce } from '@fbkworks/shared'
 import { FbkDataError } from './error'
 import { extractRows, extractTotal } from './path'
 import type {
@@ -12,7 +12,7 @@ import type {
 /**
  * 把「任意形状的后端响应」映射成组件库期望的 `Page<T>`。
  *
- * 这是 @fbk/data 的核心：业务方只写「字段在哪」，
+ * 这是 @fbkworks/data 的核心：业务方只写「字段在哪」，
  * 不写分页、不写错误处理、不写类型转换。
  *
  * ```ts

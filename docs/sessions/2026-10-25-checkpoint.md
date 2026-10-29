@@ -25,7 +25,7 @@
 
 Vue 3 企业级业务组件库。**一套业务组件，三种 UI 适配器**：element-plus（桌面）、vant4（移动）、naive-ui（桌面）。
 
-业务页面只依赖 `@fbk/adapter-core` 的契约，**代码里不出现任何 UI 库类型**。切换适配器只改应用入口的两行注入代码。
+业务页面只依赖 `@fbkworks/adapter-core` 的契约，**代码里不出现任何 UI 库类型**。切换适配器只改应用入口的两行注入代码。
 
 ```
 tokens ← shared ← adapter-core ← components
@@ -111,7 +111,7 @@ lint → lint:deps → typecheck → test → build → check:surface → check:
 | `e0b159a` | Playground 重构为侧边栏布局 |
 | `fa6b557` | 新增 `apps/admin` 后台管理系统 demo |
 
-**P0-P2 全部落地**：契约层 `@fbk/data`、权限三层、可观测性统一出口。
+**P0-P2 全部落地**：契约层 `@fbkworks/data`、权限三层、可观测性统一出口。
 **P3-1 落地**（原计划跳过，后按决策执行）。**P4-1 / P4-3 落地**，P4-2 待决策。
 
 ## 六、踩过的坑
@@ -259,7 +259,7 @@ Vue 对未知 prop 不告警——它被当成 attr 挂到根元素上，所以�
 
 ### 6.13 包内自引用破坏 vitest
 
-**症状**：`DetailPage.vue` 里 `import { ... } from '@fbk/components/page-container'`，vitest 解析失败。
+**症状**：`DetailPage.vue` 里 `import { ... } from '@fbkworks/components/page-container'`，vitest 解析失败。
 
 **修法**：包内一律用相对路径（`../page-container`）。
 
@@ -329,7 +329,7 @@ Vue 对未知 prop 不告警——它被当成 attr 挂到根元素上，所以�
 | `isSuccess` 未传 | 视为成功 | 但**有业务码的后端必须传**，否则 token 过期会显示成空列表 |
 | `AbortSignal` 中止 | 异常原样抛出 | `use-table-request` 依赖 `AbortError` 判断是否丢弃响应 |
 
-`ProTable` 的契约类型是 `@fbk/data` 的**别名**，不重复定义：
+`ProTable` 的契约类型是 `@fbkworks/data` 的**别名**，不重复定义：
 
 ```ts
 export type TableRequestParams = PageQuery
@@ -439,7 +439,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 修法：说明性注释写进 `<script>`，不要放在模板根节点上方。
 
 **C2. `pnpm verify` 「全绿」不等于「零错误」。**
-`@fbk/components` 的 dts 构建**一直**打印 5 个 TS7022/TS7024（`DetailPage.vue` ×4、`FormModal.vue` ×1），
+`@fbkworks/components` 的 dts 构建**一直**打印 5 个 TS7022/TS7024（`DetailPage.vue` ×4、`FormModal.vue` ×1），
 但 `vite build` 仍然 exit 0，所以 `verify` 照样通过。已在干净 HEAD 树上复现，确认是既有问题、非本轮引入。
 这正是 §6.12 那个坑的另一面：**`typecheck` 通过 ≠ `build` 无错**，且 `build` 的报错还未必拦得住门禁。
 
@@ -478,10 +478,10 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 
 ### D.2 最严重的五项（都已修）
 
-1. **`@fbk/components` 的 exports 缺 4 个组件** —— 消费者装到包后子路径导入直接
+1. **`@fbkworks/components` 的 exports 缺 4 个组件** —— 消费者装到包后子路径导入直接
    `ERR_PACKAGE_PATH_NOT_EXPORTED`。admin 与 demos 靠 vite alias 直连 src 才活着。
 2. **发版会发出装不上的包** —— `publish-all.mjs` 的 ORDER 只有 8 个包，
-   而 `@fbk/components` 依赖 `@fbk/data`，data 从未上架。
+   而 `@fbkworks/components` 依赖 `@fbkworks/data`，data 从未上架。
 3. **无限滚动一次触底发两个请求**，第一页数据被覆盖，且因竞争表现为「偶现」。
 4. **vant 把用户选的时分静默改写成 `00:00:00`**（`time` 类型），daterange 只取第一个值。
 5. **`v-permission` 多实例互踩** —— `app.use` 配好权限后再套 `<FbkProvider>`，
@@ -498,7 +498,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
    该抓的失败；`check-style-entries` 的运算符优先级把 vant/naive 静默排除；
    `check-runtime-deps` 硬编码 8 个包，注释却声称与 workspace 对应。
 3. **覆盖面错**：`check-style-entries` 把路径映射到 `src` 而非 `exports`，
-   `isCovered` 对 `@fbk/components/` 前缀一律放行 —— 这两条让 F6 长期无人发现。
+   `isCovered` 对 `@fbkworks/components/` 前缀一律放行 —— 这两条让 F6 长期无人发现。
 
 **教训：靠人工维护的清单一定会漂移。** 本轮在三处独立证明
 （`PUBLISHED` / `publish-all` 的 ORDER / changeset 的 `fixed` 分组），
@@ -520,7 +520,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 **D5.1 `<script setup generic>` 里的类型别名会被 dts 内联成坏路径。**
 在 `defineEmits` 里用 `TableRequestParams`（= `PageQuery`）时，dts 生成器把别名
 展开成 `import('packages/data/dist')`，`check:consumer` 立刻报 TS2307。
-改为直接取 `@fbk/data` 的具名类型。**这类问题只有跑 build 才暴露**。
+改为直接取 `@fbkworks/data` 的具名类型。**这类问题只有跑 build 才暴露**。
 
 **D5.2 `perl` 在本机不存在，用 `sed` 批量替换同名标识符会制造递归。**
 把 `function createAdapter()` 替换成 `createMockAdapter` 时，函数体内部的
@@ -568,7 +568,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 |---|---|---|---|
 | 一 | 0ea82b9 | CI 补 3 步 / 门禁改文件系统发现 / Result 兜底 / 空能力位 / register 误标 | 614 → 625 |
 | 二 | 2f19e7e | 无限滚动双发 / 筛选条件回首页 / vant 日期清零 / v-permission 互踩与不更新 | 625 → 659 |
-| 三 | 93f3a28 | exports 缺 4 组件 / 发版漏 @fbk/data / 错误态与 emits | 659 → 671 |
+| 三 | 93f3a28 | exports 缺 4 组件 / 发版漏 @fbkworks/data / 错误态与 emits | 659 → 671 |
 | 四 | 9b6bb16 | 门禁优先级 bug / isCovered 前缀放行 / 插槽命名 / Date 熔毁 / loading / danger | 671 → 682 |
 | 五 | 4441ba5 | Provider attrs / 主题回滚 / 恒真断言重写 / reset 双发 / vant 空态 | 682 → 697 |
 | 六 | 768d28f | size 生效 / 自定义 tokens 接线 / sort 契约测试 | 697 → 723 |
@@ -583,7 +583,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 
 **E2.1 `<script setup generic>` 里的类型别名会被 dts 内联成坏路径。**
 `defineEmits` 里用 `TableRequestParams`（= `PageQuery`）时，dts 生成器把别名展开成
-`import('packages/data/dist')`，`check:consumer` 报 TS2307。改用直接取自 `@fbk/data` 的具名类型。
+`import('packages/data/dist')`，`check:consumer` 报 TS2307。改用直接取自 `@fbkworks/data` 的具名类型。
 **这类问题只有跑 build 才暴露**——所以「禁止子代理跑 build」必须由调度方补齐验证。
 
 **E2.2 element-plus 的 Drawer/Dialog 只在离场动画结束后 emit `update:modelValue(false)`。**
@@ -594,7 +594,7 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 落在同一目标上。测试只派发 click 永远进不了关闭逻辑——**这是测试模拟得不够真，不是适配器缺陷**。
 修法是补三连派发，不是放宽断言。
 
-**E2.4 playground 对 `@fbk/screen` / `dashboard` / `chart-core` 没有 alias**，
+**E2.4 playground 对 `@fbkworks/screen` / `dashboard` / `chart-core` 没有 alias**，
 这三个包加载的是 `dist/`。改它们的 `src/style.css` 在 playground 里看不到任何变化。
 **已补 alias**（bd81b8c）。另：单独跑 `npx vite build` 会清空 dist 却不生成 `style.css`
 （那由 `copy-css.mjs` + `bundle-css.mjs` 完成），必须用 `pnpm --filter <pkg> build`。

@@ -7,7 +7,7 @@
 
 ```vue
 <script setup lang="ts">
-import { FbkCrudPage } from '@fbk/components/crud-page'
+import { FbkCrudPage } from '@fbkworks/components/crud-page'
 
 const fields = [
   { name: 'keyword', label: '关键词', type: 'input' },

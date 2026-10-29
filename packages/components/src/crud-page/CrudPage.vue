@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, nextTick, ref, useAttrs, useSlots } from 'vue'
-import type { SortState } from '@fbk/adapter-core'
-import type { Key } from '@fbk/shared'
+import type { SortState } from '@fbkworks/adapter-core'
+import type { Key } from '@fbkworks/shared'
 import { FbkQueryForm } from '../query-form'
 import type { QueryFormExpose } from '../query-form'
 import { FbkProTable } from '../pro-table'
@@ -9,7 +9,7 @@ import type { ProTableExpose } from '../pro-table'
 import type { TableResponse } from '../pro-table'
 // 直接取具名类型而不是经 PageQuery 别名：defineEmits 里的别名
 // 会被 dts 生成器内联，产物中出现 import('packages/data/dist') 这类坏路径。
-import type { PageQuery } from '@fbk/data'
+import type { PageQuery } from '@fbkworks/data'
 import type { CrudPageExpose, CrudPageProps } from './types'
 
 /**

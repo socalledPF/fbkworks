@@ -1,5 +1,5 @@
 ---
-"@fbk/data": patch
+"@fbkworks/data": patch
 ---
 
 fix(data): `total` 为 null / 空字符串时抛错，不再静默当成 0

@@ -1,6 +1,6 @@
 import { defineComponent, inject, type PropType } from 'vue'
 import { NPagination } from 'naive-ui'
-import type { PaginationProps } from '@fbk/adapter-core'
+import type { PaginationProps } from '@fbkworks/adapter-core'
 import { PAGINATION_SUFFIX } from '../locale-context'
 
 export const Pagination = defineComponent({

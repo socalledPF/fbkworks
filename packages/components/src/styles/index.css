@@ -1,4 +1,4 @@
-@import '@fbk/tokens/css';
+@import '@fbkworks/tokens/css';
 @import '../page-container/style.css';
 @import '../query-form/style.css';
 @import '../form-generator/style.css';

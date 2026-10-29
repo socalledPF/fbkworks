@@ -1,6 +1,6 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ElButton } from 'element-plus'
-import type { ButtonProps, Size, Status } from '@fbk/adapter-core'
+import type { ButtonProps, Size, Status } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 const variantType: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info' | ''> = {

@@ -56,7 +56,7 @@ Playground 是**评审环境**。评审环境本身不像产品，就没法判�
 **不采用**「直接用业务组件 Button」的方案：
 
 - Playground 的顶部是**工具条**，不是业务界面
-- 引入 `@fbk/components` 的 Button 会让 Playground 依赖自己的被测对象，
+- 引入 `@fbkworks/components` 的 Button 会让 Playground 依赖自己的被测对象，
   出现"用组件测组件"的循环，反而看不清组件在真实业务里的样子
 
 **采用**：用 `--fbk-*` 令牌重写 `playground.css` 里的控件样式。

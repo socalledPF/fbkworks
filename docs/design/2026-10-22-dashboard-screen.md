@@ -75,7 +75,7 @@
 
 ---
 
-## 二、`@fbk/dashboard` 设计
+## 二、`@fbkworks/dashboard` 设计
 
 ### 2.1 视觉基调
 
@@ -144,7 +144,7 @@
 
 ---
 
-## 三、`@fbk/screen` 设计（科技蓝）
+## 三、`@fbkworks/screen` 设计（科技蓝）
 
 ### 3.1 设计基准
 

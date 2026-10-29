@@ -14,8 +14,8 @@ const banned = [
   { re: /from ['"]vant(\/[^'"]*)?['"]/, label: 'vant' },
   { re: /from ['"]naive-ui(\/[^'"]*)?['"]/, label: 'naive-ui' },
   {
-    re: /from ['"]@fbk\/adapter-(?!core)[^'"]*['"]/,
-    label: '具体适配器实现（components 只能依赖 @fbk/adapter-core）',
+    re: /from ['"]@fbkworks\/adapter-(?!core)[^'"]*['"]/,
+    label: '具体适配器实现（components 只能依赖 @fbkworks/adapter-core）',
   },
 ]
 

@@ -9,15 +9,15 @@ import 'element-plus/dist/index.css'
 import 'vant/lib/index.css'
 // 组件样式：文档站渲染的是真实 demo，需要完整的设计系统
 // （此前只引了 demos，导致 demo 里的表格 / 图表 / 大屏全是裸样式）
-import '@fbk/tokens/css'
-import '@fbk/adapter-element-plus/style.css'
-import '@fbk/components/styles/index.css'
-import '@fbk/chart-core/style.css'
-import '@fbk/dashboard/style.css'
-import '@fbk/screen/style.css'
+import '@fbkworks/tokens/css'
+import '@fbkworks/adapter-element-plus/style.css'
+import '@fbkworks/components/styles/index.css'
+import '@fbkworks/chart-core/style.css'
+import '@fbkworks/dashboard/style.css'
+import '@fbkworks/screen/style.css'
 // demo 脚手架样式：demo 是文档与 Playground 共用的评审材料，
 // 里面的原生 button / p / pre 必须与设计系统一致
-import '@fbk/demos/style.css'
+import '@fbkworks/demos/style.css'
 import './docs.css'
 
 export default {

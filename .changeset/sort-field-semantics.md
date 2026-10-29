@@ -1,13 +1,13 @@
 ---
-"@fbk/adapter-core": patch
-"@fbk/adapter-element-plus": patch
-"@fbk/adapter-naive-ui": minor
-"@fbk/adapter-vant": minor
+"@fbkworks/adapter-core": patch
+"@fbkworks/adapter-element-plus": patch
+"@fbkworks/adapter-naive-ui": minor
+"@fbkworks/adapter-vant": minor
 ---
 
 统一 `update:sort` 的字段语义，修正 `vant` 的排序能力声明
 
-### ⚠️ `@fbk/adapter-naive-ui` 的行为变化（可能破坏现有消费方）
+### ⚠️ `@fbkworks/adapter-naive-ui` 的行为变化（可能破坏现有消费方）
 
 `update:sort` 的 `field` 此前在两个桌面适配器上取自**不同的来源**：
 

@@ -137,7 +137,7 @@ demo 内容通常比源码重要，源码是「需要时查一下」。
 | 数据看板 | dashboard/basic |
 | 可视化大屏 | screen/basic |
 
-分组信息需要 `@fbk/demos` 的 registry 提供 `group` 字段。
+分组信息需要 `@fbkworks/demos` 的 registry 提供 `group` 字段。
 
 ---
 

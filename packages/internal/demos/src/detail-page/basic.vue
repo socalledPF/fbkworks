@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { FbkDetailPage } from '@fbk/components/detail-page'
-import type { DescriptionItem } from '@fbk/components/descriptions'
+import { FbkDetailPage } from '@fbkworks/components/detail-page'
+import type { DescriptionItem } from '@fbkworks/components/descriptions'
 
 /**
  * DetailPage：详情页的约定。

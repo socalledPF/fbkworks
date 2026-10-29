@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import { ElRadioGroup, ElRadio } from 'element-plus'
-import type { RadioProps, Size } from '@fbk/adapter-core'
+import type { RadioProps, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
 /** 单选组。与 Select 的区别是选项全部可见，适合 2-4 个枚举值。 */
