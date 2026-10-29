@@ -10,6 +10,7 @@ import { Form, FormItem } from './primitives/Form'
 import { DataGrid } from './primitives/DataGrid'
 import { Pagination } from './primitives/Pagination'
 import { Dialog } from './primitives/Dialog'
+import { Drawer } from './primitives/Drawer'
 import { Tag } from './primitives/Tag'
 import { Empty } from './primitives/Empty'
 import { Spin } from './primitives/Spin'
@@ -34,7 +35,8 @@ export const vantCapabilities: Capabilities = {
     validateOn: ['change', 'blur', 'submit'],
     asyncValidator: true,
   },
-  overlay: { kind: 'popup', supportsDrawer: false, supportsTeleport: true },
+  // van-popup 的 position 就是抽屉：Drawer 原语已实现，能力声明必须跟上
+  overlay: { kind: 'popup', supportsDrawer: true, supportsTeleport: true },
   pagination: { mode: 'infinite', pageSizes: false, jumper: false },
   // 只有契约里真实存在的两个 API；notification / loading 没有对应实现，不声明
   feedback: { message: true, notification: false, confirm: true, loading: false },
@@ -44,18 +46,18 @@ export const vantCapabilities: Capabilities = {
 
 export const vantAdapter: UiAdapter = {
   meta: {
-    apiVersion: 2,
+    apiVersion: 3,
     name: 'vant',
     version: '0.1.0',
     uiLibrary: { name: 'vant', version: '^4.9.0' },
     platform: 'mobile',
   },
   capabilities: vantCapabilities,
-  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin },
   feedback,
   RootProvider,
   theme: vantTheme,
 }
 
 export { vantTheme, RootProvider }
-export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
+export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }

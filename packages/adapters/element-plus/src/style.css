@@ -302,3 +302,25 @@
   display: flex;
   gap: var(--fbk-spacing-sm);
 }
+
+/* ============================================================
+   贴底对话框（DialogProps.placement='bottom'）
+
+   placement 此前在这个适配器里无人读取（审查 B12）：'center' 与 'bottom'
+   渲染出的 DOM 完全一样，契约写了等于没写。现在 bottom 由适配器加上
+   .fbk-dialog--bottom，下面两条规则负责让它真的贴到视口底部。
+
+   必须两条一起：element-plus 的 .el-dialog 默认 margin 是
+   var(--el-dialog-margin-top, 15vh) auto 50px，只把容器改成 flex-end
+   会被 15vh 顶下去；只重置 margin 又没有 flex 容器可贴。
+   ============================================================ */
+.el-overlay-dialog:has(.fbk-dialog--bottom) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.el-dialog.fbk-dialog--bottom {
+  margin: 0 auto;
+  border-radius: 0;
+}

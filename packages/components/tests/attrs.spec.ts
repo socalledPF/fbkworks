@@ -72,6 +72,12 @@ const CASES: AttrsCase[] = [
     props: { status: 'info' },
   },
   {
+    // 模板根是 <component :is="Drawer">，show 打开才有渲染结果（关闭时原语返回 null）
+    name: 'FbkDetailDrawer',
+    component: FbkComponents.FbkDetailDrawer,
+    props: { items: [], request: async () => ({}), show: true },
+  },
+  {
     // 已经写对的参照实现：根是 FbkPageContainer，attrs 一路透传到它的根元素
     name: 'FbkDetailPage',
     component: FbkComponents.FbkDetailPage,

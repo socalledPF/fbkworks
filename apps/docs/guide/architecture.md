@@ -64,7 +64,7 @@ pnpm 的严格 node_modules 结构下通常只有一份 `adapter-core`，但微�
 ## 契约版本
 
 ```ts
-export const ADAPTER_API_VERSION = 1
+export const ADAPTER_API_VERSION = 3
 ```
 
 `createBusinessKit` 启动时校验 `adapter.meta.apiVersion`。

@@ -79,6 +79,12 @@ export const demos: Record<string, DemoEntry> = {
     title: '详情页',
     component: defineAsyncComponent(() => import('./detail-page/basic.vue')),
   },
+  'detail-drawer/basic': {
+    title: '详情抽屉',
+    group: '数据展示',
+    description: '点行打开详情抽屉：字段与 404 态复用 DetailPage，移动端全屏，展开整页交给业务方。',
+    component: defineAsyncComponent(() => import('./detail-drawer/basic.vue')),
+  },
   'descriptions/basic': {
     title: '分组详情',
     group: '数据展示',

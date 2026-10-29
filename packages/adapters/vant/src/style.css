@@ -196,3 +196,51 @@
 .van-dialog__footer::after {
   display: none;
 }
+
+/* ============================================================
+   抽屉
+
+   van-popup 没有标题栏：标题与关闭按钮由适配器自绘
+   （见 primitives/Drawer.tsx），这里只负责排布 —— 标题栏与底部操作栏固定、
+   内容区滚动、整列撑满 popup 高度。间距一律走令牌。
+   ============================================================ */
+.fbk-vant-drawer {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.fbk-vant-drawer__header {
+  display: flex;
+  gap: var(--fbk-spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fbk-spacing-lg);
+  border-bottom: 1px solid var(--fbk-color-border);
+}
+
+.fbk-vant-drawer__title {
+  font-size: var(--fbk-font-size-lg);
+  font-weight: 600;
+}
+
+.fbk-vant-drawer__close {
+  padding: 0 var(--fbk-spacing-xs);
+  font-size: var(--fbk-font-size-lg);
+  line-height: 1;
+  color: var(--fbk-color-text-secondary);
+  background: none;
+  border: 0;
+}
+
+.fbk-vant-drawer__body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--fbk-spacing-lg);
+}
+
+.fbk-vant-drawer__footer {
+  padding: var(--fbk-spacing-md) var(--fbk-spacing-lg) var(--fbk-spacing-lg);
+  border-top: 1px solid var(--fbk-color-border);
+}

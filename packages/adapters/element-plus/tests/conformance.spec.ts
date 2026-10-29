@@ -4,8 +4,8 @@ import { elementPlusAdapter } from '../src'
 
 runAdapterConformance({
   adapter: elementPlusAdapter,
-  mount: (component, props) =>
-    mountWithProvider(component, { adapter: elementPlusAdapter, props }),
+  mount: (component, props, slots) =>
+    mountWithProvider(component, { adapter: elementPlusAdapter, props, slots }),
   selectors: {
     row: '.el-table__body tbody tr',
     selection: '.el-table__body .el-checkbox__original',

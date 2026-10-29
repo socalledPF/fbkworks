@@ -6,7 +6,8 @@ import { vantAdapter } from '../src'
 
 runAdapterConformance({
   adapter: vantAdapter,
-  mount: (component, props) => mountWithProvider(component, { adapter: vantAdapter, props }),
+  mount: (component, props, slots) =>
+    mountWithProvider(component, { adapter: vantAdapter, props, slots }),
   selectors: {
     row: '.fbk-vant-grid__card',
     selection: '.fbk-vant-grid__check',

@@ -51,3 +51,10 @@ export type {
 } from './descriptions'
 
 export { FbkDetailPage, useDetail, useDetailWatch } from './detail-page'
+
+export { FbkDetailDrawer, MOBILE_VIEWPORT_QUERY, useMobileViewport } from './detail-drawer'
+export type {
+  DetailDrawerExpose,
+  DetailDrawerProps,
+  DetailDrawerSlots,
+} from './detail-drawer'

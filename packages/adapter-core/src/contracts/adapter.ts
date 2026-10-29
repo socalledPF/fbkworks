@@ -8,8 +8,13 @@ import type { FeedbackApi } from './feedback'
  * 版本 2：新增 DatePicker / Radio 原语与 `feedback` 命令式 API。
  * 三者都是**必填**，旧适配器缺少它们会在启动时被 assertAdapterCompatible
  * 拦下，因此属于破坏性变更 —— 版本号必须提升。
+ *
+ * 版本 3：新增 Drawer 原语（详情抽屉）。它同样是**必填**，旧适配器缺少它会在
+ * 启动时被 assertAdapterCompatible 拦下，因此属于破坏性变更 —— 版本号必须提升。
+ * 设为可选的代价更大：可选意味着 FbkDetailDrawer 必须准备降级路径，
+ * 而每一种降级都是「用户以为能用、实际表现不同」（见设计稿 §二之一）。
  */
-export const ADAPTER_API_VERSION = 2
+export const ADAPTER_API_VERSION = 3
 
 export interface AdapterMeta {
   apiVersion: number
@@ -89,6 +94,11 @@ export interface UiPrimitives {
   DataGrid: Component
   Pagination: Component
   Dialog: Component
+  /**
+   * 抽屉。与 Dialog 分开：它是「从一侧滑出、承载详情内容」的容器，
+   * 不是打断当前操作的模态框。缺了它，详情只能挤进 Dialog 或退回普通页。
+   */
+  Drawer: Component
   Tag: Component
   Empty: Component
   Spin: Component
@@ -131,6 +141,7 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
     'DataGrid',
     'Pagination',
     'Dialog',
+    'Drawer',
     'Tag',
     'Empty',
     'Spin',

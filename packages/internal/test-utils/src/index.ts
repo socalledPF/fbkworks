@@ -39,22 +39,31 @@ export function mountWithAdapter(
 /** 适配器契约测试用：把原语包在 RootProvider 中挂载。 */
 export function mountWithProvider(
   component: Component,
-  options: { adapter: UiAdapter; props?: Record<string, any> },
+  options: {
+    adapter: UiAdapter
+    props?: Record<string, any>
+    /** 容器原语（Drawer 等）的默认插槽内容 */
+    slots?: Record<string, any>
+  },
 ) {
   const ctx = createAdapterContext({ adapter: options.adapter })
   const Host = defineComponent({
     name: 'FbkProviderTestHost',
     props: { adapterProps: { type: Object as PropType<Record<string, any>>, default: () => ({}) } },
-    setup(props) {
+    setup(_props, { slots }) {
       // 外层 div 保证 wrapper.text() / wrapper.element 指向真实元素，
       // 而不是 provider 的 fragment 占位节点。
+      // slots 必须继续往下传：Drawer 这类容器原语的契约就是「默认插槽内容要渲染出来」。
       return () =>
         h('div', { 'data-fbk-test-root': '' }, [
-          h(options.adapter.RootProvider, props.adapterProps, () => h(component, options.props)),
+          h(options.adapter.RootProvider, _props.adapterProps, () =>
+            h(component, options.props, slots),
+          ),
         ])
     },
   })
   return mount(Host, {
+    slots: options.slots,
     global: { provide: { [ADAPTER_CONTEXT as symbol]: ctx } },
   })
 }

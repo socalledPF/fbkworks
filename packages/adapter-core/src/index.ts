@@ -22,6 +22,7 @@ export type {
   RadioOption,
   RadioProps,
   DialogProps,
+  DrawerProps,
   EmptyProps,
   FormExpose,
   FormItemProps,

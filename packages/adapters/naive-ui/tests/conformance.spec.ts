@@ -4,7 +4,8 @@ import { naiveUiAdapter } from '../src'
 
 runAdapterConformance({
   adapter: naiveUiAdapter,
-  mount: (component, props) => mountWithProvider(component, { adapter: naiveUiAdapter, props }),
+  mount: (component, props, slots) =>
+    mountWithProvider(component, { adapter: naiveUiAdapter, props, slots }),
   selectors: {
     row: '.n-data-table-tbody .n-data-table-tr',
     selection: '.n-data-table-tbody .n-checkbox',

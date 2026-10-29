@@ -449,4 +449,5 @@ flowchart LR
   style p2 fill:#f6f7f9,stroke:#c9ced6
 ```
 
-当前状态：P0 与 P1 已交付，`ADAPTER_API_VERSION = 1` 冻结，版本 `0.1.0` 发布到 npm。
+当前状态：契约已到 `ADAPTER_API_VERSION = 3`（版本 2 补了 DatePicker / Radio 原语与命令式
+`feedback`，版本 3 补了 Drawer 原语），三个第一方适配器均已跟随。

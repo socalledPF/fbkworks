@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import type { Component } from 'vue'
 import { ADAPTER_API_VERSION, type UiAdapter } from '@fbk/adapter-core'
@@ -6,8 +6,12 @@ import { defaultTokens } from '@fbk/tokens'
 
 export interface ConformanceOptions {
   adapter: UiAdapter
-  /** 用适配器自己的 RootProvider 包裹后挂载原语 */
-  mount: (component: Component, props?: Record<string, any>) => any
+  /**
+   * 用适配器自己的 RootProvider 包裹后挂载原语。
+   * 第三个参数是插槽：Drawer 这类容器原语的契约要求默认插槽内容真的渲染出来，
+   * 只传 props 的挂载函数根本表达不了这件事。
+   */
+  mount: (component: Component, props?: Record<string, any>, slots?: Record<string, any>) => any
   /**
    * 适配器自己的 DOM 选择器。契约测试只断言语义，不假设各库的类名，
    * 因此由适配器显式提供查询入口。
@@ -31,6 +35,14 @@ export interface ConformanceOptions {
      * 所以入口由适配器自己声明，不假设类名。
      */
     sortTrigger?: string
+    /** 抽屉的关闭控件 */
+    drawerClose?: string
+    /** 抽屉从右侧打开时，vendor 自己的方位标记（如 .el-drawer.rtl） */
+    drawerRight?: string
+    /** 抽屉从底部打开时，vendor 自己的方位标记（如 .el-drawer.btt） */
+    drawerBottom?: string
+    /** 抽屉的遮罩层（点它是否关闭由 closeOnClickModal 决定） */
+    drawerMask?: string
   }
   /** 当前环境无法满足的契约项（需在文档中说明原因） */
   skip?: Array<'selection' | 'pagination' | 'sort'>
@@ -59,6 +71,12 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     nextPage: '.el-pagination .btn-next, .van-pagination__next, .n-pagination-item--button:last-child',
     loading: '[data-fbk-part="loading"]',
     sortTrigger: '.caret-wrapper, .n-data-table-sorter',
+    /* 「从右侧还是底部打开」只能靠各家自己的方位标记确认 ——
+       契约不假设 DOM 结构，但方向是必须看见的事实。 */
+    drawerClose: '.el-drawer__close-btn, .n-drawer-header__close, .fbk-vant-drawer__close',
+    drawerRight: '.el-drawer.rtl, .n-drawer--right-placement, .van-popup--right',
+    drawerBottom: '.el-drawer.btt, .n-drawer--bottom-placement, .van-popup--bottom',
+    drawerMask: '.el-overlay.is-drawer, .n-drawer-mask, .van-overlay',
     ...options.selectors,
   }
 
@@ -95,6 +113,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'DataGrid',
         'Pagination',
         'Dialog',
+        'Drawer',
         'Tag',
         'Empty',
         'Spin',
@@ -290,6 +309,117 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(next.exists()).toBe(true)
       await next.trigger('click')
       expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
+    })
+
+    /* Drawer 是必填原语（契约版本 3）。三个 UI 库都有原生抽屉能力
+       （ElDrawer / van-popup position / NDrawer），所以这里没有 skip 分支：
+       任何一家缺了它，都应该在契约层直接红。 */
+    describe('Drawer', () => {
+      const title = '详情抽屉'
+      const content = '抽屉正文'
+
+      /* 抽屉挂在 document.body 上（三个库都会 teleport），而断言失败会跳过
+         wrapper.unmount() —— 上一条用例的抽屉会活着污染下一条（实测：
+         「placement=bottom 时不该有右侧标记」被上一条的右侧抽屉弄红）。
+         因此用 afterEach 兜底清理，让每条用例从干净的 body 开始。 */
+      afterEach(() => {
+        document.body.innerHTML = ''
+      })
+
+      /* 真实的一次点击是 mousedown → mouseup → click。element-plus 的遮罩靠
+         useSameTarget 判断「按下与抬起都没离开遮罩」，只派发 click 永远进不了
+         关闭逻辑 —— 那不是适配器的问题，是模拟得不像。 */
+      const realClick = (element: HTMLElement) => {
+        for (const type of ['mousedown', 'mouseup', 'click']) {
+          element.dispatchEvent(new MouseEvent(type, { bubbles: true }))
+        }
+      }
+
+      /* 「关闭」在三个库里的 DOM 形态不同：naive-ui / vant 用 v-if，节点直接消失；
+         element-plus 保留节点，把过渡层设成 display:none。判据因此是
+         「查不到，或它（含祖先）被 display:none / hidden 隐藏」，
+         而不是简单的 exists() —— 后者在 element-plus 下永远为真。 */
+      const shown = (selector: string): boolean => {
+        const element = document.body.querySelector<HTMLElement>(selector)
+        if (!element) return false
+        for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+          if (node.style.display === 'none' || node.hasAttribute('hidden')) return false
+        }
+        return true
+      }
+
+      it('modelValue=true 时渲染 title 与默认插槽内容', async () => {
+        const wrapper = mount(p.Drawer, { modelValue: true, title }, { default: content })
+        await flushPromises()
+        expect(document.body.textContent).toContain(title)
+        expect(document.body.textContent).toContain(content)
+        wrapper.unmount()
+      })
+
+      it('modelValue=false 时不显示', async () => {
+        const wrapper = mount(p.Drawer, { modelValue: false, title }, { default: content })
+        await flushPromises()
+        expect(shown(selectors.drawerRight), 'modelValue=false 时抽屉必须不可见').toBe(false)
+        wrapper.unmount()
+      })
+
+      it('关闭控件发出 update:modelValue(false)', async () => {
+        const wrapper = mount(p.Drawer, { modelValue: true, title }, { default: content })
+        await flushPromises()
+        const close = document.body.querySelector<HTMLElement>(selectors.drawerClose)
+        expect(close, '找不到抽屉的关闭控件（' + selectors.drawerClose + '）').toBeTruthy()
+        realClick(close as HTMLElement)
+        await flushPromises()
+        expect(wrapper.findComponent(p.Drawer).emitted('update:modelValue')?.at(-1)).toEqual([false])
+        wrapper.unmount()
+      })
+
+      it('placement 决定从右侧还是底部打开，底部不写死宽度', async () => {
+        const right = mount(p.Drawer, { modelValue: true, title, placement: 'right' }, { default: content })
+        await flushPromises()
+        expect(document.body.querySelector(selectors.drawerRight), 'placement=right 必须从右侧打开').toBeTruthy()
+        expect(document.body.querySelector(selectors.drawerBottom), 'placement=right 不应同时带底部标记').toBeFalsy()
+        right.unmount()
+
+        const bottom = mount(p.Drawer, { modelValue: true, title, placement: 'bottom' }, { default: content })
+        await flushPromises()
+        const bottomRoot = document.body.querySelector<HTMLElement>(selectors.drawerBottom)
+        expect(bottomRoot, 'placement=bottom 必须从底部打开').toBeTruthy()
+        expect(document.body.querySelector(selectors.drawerRight), 'placement=bottom 不应同时带右侧标记').toBeFalsy()
+        /* 移动端全屏：底部弹出的抽屉宽度由各库自己铺满，
+           适配器不该再塞一个固定像素宽，否则手机上只占一条。 */
+        expect(bottomRoot?.style.width ?? '', 'placement=bottom 时不能写死宽度').not.toMatch(/px$/)
+        bottom.unmount()
+      })
+
+      /* closeOnClickModal 必须在三个库上都真的生效：
+         element-plus 走 close-on-click-modal，naive 走 mask-closable，
+         vant 走 close-on-click-overlay —— 名字不同，语义必须是同一个。 */
+      it('closeOnClickModal 决定点遮罩是否关闭', async () => {
+        const clickMask = async (closeOnClickModal: boolean) => {
+          const wrapper = mount(p.Drawer, { modelValue: true, title, closeOnClickModal }, { default: content })
+          await flushPromises()
+          const mask = document.body.querySelector<HTMLElement>(selectors.drawerMask)
+          expect(mask, '找不到抽屉遮罩（' + selectors.drawerMask + '）').toBeTruthy()
+          realClick(mask as HTMLElement)
+          await flushPromises()
+          return wrapper
+        }
+
+        const closable = await clickMask(true)
+        expect(
+          closable.findComponent(p.Drawer).emitted('update:modelValue')?.at(-1),
+          'closeOnClickModal=true 时点遮罩必须关闭',
+        ).toEqual([false])
+        closable.unmount()
+
+        const locked = await clickMask(false)
+        expect(
+          locked.findComponent(p.Drawer).emitted('update:modelValue'),
+          'closeOnClickModal=false 时点遮罩不应关闭',
+        ).toBeUndefined()
+        locked.unmount()
+      })
     })
 
 

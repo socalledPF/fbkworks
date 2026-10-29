@@ -10,6 +10,7 @@ import { Form, FormItem } from './primitives/Form'
 import { DataGrid } from './primitives/DataGrid'
 import { Pagination } from './primitives/Pagination'
 import { Dialog } from './primitives/Dialog'
+import { Drawer } from './primitives/Drawer'
 import { Tag } from './primitives/Tag'
 import { Empty } from './primitives/Empty'
 import { Spin } from './primitives/Spin'
@@ -42,18 +43,18 @@ export const elementPlusCapabilities: Capabilities = {
 
 export const elementPlusAdapter: UiAdapter = {
   meta: {
-    apiVersion: 2,
+    apiVersion: 3,
     name: 'element-plus',
     version: '0.1.0',
     uiLibrary: { name: 'element-plus', version: '^2.8.0' },
     platform: 'desktop',
   },
   capabilities: elementPlusCapabilities,
-  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin },
   feedback,
   RootProvider,
   theme: elementTheme,
 }
 
 export { elementTheme, RootProvider }
-export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
+export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }

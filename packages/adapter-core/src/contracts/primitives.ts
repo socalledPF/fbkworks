@@ -121,6 +121,27 @@ export interface DialogProps {
   showClose?: boolean
 }
 
+/**
+ * 抽屉（详情面板）。
+ *
+ * 与 Dialog 分开而不是给它加 `placement: 'right'`：两者承载的语义不同 ——
+ * Dialog 是「打断当前操作」的模态框（遮罩 + 焦点陷阱 + 居中/贴底），
+ * Drawer 是「从一侧滑出、可以边看边操作」的容器。
+ * 把两种语义塞进一个原语，会让遮罩与焦点行为在每个适配器里分叉。
+ *
+ * Drawer 必须能承载 header（title + 关闭）与默认插槽（内容）。
+ */
+export interface DrawerProps {
+  modelValue?: boolean
+  title?: string
+  /** 桌面默认宽度；移动端一律全屏 */
+  width?: string | number
+  /** 打开方向。桌面用 right，移动端用 bottom（全屏） */
+  placement?: 'right' | 'bottom'
+  closeOnClickModal?: boolean
+  showClose?: boolean
+}
+
 export interface PaginationProps {
   page: number
   pageSize: number

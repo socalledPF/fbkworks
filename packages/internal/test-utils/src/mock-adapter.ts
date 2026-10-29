@@ -449,6 +449,53 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
+  /* Drawer 从契约版本 3 起是必填原语：少了它，用 mock 的装配路径会被
+     assertAdapterCompatible 当成旧适配器拦下。形状与真实适配器对齐 ——
+     标题栏、关闭控件、默认插槽，关闭时发出 update:modelValue(false)。 */
+  const Drawer = defineComponent({
+    name: 'MockDrawer',
+    props: {
+      modelValue: Boolean,
+      title: String,
+      width: [String, Number],
+      placement: String,
+      closeOnClickModal: Boolean,
+      showClose: Boolean,
+    },
+    emits: ['update:modelValue', 'close'],
+    setup(props, { emit, slots }) {
+      return () =>
+        props.modelValue
+          ? h(
+              'div',
+              {
+                'data-fbk-part': 'drawer',
+                'data-title': props.title,
+                'data-placement': props.placement,
+              },
+              [
+                h('div', { 'data-fbk-part': 'drawer-header' }, [
+                  h('span', { 'data-fbk-part': 'drawer-title' }, props.title),
+                  props.showClose === false
+                    ? null
+                    : h(
+                        'button',
+                        {
+                          type: 'button',
+                          'data-fbk-part': 'drawer-close',
+                          onClick: () => emit('update:modelValue', false),
+                        },
+                        '×',
+                      ),
+                ]),
+                h('div', { 'data-fbk-part': 'drawer-body' }, slots.default?.()),
+                slots.footer ? h('div', { 'data-fbk-part': 'drawer-footer' }, slots.footer()) : null,
+              ],
+            )
+          : null
+    },
+  })
+
   const Tag = defineComponent({
     name: 'MockTag',
     props: { status: String },
@@ -474,7 +521,7 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
-  return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin }
+  return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }
 }
 
 export interface MockFeedbackRecord {
