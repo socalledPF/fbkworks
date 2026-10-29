@@ -1,9 +1,15 @@
 {
   "name": "@fbkworks/dashboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "sideEffects": ["**/*.css"],
-  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -34,7 +40,13 @@
     "access": "public"
   },
   "description": "B-side statistics dashboard components for the FBK kit: stat cards, trend/bar/pie charts, rank list.",
-  "keywords": ["vue", "vue3", "dashboard", "statistics", "chart"],
+  "keywords": [
+    "vue",
+    "vue3",
+    "dashboard",
+    "statistics",
+    "chart"
+  ],
   "license": "MIT",
   "author": "54356",
   "homepage": "https://github.com/54356/frontend-business-kit#readme",

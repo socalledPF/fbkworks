@@ -1,9 +1,13 @@
 {
   "name": "@fbkworks/data",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -22,7 +26,13 @@
     "access": "public"
   },
   "description": "Backend-agnostic data contracts (paging, response mapping, permission scope) for the FBK kit.",
-  "keywords": ["vue", "pagination", "data-layer", "contract", "fbk"],
+  "keywords": [
+    "vue",
+    "pagination",
+    "data-layer",
+    "contract",
+    "fbk"
+  ],
   "license": "MIT",
   "author": "54356",
   "homepage": "https://github.com/54356/frontend-business-kit#readme",
