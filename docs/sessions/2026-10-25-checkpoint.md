@@ -556,3 +556,68 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
    `desktop-parity` 那两条恒真断言在施加两个变异后仍 16/16 全绿 —— 这才是它们
    恒真的证据。只看绿灯永远发现不了。
 
+---
+
+## 附录 E：审查缺陷闭环与 P4-2（2026-10-28 续）
+
+### E.1 26 项确认缺陷的处置
+
+**25 项已修，1 项按用户决策暂缓（F2 测试基座迁移）。**
+
+| 批次 | 提交 | 内容 | 用例 |
+|---|---|---|---|
+| 一 | 0ea82b9 | CI 补 3 步 / 门禁改文件系统发现 / Result 兜底 / 空能力位 / register 误标 | 614 → 625 |
+| 二 | 2f19e7e | 无限滚动双发 / 筛选条件回首页 / vant 日期清零 / v-permission 互踩与不更新 | 625 → 659 |
+| 三 | 93f3a28 | exports 缺 4 组件 / 发版漏 @fbk/data / 错误态与 emits | 659 → 671 |
+| 四 | 9b6bb16 | 门禁优先级 bug / isCovered 前缀放行 / 插槽命名 / Date 熔毁 / loading / danger | 671 → 682 |
+| 五 | 4441ba5 | Provider attrs / 主题回滚 / 恒真断言重写 / reset 双发 / vant 空态 | 682 → 697 |
+| 六 | 768d28f | size 生效 / 自定义 tokens 接线 / sort 契约测试 | 697 → 723 |
+| 样式 | bd81b8c | 饼图布局 / 间距令牌化 / 断点统一 / check:styles 收紧 | 723 → 728 |
+| 排序 | 845528a | A8 字段语义 / vant 能力位 / mock 与 ProTable 排序覆盖 | 728 → 736 |
+| P4-2 | b775fd7 | Drawer 原语（契约 v3）+ FbkDetailDrawer | 736 → **791** |
+
+门禁从 614 用例 / 46 文件到 **791 通过 + 1 skipped / 70 文件**。新增 177 条守卫测试，
+绝大多数先红后绿，关键几条做过变异实验。
+
+### E.2 本轮新增的坑（补充 D.5）
+
+**E2.1 `<script setup generic>` 里的类型别名会被 dts 内联成坏路径。**
+`defineEmits` 里用 `TableRequestParams`（= `PageQuery`）时，dts 生成器把别名展开成
+`import('packages/data/dist')`，`check:consumer` 报 TS2307。改用直接取自 `@fbk/data` 的具名类型。
+**这类问题只有跑 build 才暴露**——所以「禁止子代理跑 build」必须由调度方补齐验证。
+
+**E2.2 element-plus 的 Drawer/Dialog 只在离场动画结束后 emit `update:modelValue(false)`。**
+动画被打断就永不发出；无 `transitionend` 的环境（jsdom，VTU 默认 stub transition）一次都不发。
+关闭意图必须走 `beforeClose` 同步发出。副作用：EP 的抽屉变成纯受控。
+
+**E2.3 element-plus 的遮罩点击走 `useSameTarget`**，要求 mousedown + mouseup + click
+落在同一目标上。测试只派发 click 永远进不了关闭逻辑——**这是测试模拟得不够真，不是适配器缺陷**。
+修法是补三连派发，不是放宽断言。
+
+**E2.4 playground 对 `@fbk/screen` / `dashboard` / `chart-core` 没有 alias**，
+这三个包加载的是 `dist/`。改它们的 `src/style.css` 在 playground 里看不到任何变化。
+**已补 alias**（bd81b8c）。另：单独跑 `npx vite build` 会清空 dist 却不生成 `style.css`
+（那由 `copy-css.mjs` + `bundle-css.mjs` 完成），必须用 `pnpm --filter <pkg> build`。
+
+**E2.5 jsdom 不实现 CSS 特异性**（只按文档顺序取胜者）。所以 `getComputedStyle` 在 jsdom 里
+**无法证明**「主题样式压过注入的基础样式」。需要按级联规范自行求解，或用真实浏览器实测。
+
+### E.3 派单纪律的一条教训
+
+我把「间距令牌化」与「饼图修改」派到了**同一个文件**（`packages/screen/src/style.css`）。
+饼图代理做证伪时执行了 `git checkout --` 就地回滚，若间距代理恰在那 20 秒窗口写入，工作会丢。
+**核查后没丢工（纯属运气）。**
+
+教训：派单前不仅要看「两个任务是否逻辑独立」，**还要显式比对两者的可写文件集合是否相交**。
+另：已在所有后续派单中写入硬约束「禁止对仓库内文件执行 checkout / stash / restore，
+需要证伪就用 `%TEMP%` 副本」。
+
+### E.4 仍待处理
+
+| 项 | 状态 |
+|---|---|
+| **发布 0.2.0** | P4-2 已完成，发布已解锁。当前 **14 个变更集**，涉及全部 12 个包 |
+| `FbkProvider` 在 element-plus 下的包裹 div | 三家现在都是「一层包裹元素」（vant/naive 的 ConfigProvider 本来就有），已对称。若布局依赖 `height:100%` 链需自行补高度 |
+| F2 测试基座迁移 | 用户决策暂缓：组件测试仍全跑 `createMockAdapter`，48 处断言依赖 mock 私有标记 |
+| vant 移动端排序入口 | `sort: 'none'` + `skip: ['sort']`，补齐需产品方案 |
+| `ADAPTER_API_VERSION = 3` | 破坏性变更。第三方适配器必须实现 `Drawer` 并升版 |
