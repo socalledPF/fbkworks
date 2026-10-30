@@ -50,6 +50,18 @@
       "@fbkworks/components": [
         "packages/components/src/index.ts"
       ],
+      "@fbkworks/data": [
+        "packages/data/src/index.ts"
+      ],
+      "@fbkworks/chart-core": [
+        "packages/chart-core/src/index.ts"
+      ],
+      "@fbkworks/dashboard": [
+        "packages/dashboard/src/index.ts"
+      ],
+      "@fbkworks/screen": [
+        "packages/screen/src/index.ts"
+      ],
       "@fbkworks/components/*": [
         "packages/components/src/*"
       ],
