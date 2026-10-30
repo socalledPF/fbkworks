@@ -128,12 +128,29 @@ export default withMermaid(
           find: /^@fbkworks\/adapter-naive-ui$/,
           replacement: r('../../../packages/adapters/naive-ui/src/index.ts'),
         },
+        /* 适配器的样式子路径同样要指到 src：上面几条是精确匹配裸包名，
+           @fbkworks/adapter-x/style.css 会落到 exports 即 dist。 */
+        {
+          find: /^@fbkworks\/adapter-(element-plus|vant|naive-ui)\/(.*\.css)$/,
+          replacement: r('../../../packages/adapters/$1/src/$2'),
+        },
         // CSS 子路径必须排在通配规则前面
         { find: /^@fbkworks\/components\/(.*\.css)$/, replacement: r('../../../packages/components/src/$1') },
         { find: /^@fbkworks\/components$/, replacement: r('../../../packages/components/src/index.ts') },
         {
           find: /^@fbkworks\/components\/(.*)$/,
           replacement: r('../../../packages/components/src/$1/index.ts'),
+        },
+        /* 图表三兄弟与 data 原先没进 alias，走 exports 即 dist ——
+           build 之后 docs:build 才通过，但 docs:dev 里改这几个包的 src 看不到变化。
+           与 apps/playground 同一处遗漏，一并补掉。CSS 子路径同样排在裸包名之前。 */
+        {
+          find: /^@fbkworks\/(chart-core|dashboard|screen)\/(.*\.css)$/,
+          replacement: r('../../../packages/$1/src/$2'),
+        },
+        {
+          find: /^@fbkworks\/(data|chart-core|dashboard|screen)$/,
+          replacement: r('../../../packages/$1/src/index.ts'),
         },
         { find: /^@fbkworks\/demos$/, replacement: r('../../../packages/internal/demos/src/index.ts') },
       ],
