@@ -32,6 +32,12 @@ jobs:
       - name: 发布前跑一遍契约测试
         run: pnpm test
 
+      # changeset publish 自己会按依赖排序，但**不检查有没有漏包** ——
+      # 新增发布包却忘了登记进 ORDER 时，它照样会发出一堆依赖不存在包的东西。
+      # 这道闸门校验「public 包全覆盖 + 拓扑序成立」，不通过就一个包都不发。
+      - name: 校验发布清单与顺序
+        run: pnpm check:publish-order
+
       - uses: changesets/action@v1
         with:
           version: pnpm version-packages

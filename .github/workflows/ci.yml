@@ -70,6 +70,11 @@ jobs:
       - name: 消费者烟雾测试
         run: pnpm check:consumer
 
+      # 发布清单与拓扑序：新增发布包却忘了登记进 ORDER，在这里就红，
+      # 而不是等到发版时才发现依赖的包从未上架。
+      - name: 发布清单与顺序
+        run: pnpm check:publish-order
+
       # 本 job 覆盖 verify 的全部步骤（额外只有 verify:data-contract 这一道）：
       # 架构图语法错误不该等到发布前才被发现。
       - name: 架构图

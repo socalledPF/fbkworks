@@ -21,6 +21,8 @@ import { promisify } from 'node:util'
 const run = promisify(execFile)
 const root = resolve(import.meta.dirname, '..')
 const dryRun = process.argv.includes('--dry-run')
+/** 只校验清单与顺序，不打包也不发布。供 CI 在 changeset publish 之前当闸门用 */
+const checkOnly = process.argv.includes('--check-only')
 
 /** 拓扑序：被依赖的排前面 */
 const ORDER = [
@@ -111,6 +113,11 @@ async function assertOrder() {
 }
 
 await assertOrder()
+
+if (checkOnly) {
+  console.log('[publish] --check-only：清单与拓扑序均通过，未打包也未发布')
+  process.exit(0)
+}
 
 const results = []
 
