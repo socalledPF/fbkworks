@@ -60,6 +60,10 @@
       "types": "./dist/detail-page/index.d.ts",
       "import": "./dist/detail-page/index.mjs"
     },
+    "./detail-drawer": {
+      "types": "./dist/detail-drawer/index.d.ts",
+      "import": "./dist/detail-drawer/index.mjs"
+    },
     "./detail-page/style.css": "./dist/detail-page/style.css",
     "./styles/index.css": "./dist/styles/index.css",
     "./style.css": "./dist/style.css",

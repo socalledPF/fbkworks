@@ -77,3 +77,12 @@ export function defineVueLib(options: VueLibOptions): UserConfig {
     },
   })
 }
+
+export {
+  createWorkspaceAliases,
+  describeWorkspaceAliases,
+  findRepoRoot,
+  type CreateWorkspaceAliasesOptions,
+  type WorkspaceAlias,
+} from './workspace-aliases'
+

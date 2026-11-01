@@ -1,9 +1,7 @@
-import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-
-const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
+import { createWorkspaceAliases } from '../../../packages/internal/build-config/src/index.ts'
 
 export default withMermaid(
   defineConfig({
@@ -109,51 +107,9 @@ export default withMermaid(
     },
 
     resolve: {
-      alias: [
-        // 文档站直接编译源码，改组件无需先 build
-        { find: /^@fbkworks\/tokens\/css$/, replacement: r('../../../packages/tokens/src/css/tokens.css') },
-        { find: /^@fbkworks\/tokens\/dark\.css$/, replacement: r('../../../packages/tokens/src/css/dark.css') },
-        { find: /^@fbkworks\/tokens$/, replacement: r('../../../packages/tokens/src/index.ts') },
-        { find: /^@fbkworks\/shared$/, replacement: r('../../../packages/shared/src/index.ts') },
-        { find: /^@fbkworks\/adapter-core$/, replacement: r('../../../packages/adapter-core/src/index.ts') },
-        {
-          find: /^@fbkworks\/adapter-element-plus$/,
-          replacement: r('../../../packages/adapters/element-plus/src/index.ts'),
-        },
-        {
-          find: /^@fbkworks\/adapter-vant$/,
-          replacement: r('../../../packages/adapters/vant/src/index.ts'),
-        },
-        {
-          find: /^@fbkworks\/adapter-naive-ui$/,
-          replacement: r('../../../packages/adapters/naive-ui/src/index.ts'),
-        },
-        /* 适配器的样式子路径同样要指到 src：上面几条是精确匹配裸包名，
-           @fbkworks/adapter-x/style.css 会落到 exports 即 dist。 */
-        {
-          find: /^@fbkworks\/adapter-(element-plus|vant|naive-ui)\/(.*\.css)$/,
-          replacement: r('../../../packages/adapters/$1/src/$2'),
-        },
-        // CSS 子路径必须排在通配规则前面
-        { find: /^@fbkworks\/components\/(.*\.css)$/, replacement: r('../../../packages/components/src/$1') },
-        { find: /^@fbkworks\/components$/, replacement: r('../../../packages/components/src/index.ts') },
-        {
-          find: /^@fbkworks\/components\/(.*)$/,
-          replacement: r('../../../packages/components/src/$1/index.ts'),
-        },
-        /* 图表三兄弟与 data 原先没进 alias，走 exports 即 dist ——
-           build 之后 docs:build 才通过，但 docs:dev 里改这几个包的 src 看不到变化。
-           与 apps/playground 同一处遗漏，一并补掉。CSS 子路径同样排在裸包名之前。 */
-        {
-          find: /^@fbkworks\/(chart-core|dashboard|screen)\/(.*\.css)$/,
-          replacement: r('../../../packages/$1/src/$2'),
-        },
-        {
-          find: /^@fbkworks\/(data|chart-core|dashboard|screen)$/,
-          replacement: r('../../../packages/$1/src/index.ts'),
-        },
-        { find: /^@fbkworks\/demos$/, replacement: r('../../../packages/internal/demos/src/index.ts') },
-      ],
+      // 文档站直接编译源码，改组件无需先 build。
+      // alias 由各包的 package.json → exports 推导，不在这里手写清单。
+      alias: createWorkspaceAliases({ from: import.meta.dirname }),
     },
   },
 }),

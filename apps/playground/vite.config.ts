@@ -1,55 +1,25 @@
-import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+// 相对路径而不是包名：vite 加载配置文件时会把 node_modules 依赖外部化，
+// 包名入口指向 .ts 会让 Node 直接加载而报 ERR_UNKNOWN_FILE_EXTENSION。
+// 各包的 vite.config.ts 也是这么引的，保持一致。
+import { createWorkspaceAliases } from '../../packages/internal/build-config/src/index.ts'
 
-const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
-
+/**
+ * Playground 的构建配置。
+ *
+ * alias 由 `@fbkworks/build-config` 按各包的 `package.json` → `exports` 推导，
+ * 不在这里手写清单 —— 手写的清单会漂移，而这个仓库已经在同一件事上
+ * 漂移过三次（playground 缺图表三包、docs 缺四包、admin 缺 data）。
+ *
+ * 需要应用特有的别名时：`[...createWorkspaceAliases(...), ...自己的]`。
+ * Vite 的 alias 是顺序匹配、先命中生效，所以要覆盖某条就放在展开之前。
+ */
 export default defineConfig({
   plugins: [vue(), vueJsx()],
   resolve: {
-    alias: [
-      { find: /^@fbkworks\/tokens\/css$/, replacement: r('../../packages/tokens/src/css/tokens.css') },
-      { find: /^@fbkworks\/tokens\/dark\.css$/, replacement: r('../../packages/tokens/src/css/dark.css') },
-      { find: /^@fbkworks\/tokens$/, replacement: r('../../packages/tokens/src/index.ts') },
-      { find: /^@fbkworks\/shared$/, replacement: r('../../packages/shared/src/index.ts') },
-      { find: /^@fbkworks\/adapter-core$/, replacement: r('../../packages/adapter-core/src/index.ts') },
-      {
-        find: /^@fbkworks\/adapter-element-plus$/,
-        replacement: r('../../packages/adapters/element-plus/src/index.ts'),
-      },
-      { find: /^@fbkworks\/adapter-vant$/, replacement: r('../../packages/adapters/vant/src/index.ts') },
-      {
-        find: /^@fbkworks\/adapter-naive-ui$/,
-        replacement: r('../../packages/adapters/naive-ui/src/index.ts'),
-      },
-      // CSS 子路径必须排在通配规则前面，否则 style.css 会被拼成 style.css/index.ts
-      {
-        find: /^@fbkworks\/components\/(.*\.css)$/,
-        replacement: r('../../packages/components/src/$1'),
-      },
-      { find: /^@fbkworks\/components$/, replacement: r('../../packages/components/src/index.ts') },
-      {
-        find: /^@fbkworks\/components\/(.*)$/,
-        replacement: r('../../packages/components/src/$1/index.ts'),
-      },
-      {
-        find: /^@fbkworks\/adapter-(element-plus|vant|naive-ui)\/(.*\.css)$/,
-        replacement: r('../../packages/adapters/$1/src/$2'),
-      },
-      { find: /^@fbkworks\/demos$/, replacement: r('../../packages/internal/demos/src/index.ts') },
-      /* 图表三兄弟原本没有 alias，走 package.json 的 exports 即加载 dist ——
-         改这三个包的 src/style.css 在 playground 里看不到任何变化，必须先 build。
-         而 style-guide 说 playground 是唯一的可视化验证环境，
-         「改了看不到」会让「测试全绿、肉眼全坏」再发生一次。
-         同样：CSS 子路径规则必须排在裸包名之前。 */
-      { find: /^@fbkworks\/chart-core\/(.*\.css)$/, replacement: r('../../packages/chart-core/src/$1') },
-      { find: /^@fbkworks\/chart-core$/, replacement: r('../../packages/chart-core/src/index.ts') },
-      { find: /^@fbkworks\/dashboard\/(.*\.css)$/, replacement: r('../../packages/dashboard/src/$1') },
-      { find: /^@fbkworks\/dashboard$/, replacement: r('../../packages/dashboard/src/index.ts') },
-      { find: /^@fbkworks\/screen\/(.*\.css)$/, replacement: r('../../packages/screen/src/$1') },
-      { find: /^@fbkworks\/screen$/, replacement: r('../../packages/screen/src/index.ts') },
-    ],
+    alias: createWorkspaceAliases({ from: import.meta.dirname }),
   },
   server: {
     port: 5174,

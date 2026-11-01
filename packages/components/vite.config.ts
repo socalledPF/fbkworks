@@ -15,5 +15,6 @@ export default defineVueLib({
     'form-modal/index': 'src/form-modal/index.ts',
     'result/index': 'src/result/index.ts',
     'detail-page/index': 'src/detail-page/index.ts',
+    'detail-drawer/index': 'src/detail-drawer/index.ts',
   },
 })
