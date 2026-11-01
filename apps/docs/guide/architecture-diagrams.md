@@ -211,7 +211,7 @@ classDiagram
   class UiPrimitivesOptional {
     +Component Drawer
   }
-  note for UiPrimitivesOptional "可选原语：缺了只影响 FbkDetailDrawer，\n由 requirePrimitive 在用点报错并指向 FbkDetailPage"
+  note for UiPrimitivesOptional "可选原语，缺失见正文"
 
   class ThemeBridge {
     +apply(mode, tokens)
@@ -224,6 +224,11 @@ classDiagram
   UiAdapter --> UiPrimitivesOptional
   UiAdapter --> ThemeBridge
 ```
+
+原语分**必填**与**可选**两层（上图 `UiPrimitives` / `UiPrimitivesOptional`）：
+必填缺失 → 启动即失败；可选缺失 → 只有用到它的组件报错，库的其余部分正常。
+目前唯一落在可选层的是 `Drawer`，缺了可改用 `FbkDetailPage`。
+判据与细节见 [架构与依赖规则 · 原语与可选层](/guide/architecture#原语与可选层)。
 
 四条设计原则：
 

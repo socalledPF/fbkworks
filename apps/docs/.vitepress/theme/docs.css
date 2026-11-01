@@ -126,3 +126,18 @@
 html.dark {
   color-scheme: dark;
 }
+
+/* 架构图：
+   mermaid 关掉了 useMaxWidth（见 .vitepress/config.mts），svg 保持原始像素宽度。
+   宽图因此会超出正文栏 —— 用横向滚动承接，而不是把它压小到看不清。 */
+.vp-doc .mermaid {
+  overflow-x: auto;
+  /* 给滚动条留一点位置，避免压住最后一行 */
+  padding-bottom: 4px;
+}
+
+/* 图本身不参与正文栏的拉伸 */
+.vp-doc .mermaid svg {
+  display: block;
+  max-width: none;
+}
