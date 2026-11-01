@@ -1,0 +1,59 @@
+{
+  "tooltip": {
+    "trigger": "item",
+    "formatter": "{b}: {c} ({d}%)"
+  },
+  "legend": {
+    "orient": "vertical",
+    "right": 0,
+    "top": "middle",
+    "itemGap": 12,
+    "icon": "circle",
+    "itemWidth": 8,
+    "itemHeight": 8,
+    "textStyle": {
+      "color": "var(--fbk-chart-axis-label)"
+    }
+  },
+  "series": [
+    {
+      "type": "pie",
+      "radius": [
+        "62%",
+        "72%"
+      ],
+      "center": [
+        "38%",
+        "50%"
+      ],
+      "avoidLabelOverlap": true,
+      "itemStyle": {
+        "borderColor": "var(--fbk-color-bg-container)",
+        "borderWidth": 2,
+        "borderRadius": 2
+      },
+      "label": {
+        "show": false
+      },
+      "labelLine": {
+        "show": false
+      },
+      "data": [
+        {
+          "name": "直营",
+          "value": 60,
+          "itemStyle": {
+            "color": "var(--fbk-chart-1)"
+          }
+        },
+        {
+          "name": "分销",
+          "value": 40,
+          "itemStyle": {
+            "color": "#123456"
+          }
+        }
+      ]
+    }
+  ]
+}

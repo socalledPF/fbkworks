@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbkworks/chart-core'
+import { FbkChart, CHART_AXIS_LABEL, seriesColor } from '@fbkworks/chart-core'
 import type { ScreenPieChartProps } from './types'
 
 /**
@@ -32,7 +32,7 @@ const option = computed(() => ({
     icon: 'circle',
     itemWidth: 9,
     itemHeight: 9,
-    textStyle: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
+    textStyle: { color: CHART_AXIS_LABEL, fontSize: 14 },
   },
   series: [
     {
@@ -53,7 +53,7 @@ const option = computed(() => ({
       data: props.data.map((d, i) => ({
         name: d.name,
         value: d.value,
-        itemStyle: { color: d.color ?? `var(--fbk-chart-${(i % 8) + 1})` },
+        itemStyle: { color: seriesColor(i, d.color) },
       })),
     },
   ],

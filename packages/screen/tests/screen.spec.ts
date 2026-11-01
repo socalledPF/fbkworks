@@ -10,13 +10,18 @@ import { h } from 'vue'
  * 构图是否一致。这块逻辑纯计算，可以精确断言。
  */
 
-vi.mock('@fbkworks/chart-core', () => ({
-  FbkChart: {
-    name: 'FbkChart',
-    props: ['option', 'height', 'loading', 'isEmpty', 'emptyText'],
-    setup: () => () => h('div', { 'data-fbk-part': 'chart' }),
-  },
-}))
+/* 只替换 FbkChart，其余导出保留真实实现（轴令牌常量、seriesColor 等）。 */
+vi.mock('@fbkworks/chart-core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@fbkworks/chart-core')>()
+  return {
+    ...actual,
+    FbkChart: {
+      name: 'FbkChart',
+      props: ['option', 'height', 'loading', 'isEmpty', 'emptyText'],
+      setup: () => () => h('div', { 'data-fbk-part': 'chart' }),
+    },
+  }
+})
 
 import FbkScreenPage from '../src/ScreenPage.vue'
 import FbkScreenPanel from '../src/ScreenPanel.vue'

@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbkworks/chart-core'
+import {
+  FbkChart,
+  CHART_AXIS_LABEL,
+  CHART_AXIS_LINE,
+  CHART_SPLIT_LINE,
+  seriesColor,
+} from '@fbkworks/chart-core'
 import type { ScreenLineChartProps } from './types'
 
 /**
@@ -36,19 +42,19 @@ const option = computed(() => ({
     type: 'category',
     data: props.categories,
     boundaryGap: false,
-    axisLine: { lineStyle: { color: 'var(--fbk-chart-axis-line)', width: 1 } },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
+    axisLine: { lineStyle: { color: CHART_AXIS_LINE, width: 1 } },
+    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
     axisTick: { show: false },
   },
   yAxis: {
     type: 'value',
     min: 0,
     axisLine: { show: false },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
-    splitLine: { lineStyle: { color: 'var(--fbk-chart-split-line)', type: 'dashed' } },
+    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
+    splitLine: { lineStyle: { color: CHART_SPLIT_LINE, type: 'dashed' } },
   },
   series: props.series.map((s, i) => {
-    const color = s.color ?? `var(--fbk-chart-${(i % 8) + 1})`
+    const color = seriesColor(i, s.color)
     return {
       name: s.name,
       type: 'line',

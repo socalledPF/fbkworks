@@ -1,0 +1,65 @@
+{
+  "grid": {
+    "left": 8,
+    "right": 16,
+    "top": 16,
+    "bottom": 8,
+    "containLabel": true
+  },
+  "tooltip": {
+    "trigger": "axis"
+  },
+  "xAxis": {
+    "type": "category",
+    "data": [
+      "一月",
+      "二月",
+      "三月"
+    ],
+    "boundaryGap": false,
+    "axisLine": {
+      "lineStyle": {
+        "color": "var(--fbk-chart-axis-line)"
+      }
+    },
+    "axisLabel": {
+      "color": "var(--fbk-chart-axis-label)"
+    }
+  },
+  "yAxis": {
+    "type": "value",
+    "axisLine": {
+      "show": false
+    },
+    "axisLabel": {
+      "color": "var(--fbk-chart-axis-label)"
+    },
+    "splitLine": {
+      "lineStyle": {
+        "color": "var(--fbk-chart-split-line)",
+        "type": "dashed"
+      }
+    }
+  },
+  "series": [
+    {
+      "name": "访问",
+      "type": "line",
+      "data": [
+        1,
+        2,
+        3
+      ],
+      "smooth": false,
+      "symbol": "circle",
+      "symbolSize": 6,
+      "showSymbol": false,
+      "itemStyle": {
+        "color": "var(--fbk-chart-1)"
+      },
+      "lineStyle": {
+        "width": 2
+      }
+    }
+  ]
+}

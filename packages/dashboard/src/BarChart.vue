@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbkworks/chart-core'
+import {
+  FbkChart,
+  CHART_AXIS_LABEL,
+  CHART_AXIS_LINE,
+  CHART_SPLIT_LINE,
+  barRadius,
+  seriesColor,
+  stackedBarRadius,
+} from '@fbkworks/chart-core'
 import FbkChartCard from './ChartCard.vue'
 import type { BarChartProps } from './types'
 
@@ -36,9 +44,9 @@ const option = computed(() => {
   const categoryAxis = {
     type: 'category',
     data: props.categories,
-    axisLine: { lineStyle: { color: 'var(--fbk-chart-axis-line)' } },
+    axisLine: { lineStyle: { color: CHART_AXIS_LINE } },
     axisLabel: {
-      color: 'var(--fbk-chart-axis-label)',
+      color: CHART_AXIS_LABEL,
       // 横向条形图类目名较长，超长省略而不是旋转
       ...(isHorizontal.value ? { width: 90, overflow: 'truncate' } : {}),
     },
@@ -47,8 +55,8 @@ const option = computed(() => {
   const valueAxis = {
     type: 'value',
     axisLine: { show: false },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)' },
-    splitLine: { lineStyle: { color: 'var(--fbk-chart-split-line)', type: 'dashed' } },
+    axisLabel: { color: CHART_AXIS_LABEL },
+    splitLine: { lineStyle: { color: CHART_SPLIT_LINE, type: 'dashed' } },
   }
 
   return {
@@ -66,17 +74,11 @@ const option = computed(() => {
       data: s.data,
       stack: props.stacked ? 'total' : undefined,
       itemStyle: {
-        color: s.color ?? `var(--fbk-chart-${(i % 8) + 1})`,
+        color: seriesColor(i, s.color),
         /* 堆叠时只有最外段该有圆角，全加会在接缝处出现"双圆角" */
         borderRadius: props.stacked
-          ? i === props.series.length - 1
-            ? isHorizontal.value
-              ? [0, 4, 4, 0]
-              : [4, 4, 0, 0]
-            : 0
-          : isHorizontal.value
-            ? [0, 4, 4, 0]
-            : [4, 4, 0, 0],
+          ? stackedBarRadius(i, props.series.length, isHorizontal.value)
+          : barRadius(isHorizontal.value),
       },
       barMaxWidth: 32,
     })),

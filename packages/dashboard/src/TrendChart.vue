@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart, chartColor } from '@fbkworks/chart-core'
+import {
+  FbkChart,
+  CHART_AXIS_LABEL,
+  CHART_AXIS_LINE,
+  CHART_SPLIT_LINE,
+  FBK_CHART_PALETTE_SIZE,
+  chartColor,
+  seriesColor,
+} from '@fbkworks/chart-core'
 import FbkChartCard from './ChartCard.vue'
 import type { TrendChartProps } from './types'
 
@@ -50,16 +58,16 @@ const option = computed(() => ({
     type: 'category',
     data: props.categories,
     boundaryGap: false,
-    axisLine: { lineStyle: { color: 'var(--fbk-chart-axis-line)' } },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)' },
+    axisLine: { lineStyle: { color: CHART_AXIS_LINE } },
+    axisLabel: { color: CHART_AXIS_LABEL },
   },
   yAxis: {
     type: 'value',
     // 不从 0 开始会夸大波动，趋势图默认必须从 0 起
     min: props.startFromZero ? 0 : undefined,
     axisLine: { show: false },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)' },
-    splitLine: { lineStyle: { color: 'var(--fbk-chart-split-line)', type: 'dashed' } },
+    axisLabel: { color: CHART_AXIS_LABEL },
+    splitLine: { lineStyle: { color: CHART_SPLIT_LINE, type: 'dashed' } },
   },
   series: props.series.map((s, i) => ({
     name: s.name,
@@ -69,14 +77,16 @@ const option = computed(() => ({
     symbol: 'circle',
     symbolSize: 6,
     showSymbol: false,
-    itemStyle: { color: s.color ?? `var(--fbk-chart-${(i % 8) + 1})` },
+    itemStyle: { color: seriesColor(i, s.color) },
     lineStyle: { width: 2 },
     areaStyle: useArea.value ? { opacity: 'var(--fbk-chart-area-opacity)' } : undefined,
   })),
 }))
 
 /** 供外部读取色板（如自定义图例） */
-const palette = computed(() => Array.from({ length: 8 }, (_, i) => chartColor(i)))
+const palette = computed(() =>
+  Array.from({ length: FBK_CHART_PALETTE_SIZE }, (_, i) => chartColor(i)),
+)
 defineExpose({ palette })
 </script>
 

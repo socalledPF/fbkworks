@@ -12,6 +12,8 @@ import type { FbkChartTheme } from './types'
  */
 
 /** 无 DOM 环境下的兜底（与 light 主题一致） */
+import { FBK_CHART_PALETTE_SIZE } from './option'
+
 const FALLBACK_PALETTE = [
   '#2f6bff',
   '#18a058',
@@ -123,7 +125,7 @@ export function resolveChartTheme(): FbkChartTheme {
       : (() => {
           const styles = getComputedStyle(document.documentElement)
           return {
-            palette: Array.from({ length: 8 }, (_, i) =>
+            palette: Array.from({ length: FBK_CHART_PALETTE_SIZE }, (_, i) =>
               readVar(styles, `--fbk-chart-${i + 1}`, FALLBACK_PALETTE[i]!),
             ),
             axisLine: readVar(styles, '--fbk-chart-axis-line', '#dee0e3'),

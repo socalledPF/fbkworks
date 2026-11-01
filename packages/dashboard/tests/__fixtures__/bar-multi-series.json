@@ -1,0 +1,95 @@
+{
+  "grid": {
+    "left": 8,
+    "right": 16,
+    "top": 40,
+    "bottom": 8,
+    "containLabel": true
+  },
+  "tooltip": {
+    "trigger": "axis",
+    "axisPointer": {
+      "type": "shadow"
+    }
+  },
+  "legend": {
+    "top": 0,
+    "right": 0,
+    "itemGap": 16,
+    "icon": "roundRect"
+  },
+  "xAxis": {
+    "type": "category",
+    "data": [
+      "一月",
+      "二月",
+      "三月"
+    ],
+    "axisLine": {
+      "lineStyle": {
+        "color": "var(--fbk-chart-axis-line)"
+      }
+    },
+    "axisLabel": {
+      "color": "var(--fbk-chart-axis-label)"
+    },
+    "axisTick": {
+      "show": false
+    }
+  },
+  "yAxis": {
+    "type": "value",
+    "axisLine": {
+      "show": false
+    },
+    "axisLabel": {
+      "color": "var(--fbk-chart-axis-label)"
+    },
+    "splitLine": {
+      "lineStyle": {
+        "color": "var(--fbk-chart-split-line)",
+        "type": "dashed"
+      }
+    }
+  },
+  "series": [
+    {
+      "name": "销量",
+      "type": "bar",
+      "data": [
+        10,
+        20,
+        30
+      ],
+      "itemStyle": {
+        "color": "var(--fbk-chart-1)",
+        "borderRadius": [
+          4,
+          4,
+          0,
+          0
+        ]
+      },
+      "barMaxWidth": 32
+    },
+    {
+      "name": "同比",
+      "type": "bar",
+      "data": [
+        5,
+        8,
+        12
+      ],
+      "itemStyle": {
+        "color": "var(--fbk-chart-2)",
+        "borderRadius": [
+          4,
+          4,
+          0,
+          0
+        ]
+      },
+      "barMaxWidth": 32
+    }
+  ]
+}

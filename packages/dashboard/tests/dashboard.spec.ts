@@ -11,22 +11,27 @@ import { h } from 'vue'
  */
 
 // 图表组件依赖 echarts，测试里替换成占位组件，只验证外层编排
-vi.mock('@fbkworks/chart-core', () => ({
-  FbkChart: {
-    name: 'FbkChart',
-    props: ['option', 'height', 'loading', 'isEmpty', 'emptyText', 'themed'],
-    setup(props: any) {
-      return () => {
-        return h('div', {
-          'data-fbk-part': 'chart',
-          'data-empty': String(props.isEmpty),
-          'data-height': String(props.height),
-        })
-      }
+/* 只替换 FbkChart，其余导出保留真实实现 —— 图表组件现在从 chart-core 取
+   轴令牌常量与 seriesColor，mock 里漏掉它们会让组件静默拿到 undefined。 */
+vi.mock('@fbkworks/chart-core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@fbkworks/chart-core')>()
+  return {
+    ...actual,
+    FbkChart: {
+      name: 'FbkChart',
+      props: ['option', 'height', 'loading', 'isEmpty', 'emptyText', 'themed'],
+      setup(props: any) {
+        return () => {
+          return h('div', {
+            'data-fbk-part': 'chart',
+            'data-empty': String(props.isEmpty),
+            'data-height': String(props.height),
+          })
+        }
+      },
     },
-  },
-  chartColor: (i: number) => `var(--fbk-chart-${(i % 8) + 1})`,
-}))
+  }
+})
 
 import FbkStatCard from '../src/StatCard.vue'
 import FbkStatGroup from '../src/StatGroup.vue'

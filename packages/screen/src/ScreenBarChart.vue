@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbkworks/chart-core'
+import {
+  FbkChart,
+  CHART_AXIS_LABEL,
+  CHART_AXIS_LINE,
+  CHART_SPLIT_LINE,
+  barRadius,
+  seriesColor,
+  stackedBarRadius,
+} from '@fbkworks/chart-core'
 import type { ScreenBarChartProps } from './types'
 
 /**
@@ -30,18 +38,18 @@ const option = computed(() => ({
   xAxis: {
     type: 'category',
     data: props.categories,
-    axisLine: { lineStyle: { color: 'var(--fbk-chart-axis-line)' } },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
+    axisLine: { lineStyle: { color: CHART_AXIS_LINE } },
+    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
     axisTick: { show: false },
   },
   yAxis: {
     type: 'value',
     axisLine: { show: false },
-    axisLabel: { color: 'var(--fbk-chart-axis-label)', fontSize: 14 },
-    splitLine: { lineStyle: { color: 'var(--fbk-chart-split-line)', type: 'dashed' } },
+    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
+    splitLine: { lineStyle: { color: CHART_SPLIT_LINE, type: 'dashed' } },
   },
   series: props.series.map((s, i) => {
-    const color = s.color ?? `var(--fbk-chart-${(i % 8) + 1})`
+    const color = seriesColor(i, s.color)
     return {
       name: s.name,
       type: 'bar',
@@ -51,10 +59,8 @@ const option = computed(() => ({
       itemStyle: {
         color,
         borderRadius: props.stacked
-          ? i === props.series.length - 1
-            ? [4, 4, 0, 0]
-            : 0
-          : [4, 4, 0, 0],
+          ? stackedBarRadius(i, props.series.length, false)
+          : barRadius(false),
         shadowColor: color,
         shadowBlur: 8,
       },

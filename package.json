@@ -36,6 +36,7 @@
     "check:resolver-map": "node scripts/gen-resolver-map.mjs --check",
     "check:capabilities": "node scripts/check-capabilities.mjs",
     "gen:style-index": "node scripts/gen-style-entries.mjs",
+    "gen:chart-fixtures": "node scripts/gen-chart-fixtures.mjs",
     "check:style-index": "node scripts/gen-style-entries.mjs --check",
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",

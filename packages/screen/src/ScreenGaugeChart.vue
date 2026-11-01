@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart } from '@fbkworks/chart-core'
+import {
+  FbkChart,
+  CHART_AXIS_LABEL,
+  CHART_SPLIT_LINE,
+  seriesColor,
+} from '@fbkworks/chart-core'
 import type { ScreenGaugeChartProps } from './types'
 
 /**
@@ -36,21 +41,21 @@ const option = computed(() => ({
         show: true,
         width: 10,
         itemStyle: {
-          color: 'var(--fbk-chart-1)',
-          shadowColor: 'var(--fbk-chart-1)',
+          color: seriesColor(0),
+          shadowColor: seriesColor(0),
           shadowBlur: 10,
         },
       },
       axisLine: {
         lineStyle: {
           width: 10,
-          color: [[1, 'var(--fbk-chart-split-line)']],
+          color: [[1, CHART_SPLIT_LINE]],
         },
       },
       axisTick: { show: false },
       splitLine: { show: false },
       axisLabel: {
-        color: 'var(--fbk-chart-axis-label)',
+        color: CHART_AXIS_LABEL,
         fontSize: 11,
         // 往内收，避免与 detail/title 抢位置
         distance: 6,
@@ -58,12 +63,12 @@ const option = computed(() => ({
       pointer: {
         width: 4,
         length: '62%',
-        itemStyle: { color: 'var(--fbk-chart-1)' },
+        itemStyle: { color: seriesColor(0) },
       },
       anchor: {
         show: true,
         size: 10,
-        itemStyle: { color: 'var(--fbk-chart-1)' },
+        itemStyle: { color: seriesColor(0) },
       },
       /* 标题与数值的纵向位置必须错开：
          detail 在中心偏上，title 在它下方。
@@ -72,7 +77,7 @@ const option = computed(() => ({
       title: {
         show: Boolean(props.label),
         offsetCenter: [0, '72%'],
-        color: 'var(--fbk-chart-axis-label)',
+        color: CHART_AXIS_LABEL,
         fontSize: 13,
       },
       detail: {
