@@ -34,6 +34,7 @@
     "check:publish-order": "node scripts/publish-all.mjs --check-only",
     "gen:resolver-map": "node scripts/gen-resolver-map.mjs",
     "check:resolver-map": "node scripts/gen-resolver-map.mjs --check",
+    "check:capabilities": "node scripts/check-capabilities.mjs",
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",
     "test:watch": "vitest",

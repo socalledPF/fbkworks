@@ -134,18 +134,55 @@
 
 类型系统只保证「声明被类型兼容」，**不保证「声明被实现」**。
 
-### 改法（两条，可独立）
+### 关键前提：「实现」有三种性质，不能用同一个办法验证
 
-**B1（零成本）：双向校验脚本。**
-扩展 `check:surface` 或新增 `check:capabilities`：
-对每个适配器，断言「`Capabilities` 中为 `true`/`'custom'` 的每一项，
-在 `adapter` 对象上真有对应实现」。这条能在编译之外拦住绝大多数本类缺陷。
+| 类别 | 例子 | 怎么验 |
+|---|---|---|
+| 对象成员存在性 | `feedback.message`、`overlay.supportsDrawer` | 静态判定，`typeof` / `in` |
+| 行为可观测 | `dataGrid.selection`、`sort`、`stickyHeader` | 必须渲染 + 交互，只能靠一致性用例 |
+| 纯描述性枚举 | `presentation`、`layout`、`kind` | **不该验**：它描述「选了什么」，不是「有没有能力」 |
 
-**B2（更彻底）：能力位由 conformance 推导。**
-conformance 套件已经是「某原语必须做到什么」的可执行定义。让 `capabilities`
-从它派生，或至少在构建期交叉校验。成本高于 B1，但能连「实现存在但行为不对」也覆盖。
+所以 B1 不是「一个检查能力的脚本」，而是**一张「声明 → 验证责任」的表 + 覆盖率断言**。
 
-**验收**：把任意一个能力位改成 `true` 而不实现 → 门禁红。
+### B1（已落地）
+
+`packages/internal/adapter-conformance/src/capability-coverage.ts` 维护映射表，
+每个能力位三种交代方式之一：
+
+```ts
+'dataGrid.selection': { marker: 'dataGrid.selection' }        // 一致性用例
+'feedback.message':   { static: (a) => typeof a.feedback.message === 'function' }
+'form.labelWidth':    { unverified: '只有视觉差异，jsdom 量不出来' }  // 显性欠债
+```
+
+`capability-coverage.spec.ts` 做四条检查，每条都做过证伪：
+
+1. **完整性**：每个真值能力位都在表里有条目（防「新增能力位没人验」）
+2. **可解析**：`marker` 指向的 `@capability` 标记必须真实存在于套件源码（防「写个字符串糊弄」）
+3. **无孤儿**：套件里的每个 `@capability` 标记都要在表里登记（防「删了用例但表没更新」）
+4. **静态判死**：`static` 条目在声明它的适配器上必须真能取到
+
+`pnpm check:capabilities` 是 strict 模式（`unverified` 也算失败），发版前跑，强制还债。
+
+### 落地后立刻清掉的债
+
+实测发现**当前就有 7 处「声明 true、零实现」**，而且 `DataGridProps` 里
+连对应 prop 都没有 —— 不只是没实现，是连请求入口都不存在：
+
+| 适配器 | 能力位 |
+|---|---|
+| element-plus | `expandable` `tree` `stickyHeader` |
+| naive-ui | `expandable` `tree` `stickyHeader` `virtualScroll` |
+
+已如实降级为 `false`。要真支持需先加 prop、三适配器各实现、补一致性用例。
+
+**B1 的定位**：它不检查「能力有没有被实现」（类别二做不到），
+它检查「**每个能力声明有没有人对它的验证负责**」。后者做得到，且覆盖全部新增能力位。
+
+### B2（更彻底，暂缓）
+
+让 `capabilities` 从一致性套件派生，而不是手写。成本高于 B1，
+但能连「实现存在但行为不对」也覆盖。
 
 ---
 

@@ -213,6 +213,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(idle.find(selectors.loading).exists(), 'loading=false 时不应有 loading 标记').toBe(false)
     })
 
+    // @capability dataGrid.selection
     itUnlessSkipped('selection')('DataGrid 支持选择', async () => {
       const wrapper = mount(p.DataGrid, {
         columns,
@@ -241,6 +242,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(emitted?.at(-1)?.[0]).toEqual([1])
     })
 
+    // @capability dataGrid.sort
     itUnlessSkipped('sort')('DataGrid 可排序列点表头发出 update:sort', async () => {
       /* field 的来源是契约的一部分：取 column.dataIndex，缺省时回退 column.key。
          这里刻意让 key ≠ dataIndex —— key === dataIndex 会把两家适配器的分歧
@@ -444,6 +446,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(() => adapter.feedback.message.info('契约测试')).not.toThrow()
     })
 
+    // @capability theme.darkMode
     it('主题桥 apply 幂等', () => {
       const apply = vi.spyOn(adapter.theme, 'apply')
       adapter.theme.apply('light', defaultTokens)
@@ -452,6 +455,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       apply.mockRestore()
     })
 
+    // @capability theme.provider
     it('provider 型适配器必须提供 providerProps', () => {
       if (adapter.capabilities.theme.provider) {
         expect(typeof adapter.theme.providerProps).toBe('function')

@@ -22,10 +22,14 @@ export const elementPlusCapabilities: Capabilities = {
     presentation: 'table',
     selection: true,
     sort: 'custom',
-    expandable: true,
-    tree: true,
+    /* 下面四个位此前声明为 true，但 DataGridProps 里根本没有对应 prop ——
+       也就是说它们不只是没实现，而是连请求的入口都不存在。声明 true 会让
+       调用方按能力位分支却拿到一条平铺的表。要真支持，需要先加 prop、
+       三个适配器各实现、再补一致性用例，那是一轮独立设计。 */
+    expandable: false,
+    tree: false,
     virtualScroll: false,
-    stickyHeader: true,
+    stickyHeader: false,
   },
   form: {
     layout: 'horizontal',
