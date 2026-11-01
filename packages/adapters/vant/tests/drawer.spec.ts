@@ -10,7 +10,8 @@ import { vantAdapter } from '../src'
  */
 
 const mountDrawer = async (props: Record<string, any> = {}) => {
-  const wrapper = mountWithProvider(vantAdapter.primitives.Drawer, {
+  /* Drawer 是可选原语；vant 适配器提供了它，这里直接收窄 */
+  const wrapper = mountWithProvider(vantAdapter.primitives.Drawer!, {
     adapter: vantAdapter,
     props: { modelValue: true, title: '详情', ...props },
     slots: { default: '抽屉正文' },

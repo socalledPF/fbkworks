@@ -9,10 +9,15 @@ import type { FeedbackApi } from './feedback'
  * 三者都是**必填**，旧适配器缺少它们会在启动时被 assertAdapterCompatible
  * 拦下，因此属于破坏性变更 —— 版本号必须提升。
  *
- * 版本 3：新增 Drawer 原语（详情抽屉）。它同样是**必填**，旧适配器缺少它会在
- * 启动时被 assertAdapterCompatible 拦下，因此属于破坏性变更 —— 版本号必须提升。
- * 设为可选的代价更大：可选意味着 FbkDetailDrawer 必须准备降级路径，
- * 而每一种降级都是「用户以为能用、实际表现不同」（见设计稿 §二之一）。
+ * 版本 3：新增 Drawer 原语（详情抽屉）。
+ *
+ * Drawer 随后被改为**可选**（见 docs/design/2026-10-28-optional-primitive-layer.md），
+ * 版本号**没有**因此提升 —— 把必填改为可选是更宽松的约束：已有的 v3 适配器仍然通过，
+ * 之前不被允许的（无 Drawer）现在通过。没有任何适配器因这次改动而失败。
+ *
+ * 由此确立的判据：
+ *   新增原语会破版（旧适配器缺成员 → 启动即失败），减少约束不会。
+ * 所以「新增」应走可选层，「移除」不需要动版本号。
  */
 export const ADAPTER_API_VERSION = 3
 
@@ -98,7 +103,11 @@ export interface UiPrimitives {
    * 抽屉。与 Dialog 分开：它是「从一侧滑出、承载详情内容」的容器，
    * 不是打断当前操作的模态框。缺了它，详情只能挤进 Dialog 或退回普通页。
    */
-  Drawer: Component
+  /**
+   * 可选原语。缺了只影响 FbkDetailDrawer，库的其余部分完全正常。
+   * 缺失时 FbkDetailDrawer 在 mount 阶段抛错并指向 FbkDetailPage —— 见 requirePrimitive。
+   */
+  Drawer?: Component
   Tag: Component
   Spin: Component
 }
@@ -115,6 +124,27 @@ export interface UiAdapter {
   /** 承载 locale / theme / size 的根组件 */
   RootProvider: Component
   theme: ThemeBridge
+}
+
+/**
+ * 取一个**可选**原语；缺失时抛出带替代方案的错误。
+ *
+ * 为什么不是降级：降级是「看起来能用、行为不同」，报错是「明确告诉你用不了、并给你出路」。
+ * 项目原则是显式失败优于静默降级。
+ */
+export function requirePrimitive<K extends keyof UiPrimitives>(
+  adapter: UiAdapter,
+  key: K,
+  alternative: string,
+): NonNullable<UiPrimitives[K]> {
+  const primitive = adapter.primitives?.[key]
+  if (!primitive) {
+    throw new Error(
+      `[fbk] 适配器「${adapter.meta?.name ?? 'unknown'}」没有提供 ${String(key)} 原语，该组件不可用。` +
+        alternative,
+    )
+  }
+  return primitive as NonNullable<UiPrimitives[K]>
 }
 
 export function assertAdapterCompatible(adapter: UiAdapter): void {
@@ -140,7 +170,6 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
     'DataGrid',
     'Pagination',
     'Dialog',
-    'Drawer',
     'Tag',
     'Spin',
   ]

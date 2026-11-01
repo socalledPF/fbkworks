@@ -96,13 +96,17 @@ runAdapterConformance({
 })
 ```
 
-套件覆盖 **23 条断言**：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
+套件覆盖 **24 条断言**：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
 Checkbox 布尔值、Form `validate()`、DataGrid 渲染与事件、选择/排序、`presentation=cards`、
 主题桥幂等，以及 **Drawer**（打开渲染 title 与默认插槽、关闭控件发出 `update:modelValue(false)`、
 `placement` 方位、`closeOnClickModal` 正反两向）。
 
-> `Drawer` 是契约版本 3 起的**必填**原语。缺它会直接被 `assertAdapterCompatible` 拦下 ——
-> 这是有意的：可选意味着组件层要准备降级路径，而每种降级都是「用户以为能用、实际表现不同」。
+> `Drawer` 是**可选**原语。缺了它不影响启动校验，也不影响库的其余部分 ——
+> 只有真正渲染 `FbkDetailDrawer` 时才会由 `requirePrimitive` 抛错并指向 `FbkDetailPage`。
+> 一致性套件会把整个 Drawer 块标记为 **skipped**（不是失败）。
+>
+> 这就是「可选」与「降级」的分界：可选 = 缺了**大声报错并给出替代方案**；
+> 降级 = 缺了仍然渲染，只是行为不同（本项目明确反对后者）。
 
 跑通它，业务组件基本就能在这个库上正常工作。
 

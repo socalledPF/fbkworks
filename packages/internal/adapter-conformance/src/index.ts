@@ -100,6 +100,15 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(adapter.capabilities.theme.darkMode).toBeTypeOf('boolean')
     })
 
+    /* Drawer 是可选原语，supportsDrawer 因此可以是真的假值 —— 但它必须与
+       primitives.Drawer 的存在性**恒等**。否则就是两个真相源：
+       能力位说支持、实际拿不到组件，或者反过来。 */
+    it('supportsDrawer 与 primitives.Drawer 的存在性一致', () => {
+      expect(adapter.capabilities.overlay.supportsDrawer).toBe(
+        Boolean(adapter.primitives?.Drawer),
+      )
+    })
+
     it('提供全部必需原语', () => {
       for (const key of [
         'Button',
@@ -113,7 +122,6 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'DataGrid',
         'Pagination',
         'Dialog',
-        'Drawer',
         'Tag',
         'Spin',
       ] as const) {
@@ -312,10 +320,16 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
     })
 
-    /* Drawer 是必填原语（契约版本 3）。三个 UI 库都有原生抽屉能力
-       （ElDrawer / van-popup position / NDrawer），所以这里没有 skip 分支：
-       任何一家缺了它，都应该在契约层直接红。 */
-    describe('Drawer', () => {
+    /* Drawer 是**可选**原语：适配器可以只提供弹层而不提供抽屉。
+       缺了它时整块跳过 —— 但必须是以 skipped 出现在输出里，不能用 if 藏掉，
+       否则「契约项无声消失」（见本文件开头关于 skip 的那段注释）。 */
+    const hasDrawer = Boolean(adapter.primitives?.Drawer)
+    const describeDrawer = hasDrawer ? describe : describe.skip
+
+    describeDrawer('Drawer', () => {
+      /* 这块只在适配器提供了 Drawer 时执行；此处的断言用于把
+         「可选原语」在块内收窄成 Component，避免每处都写非空断言。 */
+      const Drawer = adapter.primitives.Drawer as Component
       const title = '详情抽屉'
       const content = '抽屉正文'
 
@@ -350,7 +364,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       }
 
       it('modelValue=true 时渲染 title 与默认插槽内容', async () => {
-        const wrapper = mount(p.Drawer, { modelValue: true, title }, { default: content })
+        const wrapper = mount(Drawer, { modelValue: true, title }, { default: content })
         await flushPromises()
         expect(document.body.textContent).toContain(title)
         expect(document.body.textContent).toContain(content)
@@ -358,31 +372,31 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       })
 
       it('modelValue=false 时不显示', async () => {
-        const wrapper = mount(p.Drawer, { modelValue: false, title }, { default: content })
+        const wrapper = mount(Drawer, { modelValue: false, title }, { default: content })
         await flushPromises()
         expect(shown(selectors.drawerRight), 'modelValue=false 时抽屉必须不可见').toBe(false)
         wrapper.unmount()
       })
 
       it('关闭控件发出 update:modelValue(false)', async () => {
-        const wrapper = mount(p.Drawer, { modelValue: true, title }, { default: content })
+        const wrapper = mount(Drawer, { modelValue: true, title }, { default: content })
         await flushPromises()
         const close = document.body.querySelector<HTMLElement>(selectors.drawerClose)
         expect(close, '找不到抽屉的关闭控件（' + selectors.drawerClose + '）').toBeTruthy()
         realClick(close as HTMLElement)
         await flushPromises()
-        expect(wrapper.findComponent(p.Drawer).emitted('update:modelValue')?.at(-1)).toEqual([false])
+        expect(wrapper.findComponent(Drawer).emitted('update:modelValue')?.at(-1)).toEqual([false])
         wrapper.unmount()
       })
 
       it('placement 决定从右侧还是底部打开，底部不写死宽度', async () => {
-        const right = mount(p.Drawer, { modelValue: true, title, placement: 'right' }, { default: content })
+        const right = mount(Drawer, { modelValue: true, title, placement: 'right' }, { default: content })
         await flushPromises()
         expect(document.body.querySelector(selectors.drawerRight), 'placement=right 必须从右侧打开').toBeTruthy()
         expect(document.body.querySelector(selectors.drawerBottom), 'placement=right 不应同时带底部标记').toBeFalsy()
         right.unmount()
 
-        const bottom = mount(p.Drawer, { modelValue: true, title, placement: 'bottom' }, { default: content })
+        const bottom = mount(Drawer, { modelValue: true, title, placement: 'bottom' }, { default: content })
         await flushPromises()
         const bottomRoot = document.body.querySelector<HTMLElement>(selectors.drawerBottom)
         expect(bottomRoot, 'placement=bottom 必须从底部打开').toBeTruthy()
@@ -398,7 +412,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
          vant 走 close-on-click-overlay —— 名字不同，语义必须是同一个。 */
       it('closeOnClickModal 决定点遮罩是否关闭', async () => {
         const clickMask = async (closeOnClickModal: boolean) => {
-          const wrapper = mount(p.Drawer, { modelValue: true, title, closeOnClickModal }, { default: content })
+          const wrapper = mount(Drawer, { modelValue: true, title, closeOnClickModal }, { default: content })
           await flushPromises()
           const mask = document.body.querySelector<HTMLElement>(selectors.drawerMask)
           expect(mask, '找不到抽屉遮罩（' + selectors.drawerMask + '）').toBeTruthy()
@@ -409,14 +423,14 @@ export function runAdapterConformance(options: ConformanceOptions): void {
 
         const closable = await clickMask(true)
         expect(
-          closable.findComponent(p.Drawer).emitted('update:modelValue')?.at(-1),
+          closable.findComponent(Drawer).emitted('update:modelValue')?.at(-1),
           'closeOnClickModal=true 时点遮罩必须关闭',
         ).toEqual([false])
         closable.unmount()
 
         const locked = await clickMask(false)
         expect(
-          locked.findComponent(p.Drawer).emitted('update:modelValue'),
+          locked.findComponent(Drawer).emitted('update:modelValue'),
           'closeOnClickModal=false 时点遮罩不应关闭',
         ).toBeUndefined()
         locked.unmount()

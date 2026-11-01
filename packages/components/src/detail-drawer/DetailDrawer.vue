@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, shallowRef, useAttrs, useSlots, watch } from 'vue'
-import { useAdapter } from '@fbkworks/adapter-core'
+import { requirePrimitive, useAdapter } from '@fbkworks/adapter-core'
 import { FbkDetailPage } from '../detail-page'
 import type { DetailPageExpose } from '../detail-page'
 import { useMobileViewport } from './use-mobile'
@@ -44,7 +44,16 @@ const attrs = useAttrs()
 const slots = useSlots()
 
 const adapter = useAdapter()
-const { Drawer, Button } = adapter.primitives
+const { Button } = adapter.primitives
+
+/* Drawer 是**可选**原语：适配器可以只提供弹层而不提供抽屉。
+   缺了就在这里抛错并给出替代方案 —— 而不是渲染成别的东西（那是降级，
+   会让用户以为抽屉能用、实际表现不同）。 */
+const Drawer = requirePrimitive(
+  adapter,
+  'Drawer',
+  '可改用 FbkDetailPage，以整页形式展示同样的内容。',
+)
 
 const { isMobile } = useMobileViewport()
 

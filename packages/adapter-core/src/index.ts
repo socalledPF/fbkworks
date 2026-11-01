@@ -10,7 +10,7 @@ export type {
   UiAdapter,
   UiPrimitives,
 } from './contracts/adapter'
-export { assertAdapterCompatible } from './contracts/adapter'
+export { assertAdapterCompatible, requirePrimitive } from './contracts/adapter'
 
 export type {
   ButtonProps,

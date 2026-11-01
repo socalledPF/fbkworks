@@ -88,6 +88,29 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
+/* Drawer 是**可选**原语。缺了它不该渲染成别的东西（那是降级），
+   而要在 mount 阶段抛错并给出替代方案 —— 见 requirePrimitive。 */
+describe('可选原语缺失', () => {
+  it('适配器没有 Drawer 时 mount 抛错，并指向 FbkDetailPage', () => {
+    const full = createMockAdapter()
+    const primitives = { ...full.primitives }
+    delete primitives.Drawer
+    const noDrawer = { ...full, primitives }
+
+    expect(() =>
+      mountWithAdapter(FbkDetailDrawer, {
+        adapter: noDrawer,
+        props: {
+          show: true,
+          title: '订单详情',
+          request: async () => ({ orderNo: 'SO001' }),
+          items,
+        },
+      }),
+    ).toThrow(/Drawer[\s\S]*FbkDetailPage/)
+  })
+})
+
 describe('打开与数据', () => {
   it('打开时显示 title 与字段', async () => {
     const wrapper = mountDrawer()
