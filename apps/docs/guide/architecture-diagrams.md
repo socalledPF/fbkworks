@@ -197,6 +197,9 @@ classDiagram
     +Component Button
     +Component Input
     +Component Select
+    +Component Checkbox
+    +Component DatePicker
+    +Component Radio
     +Component Form
     +Component FormItem
     +Component DataGrid
@@ -205,6 +208,10 @@ classDiagram
     +Component Tag
     +Component Spin
   }
+  class UiPrimitivesOptional {
+    +Component Drawer
+  }
+  note for UiPrimitivesOptional "可选原语：缺了只影响 FbkDetailDrawer，\n由 requirePrimitive 在用点报错并指向 FbkDetailPage"
 
   class ThemeBridge {
     +apply(mode, tokens)
@@ -214,6 +221,7 @@ classDiagram
   UiAdapter --> AdapterMeta
   UiAdapter --> Capabilities
   UiAdapter --> UiPrimitives
+  UiAdapter --> UiPrimitivesOptional
   UiAdapter --> ThemeBridge
 ```
 

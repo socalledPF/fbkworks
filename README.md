@@ -53,21 +53,55 @@ createApp(App)
 pnpm verify        # 一次跑完全部门禁
 ```
 
-分项：
+分项（**完整顺序以 `package.json` 的 `verify` 为准，本表只解释每一项在防什么**）：
 
 | 命令 | 作用 |
 |---|---|
 | `pnpm lint` | ESLint + 依赖边界规则（UI 库只允许出现在 `packages/adapters/**`） |
 | `pnpm lint:deps` | dependency-cruiser 依赖图校验（含循环依赖） |
 | `pnpm typecheck` | vue-tsc 全量类型检查 |
-| `pnpm test` | Vitest：全部单测，含三个适配器共用的 15 条契约断言 |
+| `pnpm test` | Vitest：全部单测，含三个适配器共用的**同一套**契约断言（用例清单以 `adapter-conformance` 源码为准） |
 | `pnpm build` | turbo 构建全部包 |
 | `pnpm check:surface` | 扫描公开 `.d.ts`，禁止泄漏 UI 库类型 |
+| `pnpm check:styles` | 每条组件样式是否被登记 + 布局声明（用了 `gap` 必须有 flex/grid） |
+| `pnpm check:style-index` | 两个样式入口的**生成结果**是否与组件目录一致（过期即红） |
+| `pnpm check:style-entries` | 各应用是否接了聚合样式入口 |
+| `pnpm check:runtime-deps` | 发布包的运行时依赖是否被正确声明 |
 | `pnpm check:packages` | publint |
 | `pnpm check:types` | attw（ESM-only profile） |
 | `pnpm check:consumer` | 消费者烟雾测试：按 exports 解析已构建产物 |
+| `pnpm check:resolver-map` | resolver 映射是否与 `components` 的导出一致 |
+| `pnpm check:publish-order` | 发布清单与拓扑序（新增发布包却忘了登记会在这里红） |
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
+
+另有两个**不在 `verify` 里**的命令：
+
+| 命令 | 何时用 |
+|---|---|
+| `pnpm gen:style-index` | 新增/删除组件后，重新生成两个样式入口 |
+| `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
+| `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
+| `pnpm check:capabilities` | strict 模式：把「未验证的能力位」也算失败，发版前跑 |
+
+## 文档同步
+
+**改代码时，对应的文档要同一次提交里改掉。** 这一轮审查里，光是「文档写的和代码做的不一致」就抓到四处
+（契约断言条数 15 vs 实际 24、样式清单还在教人手工改已生成的文件、primitive 清单少列 4 个、旧仓库链接）。
+
+对照表：
+
+| 你改了什么 | 必须同步更新 |
+|---|---|
+| 新增 / 删除原语 | `apps/docs/guide/architecture.md`（原语与可选层）<br>`apps/docs/adapters/custom.md`（`UiPrimitives` 列表）<br>`packages/adapter-core/README.md`<br>`apps/docs/guide/architecture-diagrams.md`（类图） |
+| 变更「什么情况该升契约版本」 | `apps/docs/guide/architecture.md` 的「什么时候该升版本号」<br>`packages/adapter-core/src/contracts/adapter.ts` 顶部注释 |
+| 新增 / 删除能力位 | `packages/internal/adapter-conformance/src/capability-coverage.ts`（必须交代验证责任，否则测试红） |
+| 新增组件 | `docs/style-guide.md` §二 检查清单<br>`packages/components/package.json` 的 `exports` + `vite.config.ts` entry（**仍是手写**） |
+| 新增发布包 | `scripts/publish-all.mjs` 的 `ORDER`（`check:publish-order` 会校验） |
+| 做了有取舍的架构决定 | `docs/design/` 新增一份设计稿，并在 `architecture.md` 的「设计决策记录」加一行 |
+
+> 原则：**能生成的不要手写，必须手写的要有门禁校验。**
+> 上面 `exports` / `vite.config.ts` entry / `ORDER` 三处仍是手写，是目前已知的漏点。
 
 ## 目录
 

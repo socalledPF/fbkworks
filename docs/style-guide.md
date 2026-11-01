@@ -11,6 +11,10 @@
 
 ## 一、样式接入的两条链路
 
+> 这两个入口**已由 `scripts/gen-style-entries.mjs` 自动生成**（`pnpm gen:style-index`），
+> 不要手改——手改会被 `pnpm check:style-index` 判为过期。
+> 新增组件后跑一次生成即可，下面这节说明「为什么需要两个入口」。
+
 组件的 `style.css` 必须同时登记到**两个入口**，缺一个就有一类使用者拿不到样式：
 
 | 入口 | 服务对象 | 漏掉的后果 |
@@ -26,9 +30,12 @@
 ## 二、新增组件时必须做的事（检查清单）
 
 - [ ] 写 `src/<component>/style.css`
-- [ ] 在 `src/styles/index.css` 加 `@import '../<component>/style.css';`
-- [ ] 在 `apps/playground/src/styles.ts` 加 `import '@fbkworks/components/<component>/style.css'`
-- [ ] 跑 `pnpm check:styles`（新增的自动校验，见下）
+- [ ] **跑 `pnpm gen:style-index`** —— 两个样式入口由目录结构生成，
+      不要手改 `styles/index.css` 或 `apps/playground/src/styles.ts`
+- [ ] 补 `packages/components/package.json` 的 `exports` 子路径 + `vite.config.ts` 的 entry
+      （**这两处仍是手写的**；漏了会导致该子路径发出去无法 import，
+      本轮就抓到过 `detail-drawer` 这个案例）
+- [ ] 跑 `pnpm check:style-index && pnpm check:styles`（前者验生成结果是否过期，后者验布局声明）
 - [ ] 在 Playground 里**实际看一眼**，不只看测试
 
 ---
@@ -108,9 +115,13 @@ PC 端 element-plus 与 naive-ui 必须看起来一致。这条由
 `pnpm check:styles` 会检查：
 
 1. `src/` 下每个含 `style.css` 的组件目录，都出现在 `styles/index.css` 里
+   （该文件由脚本生成，所以这一条现在的价值是「复核生成结果」，不再兜手写遗漏）
 2. 同样出现在 `apps/playground/src/styles.ts` 里
 3. 所有 `.fbk-*` 选择器块里，若用了 `gap` / `justify-content` / `align-items`，
    同一规则块内必须有 `display: flex` 或 `display: grid`
+
+`pnpm check:style-index` 则校验**生成结果是否与目录结构一致**——
+新增组件却忘了跑 `gen:style-index` 时它会红，并同时点名两个过期的文件。
 
 第 3 条专门防本次的 bug 复发。
 

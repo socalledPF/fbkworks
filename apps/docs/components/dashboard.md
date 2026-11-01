@@ -63,7 +63,7 @@ import '@fbkworks/dashboard/style.css'
 **不要在 option 里写死色值** —— 换主题时图表不会跟着变。
 
 色板经过对比度验证（图形 ≥3:1、相邻色 ΔE ≥10），见
-[设计文档](https://github.com/54356/frontend-business-kit/blob/main/docs/design/2026-10-22-dashboard-screen.md)。
+[设计文档](https://github.com/socalledPF/fbkworks/blob/main/docs/design/2026-10-22-dashboard-screen.md)。
 
 ## 自定义图表
 
