@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { FbkResolver } from '../src'
+import * as components from '@fbkworks/components'
+import { FbkResolver, componentMap } from '../src'
+
+/**
+ * 判据全部来自 components 的实际导出，**没有任何硬编码名单**。
+ *
+ * 这是关键：原先的用例里写死了 9 个组件名，而那份名单与映射同源 ——
+ * 新增组件时两处一起漏，测试照样全绿。P4-2 的 FbkDetailDrawer 就是这么漏的。
+ */
+const exportedComponents = Object.keys(components)
+  .filter((name) => name.startsWith('Fbk'))
+  .sort()
 
 describe('FbkResolver', () => {
   const resolver = FbkResolver()
@@ -18,32 +29,26 @@ describe('FbkResolver', () => {
   })
 
   it('importStyle: false 时不注入样式', () => {
-    const noStyle = FbkResolver({ importStyle: false })
-    expect(noStyle.resolve('FbkQueryForm')).toEqual({
+    expect(FbkResolver({ importStyle: false }).resolve('FbkQueryForm')).toEqual({
       name: 'FbkQueryForm',
       from: '@fbkworks/components/query-form',
       sideEffects: undefined,
     })
   })
 
-  it('每个业务组件都有对应的子路径与样式入口', () => {
-    const names = [
-      'FbkProTable',
-      'FbkQueryForm',
-      'FbkFormGenerator',
-      'FbkPageContainer',
-      'FbkDescriptions',
-      'FbkCrudPage',
-      'FbkFormModal',
-      'FbkResult',
-      'FbkDetailPage',
-    ]
+  it('映射覆盖 components 导出的全部 Fbk* 组件（判据来自导出，不是名单）', () => {
+    expect(Object.keys(componentMap).sort()).toEqual(exportedComponents)
+  })
 
-    for (const name of names) {
+  it('每个导出的组件都能解析出合法子路径', () => {
+    for (const name of exportedComponents) {
       const hit = resolver.resolve(name)
       expect(hit, name).toBeDefined()
-      expect(hit!.from).toMatch(/^@fbkworks\/components\/[a-z-]+$/)
-      expect(hit!.sideEffects).toBe(`${hit!.from}/style.css`)
+      expect(hit!.from, name).toMatch(/^@fbkworks\/components\/[a-z-]+$/)
+      // 有自己 style.css 的组件必须带样式副作用；没有的（如 DetailDrawer）为 undefined
+      if (hit!.sideEffects !== undefined) {
+        expect(hit!.sideEffects, name).toBe(`${hit!.from}/style.css`)
+      }
     }
   })
 })

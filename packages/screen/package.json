@@ -49,15 +49,15 @@
     "echarts"
   ],
   "license": "MIT",
-  "author": "54356",
-  "homepage": "https://github.com/54356/frontend-business-kit#readme",
+  "author": "socalledPF",
+  "homepage": "https://github.com/socalledPF/fbkworks#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/54356/frontend-business-kit.git",
+    "url": "git+https://github.com/socalledPF/fbkworks.git",
     "directory": "packages/screen"
   },
   "bugs": {
-    "url": "https://github.com/54356/frontend-business-kit/issues"
+    "url": "https://github.com/socalledPF/fbkworks/issues"
   },
   "engines": {
     "node": ">=20.11.0"

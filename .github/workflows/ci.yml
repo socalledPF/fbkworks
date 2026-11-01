@@ -70,6 +70,11 @@ jobs:
       - name: 消费者烟雾测试
         run: pnpm check:consumer
 
+      # resolver 映射由 components 的导出生出：新增组件却忘了生成，
+      # 自动导入会静默失效（.vue 里写 <FbkXxx> 不报错、只是不生效）。
+      - name: resolver 映射与组件导出一致
+        run: pnpm check:resolver-map
+
       # 发布清单与拓扑序：新增发布包却忘了登记进 ORDER，在这里就红，
       # 而不是等到发版时才发现依赖的包从未上架。
       - name: 发布清单与顺序
