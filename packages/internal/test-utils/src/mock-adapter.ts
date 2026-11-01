@@ -504,14 +504,6 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
-  const Empty = defineComponent({
-    name: 'MockEmpty',
-    props: { description: String },
-    setup(props) {
-      return () => h('div', { 'data-fbk-part': 'empty' }, props.description ?? '暂无数据')
-    },
-  })
-
   const Spin = defineComponent({
     name: 'MockSpin',
     props: { loading: Boolean, description: String },
@@ -521,7 +513,7 @@ function createMockPrimitives(): UiPrimitives {
     },
   })
 
-  return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }
+  return { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Spin }
 }
 
 export interface MockFeedbackRecord {

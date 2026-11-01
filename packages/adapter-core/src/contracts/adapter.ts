@@ -100,7 +100,6 @@ export interface UiPrimitives {
    */
   Drawer: Component
   Tag: Component
-  Empty: Component
   Spin: Component
 }
 
@@ -143,7 +142,6 @@ export function assertAdapterCompatible(adapter: UiAdapter): void {
     'Dialog',
     'Drawer',
     'Tag',
-    'Empty',
     'Spin',
   ]
   const missing = required.filter((key) => !adapter.primitives?.[key])

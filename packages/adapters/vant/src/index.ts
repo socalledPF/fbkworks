@@ -12,7 +12,6 @@ import { Pagination } from './primitives/Pagination'
 import { Dialog } from './primitives/Dialog'
 import { Drawer } from './primitives/Drawer'
 import { Tag } from './primitives/Tag'
-import { Empty } from './primitives/Empty'
 import { Spin } from './primitives/Spin'
 import { vantTheme } from './theme'
 import { RootProvider } from './root-provider'
@@ -53,11 +52,11 @@ export const vantAdapter: UiAdapter = {
     platform: 'mobile',
   },
   capabilities: vantCapabilities,
-  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Spin },
   feedback,
   RootProvider,
   theme: vantTheme,
 }
 
 export { vantTheme, RootProvider }
-export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }
+export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Spin }

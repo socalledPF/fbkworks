@@ -222,7 +222,7 @@
 把 `UiPrimitives` 拆两层：
 
 ```
-核心必填（Button / Input / Form / DataGrid / Pagination / Dialog / Tag / Empty / Spin）
+核心必填（Button / Input / Form / DataGrid / Pagination / Dialog / Tag / Spin）
     → 由 ADAPTER_API_VERSION 管，升版 = 破坏
 
 可选能力（Drawer / 未来的一切新增）

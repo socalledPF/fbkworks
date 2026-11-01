@@ -66,10 +66,6 @@ export interface CheckboxEmits {
   change: [value: boolean]
 }
 
-export interface EmptyProps {
-  description?: string
-}
-
 /**
  * 日期/时间选择。
  *

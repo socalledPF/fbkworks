@@ -115,7 +115,6 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         'Dialog',
         'Drawer',
         'Tag',
-        'Empty',
         'Spin',
       ] as const) {
         expect(p[key], `缺少原语 ${key}`).toBeTruthy()

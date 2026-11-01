@@ -18,7 +18,6 @@ interface UiPrimitives {
   Pagination: Component
   Dialog: Component
   Tag: Component
-  Empty: Component
   Spin: Component
 }
 ```
@@ -69,7 +68,7 @@ export const arcoAdapter: UiAdapter = {
     platform: 'desktop',
   },
   capabilities: arcoCapabilities,
-  primitives: { Button, Input, Select, Checkbox, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, Form, FormItem, DataGrid, Pagination, Dialog, Tag, Spin },
   RootProvider,
   theme: arcoTheme,
 }

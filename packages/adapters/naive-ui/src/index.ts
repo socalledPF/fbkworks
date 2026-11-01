@@ -12,7 +12,6 @@ import { Pagination } from './primitives/Pagination'
 import { Dialog } from './primitives/Dialog'
 import { Drawer } from './primitives/Drawer'
 import { Tag } from './primitives/Tag'
-import { Empty } from './primitives/Empty'
 import { Spin } from './primitives/Spin'
 import { naiveTheme, naiveProviderProps } from './theme'
 import { RootProvider } from './root-provider'
@@ -54,11 +53,11 @@ export const naiveUiAdapter: UiAdapter = {
     platform: 'desktop',
   },
   capabilities: naiveCapabilities,
-  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin },
+  primitives: { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Spin },
   feedback,
   RootProvider,
   theme: naiveTheme,
 }
 
 export { naiveTheme, naiveProviderProps, RootProvider }
-export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Empty, Spin }
+export { Button, Input, Select, Checkbox, DatePicker, Radio, Form, FormItem, DataGrid, Pagination, Dialog, Drawer, Tag, Spin }

@@ -203,7 +203,6 @@ classDiagram
     +Component Pagination
     +Component Dialog
     +Component Tag
-    +Component Empty
     +Component Spin
   }
 
