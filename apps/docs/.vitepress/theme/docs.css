@@ -127,17 +127,84 @@ html.dark {
   color-scheme: dark;
 }
 
-/* 架构图：
-   mermaid 关掉了 useMaxWidth（见 .vitepress/config.mts），svg 保持原始像素宽度。
-   宽图因此会超出正文栏 —— 用横向滚动承接，而不是把它压小到看不清。 */
+/* 架构图：默认由 mermaid 缩到正文栏宽度（一眼看到整体），
+   点击后在覆盖层里按 viewBox 原始尺寸显示。
+   行为见 .vitepress/theme/mermaid-zoom.ts。 */
 .vp-doc .mermaid {
-  overflow-x: auto;
-  /* 给滚动条留一点位置，避免压住最后一行 */
-  padding-bottom: 4px;
+  cursor: zoom-in;
+  position: relative;
 }
 
-/* 图本身不参与正文栏的拉伸 */
-.vp-doc .mermaid svg {
+/* 悬停时给一个「可放大」的提示，避免用户不知道能点 */
+.vp-doc .mermaid::after {
+  content: '点击放大';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #fff;
+  background: rgba(47, 107, 255, 0.85);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.vp-doc .mermaid:hover::after {
+  opacity: 1;
+}
+
+.fbk-diagram-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 24, 33, 0.72);
+  padding: 24px;
+}
+
+.fbk-diagram-zoom__stage {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  background: var(--vp-c-bg, #fff);
+  border-radius: 8px;
+  padding: 16px;
+  outline: none;
+}
+
+/* 覆盖层里的图保持原始像素尺寸，超出时在 stage 内滚动 */
+.fbk-diagram-zoom__stage svg {
   display: block;
   max-width: none;
 }
+
+.fbk-diagram-zoom__close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #1f2329;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.fbk-diagram-zoom__close:hover {
+  background: #fff;
+}
+
+/* 放大时锁住页面滚动 */
+.fbk-diagram-zoom-open,
+.fbk-diagram-zoom-open body {
+  overflow: hidden;
+}
+

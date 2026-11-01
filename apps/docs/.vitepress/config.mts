@@ -118,10 +118,12 @@ export default withMermaid(
      withMermaid 只接受一个参数，写成 withMermaid(config, {...}) 时第二个参数
      会被静默忽略（本文件原先就是这种写法，所以主题与下面的 useMaxWidth 都没生效）。
 
-     默认 useMaxWidth: true 会给 svg 挂 width="100%"，宽图被强行压进正文栏：
-     最宽一张 viewBox 约 1800px，在 688px 的栏里只剩 0.38 倍，框里的字约 5px
-     —— 看起来就是「内容显示不全」。关掉它让图保持原始尺寸，
-     超出部分由 .vp-doc .mermaid 的横向滚动承接（见 theme/docs.css）。 */
+     这里**保留** mermaid 默认的 useMaxWidth（svg 挂 width="100%"），
+     让整张图缩略后完整落在正文栏里 —— 一眼能看到整体结构。
+     原始尺寸的细节交给点击放大（见 theme/mermaid-zoom.ts）。
+
+     曾试过 useMaxWidth: false + 容器横向滚动，体验更差：
+     图被正文栏截断、还要来回拖才能看全，反而看不出架构全貌。 */
   mermaid: {
     theme: 'base',
     themeVariables: {
@@ -130,9 +132,6 @@ export default withMermaid(
       primaryBorderColor: '#2f6bff',
       lineColor: '#8a94a6',
     },
-    flowchart: { useMaxWidth: false },
-    sequence: { useMaxWidth: false },
-    class: { useMaxWidth: false },
   },
   }),
 )

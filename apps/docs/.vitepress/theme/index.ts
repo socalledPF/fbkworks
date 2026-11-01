@@ -3,7 +3,7 @@ import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
 import DemoBlock from './DemoBlock.vue'
 import ApiTable from './ApiTable.vue'
-import { normalizeMermaidWidth } from './mermaid-width'
+import { setupMermaidZoom } from './mermaid-zoom'
 
 // UI 库本体样式由应用负责（与业务项目一致），这里显式引入三个库以支持切换演示
 import 'element-plus/dist/index.css'
@@ -27,7 +27,7 @@ export default {
   enhanceApp({ app }) {
     app.component('DemoBlock', DemoBlock)
     app.component('ApiTable', ApiTable)
-    // 修正 mermaid 宽图被压缩的问题（classDiagram 不支持 useMaxWidth）
-    normalizeMermaidWidth()
+    // 架构图：默认缩略适配，点击放大到原始尺寸
+    setupMermaidZoom()
   },
 } satisfies Theme
