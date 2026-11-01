@@ -12,16 +12,19 @@ import '@fbkworks/adapter-naive-ui/style.css'
 import '@fbkworks/adapter-naive-ui/dark.css'
 // 组件库聚合入口：一次性覆盖全部子组件（check:style-entries 要求命中的就是这一条）
 import '@fbkworks/components/styles/index.css'
-// 子组件样式仍需逐条登记：check:styles 按组件名逐个校验本文件
+// 子组件样式：这一段由 scripts/gen-style-entries.mjs 生成，勿手改。
+// 新增组件后运行 pnpm gen:style-index。
+// <generated:components>
+import '@fbkworks/components/crud-page/style.css'
+import '@fbkworks/components/descriptions/style.css'
+import '@fbkworks/components/detail-page/style.css'
+import '@fbkworks/components/form-generator/style.css'
+import '@fbkworks/components/form-modal/style.css'
+import '@fbkworks/components/page-container/style.css'
 import '@fbkworks/components/pro-table/style.css'
 import '@fbkworks/components/query-form/style.css'
-import '@fbkworks/components/form-generator/style.css'
-import '@fbkworks/components/page-container/style.css'
-import '@fbkworks/components/descriptions/style.css'
-import '@fbkworks/components/crud-page/style.css'
-import '@fbkworks/components/form-modal/style.css'
 import '@fbkworks/components/result/style.css'
-import '@fbkworks/components/detail-page/style.css'
+// </generated:components>
 import '@fbkworks/chart-core/style.css'
 import '@fbkworks/dashboard/style.css'
 import '@fbkworks/screen/style.css'

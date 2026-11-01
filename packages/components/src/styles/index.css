@@ -1,10 +1,18 @@
+/**
+ * 由 `scripts/gen-style-entries.mjs` 生成，请勿手改。
+ * 新增组件后运行 `pnpm gen:style-index`。
+ *
+ * 顺序按目录名。组件的样式各自带 `.fbk-<name>` 前缀，跨组件没有重复选择器，
+ * 因此这个顺序不影响最终样式 —— 它只是为了让生成结果确定、可 diff。
+ */
+
 @import '@fbkworks/tokens/css';
-@import '../page-container/style.css';
-@import '../query-form/style.css';
-@import '../form-generator/style.css';
-@import '../pro-table/style.css';
-@import '../descriptions/style.css';
 @import '../crud-page/style.css';
-@import '../form-modal/style.css';
-@import '../result/style.css';
+@import '../descriptions/style.css';
 @import '../detail-page/style.css';
+@import '../form-generator/style.css';
+@import '../form-modal/style.css';
+@import '../page-container/style.css';
+@import '../pro-table/style.css';
+@import '../query-form/style.css';
+@import '../result/style.css';

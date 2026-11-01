@@ -41,17 +41,39 @@
 
 ## 二、提案 A（最高优先）：把手工清单换成生成
 
-### A1. `styles/index.css` 由文件系统生成
+### A1（已落地）两份样式清单由目录结构生成
 
-现在：新增组件要在 `styles/index.css` 手加一行 `@import`。
-漏了 → 组件样式不生效，测试全绿，肉眼全坏（这正是 §6.1 记录的原始事故）。
+**失效路径**：新增组件带 `style.css` → 没人往清单加一行 → 引用**聚合入口**的
+应用（admin / docs / playground **全部三个**）拿不到该样式，且**不报错**。
+症状就是 §6.1 那次：FormModal 底部两个按钮紧贴、`gap` 完全无效，
+测试全绿、类型全对、lint 通过。
 
-**改法**：新增 `scripts/gen-style-index.mjs`，扫 `packages/components/src/*/style.css`
-生成 `styles/index.css`；作为 `prebuild` 与 `check:styles` 的一部分运行，
-文件头加 `/* 由 scripts/gen-style-index.mjs 生成，勿手改 */`。
+**它今天已被 `check:styles` 拦住**（实测：两个清单各删一条，退出码都是 1）。
+但 `check:styles` **只在 `pnpm verify` 里跑** —— `pnpm dev` 与 `pnpm build`
+都不跑。于是本地开发的真实施工流程是：
 
-**验收**：删掉生成文件后跑 `pnpm build`，文件被重建且内容与之前逐字节一致；
-手工改它会被 `check:styles` 判定为过期并报错。
+1. 新建组件、写 `style.css`
+2. `pnpm dev` 看效果 → 样式没生效
+3. 以为是选择器/优先级/Vite 缓存，调很久
+4. 推 CI 才被告知「没登记」
+
+**§6.1 就发生在第 2 步这个窗口里。**
+
+**改法**：`scripts/gen-style-entries.mjs` 扫 `src/*/style.css`，生成两处：
+
+| 目标 | 生成方式 |
+|---|---|
+| `packages/components/src/styles/index.css` | 整文件生成（带「勿手改」头） |
+| `apps/playground/src/styles.ts` | 只替换 `<generated:components>` 标记区间 |
+
+**顺序按目录名**。这条特意验过：9 个组件共 **123 个选择器，跨组件重复 0 个**，
+所以顺序不影响最终样式。不验就不能动——否则会从「防止漏登记」变成「引入视觉回归」。
+
+**`check:styles` 保留**，它现在校验的是生成结果，相当于对生成器的一道独立复核。
+（那一半的「登记检查」从唯一防线降级为交叉验证。）
+
+**证伪**（均成立）：新增组件目录但不重新生成 → `check:style-index` 退出 1 并
+同时点名两个不一致的文件；重新生成后两者都含新组件；手改生成文件 → 退出 1。
 
 ### A2. `resolver` 的映射由 `components` 的导出生出
 

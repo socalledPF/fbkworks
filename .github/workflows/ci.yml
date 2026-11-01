@@ -55,6 +55,11 @@ jobs:
       - name: 样式接入（gap/flex 静默失效）
         run: pnpm check:styles
 
+      # 样式清单由目录结构生成：新增组件却忘了生成时，引用聚合入口的应用
+      # 会静默拿不到样式（不报错，只是不生效）。
+      - name: 样式清单与组件目录一致
+        run: pnpm check:style-index
+
       - name: 样式入口完整性
         run: pnpm check:style-entries
 
