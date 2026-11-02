@@ -1,5 +1,15 @@
 # @fbkworks/screen
 
+## 0.3.0
+
+### Patch Changes
+
+- Updated dependencies [7f1dd87]
+- Updated dependencies [78877e5]
+  - @fbkworks/chart-core@0.3.0
+  - @fbkworks/tokens@0.3.0
+  - @fbkworks/shared@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes

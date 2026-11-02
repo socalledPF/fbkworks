@@ -1,5 +1,84 @@
 # @fbkworks/adapter-core
 
+## 0.3.0
+
+### Minor Changes
+
+- e7618b7: ### `Drawer` 原语改为可选
+
+  `UiPrimitives.Drawer` 从必填变为 `Drawer?: Component`，`assertAdapterCompatible` 不再要求它。
+
+  **为什么**：`ADAPTER_API_VERSION` 每加一个原语就破一次版（v2 为 DatePicker/Radio、v3 为 Drawer），
+  升完所有旧适配器启动即抛错。根因是版本号同时管「改坏已有」和「新增有无」——
+  前者该管，后者不该。
+
+  `Drawer` 是唯一满足「缺了仍有官方完整替代」的原语：需求是「看一条记录的详情」，
+  `FbkDetailPage` 是同一需求的另一种呈现，且已文档化。其余 13 个原语缺了都只能是降级。
+
+  ### 缺失时的行为
+
+  新增 `requirePrimitive(adapter, key, alternative)`：取可选原语，缺失时抛出**带替代方案**的错误。
+
+  `FbkDetailDrawer` 在 mount 阶段报错：
+
+  ```
+  [fbk] 适配器「xxx」没有提供 Drawer 原语，该组件不可用。可改用 FbkDetailPage，以整页形式展示同样的内容。
+  ```
+
+  **这不是降级**。降级是「看起来能用、行为不同」；报错是「明确告诉你用不了，并给出出路」。
+
+  ### 没有升 `ADAPTER_API_VERSION`
+
+  保持 3。把必填改为可选是**更宽松**的约束：已有 v3 适配器仍然通过，之前不被允许的（无 Drawer）现在通过。
+  没有任何适配器因这次改动而失败。
+
+  由此确立判据：**新增原语会破版（旧适配器缺成员），减少约束不会。** 所以「新增」应走可选层。
+
+  ### 一致性套件
+
+  - 新增断言：`capabilities.overlay.supportsDrawer` 必须与 `primitives.Drawer` 的存在性**恒等**（避免两个真相源）
+  - 无 Drawer 时整个 Drawer 块标记为 **skipped**（不是失败，也不是无声消失）
+
+  ### 迁移
+
+  **第三方适配器无需改动。** 若不需要抽屉，可去掉 `Drawer` 并把 `overlay.supportsDrawer` 设为 `false`。
+
+  若你在代码里直接读过 `adapter.primitives.Drawer`，现在它是 `Component | undefined`，
+  请改用 `requirePrimitive` 或自行判空。
+
+- 899a1a6: ### BREAKING：移除 `Empty` 原语
+
+  `UiPrimitives.Empty`、`EmptyProps` 与三个适配器导出的 `Empty` 组件已删除。
+
+  **为什么**：它是唯一一个「零消费者」的必填原语。
+
+  - 业务组件里访问 `adapter.primitives.Empty` 的地方：**0 处**
+  - `DataGridProps` 只有 `emptyText?: string`，**没有 `empty` 插槽**，所以业务层无法注入它
+  - 三个适配器的 `DataGrid` 直接 import 自家 UI 库的空态组件
+    （element-plus 用 `ElTable` 自带的空态、naive-ui 用 `NEmpty`、vant 用 `VanEmpty`）
+
+  也就是说它声明在公共契约里，但两头都够不着：业务层没有入口，适配器层不需要它（用自己的 DataGrid 调自己提供的 Empty 是自引用）。
+
+  **影响**：如果你在业务代码里用过 `adapter.primitives.Empty` 或从适配器包 import 过 `Empty`，
+  请改用 UI 库自身的空态组件。适配器的 `DataGrid` 空态行为**不变**（它本来就不走这个原语）。
+
+  **不升 `ADAPTER_API_VERSION`**：移除必填项向后兼容 —— `assertAdapterCompatible` 只做超集检查
+  （`required` 里的键都必须存在），多出来的 `Empty` 会被忽略。按旧的 v3 写的适配器继续可用。
+
+  > 这也印证了一条判据：**新增原语会破版（旧适配器缺成员），移除原语不会。**
+  > 所以「新增」该走特性层，「移除」不需要动版本号。
+
+  ### 顺带
+
+  `FbkProTable` 目前**无法自定义空态**，只能改文案 —— 因为契约里没有 `empty` 插槽。
+  这是独立于本条的一个产品缺口，留待单独评估。
+
+### Patch Changes
+
+- Updated dependencies [78877e5]
+  - @fbkworks/tokens@0.3.0
+  - @fbkworks/shared@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
