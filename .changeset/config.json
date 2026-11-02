@@ -4,9 +4,6 @@
   "commit": false,
   "fixed": [
     [
-      "@fbkworks/tokens",
-      "@fbkworks/shared",
-      "@fbkworks/data",
       "@fbkworks/adapter-core",
       "@fbkworks/chart-core",
       "@fbkworks/adapter-element-plus",
@@ -14,8 +11,7 @@
       "@fbkworks/adapter-naive-ui",
       "@fbkworks/components",
       "@fbkworks/dashboard",
-      "@fbkworks/screen",
-      "@fbkworks/resolver"
+      "@fbkworks/screen"
     ]
   ],
   "linked": [],
@@ -28,6 +24,7 @@
     "@fbkworks/adapter-conformance",
     "@fbkworks/test-utils",
     "@fbkworks/build-config",
-    "@fbkworks/demos"
+    "@fbkworks/demos",
+    "@fbkworks/consumer-smoke"
   ]
 }

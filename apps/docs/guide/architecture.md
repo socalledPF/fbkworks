@@ -182,3 +182,4 @@ runAdapterConformance({
 | 架构改造的四项提案 | [2026-10-28-architecture-improvements.md](https://github.com/socalledPF/fbkworks/blob/main/docs/design/2026-10-28-architecture-improvements.md) |
 | 大屏图表布局与间距 | [2026-10-28-screen-pie-layout-and-spacing.md](https://github.com/socalledPF/fbkworks/blob/main/docs/design/2026-10-28-screen-pie-layout-and-spacing.md) |
 | 详情抽屉 | [2026-10-28-p4-2-detail-drawer.md](https://github.com/socalledPF/fbkworks/blob/main/docs/design/2026-10-28-p4-2-detail-drawer.md) |
+| 首发策略、fixed 组拆分、演进路线 | [2026-10-28-release-strategy-and-roadmap.md](https://github.com/socalledPF/fbkworks/blob/main/docs/design/2026-10-28-release-strategy-and-roadmap.md) |

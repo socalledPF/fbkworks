@@ -25,8 +25,8 @@ FBK 的解法：**只归一化原语与交互语义，不归一化业务语义**
 
 ```mermaid
 flowchart TB
-  subgraph L5["L5 · 页面级组合（P2）"]
-    blocks["@fbkworks/blocks<br/>CrudPage / DetailPage"]
+  subgraph L5["L5 · 页面级组合（暂缓，未实现）"]
+    blocks["@fbkworks/blocks<br/>规划中，包尚不存在"]
   end
 
   subgraph L4["L4 · 业务组件"]
@@ -85,7 +85,7 @@ flowchart LR
   tokens["tokens"] --> shared["shared"] --> core["adapter-core"]
   core --> adapters["adapters/*"]
   core --> components["components"]
-  components --> blocks["blocks (P2)"]
+  components --> blocks["blocks（暂缓，未实现）"]
 
   adapters -. "禁止" .-> components
   components -. "禁止" .-> adapters
@@ -448,18 +448,57 @@ flowchart LR
 
 ## 13. 演进路线
 
+### 已完成的构建阶段
+
+| 阶段 | 内容 | 状态 |
+|---|---|---|
+| **P0 地基** | tokens · shared · adapter-core · 3 个适配器 · conformance · Playground · Docs | ✅ |
+| **P1 首批组件** | 计划 5 个，实际交付 **10 个** | ✅ 超额 |
+| **P2 推广治理** | resolver 包已就绪（映射改为生成）；其余项平移进下方 M2–M4 | 部分 |
+
+### 当前及之后：发布与治理
+
+构建阶段结束。12 个包、10 个业务组件、3 个适配器都在，**但没有一个发布过** ——
+所以路线图的主轴从「先做什么」换成「怎么发、怎么稳住」。
+
 ```mermaid
 flowchart LR
-  p0["P0 地基<br/>tokens · shared · adapter-core<br/>3 适配器 · conformance<br/>Playground · Docs"]
-  p1["P1 首批组件<br/>PageContainer → QueryForm<br/>→ FormGenerator → ProTable<br/>→ Descriptions"]
-  p2["P2 推广治理<br/>blocks · resolver 正式发布<br/>包体拆分 · 兼容矩阵<br/>a11y · API 快照"]
+  m1["M1 首发<br/>0.3.0 上 npm<br/>空项目接入验证<br/>自动发版可重复"]
+  m2["M2 契约稳定<br/>可选层实操一次<br/>公开 API 快照<br/>清能力位欠债"]
+  m3["M3 覆盖扩展<br/>移动端能力补齐<br/>更多图表类型"]
+  m4["M4 治理成熟<br/>视觉回归进 CI<br/>a11y<br/>包体积数据"]
 
-  p0 --> p1 --> p2
+  m1 --> m2 --> m3 --> m4
 
-  style p0 fill:#e8f7ee,stroke:#18a058
-  style p1 fill:#eef3ff,stroke:#2f6bff
-  style p2 fill:#f6f7f9,stroke:#c9ced6
+  style m1 fill:#eef3ff,stroke:#2f6bff
+  style m2 fill:#f6f7f9,stroke:#c9ced6
+  style m3 fill:#f6f7f9,stroke:#c9ced6
+  style m4 fill:#f6f7f9,stroke:#c9ced6
 ```
 
-当前状态：契约已到 `ADAPTER_API_VERSION = 3`（版本 2 补了 DatePicker / Radio 原语与命令式
-`feedback`，版本 3 补了 Drawer 原语），三个第一方适配器均已跟随。
+| 阶段 | 完成判据（没有门禁的「完成」不算完成） |
+|---|---|
+| **M1 首发** | registry 可安装；新建空项目按文档接入并跑通「列表 + 查询 + 表单 + 详情」；改一个 patch 能自动发版且 tag 正确 |
+| **M2 契约稳定** | 新增原语走可选层、**不升** `ADAPTER_API_VERSION`；公开 API 有快照基线；`pnpm check:capabilities` 的 strict 模式转绿（当前 11 条 `unverified`） |
+| **M3 覆盖扩展** | 新能力一律走可选层或 `chart-core` 的共享零件，不复制 |
+| **M4 治理成熟** | `scripts/visual/` 的 4 个脚本进 CI（当前 0 个）；全库 aria 覆盖；包体积有实测数据 |
+
+### 版本策略
+
+`fixed` 组**不再包含全部 12 个包**：
+
+| 分组 | 成员 | 语义 |
+|---|---|---|
+| UI 栈（锁步） | adapter-core · chart-core · 三个适配器 · components · dashboard · screen | 共享 `ADAPTER_API_VERSION` 契约，必须同号 |
+| 独立演进 | tokens · shared · data · resolver | 零下游契约耦合，补丁级修复可单独发布 |
+
+`components` 是汇点（依赖上面四个基础设施包），任何上游 **minor** 仍会逼它重发；
+但**补丁级**不越出 `^0.x` 范围，可以单发。破坏性变更仍需要协调——那种变更本来就该协调。
+
+`ADAPTER_API_VERSION = 3` 的现行含义：只在**改坏已有原语契约**时升。
+新增原语放进可选层不算破坏（`Drawer` 是第一个这样处理的）。
+
+### 明确搁置
+
+**`@fbkworks/blocks`（页面级组合）暂时不做。** 理由：地基的机制已稳，
+但 API 还没被真实消费方打磨过；此时做页面级组合会把未验证的组件 API 固化成更上层的契约。
