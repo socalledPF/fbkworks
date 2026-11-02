@@ -24,6 +24,15 @@ const componentsIndex = join(componentsDir, 'index.ts')
 const outputFile = join(root, 'packages', 'resolver', 'src', 'generated-map.ts')
 const checkOnly = process.argv.includes('--check')
 
+/**
+ * 比较前统一换行符。
+ *
+ * GitHub Actions 的 windows-latest 用 core.autocrlf 检出成 CRLF，
+ * 而生成器产出的是 LF —— 直接按字节比较会在 CI 上判成「不一致」，
+ * 本地（LF 工作树）却通过。换行符不是这里要校验的东西。
+ */
+const normalizeEol = (text) => text.replace(/\r\n/g, '\n')
+
 const toPascal = (dir) =>
   dir
     .split('-')
@@ -98,7 +107,7 @@ ${lines.join('\n')}
 
 if (checkOnly) {
   const current = existsSync(outputFile) ? readFileSync(outputFile, 'utf8') : ''
-  if (current !== generated) {
+  if (normalizeEol(current) !== normalizeEol(generated)) {
     console.error('[gen-resolver-map] 生成结果与现有文件不一致，请运行 pnpm gen:resolver-map')
     process.exit(1)
   }

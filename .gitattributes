@@ -1,0 +1,20 @@
+# 统一换行符为 LF。
+#
+# 起因：GitHub Actions 的 windows-latest 默认 core.autocrlf=true，会把代码检出成 CRLF。
+# 而 `pnpm check:style-index` / `check:resolver-map` 这类校验会**按内容比较生成结果**，
+# CRLF 与生成器产出的 LF 对不上，于是 CI 假红、本地却通过。
+#
+# 那两处校验已经改成比较前归一化换行符（见 scripts/gen-*.mjs），
+# 这里再把这个源头钉住：checkout 后一律 LF，不再依赖各人的 git 配置。
+* text=auto eol=lf
+
+# 二进制：不要参与换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

@@ -27,6 +27,15 @@ const checkOnly = process.argv.includes('--check')
 const START = '// <generated:components>'
 const END = '// </generated:components>'
 
+/**
+ * 比较前统一换行符。
+ *
+ * GitHub Actions 的 windows-latest 用 core.autocrlf 检出成 CRLF，
+ * 而生成器产出的是 LF —— 直接按字节比较会在 CI 上判成「不一致」，
+ * 本地（LF 工作树）却通过。换行符不是这里要校验的东西。
+ */
+const normalizeEol = (text) => text.replace(/\r\n/g, '\n')
+
 /** 有 style.css 的组件目录，按名字排序 */
 const components = readdirSync(componentsDir, { withFileTypes: true })
   .filter((e) => e.isDirectory() && existsSync(join(componentsDir, e.name, 'style.css')))
@@ -50,13 +59,15 @@ const indexContent = `/**
 ${components.map((name) => `@import '../${name}/style.css';`).join('\n')}
 `
 
+const playgroundSource = readFileSync(playgroundFile, 'utf8')
+const playgroundEol = playgroundSource.includes('\r\n') ? '\r\n' : '\n'
+
 const playgroundBlock = [
   START,
   ...components.map((name) => `import '@fbkworks/components/${name}/style.css'`),
   END,
-].join('\n')
+].join(playgroundEol)
 
-const playgroundSource = readFileSync(playgroundFile, 'utf8')
 const startAt = playgroundSource.indexOf(START)
 const endAt = playgroundSource.indexOf(END)
 if (startAt === -1 || endAt === -1 || endAt < startAt) {
@@ -68,8 +79,10 @@ const playgroundNext =
 
 if (checkOnly) {
   const stale = []
-  if (!existsSync(indexFile) || readFileSync(indexFile, 'utf8') !== indexContent) stale.push(indexFile)
-  if (playgroundNext !== playgroundSource) stale.push(playgroundFile)
+  if (!existsSync(indexFile) || normalizeEol(readFileSync(indexFile, 'utf8')) !== normalizeEol(indexContent)) {
+    stale.push(indexFile)
+  }
+  if (normalizeEol(playgroundNext) !== normalizeEol(playgroundSource)) stale.push(playgroundFile)
 
   if (stale.length) {
     console.error('[gen-style-entries] 以下文件与生成结果不一致，请运行 pnpm gen:style-index：')
