@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/sync-brand.mjs && vitepress dev",
-    "docs:build": "node scripts/sync-brand.mjs && vitepress build",
+    "dev": "node scripts/sync-brand.mjs && node scripts/gen-api.mjs && vitepress dev",
+    "docs:build": "node scripts/sync-brand.mjs && node scripts/gen-api.mjs && vitepress build",
     "preview": "vitepress preview",
     "gen:api": "node scripts/gen-api.mjs",
     "check:diagrams": "node scripts/check-mermaid.mjs"
@@ -31,6 +31,7 @@
     "@vitejs/plugin-vue-jsx": "^4.1.0",
     "vite": "^6.0.0",
     "vitepress": "^1.6.4",
+    "typescript": "^5.7.0",
     "vue-component-meta": "^3.3.0",
     "mermaid": "^11.0.0",
     "vitepress-plugin-mermaid": "^2.0.17"
