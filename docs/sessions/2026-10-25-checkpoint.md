@@ -19,6 +19,11 @@
 | 提交总数 | 35（2026-10-18 起） |
 | 未发布变更集 | 8 个（`.changeset/*.md`，README 除外） |
 
+> ⚠️ **上表是 2026-10-25 的快照，已经过期。** 当前状态见 [附录 F.8](#f8-当前状态)：
+> HEAD `efdb1ec`、`pnpm verify` **17 步**、**830 通过 + 1 skipped / 74 文件**、
+> **0 个未发布变更集**（12 个包已全部发布为 **0.3.0**）。
+> 保留上表是为了让读者看清状态是怎么演进的，不是为了当现状用。
+
 ---
 
 ## 一、项目是什么
@@ -75,13 +80,24 @@ tokens ← shared ← adapter-core ← components
 
 ## 四、门禁流水线
 
-`pnpm verify` = 14 步，顺序不可调（build 在前，产物检查在后）：
+`pnpm verify` = **17 步**，顺序不可调（build 在前，产物检查在后）：
 
 ```
 lint → lint:deps → typecheck → test → build → check:surface → check:styles
-→ check:style-entries → check:runtime-deps → check:packages → check:types
-→ check:consumer → check:diagrams → docs:build
+→ check:style-index → check:style-entries → check:runtime-deps
+→ check:packages → check:types → check:consumer → check:resolver-map
+→ check:publish-order → check:diagrams → docs:build
 ```
+
+其中 **3 步是 2026-10-28 那一轮新增的**，都属同一类：**校验「生成结果」是否与源头一致**。
+
+| 新增步骤 | 拦的是 |
+|---|---|
+| `check:style-index` | 组件目录改了、但两个样式入口没重新生成 |
+| `check:resolver-map` | resolver 映射与 `components` 的导出不一致 |
+| `check:publish-order` | 新增发布包没登记进 `publish-all.mjs` 的 `ORDER`，或拓扑序不成立 |
+
+它们都必须在**没跑过生成器**的状态下也能判断（比较前会归一化换行符，见附录 F.4）。
 
 不在 `verify` 里、但在 CI 里单独跑的两项：
 
@@ -89,6 +105,14 @@ lint → lint:deps → typecheck → test → build → check:surface → check:
 |---|---|
 | `verify:data-contract` | 起真实 HTTP 服务验证契约，只在 Linux 跑（验逻辑，与平台无关） |
 | `check:impact` | 只在 PR 上跑，`continue-on-error: true`——影响范围大不等于有问题 |
+
+另有三类命令**故意不放进 `verify`**：
+
+| 类别 | 命令 | 为什么不在门禁里 |
+|---|---|---|
+| 生成器 | `gen:style-index` `gen:resolver-map` `gen:chart-fixtures` | 门禁只做**校验**（`check:style-index` / `check:resolver-map`）；自动重写会让人永远看不到「我忘了重新生成」 |
+| strict 模式 | `check:capabilities` | 它把「未验证的能力位」也算失败，当前有 11 条欠债，进 `verify` 会长期红。**发版前手动跑** |
+| 发布 | `release` `version-packages` | 由 CI 的 `changesets/action` 驱动，见附录 F.3 |
 
 `check:impact` 的**退出码永远是 0**（脚本自身出错除外）。
 如果影响大就卡 CI，团队会开始「为了过 CI 而拆小 PR」，反而让变更更难审查。
@@ -340,33 +364,50 @@ export type TableResponse<T> = Omit<Page<T>, 'total'> & { total?: number }
 
 ## 九、未完成与待决策
 
-| 项 | 状态 | 阻塞点 |
-|---|---|---|
-| **P4-2 详情抽屉** | 待决策 | 抽屉 vs 页面跳转，需要产品口径（**唯一有实质内容的剩余项**） |
-| 8 个变更集未发布 | 待决策 | 发布节奏由用户定，`.changeset/` 已备好 |
-| `request-adapters` | 明确不做 | 用户决策跳过 |
-| 角色 → 权限点映射 | 不做 | 那是应用的用户体系，库不该知道 |
+> **本节已全部结清。当前待办见 [附录 F.9](#f9-剩余待办)。**
 
-**P4 剩余项没有排期**。P4-1 / P4-3 已落地，P4-2 是唯一有实质内容的剩余项。
+| 项 | 当时的判断 | 后来的结果 |
+|---|---|---|
+| **P4-2 详情抽屉** | 待决策（抽屉 vs 页面跳转） | ✅ **已做**。选了「抽屉原语 + `FbkDetailDrawer`」，内容区整体复用 `FbkDetailPage`；`Drawer` 随后被改为**可选原语**（见附录 F.2） |
+| 8 个变更集未发布 | 待决策，卡发布节奏 | ✅ **已发布** 0.3.0，12 个包全部上 npm（附录 F.3） |
+| `request-adapters` | 明确不做 | 维持不做 |
+| 角色 → 权限点映射 | 不做 | 维持不做 |
+
+原计划里的「P4 剩余项没有排期」也失效了——P4 全部落地后，
+路线图在附录 F 里改成了「发布与治理」四段（M1 首发 / M2 契约稳定 / M3 覆盖扩展 / M4 治理成熟）。
 
 ## 十、如何复现本文所有数字
 
 ```bash
-pnpm verify                # 14 步门禁，600 用例
-pnpm check:styles          # 9 个组件样式均已接入
+# —— 当前口径（附录 F 之后）——
+pnpm verify                # 17 步门禁，830 通过 + 1 skipped / 74 文件
+pnpm check:styles          # 9 个组件样式均已接入 + 布局声明无遗漏
+pnpm check:style-index     # 两个样式入口的生成结果是否与组件目录一致
+pnpm check:resolver-map    # resolver 映射是否与 components 的导出（10 个组件）一致
+pnpm check:publish-order   # 发布清单与拓扑序（12 个公开包）
+pnpm check:capabilities    # strict：未验证的能力位也算失败（当前 11 条）
 pnpm check:style-entries   # 9 个包 / 3 个应用入口
 pnpm check:impact          # 变更影响分析（退出码永远 0）
 pnpm verify:data-contract  # 起真实 HTTP，45 条断言
+git tag | grep -c 0.3.0    # 12（已发布）
 ```
+
+> 本文档正文里的历史数字（600 用例 / 44 文件等）是各轮当时的实测，
+> 与上面这份**当前口径**不同是正常的。要看随时可复现的现值，用这段。
 
 单独看某个数字：
 
 ```bash
-git log --oneline | wc -l                              # 35
-ls .changeset/*.md | grep -v README | wc -l            # 8
-find packages tests -name '*.spec.ts' -not -path '*/node_modules/*' | wc -l   # 44
-grep -c "group:" packages/internal/demos/src/registry.ts                      # 15
+# 当前值（2026-10-28 附录 F 之后）
+git log --oneline | wc -l                                                     # 70
+ls .changeset/*.md 2>/dev/null | grep -v README | wc -l                       # 0
+find packages tests apps -name '*.spec.ts' -not -path '*/node_modules/*' | wc -l   # 74
+grep -c 'group:' packages/internal/demos/src/registry.ts                      # 16
+ls packages/components/src | grep -vE 'index.ts|styles' | wc -l               # 10（业务组件）
+git tag | grep -c '0.3.0'                                                     # 12（已发布）
 ```
+
+> 原文这里是 35 / 8 / 44 / 15 —— 那是 2026-10-25 的值，已随附录 F 更新。
 
 ## 十一、协作约定
 
@@ -616,11 +657,11 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 
 | 项 | 状态 |
 |---|---|
-| **发布 0.2.0** | P4-2 已完成，发布已解锁。当前 **14 个变更集**，涉及全部 12 个包 |
+| **发布 0.2.0** | ✅ 已由附录 F.3 完成——**实际发的是 0.3.0**（fixed 组取最高 bump 级别）。12 个包全部上 npm |
 | `FbkProvider` 在 element-plus 下的包裹 div | 三家现在都是「一层包裹元素」（vant/naive 的 ConfigProvider 本来就有），已对称。若布局依赖 `height:100%` 链需自行补高度 |
 | F2 测试基座迁移 | 用户决策暂缓：组件测试仍全跑 `createMockAdapter`，48 处断言依赖 mock 私有标记 |
 | vant 移动端排序入口 | `sort: 'none'` + `skip: ['sort']`，补齐需产品方案 |
-| `ADAPTER_API_VERSION = 3` | 破坏性变更。第三方适配器必须实现 `Drawer` 并升版 |
+| `ADAPTER_API_VERSION = 3` | ⚠️ **本条已被附录 F.2 推翻**。`Drawer` 现在是**可选**原语，不再必填，也不升版本号。现行判据：版本号升 ⟺ 改坏已有原语的契约；新增原语会破版，减少约束不会 |
 
 
 ---
