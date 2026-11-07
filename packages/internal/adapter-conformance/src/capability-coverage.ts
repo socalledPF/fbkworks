@@ -10,6 +10,11 @@
  *
  *   · `{ marker: '...' }`    一致性套件里有对应用例（源码里打 `@capability` 标记）
  *   · `{ static: ... }`      适配器对象上成员存在即可判定
+ *   · `{ browserOnly: ... }`  jsdom 里测不出来，但**真实浏览器里有验证**，
+ *                            必须指明脚本路径；脚本必须存在且含对应 `@capability` 标记
+ *
+ * `browserOnly` 与 `unverified` 的区别就是「环境测不了」和「没人负责」的区别：
+ * 前者有可执行的验证，只是跑在浏览器里；后者什么都没有。strict 只放行前者。
  *   · `{ unverified: '...' }` 暂时没有验证，写明原因 —— 这是显性的欠债，不是放过
  *
  * 「真值」的定义（见 capability-coverage.spec.ts）：
@@ -22,6 +27,7 @@
 export type CapabilityCoverage =
   | { marker: string }
   | { static: (adapter: any) => unknown }
+  | { browserOnly: { reason: string; script: string } }
   | { unverified: string }
 
 /** 纯描述性枚举：描述选择而非能力开关，不要求覆盖 */
@@ -50,13 +56,25 @@ export const CAPABILITY_COVERAGE: Record<string, CapabilityCoverage> = {
   'overlay.supportsDrawer': { static: (a) => Boolean(a.primitives?.Drawer) },
 
   // ── 显性欠债：声明了，但目前没有任何验证 ──────────────────────
-  'form.labelWidth': { unverified: '标签宽度只有视觉差异，jsdom 量不出来，需要浏览器断言' },
-  'form.asyncValidator': { unverified: '异步校验的时序无法在一致性套件里稳定断言' },
+  'form.labelWidth': {
+    browserOnly: {
+      reason: '标签宽度只有视觉结果，jsdom 没有布局引擎量不出来',
+      script: 'scripts/visual/verify-form-capabilities.py',
+    },
+  },
+  'form.asyncValidator': {
+    browserOnly: {
+      reason: '异步校验器的结算与错误文案回填依赖真实事件循环',
+      script: 'scripts/visual/verify-form-capabilities.py',
+    },
+  },
   'form.validateOn': {
-    unverified:
-      'jsdom 下测不出来：实测 element-plus 在 jsdom 里，即便**不经过适配器**直接用 ElForm + ' +
-      'required 规则 + 空值，validate() 也返回 true（见 2026-10-28 附录 F 的调查）。' +
-      '这是环境限制而非适配器缺陷，需要浏览器断言。',
+    browserOnly: {
+      reason:
+        'jsdom 下 element-plus 的 validate() 即便不经过适配器、直接用 ElForm + required 规则也返回 true，' +
+        '属于环境限制而非适配器缺陷',
+      script: 'scripts/visual/verify-form-capabilities.py',
+    },
   },
   'overlay.supportsTeleport': { marker: 'overlay.supportsTeleport' },
   'pagination.pageSizes': { marker: 'pagination.pageSizes' },

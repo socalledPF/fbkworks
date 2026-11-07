@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Capabilities, UiAdapter } from '@fbkworks/adapter-core'
 import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
@@ -102,6 +102,30 @@ describe('能力位与实现的绑定', () => {
     expect(orphans, `孤儿标记：${orphans.join(', ')}`).toEqual([])
   })
 
+  /* browserOnly 不是「免责声明」—— 它必须指向**真实存在且真的在验证**的脚本。
+     判据是脚本里带 `# @capability <key>` 标记，与一致性套件里那套标记同一个思路：
+     只写个路径字符串不算交代。 */
+  it('每个 browserOnly 条目引用的脚本都存在，且含对应的 @capability 标记', () => {
+    const repoRoot = resolve(import.meta.dirname, '../../../..')
+    const broken: string[] = []
+
+    for (const [capability, coverage] of Object.entries(CAPABILITY_COVERAGE)) {
+      if (!('browserOnly' in coverage)) continue
+      const { script } = coverage.browserOnly
+      const file = resolve(repoRoot, script)
+
+      if (!existsSync(file)) {
+        broken.push(`${capability} → 脚本不存在：${script}`)
+        continue
+      }
+      if (!readFileSync(file, 'utf8').includes(`@capability ${capability}`)) {
+        broken.push(`${capability} → ${script} 里没有对应的 @capability 标记`)
+      }
+    }
+
+    expect(broken, `以下 browserOnly 条目的浏览器验证不可核对：\n${broken.join('\n')}`).toEqual([])
+  })
+
   it('静态可判定的能力位在声明它的适配器上确实存在', () => {
     const broken: string[] = []
     for (const [path, coverage] of Object.entries(CAPABILITY_COVERAGE)) {
@@ -114,6 +138,8 @@ describe('能力位与实现的绑定', () => {
     expect(broken, broken.join('\n')).toEqual([])
   })
 
+  /* strict 只统计 unverified（「没人负责」），browserOnly 不算欠债 ——
+     后者有可执行的浏览器验证，由上面那条用例核对。 */
   it(`未验证的能力位（${strict ? 'strict：必须为 0' : '普通模式：仅记录'}）`, () => {
     /* 只看**当前活跃**的能力位：
        一个三位第一方适配器都已不再声明的能力（比如降级为 false 的 table.summary）

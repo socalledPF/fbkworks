@@ -845,7 +845,7 @@ fixed 组 = 8 个 UI 栈包
 | 项 | 现状 |
 |---|---|
 | ~~`scripts/verify-fresh-clone.mjs`~~ | ✅ **已做**（`pnpm verify:fresh`）。克隆到临时目录 → `install --frozen-lockfile` → `pnpm verify`，实测约 243s。**故意不进 CI**（CI 本身就是全新克隆）；克隆时强制 `core.autocrlf=true`，顺带把 `.gitattributes` 也变成有回归测试的东西 |
-| `check:capabilities` strict 转绿 | 仍有 **11 条 `unverified`** |
+| `check:capabilities` strict 转绿 | **11 → 3 条**。三条表单能力位已改为 `browserOnly`（有真实浏览器验证，脚本为 `scripts/visual/verify-form-capabilities.py`，机制会核对脚本存在且含 `@capability` 标记）。剩 `pagination.mode` / `theme.cssVariables` / `features.table.fixedColumns` |
 | 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
 | 视觉回归进 CI | `scripts/visual/` 4 个脚本，**0 个在 CI** |
