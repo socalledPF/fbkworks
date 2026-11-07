@@ -35,6 +35,7 @@
     "gen:resolver-map": "node scripts/gen-resolver-map.mjs",
     "check:resolver-map": "node scripts/gen-resolver-map.mjs --check",
     "check:capabilities": "node scripts/check-capabilities.mjs",
+    "verify:fresh": "node scripts/verify-fresh-clone.mjs",
     "gen:style-index": "node scripts/gen-style-entries.mjs",
     "gen:chart-fixtures": "node scripts/gen-chart-fixtures.mjs",
     "check:style-index": "node scripts/gen-style-entries.mjs --check",

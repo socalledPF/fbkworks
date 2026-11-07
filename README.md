@@ -83,6 +83,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
 | `pnpm check:capabilities` | strict 模式：把「未验证的能力位」也算失败，发版前跑 |
+| `pnpm verify:fresh` | 在**全新克隆**里跑一遍完整 CI（实测 171–243s）。三次 CI 事故都是「本地通、全新克隆挂」，这是唯一能根治的手段 |
 
 ## 文档同步
 

@@ -770,7 +770,10 @@ npm registry: @fbkworks/components@0.3.0 可查
 
 **修复方式各不相同，但验证方式应该统一**：第 3 次我是用 `git -c core.autocrlf=true clone` 到临时目录、
 跑完整的 `pnpm install --frozen-lockfile && pnpm verify` 才敢推。
-**这一条应该固化成脚本**（`scripts/verify-fresh-clone.mjs`），目前还没做。
+**已固化成 `pnpm verify:fresh`**（`scripts/verify-fresh-clone.mjs`）：克隆到临时目录 →
+`install --frozen-lockfile` → `pnpm verify`，实测 243s。
+克隆时**强制 `core.autocrlf=true`**，顺带让 `.gitattributes` 也有了回归测试。
+它故意不进 CI —— CI 本身就是全新克隆，重复跑没有信息增量。
 
 同时加了 `.gitattributes`（`* text=auto eol=lf`）从源头钉住行尾；
 生成器比较前也做换行符归一化（两层保险）。
@@ -841,7 +844,7 @@ fixed 组 = 8 个 UI 栈包
 
 | 项 | 现状 |
 |---|---|
-| `scripts/verify-fresh-clone.mjs` | 未做。三次 CI 事故都源于「本地 ≠ 全新克隆」，这是唯一能根治的手段 |
+| ~~`scripts/verify-fresh-clone.mjs`~~ | ✅ **已做**（`pnpm verify:fresh`）。克隆到临时目录 → `install --frozen-lockfile` → `pnpm verify`，实测约 243s。**故意不进 CI**（CI 本身就是全新克隆）；克隆时强制 `core.autocrlf=true`，顺带把 `.gitattributes` 也变成有回归测试的东西 |
 | `check:capabilities` strict 转绿 | 仍有 **11 条 `unverified`** |
 | 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
