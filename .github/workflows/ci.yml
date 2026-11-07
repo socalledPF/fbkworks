@@ -80,6 +80,11 @@ jobs:
       - name: resolver 映射与组件导出一致
         run: pnpm check:resolver-map
 
+      # 能力位必须交代验证责任，且「未验证」必须为 0。
+      # 它此前长期红着（11 条欠债）所以没进门禁；欠债清零后钉死在这里。
+      - name: 能力位覆盖（strict）
+        run: pnpm check:capabilities
+
       # 发布清单与拓扑序：新增发布包却忘了登记进 ORDER，在这里就红，
       # 而不是等到发版时才发现依赖的包从未上架。
       - name: 发布清单与顺序

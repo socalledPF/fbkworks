@@ -3,6 +3,7 @@
 # @capability form.labelWidth
 # @capability form.validateOn
 # @capability form.asyncValidator
+# @capability pagination.mode
 
 这三条在 jsdom 里测不出来，因此不在一致性套件里，而是由本脚本在真实浏览器中覆盖。
 
@@ -124,6 +125,29 @@ with sync_playwright() as p:
             check("form.asyncValidator 异步校验结果生效", shown)
         else:
             print("  SKIP  form.asyncValidator（适配器声明 false）")
+
+        # ---- pagination.mode（只有声明 infinite 的适配器需要验）----
+        if caps["pagination"]["mode"] == "infinite":
+            scroll_page = browser.new_page(viewport={"width": 1280, "height": 900})
+            scroll_page.goto(f"{BASE}?adapter={adapter}&scroll=1", wait_until="networkidle")
+            scroll_page.wait_for_timeout(700)
+            # 真实浏览器里滚动是真的：连续滚到底，给 van-list 的触底检查留时间
+            for _ in range(3):
+                scroll_page.evaluate(
+                    """() => {
+                      const el = document.querySelector('[data-probe-scroll]')
+                      if (el) el.scrollTop = el.scrollHeight
+                    }"""
+                )
+                scroll_page.wait_for_timeout(400)
+            loads = scroll_page.evaluate(
+                "() => Number(document.querySelector('[data-probe-load-count]')"
+                "?.getAttribute('data-probe-load-count') ?? '0')"
+            )
+            check("pagination.mode 触底触发 load-more", loads > 0, f"loads={loads}")
+            scroll_page.close()
+        else:
+            print("  SKIP  pagination.mode（适配器不是 infinite）")
 
         page.close()
     browser.close()

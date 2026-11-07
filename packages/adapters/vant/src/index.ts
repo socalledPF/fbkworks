@@ -39,7 +39,7 @@ export const vantCapabilities: Capabilities = {
   pagination: { mode: 'infinite', pageSizes: false, jumper: false },
   // 只有契约里真实存在的两个 API；notification / loading 没有对应实现，不声明
   feedback: { message: true, notification: false, confirm: true, loading: false },
-  theme: { darkMode: true, cssVariables: true, provider: true },
+  theme: { darkMode: true, provider: true },
   features: { 'table.fixedColumns': false, 'table.summary': false, 'form.inline': false },
 }
 

@@ -40,7 +40,7 @@ export const naiveCapabilities: Capabilities = {
   pagination: { mode: 'pages', pageSizes: true, jumper: true },
   // 只有契约里真实存在的两个 API；notification / loading 没有对应实现，不声明
   feedback: { message: true, notification: false, confirm: true, loading: false },
-  theme: { darkMode: true, cssVariables: false, provider: true },
+  theme: { darkMode: true, provider: true },
   /* `table.summary` 与 `form.inline` 此前声明为 true，但全仓零实现：
      DataGridProps 没有合计行相关字段，FormProps 也没有 inline 布局。
      声明 true 会让业务侧按能力分支却拿到不存在的能力。等真做时再改回 true。 */

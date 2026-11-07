@@ -73,6 +73,8 @@ export function runAdapterConformance(options: ConformanceOptions): void {
        jsdom 下不展开就不在 DOM —— 所以只能断言容器，断言不到具体数字。 */
     /* naive 没有专门的类名，每页条数走 NSelect —— 用 `.n-pagination .n-select` 定位。 */
     pageSizeSelector: '.el-pagination__sizes, .n-pagination .n-select',
+    /* 固定列：element-plus 用 `fixed-column--` 前缀，naive 用 `data-table-t[dh]--fixed-`。 */
+    fixedColumn: '[class*="fixed-column--"], [class*="data-table-td--fixed-"], [class*="data-table-th--fixed-"]',
     loading: '[data-fbk-part="loading"]',
     sortTrigger: '.caret-wrapper, .n-data-table-sorter',
     /* 「从右侧还是底部打开」只能靠各家自己的方位标记确认 ——
@@ -367,6 +369,27 @@ export function runAdapterConformance(options: ConformanceOptions): void {
         })
         await flushPromises()
         expect(wrapper.findAll('input').length).toBeGreaterThan(baseline)
+        wrapper.unmount()
+      },
+    )
+
+    // @capability features.table.fixedColumns
+    itIfCapability(Boolean(adapter.capabilities.features['table.fixedColumns']))(
+      'DataGrid 支持固定列（features: table.fixedColumns）',
+      async () => {
+        const wrapper = mount(p.DataGrid, {
+          columns: [
+            { key: 'name', title: '名称', dataIndex: 'name', fixed: 'left' },
+            { key: 'age', title: '年龄', dataIndex: 'age' },
+          ],
+          data: rows,
+          rowKey: 'id',
+        })
+        await flushPromises()
+        expect(
+          wrapper.find(selectors.fixedColumn).exists(),
+          '声明支持固定列，但渲染结果里没有固定列的标记',
+        ).toBe(true)
         wrapper.unmount()
       },
     )

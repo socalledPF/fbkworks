@@ -83,6 +83,58 @@ const rawInput = params.get('input') === 'raw'
    区分问题在 Form 适配层还是 FormItem 适配层 */
 const rawItem = params.get('item') === 'raw'
 
+/* `?scroll=1`：无限滚动探针。jsdom 里 scrollHeight 恒为 0，van-list 的触底检测
+   根本不会触发；真实浏览器里可以把列表滚到底。 */
+const scrollMode = params.get('scroll') === '1'
+const loadCount = reactive({ value: 0 })
+
+const scrollRows = Array.from({ length: 30 }, (_, index) => ({
+  id: index + 1,
+  name: 'Row ' + (index + 1),
+  age: 20 + index,
+}))
+const scrollColumns = [
+  { key: 'name', title: '名称', dataIndex: 'name' },
+  { key: 'age', title: '年龄', dataIndex: 'age' },
+]
+
+const ScrollProbe = {
+  name: 'FbkScrollProbe',
+  setup() {
+    return () =>
+      h(
+        'div',
+        {
+          'data-fbk-probe': 'scroll',
+          'data-adapter': adapter.meta.name,
+          'data-capabilities': JSON.stringify(adapter.capabilities),
+        },
+        [
+          h(
+            'div',
+            {
+              'data-probe-scroll': 'list',
+              style: 'height: 400px; overflow-y: auto; border: 1px solid #ccc;',
+            },
+            [
+              h(p.DataGrid, {
+                columns: scrollColumns,
+                data: scrollRows,
+                rowKey: 'id',
+                loadMore: true,
+                finished: false,
+                onLoadMore: () => {
+                  loadCount.value += 1
+                },
+              }),
+            ],
+          ),
+          h('div', { 'data-probe-load-count': String(loadCount.value) }, 'loads: ' + loadCount.value),
+        ],
+      )
+  },
+}
+
 const Probe = {
   name: 'FbkFormProbe',
   setup() {
@@ -140,4 +192,4 @@ const Probe = {
   },
 }
 
-createApp(Probe).mount('#app')
+createApp(scrollMode ? ScrollProbe : Probe).mount('#app')

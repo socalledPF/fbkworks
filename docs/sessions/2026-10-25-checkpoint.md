@@ -20,7 +20,7 @@
 | 未发布变更集 | 8 个（`.changeset/*.md`，README 除外） |
 
 > ⚠️ **上表是 2026-10-25 的快照，已经过期。** 当前状态见 [附录 F.8](#f8-当前状态)：
-> HEAD `efdb1ec`、`pnpm verify` **17 步**、**830 通过 + 1 skipped / 74 文件**、
+> HEAD `7e403a4`、`pnpm verify` **18 步**、**840 通过 + 4 skipped / 74 文件**、
 > **0 个未发布变更集**（12 个包已全部发布为 **0.3.0**）。
 > 保留上表是为了让读者看清状态是怎么演进的，不是为了当现状用。
 
@@ -80,13 +80,13 @@ tokens ← shared ← adapter-core ← components
 
 ## 四、门禁流水线
 
-`pnpm verify` = **17 步**，顺序不可调（build 在前，产物检查在后）：
+`pnpm verify` = **18 步**，顺序不可调（build 在前，产物检查在后）：
 
 ```
 lint → lint:deps → typecheck → test → build → check:surface → check:styles
 → check:style-index → check:style-entries → check:runtime-deps
 → check:packages → check:types → check:consumer → check:resolver-map
-→ check:publish-order → check:diagrams → docs:build
+→ check:capabilities → check:publish-order → check:diagrams → docs:build
 ```
 
 其中 **3 步是 2026-10-28 那一轮新增的**，都属同一类：**校验「生成结果」是否与源头一致**。
@@ -111,7 +111,6 @@ lint → lint:deps → typecheck → test → build → check:surface → check:
 | 类别 | 命令 | 为什么不在门禁里 |
 |---|---|---|
 | 生成器 | `gen:style-index` `gen:resolver-map` `gen:chart-fixtures` | 门禁只做**校验**（`check:style-index` / `check:resolver-map`）；自动重写会让人永远看不到「我忘了重新生成」 |
-| strict 模式 | `check:capabilities` | 它把「未验证的能力位」也算失败，当前有 11 条欠债，进 `verify` 会长期红。**发版前手动跑** |
 | 发布 | `release` `version-packages` | 由 CI 的 `changesets/action` 驱动，见附录 F.3 |
 
 `check:impact` 的**退出码永远是 0**（脚本自身出错除外）。
@@ -380,7 +379,7 @@ export type TableResponse<T> = Omit<Page<T>, 'total'> & { total?: number }
 
 ```bash
 # —— 当前口径（附录 F 之后）——
-pnpm verify                # 17 步门禁，830 通过 + 1 skipped / 74 文件
+pnpm verify                # 18 步门禁，840 通过 + 4 skipped / 74 文件
 pnpm check:styles          # 9 个组件样式均已接入 + 布局声明无遗漏
 pnpm check:style-index     # 两个样式入口的生成结果是否与组件目录一致
 pnpm check:resolver-map    # resolver 映射是否与 components 的导出（10 个组件）一致
@@ -677,7 +676,7 @@ git tag | grep -c '0.3.0'                                                     # 
 
 | 位置 | 前文写的 | 现状 |
 |---|---|---|
-| §四 门禁流水线 | `pnpm verify` = **14 步** | **17 步**（新增 `check:style-index` / `check:resolver-map` / `check:publish-order`） |
+| §四 门禁流水线 | `pnpm verify` = **14 步** | **18 步**（新增 `check:style-index` / `check:resolver-map` / `check:publish-order` / `check:capabilities`） |
 | §九 未完成 | 「8 个变更集未发布」「P4-2 待决策」 | **已全部发布为 0.3.0**；P4-2（详情抽屉）已完成 |
 | §七 / 八 | 原语 15 个，全部必填 | **13 个必填 + 1 个可选**（`Empty` 移除，`Drawer` 改为可选） |
 | 全文 | 测试 791 / 70 文件 | **830 通过 + 1 skipped / 74 文件** |
@@ -845,7 +844,7 @@ fixed 组 = 8 个 UI 栈包
 | 项 | 现状 |
 |---|---|
 | ~~`scripts/verify-fresh-clone.mjs`~~ | ✅ **已做**（`pnpm verify:fresh`）。克隆到临时目录 → `install --frozen-lockfile` → `pnpm verify`，实测约 243s。**故意不进 CI**（CI 本身就是全新克隆）；克隆时强制 `core.autocrlf=true`，顺带把 `.gitattributes` 也变成有回归测试的东西 |
-| `check:capabilities` strict 转绿 | **11 → 3 条**。三条表单能力位已改为 `browserOnly`（有真实浏览器验证，脚本为 `scripts/visual/verify-form-capabilities.py`，机制会核对脚本存在且含 `@capability` 标记）。剩 `pagination.mode` / `theme.cssVariables` / `features.table.fixedColumns` |
+| ~~`check:capabilities` strict 转绿~~ | ✅ **已归零并钉进门禁**（第 15 步）。路径：11 条欠债 → 修 4 个真缺陷 → 4 条 `browserOnly`（指向 `scripts/visual/verify-form-capabilities.py`，机制核对脚本存在且含标记）→ `pagination.mode` 用浏览器滚动验掉 → `features.table.fixedColumns` 进一致性套件 → `theme.cssVariables` 删除（零消费者且语义与可观测证据冲突） |
 | 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
 | 视觉回归进 CI | `scripts/visual/` 4 个脚本，**0 个在 CI** |

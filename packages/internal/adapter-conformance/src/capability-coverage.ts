@@ -79,11 +79,17 @@ export const CAPABILITY_COVERAGE: Record<string, CapabilityCoverage> = {
   'overlay.supportsTeleport': { marker: 'overlay.supportsTeleport' },
   'pagination.pageSizes': { marker: 'pagination.pageSizes' },
   'pagination.jumper': { marker: 'pagination.jumper' },
-  'pagination.mode': { unverified: '无限滚动的触底加载尚未进一致性套件' },
-  'theme.cssVariables': { unverified: '「是否用 CSS 变量」是实现描述，没有可观测行为' },
+  'pagination.mode': {
+    browserOnly: {
+      reason:
+        'jsdom 没有布局：van-list 的触底检测依赖真实 scrollHeight / scrollTop / clientHeight，' +
+        '实测派发 scroll 事件也不会触发 load，只能在真实浏览器里滚到底',
+      script: 'scripts/visual/verify-form-capabilities.py',
+    },
+  },
 
   // features 是细粒度可选能力的开放集合
-  'features.table.fixedColumns': { unverified: '固定列尚未进一致性套件' },
+  'features.table.fixedColumns': { marker: 'features.table.fixedColumns' },
   /* `features.table.summary` 与 `features.form.inline` 已从表中移除：
      两者全仓零实现，三个适配器都已声明为 false，不再需要验证责任。
      将来谁把它们改回 true，「完整性」用例会立刻要求补覆盖 —— 这是设计好的路径。 */

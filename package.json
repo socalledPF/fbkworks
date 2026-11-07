@@ -42,7 +42,7 @@
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:styles && pnpm check:style-index && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:styles && pnpm check:style-index && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbkworks/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbkworks/docs check:diagrams"
   },

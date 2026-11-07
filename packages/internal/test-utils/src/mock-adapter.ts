@@ -39,7 +39,7 @@ export const defaultMockCapabilities: Capabilities = {
   // 与真实适配器对齐：notification / loading 在 FeedbackApi 契约里没有对应成员，
   // 基座若声明 true，会让「读 capabilities 再调 API」的代码在测试里走进真实环境不存在的分支。
   feedback: { message: true, notification: false, confirm: true, loading: false },
-  theme: { darkMode: true, cssVariables: true, provider: false },
+  theme: { darkMode: true, provider: false },
   features: {},
 }
 

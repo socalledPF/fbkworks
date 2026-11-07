@@ -65,7 +65,6 @@ export interface Capabilities {
   }
   theme: {
     darkMode: boolean
-    cssVariables: boolean
     provider: boolean
   }
   /** 细粒度可选能力，业务组件按 key 探测 */

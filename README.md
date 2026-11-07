@@ -71,6 +71,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:types` | attw（ESM-only profile） |
 | `pnpm check:consumer` | 消费者烟雾测试：按 exports 解析已构建产物 |
 | `pnpm check:resolver-map` | resolver 映射是否与 `components` 的导出一致 |
+| `pnpm check:capabilities` | 每个能力位都要交代验证责任，且「未验证」必须为 0 |
 | `pnpm check:publish-order` | 发布清单与拓扑序（新增发布包却忘了登记会在这里红） |
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
@@ -82,7 +83,6 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm gen:style-index` | 新增/删除组件后，重新生成两个样式入口 |
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
-| `pnpm check:capabilities` | strict 模式：把「未验证的能力位」也算失败，发版前跑 |
 | `pnpm verify:fresh` | 在**全新克隆**里跑一遍完整 CI（实测 171–243s）。三次 CI 事故都是「本地通、全新克隆挂」，这是唯一能根治的手段 |
 
 ## 文档同步
