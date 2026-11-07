@@ -621,3 +621,195 @@ grep -c "group:" packages/internal/demos/src/registry.ts                      # 
 | F2 测试基座迁移 | 用户决策暂缓：组件测试仍全跑 `createMockAdapter`，48 处断言依赖 mock 私有标记 |
 | vant 移动端排序入口 | `sort: 'none'` + `skip: ['sort']`，补齐需产品方案 |
 | `ADAPTER_API_VERSION = 3` | 破坏性变更。第三方适配器必须实现 `Drawer` 并升版 |
+
+
+---
+
+## 附录 F：架构改造六项 + 首发 0.3.0（2026-10-28 续，第三轮）
+
+> 本轮起点是「架构层面还有没有改进空间」这个问题。
+> 走了六项改造 → 文档重写 → 三次 CI 修复 → **0.3.0 首次发布成功**。
+>
+> **先读这一节的勘误**，它覆盖前文若干已过时的数字。
+
+### F.0 勘误：前文这些数字已经不对
+
+| 位置 | 前文写的 | 现状 |
+|---|---|---|
+| §四 门禁流水线 | `pnpm verify` = **14 步** | **17 步**（新增 `check:style-index` / `check:resolver-map` / `check:publish-order`） |
+| §九 未完成 | 「8 个变更集未发布」「P4-2 待决策」 | **已全部发布为 0.3.0**；P4-2（详情抽屉）已完成 |
+| §七 / 八 | 原语 15 个，全部必填 | **13 个必填 + 1 个可选**（`Empty` 移除，`Drawer` 改为可选） |
+| 全文 | 测试 791 / 70 文件 | **830 通过 + 1 skipped / 74 文件** |
+
+前文其余部分（依赖规则、令牌、协作约定）仍然有效。
+
+### F.1 六项架构改造
+
+用一句话概括这个项目的**结构性病根**：
+
+> 同一份事实被手工抄写多遍，且没有任何机制把它和实现绑在一起。
+
+26 个缺陷里有 11 个属于「声明与实现脱节」，根子都在这里。六项改造针对的**不是 bug，是「这类 bug 能被写出来」的可能性**。
+
+| 项 | 提交 | 消除的缺陷类别 | 抓到的既有缺陷 |
+|---|---|---|---|
+| **A3** 通用 alias 推导 | `8f190a0` | 三份 vite 配置漂移 | `detail-drawer` **没进 components 的 exports**，也没 vite entry —— 按原样发 0.3.0 消费者会 `ERR_PACKAGE_PATH_NOT_EXPORTED` |
+| **A2** resolver 映射生成 | `5ae584b` | 硬编码名单（映射与测试同源，「一起漏」永远不红） | `FbkDetailDrawer` **从未注册**，自动导入静默失效 |
+| **B1** 能力位校验 | `1713bd7` | 声明了不实现 | **7 处**「声明 true、零实现」，且 `DataGridProps` 里连 prop 都没有 |
+| **A1** 样式清单生成 | `c19fd84` | 手工登记必漏 | 生成前已被 `check:styles` 拦住，价值在「把检测换成不可能出错」 |
+| **D** 图表零件下沉 | `7f1dd87` | 平行实现各自演化 | **7 处**硬编码调色板长度（调色板一改长度就静默变黑） |
+| **C** 可选原语层 | `e7618b7` | 新增原语必破版 | —— |
+| （额外）移除 `Empty` | `899a1a6` | 零消费者却必填 | 业务层无入口、适配器层不需要（自引用） |
+
+**共同设计原则**（这一轮反复用到，值得记住）：
+
+1. **能推导的不要手写**（alias / 映射 / 清单由文件系统与 exports 生成）
+2. **必须手写的要有门禁**（且门禁本身要能被证伪——这一轮做过 4 次变异实验）
+3. **抽走的是「同一份事实的副本」，留下的是「有意的差异」**（D 刻意没抽轴/grid/legend）
+4. **显式失败优于静默降级**，但「可选」≠「降级」：可选 = 缺了**大声报错并给出替代方案**
+
+### F.2 C 方案的核心判据（新增的架构规则）
+
+`ADAPTER_API_VERSION` 从前是「全必填，加一个破一次版」（v2 加 DatePicker/Radio、v3 加 Drawer 都是纯新增却必须破版）。
+
+现在确立：
+
+> **版本号升 ⟺ 已有原语的 props / 事件 / expose 发生不兼容变化。**
+> **新增原语会破版（旧适配器缺成员），减少约束不会。**
+
+因此新增能力应放进**可选层**：
+
+- 必填（13 个）：缺了 → 启动即失败
+- 可选（`Drawer`）：缺了 → 只有 `FbkDetailDrawer` 在 mount 时报错，并指向 `FbkDetailPage`
+
+判据三条（全满足才进可选层）：① 缺了主要场景仍能交付 ② 同一需求有**官方完整替代** ③ 缺失能大声报错。
+**注意「替代 ≠ 降级」**：缺抽屉 → 换整页（功能完整）；缺日期选择器 → 退化成文本框（看起来能用、行为不同）。
+
+### F.3 首发 0.3.0（本轮最大成果）
+
+`.changeset/config.json` 的 `fixed` 组按**档 B** 拆分：
+
+| 分组 | 成员 |
+|---|---|
+| UI 栈（锁步，8 个） | adapter-core · chart-core · 三个适配器 · components · dashboard · screen |
+| 独立演进（4 个） | tokens · shared · data · resolver |
+
+拆的依据是真实依赖图：`components` 是**汇点**，依赖那四个基础包——「12 个各自独立」是假象。
+拆出去的四块零下游耦合，拆开不制造协调负担，却覆盖了最高频的修补（色值 / 工具函数 / resolver）。
+
+> 收益精确表述：内部依赖是 `workspace:^`（`^0.x`），**补丁级修复不越出范围，可以单发**；
+> 破坏性变更仍需协调——那种变更本来就该协调。
+
+**发布结果（已核实）**：
+
+```
+版本 PR 合并 → 6d642d9
+12 个包全部 0.3.0，changeset 清空，12 个 tag 生成
+npm registry: @fbkworks/components@0.3.0 可查
+```
+
+**消费方实测**（临时空项目 `npm install` 从 registry 装）：
+```
+@fbkworks/components@0.3.0  exports 23 条，缺失 0
+@fbkworks/tokens@0.3.0      exports  5 条，缺失 0
+@fbkworks/resolver@0.3.0    exports  2 条，缺失 0
+真实 import()：10 个 Fbk* 组件全部可导入
+  ✓ @fbkworks/components/detail-drawer  ← 本轮修的那个
+  ✓ resolver 返回正确的 from / sideEffects，未注册组件返回 undefined
+共校验 27 个 exports 入口，失败 0
+```
+
+### F.4 这一轮的坑：三次「本地通、CI 挂」
+
+| 次 | 现象 | 根因 | 共同点 |
+|---|---|---|---|
+| 1 | `Failed to resolve entry for @fbkworks/chart-core` | `dist` 被 gitignore，CI 无产物且 vitest/tsconfig 缺 alias | **本地工作树 ≠ 全新克隆** |
+| 2 | `Could not resolve "./generated/api.json"` | 该文件被 gitignore，而 `docs:build` 只跑 `sync-brand.mjs`，**没跑 `gen-api.mjs`** | 同上 |
+| 3 | `check:style-index` 判「生成结果不一致」 | windows-latest 的 `core.autocrlf=true` 检出成 CRLF，生成器产出 LF | 同上（本机 autocrlf 也是 true，只是文件被就地写成了 LF 才没暴露） |
+
+**修复方式各不相同，但验证方式应该统一**：第 3 次我是用 `git -c core.autocrlf=true clone` 到临时目录、
+跑完整的 `pnpm install --frozen-lockfile && pnpm verify` 才敢推。
+**这一条应该固化成脚本**（`scripts/verify-fresh-clone.mjs`），目前还没做。
+
+同时加了 `.gitattributes`（`* text=auto eol=lf`）从源头钉住行尾；
+生成器比较前也做换行符归一化（两层保险）。
+
+### F.5 本轮的方法论教训：grep 得出的「事实」不算事实
+
+三次被读文件推翻：
+
+| 我说过的 | 实际 |
+|---|---|
+| 「`chartColor` 只被它自己的测试用过」 | `TrendChart.vue:79` 在用（生成对外暴露的 palette） |
+| 「`Drawer` 只有一个消费者所以该进特性层」 | 按消费者数它与 DataGrid/Dialog/Tag **平手**，都是 1 个。真正的判据是「有无官方替代」 |
+| 「建议直接删除 `Empty`」 | 越界了——那是公开 API 移除，不该由我在没有消费数据时建议 |
+
+**结论：涉及「谁在用 X」的判断，必须用可验证的方式取（脚本扫全仓），不能靠一次 grep 的印象。**
+
+另一个反复出现的坑：**统计口径太粗会给出假冲突**。
+例：检查「跨组件重复选择器」时，一开始把 `.x` 和 `.x > *` 当成冲突（实际作用在不同元素），
+又把同一文件内的重复算成跨文件。精确集合运算后是 **0 个**。
+
+### F.6 文档：本轮重写与新增
+
+| 文档 | 变化 |
+|---|---|
+| `apps/docs/guide/architecture.md` | 新增「原语与可选层」（分层判据、替代 vs 降级、能力位必须与实现恒等）；「契约版本」补「什么时候该升版本号」判据表；末尾加「设计决策记录」入口 |
+| `apps/docs/guide/architecture-diagrams.md` | 演进路线从 P0/P1/P2 重写为 **M1 首发 → M2 契约稳定 → M3 覆盖扩展 → M4 治理成熟**（每段带可验证判据）；原语类图补齐（原来少列 4 个）；`blocks` 从「真实节点」改为「规划中，包尚不存在」 |
+| `README.md` | 新增「文档同步」对照表（改什么 → 必须同步更新哪些文档）；验证表从 11 行补到 17 行 |
+| `docs/style-guide.md` | 修 §二 检查清单——它还在教人手工改两个**已生成**的文件（这是 A1 改动自己留下的债） |
+| `docs/design/` | 新增三份：图表 option 下沉、可选原语层、发布策略与演进路线 |
+
+**文档债的教训**：改代码时没同步改「教人怎么做的文档」，比改了代码不改 API 文档更隐蔽——
+因为照着旧文档做，会被新门禁判为过期。
+
+### F.7 文档站的架构图（三轮才修对）
+
+| 轮 | 做法 | 结果 |
+|---|---|---|
+| 1 | 图被压到 688px 宽（原始 716–1588px），缩放到 0.43 倍 | 字约 6px，看不清 |
+| 2 | 恢复原始尺寸 + 容器横向滚动 | **更差**：图被正文栏截断、纵向超出视口、要来回拖才拼得出全貌 |
+| 3 | **缩略适配 + 点击放大** | 默认整张图完整落在栏内（一眼看到整体），点击在覆盖层里按原始尺寸显示 |
+
+第 3 轮踩到两个坑，都写进了代码注释：
+
+1. 克隆不能保留 svg 的 `id`——页面出现两个同 id 元素，按 id 重新渲染的代码会把覆盖层那份冲回缩略尺寸（实测约 0.8s 后发生）
+2. **但也不能直接删 id**——mermaid 内部 `<style>` 用 `#<id>` 作用域选择器，删了之后边线退回 SVG 默认黑色填充（放大后是一片黑色实心楔形）
+
+正解：改名 + 同步改写 `<style>` 选择器，且用带边界的正则（`#mermaid-1` 是 `#mermaid-1_xxx` 的前缀）。
+
+另外根因之一：`withMermaid(defineConfig({...}), { mermaid: {...} })` 的第二参数**被静默忽略**
+（v2 的 `withMermaid` 只接受一个参数），所以 mermaid 主题配置从来没生效过。
+
+### F.8 当前状态
+
+```
+main = 6d642d9（版本 PR 合并后）
+pnpm verify = 17 步，全绿
+测试 830 通过 + 1 skipped / 74 文件
+发布包 12 个，全部 0.3.0，已上 npm
+fixed 组 = 8 个 UI 栈包
+原语 = 13 必填 + 1 可选（Drawer）
+```
+
+### F.9 剩余待办
+
+**需要人操作的**：无（发布链路已跑通一次，后续 push 即自动发布）。
+
+**代码层面（按路线图 M2–M4）**：
+
+| 项 | 现状 |
+|---|---|
+| `scripts/verify-fresh-clone.mjs` | 未做。三次 CI 事故都源于「本地 ≠ 全新克隆」，这是唯一能根治的手段 |
+| `check:capabilities` strict 转绿 | 仍有 **11 条 `unverified`** |
+| 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
+| 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
+| 视觉回归进 CI | `scripts/visual/` 4 个脚本，**0 个在 CI** |
+| a11y | 全库只有 2 个文件带 `aria`/`role` |
+| `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |
+| `detail-drawer.md` | 组件已导出、有 demo，但**没有文档页** |
+| `components` ↔ `adapter-core` | 无运行时兼容护栏（拆 fixed 时的缺口；两者仍同组，暂不暴露） |
+| 仍手写的清单 | `publish-all.mjs` 的 `ORDER`、`components/package.json` 的 `exports`、各包 `vite.config.ts` 的 entry |
+
+**明确搁置**：`blocks`（等 2–3 个真实接入方）、`fixed` 档 C（12 个全拆 + 元包）。
+
