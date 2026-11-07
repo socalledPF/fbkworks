@@ -79,7 +79,10 @@ export const FormItem = defineComponent({
   props: {
     label: String,
     prop: String,
-    required: Boolean,
+    /* 必须显式给 default: undefined：写成裸 `Boolean` 时 Vue 会把「没传」强转成 false，
+       进而覆盖/关闭 UI 库对规则里 required 的处理。element-plus 上已实测：
+       表单级 { required: true } 被改成 false，空值校验静默通过。 */
+    required: { type: Boolean as PropType<boolean | undefined>, default: undefined },
     rules: { type: Array as PropType<FbkRule[]>, default: undefined },
     help: String,
     labelWidth: { type: [String, Number] as PropType<string | number>, default: undefined },

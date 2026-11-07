@@ -83,7 +83,12 @@ export const FormItem = defineComponent({
   props: {
     label: String,
     prop: String,
-    required: Boolean,
+    /* 必须显式给 default: undefined。
+       写成裸 `Boolean` 时 Vue 会把「没传」强转成 false，而 element-plus 的
+       ElFormItem 只要收到 required !== undefined，就会用它**覆盖**规则里已有的
+       required —— 于是表单级的 { required: true } 被改成 false，空值校验直接通过。
+       实测症状：必填字段 blur 后表单项是 is-success，且没有任何错误文案。 */
+    required: { type: Boolean as PropType<boolean | undefined>, default: undefined },
     rules: { type: Array as PropType<FbkRule[]>, default: undefined },
     help: String,
     labelWidth: { type: [String, Number] as PropType<string | number>, default: undefined },

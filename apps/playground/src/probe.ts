@@ -54,7 +54,7 @@ const rules = {
 /** 每个字段包一层带 data 属性的 div：不同 UI 库的 DOM 结构互不相同，只用这层定位 */
 const field = (key: string, label: string) =>
   h('div', { 'data-probe-field': key }, [
-    h(p.FormItem, { prop: key, label }, () =>
+    h(rawItem ? (EpFormItem as never) : p.FormItem, { prop: key, label }, () =>
       rawInput
         ? h(EpInput, {
             modelValue: model[key as keyof typeof model],
@@ -79,6 +79,9 @@ const rawMapped = params.get('mapped') === '1'
 /* `&input=raw`：在**我们的** Form/FormItem 里换成原生 ElInput，
    用来判断问题在 Input 包装层还是 Form/FormItem 适配层 */
 const rawInput = params.get('input') === 'raw'
+/* `&item=raw`：用**我们的 Form** 配**原生 ElFormItem** ——
+   区分问题在 Form 适配层还是 FormItem 适配层 */
+const rawItem = params.get('item') === 'raw'
 
 const Probe = {
   name: 'FbkFormProbe',
