@@ -17,7 +17,13 @@ function toNaiveRules(rules: FbkRule[] | undefined): FormRules | undefined {
       rule.validator &&
       (async (_r: unknown, value: unknown) => {
         const result = await rule.validator!(value, {})
-        return result === true || result === undefined
+        if (result === true || result === undefined) return true
+        /* FbkRule 约定「validator 返回字符串 = 错误信息」。
+           naive 的异步路径只认 **reject**：resolve 一个 Error 对象会被当成通过
+           （实测表单项连状态类都不出现）。所以这里必须 throw。
+           注意本函数是 async，throw 发生在 await 之后即为 Promise reject，
+           不会落进 naive 外层那个同步 try/catch。 */
+        throw new Error(String(result))
       }),
   })) as unknown as FormRules
 }
