@@ -20,19 +20,24 @@
 
 非 0 退出码表示失败。
 
-已知失败（2026-10-28 首次运行，尚未修复）
-----------------------------------------
-能力位                 element-plus   naive-ui      vant
-form.labelWidth        PASS 120/120   FAIL 98/108   声明 false，SKIP
-form.validateOn(blur)  FAIL           PASS          FAIL
-form.asyncValidator    PASS           FAIL          FAIL
+## 当前结果（2026-10-28）
 
-这是「能力声明与实现不符」，不是脚本问题。
+能力位                 element-plus   naive-ui       vant
+form.labelWidth        PASS           PASS           声明 false，SKIP
+form.validateOn(blur)  PASS           PASS           FAIL
+form.asyncValidator    PASS           FAIL           FAIL
 
-其中 element-plus 的 validateOn 值得单独查：同一次运行里它的 asyncValidator
-能正确报错（说明 validator 映射是通的），但 required 规则在 blur 后得到的是
-is-success —— 校验跑了却判定通过。「async 生效、required 不生效」这个组合
-更像映射缺陷而不是 EP 的限制，应先定位再决定是修还是降级。
+element-plus 早先三项全红，根因是 FormItem 的 required 被 Vue 强转成 false，
+覆盖掉了规则里的 required（已修，见 commit c0b551c）。
+
+## 量标签宽度的坑（已踩过两次）
+
+不能量「文字叶子节点」：naive 把宽度设在 .n-form-item-label 容器上，
+叶子是里面的 __text，量出来是文字自然宽度（98/108 那种假数据）。
+也不能靠「向上找仍是该文本的最外层元素」：EP 的 .el-form-item 文本内容
+恰好也只有标签文字（input 不产生文本节点），会一路走到 1280；
+naive 的必填星号又让容器文本不等于标签文本。
+最终改为按库声明 label 选择器 —— 与一致性套件处理 per-adapter 选择器的方式一致。
 """
 
 import json
@@ -43,6 +48,13 @@ from playwright.sync_api import sync_playwright
 PORT = sys.argv[1] if len(sys.argv) > 1 else "5174"
 BASE = f"http://localhost:{PORT}/probe.html"
 ADAPTERS = ["element-plus", "naive-ui", "vant"]
+
+# 各库 label 元素的选择器：宽度就设在它身上
+LABEL_SELECTOR = {
+    "element-plus": ".el-form-item__label",
+    "naive-ui": ".n-form-item-label",
+}
+
 EXPECTED_LABEL_WIDTH = 120
 TOLERANCE = 1.5
 
@@ -56,17 +68,16 @@ def check(name, passed, detail=""):
     print(f"  {'PASS' if passed else 'FAIL'}  {name}{('  ' + detail) if detail else ''}")
 
 
-def label_width(page, text):
+def label_width(page, adapter, field):
+    selector = LABEL_SELECTOR.get(adapter)
+    if not selector:
+        return None
     return page.evaluate(
-        """(text) => {
-          const root = document.querySelector('[data-fbk-probe]')
-          if (!root) return null
-          const leaf = [...root.querySelectorAll('*')].filter(
-            (n) => n.children.length === 0 && (n.textContent || '').trim() === text,
-          )
-          return leaf.length ? leaf[0].getBoundingClientRect().width : null
+        """([field, selector]) => {
+          const el = document.querySelector('[data-probe-field="' + field + '"] ' + selector)
+          return el ? el.getBoundingClientRect().width : null
         }""",
-        text,
+        [field, selector],
     )
 
 
@@ -81,8 +92,8 @@ with sync_playwright() as p:
         caps = json.loads(page.get_attribute("[data-fbk-probe]", "data-capabilities"))
 
         if caps["form"]["labelWidth"]:
-            short_w = label_width(page, "短")
-            long_w = label_width(page, "很长的标签")
+            short_w = label_width(page, adapter, "short")
+            long_w = label_width(page, adapter, "long")
             if short_w is None or long_w is None:
                 check("form.labelWidth 标签可测量", False, f"short={short_w} long={long_w}")
             else:

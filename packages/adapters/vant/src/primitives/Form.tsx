@@ -1,4 +1,4 @@
-import { defineComponent, ref, type PropType } from 'vue'
+import { computed, defineComponent, inject, provide, ref, type InjectionKey, type PropType, type ComputedRef } from 'vue'
 import { Form as VanForm, Field } from 'vant'
 import type { FieldRule } from 'vant'
 import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
@@ -15,6 +15,11 @@ import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
  * element-plus / naive-ui 用「量最宽的那个」实现，
  * vant 用「固定 em」实现。三者对调用方是同一个承诺。
  */
+/* van-form **没有** rules prop（实测其 props 里没有这一项），
+   表单级规则只能由 Form 通过 provide 传给各个 Field。 */
+const VANT_FORM_RULES: InjectionKey<ComputedRef<FormProps['rules'] | undefined>> =
+  Symbol('fbk.vant.form.rules')
+
 function toVantLabelWidth(width: string | number | undefined) {
   return width === 'auto' ? undefined : width
 }
@@ -61,11 +66,16 @@ export const Form = defineComponent({
     const formRef = ref<any>()
     let pending: { resolve: (value: true) => void; reject: (reason: unknown) => void } | null = null
 
+    /* 传**原始**规则，映射由 Field 统一做（映射一次就够，避免类型来回转）。 */
+    const vantRules = computed(() => props.rules)
+
     const validate = () =>
       new Promise<true>((resolve, reject) => {
         pending = { resolve, reject }
         formRef.value?.submit()
       })
+
+    provide(VANT_FORM_RULES, vantRules)
 
     expose({
       validate,
@@ -110,12 +120,21 @@ export const FormItem = defineComponent({
     span: Number,
   },
   setup(props, { slots }) {
+    /* 表单级规则在 Form 里，通过 inject 取；条目级规则优先合并进来。
+       van-form 不支持 rules prop，这是唯一可行的传递路径。 */
+    const formRules = inject(VANT_FORM_RULES, null)
+    const mergedRules = computed<FbkRule[] | undefined>(() => {
+      const fromForm = props.prop ? formRules?.value?.[props.prop] : undefined
+      if (fromForm?.length && props.rules?.length) return [...fromForm, ...props.rules]
+      return props.rules?.length ? props.rules : fromForm
+    })
+
     return () => (
       <Field
         name={props.prop}
         label={props.label}
         required={props.required}
-        rules={toVantRules(props.rules) as FieldRule[] | undefined}
+        rules={toVantRules(mergedRules.value) as FieldRule[] | undefined}
         labelWidth={toVantLabelWidth(props.labelWidth)}
         v-slots={{ input: slots.default, default: slots.default }}
       >
