@@ -1,4 +1,14 @@
-import { computed, defineComponent, inject, provide, ref, type InjectionKey, type PropType, type ComputedRef } from 'vue'
+import {
+  cloneVNode,
+  computed,
+  defineComponent,
+  inject,
+  provide,
+  ref,
+  type ComputedRef,
+  type InjectionKey,
+  type PropType,
+} from 'vue'
 import { Form as VanForm, Field } from 'vant'
 import type { FieldRule } from 'vant'
 import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
@@ -39,9 +49,17 @@ function toVantRules(rules: FbkRule[] | undefined) {
     validator:
       rule.validator &&
       ((value: unknown) => {
+        /* FbkRule 约定「validator 返回字符串 = 错误信息」。
+           vant 的 runRules 对**字符串**会直接拿来当 validateMessage，
+           所以不能像原先那样压成布尔 —— 那会把文案丢掉（只剩 rule.message）。 */
+        const normalize = (result: unknown): true | false | string =>
+          result === true || result === undefined
+            ? true
+            : typeof result === 'string'
+              ? result
+              : false
         const result = rule.validator!(value, {})
-        if (result instanceof Promise) return result.then((message) => message === true || !message)
-        return result === true || result === undefined
+        return result instanceof Promise ? result.then(normalize) : normalize(result)
       }),
   }))
 }
@@ -122,6 +140,7 @@ export const FormItem = defineComponent({
   setup(props, { slots }) {
     /* 表单级规则在 Form 里，通过 inject 取；条目级规则优先合并进来。
        van-form 不支持 rules prop，这是唯一可行的传递路径。 */
+    const fieldRef = ref<any>()
     const formRules = inject(VANT_FORM_RULES, null)
     const mergedRules = computed<FbkRule[] | undefined>(() => {
       const fromForm = props.prop ? formRules?.value?.[props.prop] : undefined
@@ -131,12 +150,29 @@ export const FormItem = defineComponent({
 
     return () => (
       <Field
+        ref={fieldRef}
         name={props.prop}
         label={props.label}
         required={props.required}
         rules={toVantRules(mergedRules.value) as FieldRule[] | undefined}
         labelWidth={toVantLabelWidth(props.labelWidth)}
-        v-slots={{ input: slots.default, default: slots.default }}
+        v-slots={{
+          /* 我们把 van-field 的输入槽整个换成了自定义 Input，
+             于是 van-field 内部的 blur 校验处理器不再运行 ——
+             表单级/条目级规则都不会在 blur 时触发（实测连错误元素都不出现）。
+             这里把自定义输入的 blur 接回 van-field 暴露的 validate()。 */
+          input: () =>
+            (slots.default?.() ?? []).map((node) => {
+              const inherited = (node.props?.onBlur ?? null) as (() => void) | null
+              return cloneVNode(node, {
+                onBlur: () => {
+                  inherited?.()
+                  void fieldRef.value?.validate?.()
+                },
+              })
+            }),
+          default: slots.default,
+        }}
       >
         {props.help ? <div class="fbk-form-item__help">{props.help}</div> : null}
       </Field>
