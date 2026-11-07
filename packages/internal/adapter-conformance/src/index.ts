@@ -69,6 +69,10 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     row: 'tbody tr',
     selection: 'input[type="checkbox"]',
     nextPage: '.el-pagination .btn-next, .van-pagination__next, .n-pagination-item--button:last-child',
+    /* 每页条数选择器的容器。element-plus 的选项在 el-select 弹层里，
+       jsdom 下不展开就不在 DOM —— 所以只能断言容器，断言不到具体数字。 */
+    /* naive 没有专门的类名，每页条数走 NSelect —— 用 `.n-pagination .n-select` 定位。 */
+    pageSizeSelector: '.el-pagination__sizes, .n-pagination .n-select',
     loading: '[data-fbk-part="loading"]',
     sortTrigger: '.caret-wrapper, .n-data-table-sorter',
     /* 「从右侧还是底部打开」只能靠各家自己的方位标记确认 ——
@@ -319,6 +323,72 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       await next.trigger('click')
       expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
     })
+
+    /* 能力位驱动的可选行为。能力为 false 的适配器上，用例以 **skipped** 出现 ——
+       既不是失败，也不静默通过。与 Drawer 那块同一套规矩。 */
+    const itIfCapability = (active: boolean) => (active ? it : it.skip)
+
+    // @capability pagination.pageSizes
+    itIfCapability(adapter.capabilities.pagination.pageSizes)(
+      'Pagination 渲染每页条数选择（pageSizes）',
+      async () => {
+        /* 只能断言「选择器容器渲染出来了」，断言不到具体数字：
+           element-plus 的 pageSizes 走 el-select，选项在弹层里，
+           jsdom 下不展开就不在 DOM。 */
+        const wrapper = mount(p.Pagination, {
+          page: 1,
+          pageSize: 20,
+          total: 100,
+          pageSizes: [13, 47, 89],
+        })
+        await flushPromises()
+        expect(wrapper.find(selectors.pageSizeSelector).exists()).toBe(true)
+        wrapper.unmount()
+      },
+    )
+
+    // @capability pagination.jumper
+    itIfCapability(adapter.capabilities.pagination.jumper)(
+      'Pagination 渲染跳页输入框（showJumper）',
+      async () => {
+        /* 与「不开跳页」对照，而不是直接数 input 个数 ——
+           有的库没有跳页时也会渲染 input（尺寸选择器等），
+           直接断言 >0 可能被别的东西满足。 */
+        const without = mount(p.Pagination, { page: 1, pageSize: 20, total: 100 })
+        await flushPromises()
+        const baseline = without.findAll('input').length
+        without.unmount()
+
+        const wrapper = mount(p.Pagination, {
+          page: 1,
+          pageSize: 20,
+          total: 100,
+          showJumper: true,
+        })
+        await flushPromises()
+        expect(wrapper.findAll('input').length).toBeGreaterThan(baseline)
+        wrapper.unmount()
+      },
+    )
+
+    // @capability overlay.supportsTeleport
+    itIfCapability(adapter.capabilities.overlay.supportsTeleport)(
+      'Dialog 内容被 teleport 到挂载根之外',
+      async () => {
+        const body = 'Teleport 校验正文 7A2'
+        const wrapper = mount(
+          p.Dialog,
+          { modelValue: true, title: 'Teleport 校验' },
+          { default: body },
+        )
+        await flushPromises()
+        /* 两个方向都要断言：内容确实在 body 里，且 **不在** 挂载根节点内。
+           只断言第一个的话，「组件压根没 teleport」也能通过。 */
+        expect(document.body.textContent).toContain(body)
+        expect(wrapper.html()).not.toContain(body)
+        wrapper.unmount()
+      },
+    )
 
     /* Drawer 是**可选**原语：适配器可以只提供弹层而不提供抽屉。
        缺了它时整块跳过 —— 但必须是以 skipped 出现在输出里，不能用 if 藏掉，

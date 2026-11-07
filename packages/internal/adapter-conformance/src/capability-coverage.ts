@@ -52,15 +52,21 @@ export const CAPABILITY_COVERAGE: Record<string, CapabilityCoverage> = {
   // ── 显性欠债：声明了，但目前没有任何验证 ──────────────────────
   'form.labelWidth': { unverified: '标签宽度只有视觉差异，jsdom 量不出来，需要浏览器断言' },
   'form.asyncValidator': { unverified: '异步校验的时序无法在一致性套件里稳定断言' },
-  'form.validateOn': { unverified: '校验时机需要逐事件驱动，三条触发路径尚未覆盖' },
-  'overlay.supportsTeleport': { unverified: 'teleport 目标是 body，断言依赖挂载细节' },
-  'pagination.pageSizes': { unverified: '各家的每页条数选择器类名差异大，尚未声明选择器' },
-  'pagination.jumper': { unverified: '同上，跳页输入框尚未声明选择器' },
+  'form.validateOn': {
+    unverified:
+      'jsdom 下测不出来：实测 element-plus 在 jsdom 里，即便**不经过适配器**直接用 ElForm + ' +
+      'required 规则 + 空值，validate() 也返回 true（见 2026-10-28 附录 F 的调查）。' +
+      '这是环境限制而非适配器缺陷，需要浏览器断言。',
+  },
+  'overlay.supportsTeleport': { marker: 'overlay.supportsTeleport' },
+  'pagination.pageSizes': { marker: 'pagination.pageSizes' },
+  'pagination.jumper': { marker: 'pagination.jumper' },
   'pagination.mode': { unverified: '无限滚动的触底加载尚未进一致性套件' },
   'theme.cssVariables': { unverified: '「是否用 CSS 变量」是实现描述，没有可观测行为' },
 
   // features 是细粒度可选能力的开放集合
   'features.table.fixedColumns': { unverified: '固定列尚未进一致性套件' },
-  'features.table.summary': { unverified: '合计行尚未进一致性套件' },
-  'features.form.inline': { unverified: '行内表单尚未进一致性套件' },
+  /* `features.table.summary` 与 `features.form.inline` 已从表中移除：
+     两者全仓零实现，三个适配器都已声明为 false，不再需要验证责任。
+     将来谁把它们改回 true，「完整性」用例会立刻要求补覆盖 —— 这是设计好的路径。 */
 }

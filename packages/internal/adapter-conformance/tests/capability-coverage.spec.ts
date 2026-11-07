@@ -115,8 +115,12 @@ describe('能力位与实现的绑定', () => {
   })
 
   it(`未验证的能力位（${strict ? 'strict：必须为 0' : '普通模式：仅记录'}）`, () => {
+    /* 只看**当前活跃**的能力位：
+       一个三位第一方适配器都已不再声明的能力（比如降级为 false 的 table.summary）
+       不需要验证责任——它现在不承诺任何东西。
+       这与上面「完整性」用例的口径一致（那边也走 allActive）。 */
     const unverified = Object.entries(CAPABILITY_COVERAGE)
-      .filter(([, c]) => 'unverified' in c)
+      .filter(([path, c]) => 'unverified' in c && allActive.has(path))
       .map(([path, c]) => `  ${path} —— ${(c as { unverified: string }).unverified}`)
 
     if (!strict) {
