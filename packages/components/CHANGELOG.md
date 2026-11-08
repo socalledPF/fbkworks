@@ -1,5 +1,14 @@
 # @fbkworks/components
 
+## 0.6.0
+
+### Patch Changes
+
+- Updated dependencies [1734d71]
+- Updated dependencies [1b5aae8]
+  - @fbkworks/adapter-core@0.6.0
+  - @fbkworks/data@0.4.0
+
 ## 0.5.0
 
 ### Minor Changes
