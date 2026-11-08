@@ -8,7 +8,7 @@
       "files": 1
     },
     "@fbkworks/adapter-element-plus": {
-      "js": 31900,
+      "js": 32717,
       "css": 13592,
       "files": 18
     },
@@ -18,7 +18,7 @@
       "files": 0
     },
     "@fbkworks/adapter-naive-ui": {
-      "js": 37808,
+      "js": 38362,
       "css": 17892,
       "files": 18
     },
@@ -28,7 +28,7 @@
       "files": 0
     },
     "@fbkworks/adapter-vant": {
-      "js": 35937,
+      "js": 36131,
       "css": 7810,
       "files": 17
     },
@@ -43,12 +43,12 @@
       "files": 6
     },
     "@fbkworks/components": {
-      "js": 88622,
+      "js": 88768,
       "css": 68614,
       "files": 17
     },
     "@fbkworks/components/crud-page": {
-      "js": 42039,
+      "js": 42185,
       "css": 425,
       "files": 9
     },

@@ -170,7 +170,7 @@
     },
     "PaginationProps": {
       "kind": "interface",
-      "text": "interface PaginationProps {\n    page: number;\n    pageSize: number;\n    total: number;\n    pageSizes?: number[];\n    showTotal?: boolean;\n    showJumper?: boolean;\n    size?: Size;\n    disabled?: boolean;\n}"
+      "text": "interface PaginationProps {\n    mode?: 'pages' | 'infinite';\n    page: number;\n    pageSize: number;\n    total: number;\n    pageSizes?: number[];\n    showTotal?: boolean;\n    showJumper?: boolean;\n    size?: Size;\n    disabled?: boolean;\n}"
     },
     "PermissionContext": {
       "kind": "interface",

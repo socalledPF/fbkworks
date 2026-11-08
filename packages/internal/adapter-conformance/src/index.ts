@@ -262,6 +262,67 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       custom.unmount()
     })
 
+    /**
+     * 数「界面上已勾选」的选择控件。
+     *
+     * 三个库的勾选形态不同：原生 input.checked / role=checkbox + aria-checked /
+     * 根节点带 is-checked 或 --checked 类。都试一遍，取第一个非零结果。
+     */
+    const countChecked = (wrapper: any): number => {
+      const native = wrapper
+        .findAll('input[type="checkbox"]')
+        .filter((w: any) => (w.element as HTMLInputElement).checked).length
+      if (native > 0) return native
+      const aria = wrapper.findAll('[role="checkbox"][aria-checked="true"]').length
+      if (aria > 0) return aria
+      return wrapper.findAll('[class*="is-checked"], [class*="--checked"]').length
+    }
+
+    itUnlessSkipped('selection')(
+      '受控选择：传入 selectedKeys 必须真的渲染成已勾选',
+      async () => {
+        /* 这是**结果断言**。过去套件只断言「点击会 emit update:selectedKeys」，
+           于是 element-plus 完全不读 selectedKeys（父级置空后勾选框仍然勾着）也能全绿。 */
+        const firstKey = rows[0].id
+        const selected = mount(p.DataGrid, {
+          columns,
+          data: rows,
+          rowKey: 'id',
+          selectionEnabled: true,
+          selectedKeys: [firstKey],
+        })
+        await flushPromises()
+        expect(countChecked(selected), 'selectedKeys 没有反映到界面上').toBe(1)
+        selected.unmount()
+
+        const cleared = mount(p.DataGrid, {
+          columns,
+          data: rows,
+          rowKey: 'id',
+          selectionEnabled: true,
+          selectedKeys: [],
+        })
+        await flushPromises()
+        expect(countChecked(cleared), 'selectedKeys 为空时界面上仍有勾选').toBe(0)
+        cleared.unmount()
+      },
+    )
+
+    itUnlessSkipped('sort')('排序只发事件，不本地重排 —— 行序必须原样不变', async () => {
+      /* 同样是结果断言：能力位声明 sort:'custom'，就得「点了不重排」。
+         naive 曾经用 sorter:'default'，会在本地把当前页重排，与 element-plus 相反。 */
+      const shuffled = [{ id: 3, name: 'C' }, { id: 1, name: 'A' }, { id: 2, name: 'B' }]
+      const sortable = [{ key: 'name', title: '名称', dataIndex: 'name', sortable: true }]
+      const wrapper = mount(p.DataGrid, { columns: sortable, data: shuffled, rowKey: 'id' })
+      await flushPromises()
+      const orderBefore = wrapper.findAll(selectors.row).map((w: any) => w.text())
+      await wrapper.findAll(selectors.sortTrigger)[0].trigger('click')
+      await flushPromises()
+      const orderAfter = wrapper.findAll(selectors.row).map((w: any) => w.text())
+      expect(orderAfter, '点击排序后行序被本地重排了（custom 排序应只发事件）').toEqual(orderBefore)
+      wrapper.unmount()
+    })
+
     it('DataGrid 渲染 loading 态', async () => {
       /* 只断言「渲染出了 HTML」恒真，等于没测：element-plus 声明了 loading 却从不使用
          也能过。这里改成正反两个方向 —— loading 时必须出现适配器声明的 loading 标记，
@@ -368,11 +429,15 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     })
 
     itUnlessSkipped('pagination')('Pagination 触发 update:page', async () => {
-      const wrapper = mount(p.Pagination, { page: 1, pageSize: 20, total: 100 })
+      /* 显式要「页码形态」：这一条测的是翻页器本身。
+         适配器的默认形态由它自己的能力位决定（vant 是 infinite），
+         不写清楚就会变成「测到的是哪一形态」随适配器漂移。 */
+      const wrapper = mount(p.Pagination, { page: 1, pageSize: 20, total: 100, mode: 'pages' })
       const next = wrapper.find(selectors.nextPage)
       expect(next.exists()).toBe(true)
       await next.trigger('click')
-      expect(wrapper.findComponent(p.Pagination).emitted('update:page')).toBeTruthy()
+      // 断言**具体值**：只断言「有 emit」的话，发个错误的页码照样通过
+      expect(wrapper.findComponent(p.Pagination).emitted('update:page')?.at(-1)).toEqual([2])
     })
 
     /* 能力位驱动的可选行为。能力为 false 的适配器上，用例以 **skipped** 出现 ——
@@ -391,6 +456,7 @@ export function runAdapterConformance(options: ConformanceOptions): void {
           pageSize: 20,
           total: 100,
           pageSizes: [13, 47, 89],
+          mode: 'pages',
         })
         await flushPromises()
         expect(wrapper.find(selectors.pageSizeSelector).exists()).toBe(true)

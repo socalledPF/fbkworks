@@ -14,7 +14,9 @@ export const Pagination = defineComponent({
     showJumper: Boolean,
     size: String,
     disabled: Boolean,
-    mode: { type: String as PropType<'pages' | 'infinite'>, default: 'pages' },
+    /* 默认值与 `capabilities.pagination.mode: 'infinite'` 对齐：
+       以前这里是 'pages'，于是能力位声称无限滚动、直接使用原语却拿到页码分页器。 */
+    mode: { type: String as PropType<'pages' | 'infinite'>, default: 'infinite' },
   },
   emits: ['update:page', 'update:pageSize'],
   setup(props, { attrs, emit }) {

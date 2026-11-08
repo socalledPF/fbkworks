@@ -45,7 +45,13 @@ export const DataGrid = defineComponent({
           ellipsis: column.ellipsis
             ? { tooltip: true }
             : undefined,
-          sorter: column.sortable ? 'default' : false,
+          /* `true`（可排序但没有比较函数）= 「只发 update:sorter，不本地排序」，
+             与 element-plus 的 sortable:'custom' 语义一致。
+             以前这里是 `'default'`，naive-ui 会在本地把当前页重排一遍 ——
+             服务端分页时等于对当前页二次排序，且与桌面端行序不同，
+             而能力位却声明 sort:'custom'（只发事件），说法与实现相反。
+             注意 naive 的类型里没有 'custom' 这个字面量，等价写法是 `true`。 */
+          sorter: column.sortable ? true : false,
           /* 数值列加 .fbk-numeric，由适配器样式给等宽数字。
              naive 的 className 落在 <td> 上。 */
           className: column.numeric ? 'fbk-numeric' : undefined,

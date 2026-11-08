@@ -139,6 +139,14 @@ export interface DrawerProps {
 }
 
 export interface PaginationProps {
+  /**
+   * 分页形态。默认值由各适配器自己决定，但**必须与它的
+   * `capabilities.pagination.mode` 一致** —— 能力位说 infinite、原语默认却是页码时，
+   * 「只通过 primitives.* 使用」的业务方会拿到与能力声明相反的东西。
+   *
+   * 移动端适配器（vant）默认 `'infinite'`，桌面端默认 `'pages'`。
+   */
+  mode?: 'pages' | 'infinite'
   page: number
   pageSize: number
   total: number
