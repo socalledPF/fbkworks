@@ -340,8 +340,7 @@ jobs:
           const fs = require('fs');
           const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
           pkg.pnpm = { ...(pkg.pnpm || {}), overrides: { 'element-plus': '2.8.0', vant: '4.9.0', 'naive-ui': '2.40.0' } };
-          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '
-');
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
           pnpm install --no-frozen-lockfile
 
@@ -349,15 +348,14 @@ jobs:
       - name: 确认真的装到了最低版本
         run: |
           node -e "
-          const { execSync } = require('child_process');
+          const { createRequire } = require('node:module');
           const want = { 'element-plus': '2.8.0', vant: '4.9.0', 'naive-ui': '2.40.0' };
           let bad = 0;
           for (const [lib, ver] of Object.entries(want)) {
-            const got = execSync('node -p \"require(\\'' + lib + '\\/package.json\\').version\"', {
-              cwd: 'packages/adapters/' + lib,
-            }).trim();
-            console.log(lib + ': ' + got);
-            if (got !== ver) { console.error('✗ ' + lib + ' 期望 ' + ver + '，实际 ' + got); bad += 1; }
+            const req = createRequire(process.cwd() + '/packages/adapters/' + lib + '/package.json');
+            const got = req(lib + '/package.json').version;
+            console.log(lib + ': ' + got + (got === ver ? '' : ' — 期望 ' + ver));
+            if (got !== ver) bad += 1;
           }
           process.exit(bad ? 1 : 0);
           "
