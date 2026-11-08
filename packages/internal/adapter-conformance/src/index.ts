@@ -82,7 +82,10 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     drawerClose: '.el-drawer__close-btn, .n-drawer-header__close, .fbk-vant-drawer__close',
     drawerRight: '.el-drawer.rtl, .n-drawer--right-placement, .van-popup--right',
     drawerBottom: '.el-drawer.btt, .n-drawer--bottom-placement, .van-popup--bottom',
-    drawerMask: '.el-overlay.is-drawer, .n-drawer-mask, .van-overlay',
+    /* 不要写成 '.el-overlay.is-drawer'：`is-drawer` 是较新版 element-plus 才加上的类，
+       写死它会让套件在声明的最低 peer 版本（2.8.0）上假失败 —— 实测 2.8.0 的遮罩存在，
+       只是没有这个类。断言要盯「遮罩在不在」，不是「它带哪个装饰类」。 */
+    drawerMask: '.el-overlay, .n-drawer-mask, .van-overlay',
     ...options.selectors,
   }
 

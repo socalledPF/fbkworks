@@ -329,9 +329,38 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # 防止"只在最新版能跑"：用 peerDependencies 声明的最低版本重跑契约测试。
-      - name: 安装最小 peer 版本
+      #
+      # 注意：`pnpm add -w -D element-plus@2.8.0` **不够** —— 它只改根 importer，
+      # 而三个适配器各自有 auto-install-peers 装出来的独立副本，测试仍然跑最新版。
+      # 实测：执行上面那条命令后，packages/adapters/element-plus 里 require 到的还是 2.14.7。
+      # 所以这里用 pnpm overrides 把整个依赖图压到最低版本，并在下一步**断言它真的压下去了**。
+      - name: 固定到最低 peer 版本
         run: |
-          pnpm add -w -D element-plus@2.8.0 vant@4.9.0 naive-ui@2.40.0
+          node -e "
+          const fs = require('fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          pkg.pnpm = { ...(pkg.pnpm || {}), overrides: { 'element-plus': '2.8.0', vant: '4.9.0', 'naive-ui': '2.40.0' } };
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '
+');
+          "
+          pnpm install --no-frozen-lockfile
+
+      # 没有这一步，上面那条命令失效时这个 job 会静默地跑最新版 —— 也就是假绿。
+      - name: 确认真的装到了最低版本
+        run: |
+          node -e "
+          const { execSync } = require('child_process');
+          const want = { 'element-plus': '2.8.0', vant: '4.9.0', 'naive-ui': '2.40.0' };
+          let bad = 0;
+          for (const [lib, ver] of Object.entries(want)) {
+            const got = execSync('node -p \"require(\\'' + lib + '\\/package.json\\').version\"', {
+              cwd: 'packages/adapters/' + lib,
+            }).trim();
+            console.log(lib + ': ' + got);
+            if (got !== ver) { console.error('✗ ' + lib + ' 期望 ' + ver + '，实际 ' + got); bad += 1; }
+          }
+          process.exit(bad ? 1 : 0);
+          "
 
       - name: 契约测试
         run: pnpm test
