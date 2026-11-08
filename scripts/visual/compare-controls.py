@@ -1,33 +1,28 @@
-"""全量对比：Playground header 控件 vs 所有 demo 里的 .fbk-demo-btn。
+"""跨 demo 的 `.fbk-demo-btn` 一致性对比。
 
-为什么需要这个脚本：header 与 demo 的按钮样式分别定义在
-playground.css 与 @fbkworks/demos/style.css 两个文件里，很容易改了一处漏了另一处。
-而且组件样式可能以更高特异性压过业务方的类（实测发生过：
-ProTable 的 `.fbk-pro-table__bulk button` 压掉了 .fbk-demo-btn）。
+为什么需要它：demo 按钮的样式只有一份（`@fbkworks/demos/style.css`），但**组件样式可能以
+更高特异性压过业务方的类** —— 实测发生过：ProTable 的 `.fbk-pro-table__bulk button`
+压掉了 `.fbk-demo-btn`。这种问题只会出现在「用了那个组件的那一页」，所以必须在多个 demo
+之间横向比，看同一页面对不对得上，而不是只看一页。
+
+历史：它原来还比较「playground header 的原生控件 vs demo 按钮」。playground 改版后 header
+换成了 el-select，那半边的前提已经不存在（2026-10-28 实测 TimeoutError），已删掉；
+留下的是仍然成立的那一半。
+
+比的是**形状**（字体、行高、高度、内边距、圆角、边框宽度、原生外观），不比颜色 ——
+按钮的 primary / disabled 等变体本来就该有不同颜色。
 
 用法（需先启动 playground）：
     pnpm playground
     python scripts/visual/compare-controls.py [端口]
 
-退出码非 0 表示存在不一致。
-
-## ⚠️ 当前状态：未接入 CI，且已无法直接运行
-
-它比较的两端里，**playground header 的原生控件已经不存** ——
-playground 改版后 header 换成 el-select，`.playground__toggle` / `.playground__field select`
-这些选择器全部失效（2026-10-28 实测：TimeoutError）。
-
-没有删掉是因为它要防的问题仍然真实：组件样式以更高特异性压掉 `.fbk-demo-btn`
-（ProTable 的 `.fbk-pro-table__bulk button` 就干过）。
-正确的下一步是把它窄化成「跨 demo 的 .fbk-demo-btn 一致性对比」，去掉 header 那一半。
-在此之前**不要把它接进 CI** —— 一个红的检查挂上去只会被习惯性忽略。
+退出码非 0 表示存在不一致；**某个 demo 没扫到按钮也算失败**（改名或渲染坏掉时不能静默通过）。
 """
 
 import json
+import sys
 
 from playwright.sync_api import sync_playwright
-
-import sys
 
 # Windows 控制台默认 GBK，print("✓") 会 UnicodeEncodeError（verify-admin 实测崩过）。
 # CI 是 UTF-8 不踩这个坑，本地会；统一兜一层，让两边都能完整跑完。
@@ -37,23 +32,23 @@ if hasattr(_sys_utf8.stdout, "reconfigure"):
     _sys_utf8.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
-PORT = sys.argv[1] if len(sys.argv) > 1 else "5179"
+PORT = sys.argv[1] if len(sys.argv) > 1 else "5174"
 URL = f"http://localhost:{PORT}/"
+
+# 渲染了 .fbk-demo-btn 的 demo（`grep -rl fbk-demo-btn packages/internal/demos/src` 得出）。
+# demo 改名后这里会扫到 0 个按钮并报错 —— 那正是我们要的：静默扫空等于没检查。
 DEMOS = [
-    "pro-table/basic",
-    "pro-table/with-query",
-    "pro-table/selection",
-    "query-form/basic",
-    "form-generator/basic",
-    "page-container/basic",
     "crud-page/basic",
-    "form-modal/basic",
-    "result/basic",
-    "descriptions/basic",
+    "dashboard/basic",
+    "detail-page/basic",
     "feedback/basic",
+    "form-modal/basic",
+    "pro-table/selection",
+    "result/basic",
 ]
 
-PROPS = [
+# 形状类属性：这些必须跨 demo 一致
+SHAPE_PROPS = [
     "fontFamily",
     "fontSize",
     "fontWeight",
@@ -62,115 +57,87 @@ PROPS = [
     "padding",
     "borderRadius",
     "borderWidth",
-    "borderColor",
-    "backgroundColor",
-    "color",
-    "backgroundImage",
     "appearance",
 ]
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page(viewport={"width": 1440, "height": 1000})
-    page.goto(URL)
-    page.wait_for_load_state("networkidle")
+MIN_BUTTONS = 5
 
-    # header 基准：button 与 select 分别采集。
-    # select 有两处必要的自身差异（右侧箭头留位、自绘箭头、去掉原生外观），
-    # 其余属性必须与 demo 按钮一致。
-    baseline = page.evaluate(
-        """(props) => {
-          const grab = (sel) => {
-            const el = document.querySelector(sel);
-            if (!el) return null;
-            const cs = getComputedStyle(el);
-            const out = {};
-            for (const k of props) out[k] = cs[k];
-            return out;
-          };
-          return { button: grab('.playground__toggle'), select: grab('.playground__field select') };
-        }""",
-        PROPS,
-    )
-    baseBtn = baseline["button"]
-    baseSel = baseline["select"]
 
-    sels = page.locator(".playground__field select")
-    findings = []
-    for demo in DEMOS:
-        page.goto(URL)
-        page.wait_for_load_state("networkidle")
-        sels.nth(2).select_option(demo)
-        page.wait_for_timeout(1300)
+def demo_url(demo: str) -> str:
+    """Playground 支持 `#/<demo>?adapter=&theme=` 深链（见 apps/playground/src/App.vue）。
 
-        btns = page.evaluate(
-            """(props) => {
-              return [...document.querySelectorAll('.fbk-demo-btn')].map((el) => {
-                const cs = getComputedStyle(el);
-                const out = { text: el.textContent.trim().slice(0, 12) };
-                for (const k of props) out[k] = cs[k];
-                return out;
-              });
-            }""",
-            PROPS,
-        )
-        for b in btns:
-            findings.append({"demo": demo, **b})
+    直接导航比操作侧边栏稳，也不依赖 UI 结构。
+    """
+    return f"{URL}#/{demo}?adapter=element-plus&theme=light"
 
-    browser.close()
 
-print(f"header button: {json.dumps(baseBtn, ensure_ascii=False)}")
-print(f"header select: {json.dumps(baseSel, ensure_ascii=False)}")
-print(f"\n扫描到 {len(findings)} 个 .fbk-demo-btn\n")
+def main() -> int:
+    collected = []
 
-# 合法差异：
-#   · 禁用态：文字色是 text-disabled
-#   · primary / active 变体：底色与文字色按变体定义
-DISABLED_COLOR = "rgb(168, 171, 178)"
-VARIANT_ONLY = {"borderColor", "backgroundColor", "color"}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={"width": 1440, "height": 1000})
 
-bad = []
-for f in findings:
-    diffs = {k: (baseBtn[k], f[k]) for k in PROPS if baseBtn[k] != f[k]}
-    if not diffs:
-        continue
+        for demo in DEMOS:
+            page.goto(demo_url(demo))
+            page.wait_for_load_state("networkidle")
+            page.wait_for_timeout(1200)
 
-    # 禁用态：只允许 color 不同，且值必须是禁用色
-    if set(diffs) == {"color"} and f["color"] == DISABLED_COLOR:
-        continue
+            buttons = page.evaluate(
+                """(props) => [...document.querySelectorAll('.fbk-demo-btn')].map((el) => {
+                     const cs = getComputedStyle(el)
+                     const shape = {}
+                     for (const k of props) shape[k] = cs[k]
+                     return { text: el.textContent.trim().slice(0, 12), shape }
+                   })""",
+                SHAPE_PROPS,
+            )
+            if not buttons:
+                print(f"✗ [{demo}] 没扫到任何 .fbk-demo-btn")
+                print("   demo 改名了，或这一页渲染失败。不要把它当成「通过」。")
+                return 1
+            collected.extend({"demo": demo, **b} for b in buttons)
 
-    # 变体按钮：颜色类属性可以不同，但字号/高度/圆角/内边距/字体必须一致
-    non_color = {k: v for k, v in diffs.items() if k not in VARIANT_ONLY}
-    if not non_color:
-        continue
+        browser.close()
 
-    bad.append({**f, "diffs": non_color})
+    print(f"扫描 {len(DEMOS)} 个 demo，共 {len(collected)} 个 .fbk-demo-btn\n")
 
-# select 与 demo 按钮的对比。SELECT_ONLY 是 select 作为下拉框的必要差异。
-SELECT_ONLY = {"padding", "backgroundImage", "appearance"}
-sel_diffs = {k: (baseSel[k], baseBtn[k]) for k in PROPS if baseSel[k] != baseBtn[k]}
-sel_bad = {k: v for k, v in sel_diffs.items() if k not in SELECT_ONLY}
+    if len(collected) < MIN_BUTTONS:
+        print(f"✗ 只扫到 {len(collected)} 个按钮（少于 {MIN_BUTTONS}），扫描多半坏了")
+        return 1
 
-print("\n" + "=" * 70)
-print("header select vs header button（demo 按钮与之同规格）")
-print("=" * 70)
-if sel_bad:
-    print("存在非必要差异：")
-    for k, (a, b) in sel_bad.items():
-        print(f"  ✗ {k:16} select={a!r:30} button={b!r}")
-    bad.append({"demo": "(header)", "text": "select", "diffs": sel_bad})
-else:
-    print("除 select 必需的 3 项（箭头留位/自绘箭头/去原生外观）外完全一致")
-    for k, (a, b) in sel_diffs.items():
-        print(f"  · {k:16} select={str(a)[:36]:38} button={str(b)[:36]}")
+    # 用出现次数最多的形状作为基准：大多数页面正确的那个才是基准，
+    # 而不是「第一个扫到的」—— 第一个可能正好是被压坏的那一页。
+    groups: dict[str, list] = {}
+    for item in collected:
+        key = json.dumps(item["shape"], sort_keys=True, ensure_ascii=False)
+        groups.setdefault(key, []).append(item)
 
-if not bad:
-    print("\n所有 .fbk-demo-btn 与 header 控件完全一致")
-    sys.exit(0)
-else:
-    print(f"存在差异的按钮：{len(bad)}")
-    for b in bad:
-        print(f"  [{b['demo']}] \"{b['text']}\"")
-        for k, (hv, dv) in b["diffs"].items():
-            print(f"      {k:14} header={hv!r:26} demo={dv!r}")
-    sys.exit(1)
+    ranked = sorted(groups.items(), key=lambda kv: len(kv[1]), reverse=True)
+    base_key, base_items = ranked[0]
+    base_shape = json.loads(base_key)
+
+    print("=" * 70)
+    print(f"基准形状（{len(base_items)}/{len(collected)} 个按钮）")
+    print("=" * 70)
+    for k in SHAPE_PROPS:
+        print(f"  {k:14} {base_shape[k]}")
+
+    if len(ranked) == 1:
+        print(f"\n全部 {len(collected)} 个 .fbk-demo-btn 形状一致")
+        return 0
+
+    print(f"\n✗ 有 {len(ranked) - 1} 组偏离基准：")
+    for key, items in ranked[1:]:
+        shape = json.loads(key)
+        diffs = {k: (base_shape[k], shape[k]) for k in SHAPE_PROPS if base_shape[k] != shape[k]}
+        for item in items:
+            print(f'  [{item["demo"]}] "{item["text"]}"')
+            for k, (base_v, got_v) in diffs.items():
+                print(f"      {k:14} 基准={base_v!r:28} 实际={got_v!r}")
+    print("\n同一套演示控件在某一页被组件样式压过了 —— 这正是这个脚本要抓的。")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

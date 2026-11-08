@@ -100,11 +100,13 @@ jsdom 没有布局引擎，也没有 CSS 特异性——**布局、绘制、主�
 | `verify-charts.py` | `pnpm playground` | ECharts 画不出像素；等比缩放的 transform 只有真实布局算得出来 |
 | `verify-playground.py` | `pnpm playground` | 侧边栏 / 搜索 / 深链是页面级组合 |
 | `verify-form-capabilities.py` | `pnpm playground` | `labelWidth` 要量真实宽度；`validateOn` 在 jsdom 里恒返回 true |
+| `compare-controls.py` | `pnpm playground` | 组件样式以更高特异性压掉业务方的类（`.fbk-pro-table__bulk button` 干过一次），只在「用了那个组件的那一页」露头 |
 | `verify-admin.py` | `pnpm admin` | 工具条与批量条的层级、权限是删 DOM 而非 `display:none`、上报事件真的可达 |
 
-`scripts/visual/compare-controls.py` **故意不在 CI 里**：它比较的另一端（playground header 的原生控件）
-在改版后已不存在，需要先窄化成「跨 demo 的 `.fbk-demo-btn` 一致性」才有意义。
-一个红着的检查挂上去只会被习惯性忽略，这是本项目一贯的取舍。
+`compare-controls.py` 曾经不在 CI 里：它原本还比较「playground header 的原生控件 vs demo 按钮」，
+而 header 改版后那半边的前提就不存在了。现在已窄化成只做**跨 demo 的 `.fbk-demo-btn` 形状一致性**，
+比字体/行高/高度/内边距/圆角/边框/原生外观，不比颜色（变体本来就该不同），并已实测能失败：
+在某一个 demo 里注入 `.fbk-demo-btn { height: 40px }`，它会精确报出那一页的两个按钮 32px → 40px。
 
 ## 文档同步
 

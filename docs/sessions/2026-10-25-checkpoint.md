@@ -863,7 +863,7 @@ fixed 组 = 8 个 UI 栈包
 | ~~`check:capabilities` strict 转绿~~ | ✅ **已归零并钉进门禁**（第 15 步）。路径：11 条欠债 → 修 4 个真缺陷 → 4 条 `browserOnly`（指向 `scripts/visual/verify-form-capabilities.py`，机制核对脚本存在且含标记）→ `pagination.mode` 用浏览器滚动验掉 → `features.table.fixedColumns` 进一致性套件 → `theme.cssVariables` 删除（零消费者且语义与可观测证据冲突） |
 | ~~公开 API 快照~~ | ✅ **已做**（`check:api-snapshot`，verify 第 7 步）。9 个包 / 248 个符号的**类型声明**基线在 `api-snapshot/`，共 58 KB。排除三个 UI 适配器（d.ts 嵌了 UI 库类型，UI 库升版就假红）；`.vue` 组件的值签名只记名字（vue-tsc 的 `__VLS_` 跨版本会变），props 由各包导出的 `XxxProps` 类型覆盖。已证伪：加一个 prop → `~ 签名变了 ProTableProps`，还原 → 绿 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
-| ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。5 个脚本里 4 个进 CI；`compare-controls.py` 故意排除（比较对象已不存在，需先窄化）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
+| ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。**5 个脚本现已全部进 CI** —— `compare-controls.py` 原本因前提消失被排除，已窄化成「跨 demo `.fbk-demo-btn` 形状一致性」并接入（证伪：在某页注入 `height:40px` → 精确报出那 2 个按钮 32→40px）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
 | ~~包体积数据~~ | ✅ **已做**（`check:size`，verify 第 8 步）。**按 `exports` 入口 + 相对 import 可达性**统计（不是包 dist 总量——components 的总量是 10 个组件的和，没有任何应用会全量引入）。29 个入口 / 12 个包，基线 `size-baseline.json` 3 KB。只卡原始字节不卡 gzip（压缩结果随 zlib 版本漂，会假红），阈值「涨超 5% 且涨超 2 KB」。已证伪：往 `use-table-request.ts` 灌 8 KB → 三个入口同时红（barrel +9.3%、crud-page +19.7%、pro-table +30.9%），还原即绿 |
 | a11y | 实测 **17 个源文件**出现 `aria-*`/`role`（含 1 个 css；apps 侧 8 个、packages 侧 9 个）。原文写的「只有 2 个文件」已过期。真正缺的不是数量，而是**判据与门禁**：没有「每个交互原语必须有可访问名/键盘可达」的检查，所以现在是「有些地方做了，没人保证不退化」 |
 | `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |

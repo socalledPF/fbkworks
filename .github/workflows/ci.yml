@@ -197,6 +197,7 @@ jobs:
           python scripts/visual/verify-charts.py 5174
           python scripts/visual/verify-playground.py 5174
           python scripts/visual/verify-form-capabilities.py 5174
+          python scripts/visual/compare-controls.py 5174
 
       # verify-admin 覆盖的是「组件在页面级组合场景」：工具条/批量条层级、
       # 权限移除是删 DOM 而不是 display:none、上报事件真的可达 —— 单测看不到这些。
