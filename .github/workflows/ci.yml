@@ -35,8 +35,14 @@ jobs:
       fail-fast: false
       matrix:
         # 组件库的构建脚本在 Windows 上最容易踩坑（路径分隔符、.cmd shim），
-        # 因此三平台都跑，而不是只在 Linux 上跑。
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # 所以 Windows 必须跑。
+        #
+        # macOS 在 2026-11-08 被拿掉了，理由是账：私有库的计费倍数是
+        # Linux 1× / Windows 2× / macOS 10×，实测一轮 CI 约 46 计费分钟，
+        # 其中 macOS 占 20（跑 1m40s，按 10 倍计）——43% 的成本换来的是
+        # 「仓库在 macOS 上也能构建」，而发布产物本来就是 ubuntu 上构建的，
+        # 对消费者没有增量价值。要恢复的话把这行加回去即可。
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v5
 
