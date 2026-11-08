@@ -847,7 +847,7 @@ fixed 组 = 8 个 UI 栈包
 | ~~`check:capabilities` strict 转绿~~ | ✅ **已归零并钉进门禁**（第 15 步）。路径：11 条欠债 → 修 4 个真缺陷 → 4 条 `browserOnly`（指向 `scripts/visual/verify-form-capabilities.py`，机制核对脚本存在且含标记）→ `pagination.mode` 用浏览器滚动验掉 → `features.table.fixedColumns` 进一致性套件 → `theme.cssVariables` 删除（零消费者且语义与可观测证据冲突） |
 | 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
-| 视觉回归进 CI | `scripts/visual/` 4 个脚本，**0 个在 CI** |
+| ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。5 个脚本里 4 个进 CI；`compare-controls.py` 故意排除（比较对象已不存在，需先窄化）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
 | a11y | 全库只有 2 个文件带 `aria`/`role` |
 | `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |
 | `detail-drawer.md` | 组件已导出、有 demo，但**没有文档页** |

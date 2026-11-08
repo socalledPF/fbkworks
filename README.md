@@ -76,7 +76,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
 
-另有两个**不在 `verify` 里**的命令：
+另有四个**不在 `verify` 里**的命令：
 
 | 命令 | 何时用 |
 |---|---|
@@ -84,6 +84,22 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
 | `pnpm verify:fresh` | 在**全新克隆**里跑一遍完整 CI（实测 171–243s）。三次 CI 事故都是「本地通、全新克隆挂」，这是唯一能根治的手段 |
+
+### 视觉回归（真实浏览器，跑在 CI 里）
+
+jsdom 没有布局引擎，也没有 CSS 特异性——**布局、绘制、主题跟随这三类问题只能在真实浏览器里验**。
+`ci.yml` 的 `visual` job 会起 dev server 跑下面四个脚本；本地复现时先按「需要先起」那一列起服务：
+
+| 脚本 | 需要先起 | 为什么单测覆盖不到 |
+|---|---|---|
+| `verify-charts.py` | `pnpm playground` | ECharts 画不出像素；等比缩放的 transform 只有真实布局算得出来 |
+| `verify-playground.py` | `pnpm playground` | 侧边栏 / 搜索 / 深链是页面级组合 |
+| `verify-form-capabilities.py` | `pnpm playground` | `labelWidth` 要量真实宽度；`validateOn` 在 jsdom 里恒返回 true |
+| `verify-admin.py` | `pnpm admin` | 工具条与批量条的层级、权限是删 DOM 而非 `display:none`、上报事件真的可达 |
+
+`scripts/visual/compare-controls.py` **故意不在 CI 里**：它比较的另一端（playground header 的原生控件）
+在改版后已不存在，需要先窄化成「跨 demo 的 `.fbk-demo-btn` 一致性」才有意义。
+一个红着的检查挂上去只会被习惯性忽略，这是本项目一贯的取舍。
 
 ## 文档同步
 

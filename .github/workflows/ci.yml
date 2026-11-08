@@ -106,6 +106,80 @@ jobs:
       - name: Docs
         run: pnpm docs:build
 
+  visual:
+    name: 视觉回归（真实浏览器）
+    # 只在 Linux 跑：这些断言验的是「布局与绘制」，与操作系统无关，
+    # 三平台各装一份 chromium 只会把 CI 时间翻三倍。
+    #
+    # 故意不依赖 `pnpm build`：playground/admin 的 workspace alias 从 package.json
+    # 的 exports 推导、把 dist/ 换成 src/，所以没构建产物也能起服务。
+    # 这条已实测（删掉全部 dist 后起 playground，verify-charts 仍全过），
+    # 不存在「本地有 dist 所以过、CI 没 dist 所以挂」的假绿。
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pnpm install --frozen-lockfile
+
+      # 版本写死到本地实测过的那个：playwright 的驱动与浏览器二进制必须配套，
+      # 悬空版本会出现「本地过了、CI 起不来浏览器」。
+      - name: 安装 Playwright 与 chromium
+        run: |
+          python -m pip install --disable-pip-version-check "playwright==1.60.0"
+          python -m playwright install --with-deps chromium
+
+      # 每个脚本都要一个 dev server，且「起服务 → 等就绪 → 跑脚本 → 收尾」放在
+      # 同一步里：后台进程跨步骤存活在 runner 上不可靠。
+      - name: 图表 / Playground / 表单能力位
+        run: |
+          pnpm playground > /tmp/playground.log 2>&1 &
+          PG_PID=$!
+          # 本地实测：只 kill pnpm 时 vite 会活下来占着端口（Windows 的 shim 不转发信号）。
+          # Linux 上 pnpm 一般会转发，pkill 只是兜底；两者都没命中也不影响 —— 下一步用的是另一个端口。
+          trap 'pkill -P $PG_PID 2>/dev/null || true; kill $PG_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 120); do
+            curl -sf -o /dev/null http://localhost:5174/ && break
+            if [ "$i" = 120 ]; then
+              echo "::error::playground 在 120s 内未就绪"
+              tail -n 40 /tmp/playground.log
+              exit 1
+            fi
+            sleep 1
+          done
+          python scripts/visual/verify-charts.py 5174
+          python scripts/visual/verify-playground.py 5174
+          python scripts/visual/verify-form-capabilities.py 5174
+
+      # verify-admin 覆盖的是「组件在页面级组合场景」：工具条/批量条层级、
+      # 权限移除是删 DOM 而不是 display:none、上报事件真的可达 —— 单测看不到这些。
+      - name: 后台系统端到端
+        run: |
+          pnpm admin > /tmp/admin.log 2>&1 &
+          ADMIN_PID=$!
+          trap 'pkill -P $ADMIN_PID 2>/dev/null || true; kill $ADMIN_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 120); do
+            curl -sf -o /dev/null http://localhost:5185/ && break
+            if [ "$i" = 120 ]; then
+              echo "::error::admin 在 120s 内未就绪"
+              tail -n 40 /tmp/admin.log
+              exit 1
+            fi
+            sleep 1
+          done
+          python scripts/visual/verify-admin.py 5185
+
   impact:
     name: 变更影响分析
     # 只在 PR 上跑：需要对比 base 分支，push 到 main 时没有对比对象

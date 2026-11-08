@@ -52,5 +52,8 @@ pnpm admin          # http://localhost:5185
 python scripts/visual/verify-admin.py 5185
 ```
 
-覆盖 13 项：登录、4 个页面渲染、全选与批量条、弹窗、筛选、排序、
-详情跳转、异常页、暗色主题（令牌层 + UI 库层双向检查）、console 无错误。
+覆盖 **16 组 / 35 项**：登录、4 个页面渲染、全选与批量条、弹窗、筛选、排序、
+详情跳转、`DetailPage` 字段与 404、异常页、暗色主题（令牌层 + UI 库层双向检查）、
+可观测性上报、权限移除（删 DOM 而非 `display:none`）、console 无错误。
+
+CI 的 `visual` job 会自动跑它（起 admin 后执行同一个脚本）。
