@@ -77,6 +77,12 @@ describe('FbkChart 生命周期', () => {
 
     expect(instances.length).toBeGreaterThan(0)
     expect(instances[0]!.setOption).toHaveBeenCalled()
+    /* 只断言「调用过」抓不到合并策略的错误：notMerge:false 一样会调用，
+       但系列变少时会留下幽灵系列、legend 置空时图例不会消失。
+       这里钉住 replaceMerge —— 它才是那两条正确行为的来源。 */
+    expect(instances[0]!.setOption.mock.calls[0][1]).toMatchObject({
+      replaceMerge: ['series', 'legend'],
+    })
   })
 
   it('卸载时 dispose 实例（防内存泄漏）', async () => {

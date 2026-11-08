@@ -58,8 +58,8 @@ const emit = defineEmits<{
 
 const container = ref<HTMLDivElement>()
 const chart = shallowRef<ECharts>()
-/** 主题变化时递增，触发重新 init（ECharts 的主题只能在 init 时指定） */
-const themeVersion = ref(0)
+/* 曾经有个 themeVersion ref 在这里，只写不读 —— 主题切换靠的是直接 create()，
+   那个计数器从来没参与任何逻辑。删掉，免得下一个人以为它是那条链路的开关。 */
 
 /* inheritAttrs: false 时必须手动转发 attrs，否则调用方的 class/style 会静默失效。
    attrs 落点是根 div：它既是 .fbk-chart（position: relative）的定位容器，
@@ -90,8 +90,17 @@ function applyOption() {
     /* 必须先解析 CSS 变量：ECharts 用 Canvas 绘制，不认 var(--x)，
        直接传会抛 "could not be parsed as a color" 并且图表不上色。 */
     const resolved = resolveOptionVars(props.option)
-    // notMerge: false 让 ECharts 合并配置，避免每次更新都重置动画
-    instance.setOption(resolved as any, { notMerge: false, lazyUpdate: false })
+    /* 用 replaceMerge 而不是 notMerge:false。
+       纯合并（notMerge:false）有两个实测后果：
+         1. 系列变少时旧系列继续渲染 —— 用户筛掉一条线，画面上仍然留着它和它的旧数据；
+         2. 新配置里没有 legend 时图例不会被移除（合并语义下「没给」=「别动」）。
+       replaceMerge 只替换这两类组件、其余照旧合并，所以动画与其它状态都保住了。
+       这也是那四个图表组件敢用「series.length > 1 ? legend : undefined」这种写法
+       的前提 —— 否则去掉的那一半根本不生效。 */
+    instance.setOption(resolved as any, {
+      replaceMerge: ['series', 'legend'],
+      lazyUpdate: false,
+    })
   } catch (err) {
     /* setOption 抛错通常是配置写错（渐变色的非法值、series 结构不对）。
        捕获后上报，图表保留上一帧而不是整页崩。 */
@@ -218,9 +227,14 @@ onMounted(() => {
   if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return
   themeObserver = new MutationObserver((mutations) => {
     for (const m of mutations) {
-      if (m.attributeName === 'data-fbk-theme' || m.attributeName === 'class') {
+      /* 只认 data-fbk-theme。
+         以前连 'class' 一起监听，于是 <html> 上任何 class 变化（字体、暗色兜底、
+         甚至别的库加的一个调试类）都会 dispose + init 一次：
+           · 外部通过 getInstance() 拿到的句柄立刻变成已销毁实例
+           · loading 遮罩与进行中的动画被重置
+         主题契约就是 data-fbk-theme（见 adapter-core/plugin.ts），class 不在契约里。 */
+      if (m.attributeName === 'data-fbk-theme') {
         // 主题只能在 init 时指定，所以重建实例
-        themeVersion.value += 1
         create()
         break
       }
@@ -228,7 +242,7 @@ onMounted(() => {
   })
   themeObserver.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['data-fbk-theme', 'class'],
+    attributeFilter: ['data-fbk-theme'],
   })
 })
 

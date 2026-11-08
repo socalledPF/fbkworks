@@ -73,10 +73,20 @@ export function defineBackend<TRaw = any>(config: BackendConfig<TRaw>): Backend<
         ? pathOrFetcher
         : (query: PageQuery) => request(pathOrFetcher, toParams(query), query.signal)
 
+    /* 顺序即优先级：接口配置覆盖后端惯例。
+       但**显式传 undefined 不算「给了值」** —— 展开运算符做不到这一点：
+       `{ ...defaults, ...{ total: undefined } }` 会把 total 覆盖成 undefined，
+       于是后端惯例被静默关掉。实测：`api.page(url, { total: undefined })`
+       拿到的是兜底的 2 而不是后端的 57；`isSuccess: undefined` 更糟 ——
+       业务码判定整个失效，失败响应会被当成空列表。
+       这种写法很常见（`{ total: opts?.total }`），所以这里逐个过滤掉 undefined。 */
+    const overrides = Object.fromEntries(
+      Object.entries(options).filter(([, value]) => value !== undefined),
+    )
+
     return createPageRequest<TRaw, T>({
-      // 顺序即优先级：接口配置覆盖后端惯例
       ...defaults,
-      ...options,
+      ...overrides,
       fetch,
     } as CreatePageRequestConfig<TRaw, T>)
   }

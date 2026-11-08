@@ -88,16 +88,45 @@ export function createPageRequest<TRaw, T = unknown>(
        有业务码的后端（ruoyi 的 code===200）如果不传 isSuccess，
        失败响应会被当成空列表 —— 用户看到「暂无数据」，
        而真实原因是 token 过期或参数错误。 */
-    if (isSuccess && !isSuccess(raw)) {
-      const message = errorMessage?.(raw) ?? '请求失败（未提供 errorMessage）'
-      report({
-        source: 'request',
-        feature,
-        message,
-        raw,
-        context: snapshot(query),
-      })
-      throw new FbkDataError('business', message, raw)
+    /* isSuccess / errorMessage 是调用方给的函数，它们自己也可能抛错 ——
+       最常见的是空 body（raw 是 null/undefined）时读 `raw.code`。
+       这两行以前在 try 之外：异常直接冒成裸 TypeError，onError 一次都收不到，
+       等于「请求失败了但监控里什么都没有」。 */
+    if (isSuccess) {
+      let ok: boolean
+      let message: string | undefined
+      try {
+        ok = isSuccess(raw)
+        if (!ok) message = errorMessage?.(raw)
+      } catch (err) {
+        const reason = err instanceof Error ? err.message : String(err)
+        const wrapped = new FbkDataError(
+          'business',
+          `[fbk/data] isSuccess/errorMessage 判定抛错（${reason}）。响应可能是空 body 或结构不符。`,
+          raw,
+        )
+        report({
+          source: 'request',
+          feature,
+          message: wrapped.message,
+          cause: err,
+          raw,
+          context: snapshot(query),
+        })
+        throw wrapped
+      }
+
+      if (ok === false) {
+        const text = message ?? '请求失败（未提供 errorMessage）'
+        report({
+          source: 'request',
+          feature,
+          message: text,
+          raw,
+          context: snapshot(query),
+        })
+        throw new FbkDataError('business', text, raw)
+      }
     }
 
     try {

@@ -38,7 +38,7 @@
       "files": 0
     },
     "@fbkworks/chart-core": {
-      "js": 15815,
+      "js": 15752,
       "css": 33312,
       "files": 6
     },
@@ -108,7 +108,7 @@
       "files": 8
     },
     "@fbkworks/data": {
-      "js": 7494,
+      "js": 8674,
       "css": 0,
       "files": 6
     },

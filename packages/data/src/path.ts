@@ -106,6 +106,21 @@ export function extractTotal<TRaw>(
     )
   }
 
+  /* 只接受「数字」和「非空白的数字字符串」。
+     放开到 Number() 会让一整类非法值静默变成 0：
+       Number('  ') === 0、Number([]) === 0、Number(false) === 0
+     而 0 会在分页器上显示「共 0 条」——和历史缺陷 total:null 完全同一种伪装。 */
+  const isNumericString = typeof value === 'string' && value.trim() !== ''
+  if (typeof value !== 'number' && !isNumericString) {
+    throw new FbkDataError(
+      'path',
+      `[fbk/data] 总数不是数字也不是数字字符串（实际是 ${previewRaw(value)}）。` +
+        `\n  Number() 对空数组、布尔值、纯空白字符串都会返回 0，静默转换会让分页器显示「共 0 条」。` +
+        `\n  实际响应：${previewRaw(raw)}`,
+      raw,
+    )
+  }
+
   const num = Number(value)
 
   if (!Number.isFinite(num)) {
