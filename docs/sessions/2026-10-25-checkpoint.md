@@ -862,15 +862,15 @@ fixed 组 = 8 个 UI 栈包
 | ~~`scripts/verify-fresh-clone.mjs`~~ | ✅ **已做**（`pnpm verify:fresh`）。克隆到临时目录 → `install --frozen-lockfile` → `pnpm verify`，实测约 243s。**故意不进 CI**（CI 本身就是全新克隆）；克隆时强制 `core.autocrlf=true`，顺带把 `.gitattributes` 也变成有回归测试的东西 |
 | ~~`check:capabilities` strict 转绿~~ | ✅ **已归零并钉进门禁**（第 15 步）。路径：11 条欠债 → 修 4 个真缺陷 → 4 条 `browserOnly`（指向 `scripts/visual/verify-form-capabilities.py`，机制核对脚本存在且含标记）→ `pagination.mode` 用浏览器滚动验掉 → `features.table.fixedColumns` 进一致性套件 → `theme.cssVariables` 删除（零消费者且语义与可观测证据冲突） |
 | ~~公开 API 快照~~ | ✅ **已做**（`check:api-snapshot`，verify 第 7 步）。9 个包 / 248 个符号的**类型声明**基线在 `api-snapshot/`，共 58 KB。排除三个 UI 适配器（d.ts 嵌了 UI 库类型，UI 库升版就假红）；`.vue` 组件的值签名只记名字（vue-tsc 的 `__VLS_` 跨版本会变），props 由各包导出的 `XxxProps` 类型覆盖。已证伪：加一个 prop → `~ 签名变了 ProTableProps`，还原 → 绿 |
-| 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
+| ~~可选层实操一次~~ | ✅ **已做**（`adapter-conformance/tests/optional-primitive.spec.ts`）。做法不是再造一个原语，而是拿真实适配器**去掉 Drawer** 走一遍完整路径：① 缺可选原语仍是合法适配器（否则「可选」只是措辞）② 真去用它时抛错且带适配器名（不是 undefined 崩在深处）③ 缺**必填**原语仍然失败（可选层没放宽门禁）。三条都过 |
 | ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。**5 个脚本现已全部进 CI** —— `compare-controls.py` 原本因前提消失被排除，已窄化成「跨 demo `.fbk-demo-btn` 形状一致性」并接入（证伪：在某页注入 `height:40px` → 精确报出那 2 个按钮 32→40px）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
 | ~~包体积数据~~ | ✅ **已做**（`check:size`，verify 第 8 步）。**按 `exports` 入口 + 相对 import 可达性**统计（不是包 dist 总量——components 的总量是 10 个组件的和，没有任何应用会全量引入）。29 个入口 / 12 个包，基线 `size-baseline.json` 3 KB。只卡原始字节不卡 gzip（压缩结果随 zlib 版本漂，会假红），阈值「涨超 5% 且涨超 2 KB」。已证伪：往 `use-table-request.ts` 灌 8 KB → 三个入口同时红（barrel +9.3%、crud-page +19.7%、pro-table +30.9%），还原即绿 |
 | ~~a11y~~ | ✅ **判据与门禁已落地**（`check:a11y`，棘轮形态）。判据不自造：axe 的 WCAG 2.0/2.1 A/AA，只把 serious/critical 计入门禁。范围是**内容区**（`.pg__main` / `.admin-content`），不扫两个 demo 应用自己的侧边栏顶栏——实测把外壳算进来时 color-contrast 有 532 处，几乎全来自 playground 侧边栏，会把信号淹掉。共 52 个页面（15 demo × 3 适配器 + 7 个 admin 页）。**基线：38 个页面 / 181 处**（aria-toggle-field-name 84、color-contrast 68、label 17、aria-required-children 6、nested-interactive 6）。只拦新增，`--update-baseline` 的 diff 就是还债记录。另在一致性套件里补了一条「封装不许吞掉 aria-label/aria-describedby」，实测抓到 element-plus 的 DatePicker 只转发 aria-label（上游属性路由，已记录不硬改）。**不做**：键盘顺序、焦点可见性、屏幕阅读器实测 |
 
-| `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |
+| ~~`FbkProTable` 自定义空态~~ | ✅ **已做**（`DataGridSlots.empty`）。**只给插槽，不造组件** —— `FbkEmpty` 当初被删就是因为它只是把同一件事又包一层。三适配器同一语义：传了就用业务内容，没传才渲染默认空态；已进一致性套件（默认用 `emptyText` / 传了必须用业务内容 / 传了不能再渲染默认空态），`api-snapshot` 记录 `DataGridSlots` 与 `ProTableSlots.empty`，changeset 已加 |
 | `detail-drawer.md` | 组件已导出、有 demo，但**没有文档页** |
-| `components` ↔ `adapter-core` | 无运行时兼容护栏（拆 fixed 时的缺口；两者仍同组，暂不暴露） |
-| 仍手写的清单 | `publish-all.mjs` 的 `ORDER`、`components/package.json` 的 `exports`、各包 `vite.config.ts` 的 entry |
+| ~~`components` ↔ `adapter-core`~~ | ✅ **已做**（`useAdapter()` 里的 apiVersion 护栏）。放在**唯一入口**而不是每个组件里，就不存在「漏了一个组件」；版本对不上立刻抛出带双方版本号的错误。拆 `fixed` 之后两者各自升级时，这一条会先响 |
+| ~~仍手写的清单~~ | ✅ **三处全部生成化**。① `publish-all.mjs` 的 `ORDER` → 按各包 `@fbkworks` 依赖算依赖深度分层定序（旧手写清单漏过 4 个包；`--check-only` 会把算出的顺序打出来）② `components/package.json` 的 `exports` 与 ③ vite `entries` → 由 `scripts/gen-package-entries.mjs` 按目录生成，`check:package-entries` 进 verify 第 11 步。实测生成结果与原手写清单**语义完全一致**（23 个 exports 键、键空间与取值逐项相等），只有键顺序变化 |
 
 **明确搁置**：`blocks`（等 2–3 个真实接入方）、`fixed` 档 C（12 个全拆 + 元包）。
 

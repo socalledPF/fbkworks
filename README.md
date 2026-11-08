@@ -67,6 +67,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:size` | 每个 `exports` 入口的可达体积与基线一致（`size-baseline.json`）。涨超 5% 且涨超 2 KB 才红 |
 | `pnpm check:styles` | 每条组件样式是否被登记 + 布局声明（用了 `gap` 必须有 flex/grid） |
 | `pnpm check:style-index` | 两个样式入口的**生成结果**是否与组件目录一致（过期即红） |
+| `pnpm check:package-entries` | 组件子路径的两份清单（`exports` + vite `entries`）是否与组件目录一致 |
 | `pnpm check:style-entries` | 各应用是否接了聚合样式入口 |
 | `pnpm check:runtime-deps` | 发布包的运行时依赖是否被正确声明 |
 | `pnpm check:packages` | publint |
@@ -78,12 +79,13 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
 
-另有九个**不在 `verify` 里**的命令：
+另有十个**不在 `verify` 里**的命令：
 
 | 命令 | 何时用 |
 |---|---|
 | `pnpm gen:style-index` | 新增/删除组件后，重新生成两个样式入口 |
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
+| `pnpm gen:package-entries` | 新增/删除组件后，重新生成 `exports` 与 vite `entries` |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
 | `pnpm gen:api-snapshot` | 有意改公开 API 后重写类型基线——**把 diff 一起提交**，那正是不兼容变更的清单 |
 | `pnpm check:a11y` | 用 axe 扫 52 个页面（15 demo × 3 适配器 + 7 个 admin 页），按 `a11y-baseline.json` 只拦**新增**的 serious/critical |
@@ -125,7 +127,7 @@ jsdom 没有布局引擎，也没有 CSS 特异性——**布局、绘制、主�
 | 新增 / 删除能力位 | `packages/internal/adapter-conformance/src/capability-coverage.ts`（必须交代验证责任，否则测试红） |
 | 有意修改公开 API（prop / 类型 / 导出） | `api-snapshot/*.json`（跑 `pnpm gen:api-snapshot`，把 diff 一起提交） |
 | 有意改变体积（新增依赖 / 大功能） | `size-baseline.json`（跑 `pnpm gen:size-baseline`，把 diff 一起提交） |
-| 新增组件 | `docs/style-guide.md` §二 检查清单<br>`packages/components/package.json` 的 `exports` + `vite.config.ts` entry（**仍是手写**） |
+| 新增组件 | `docs/style-guide.md` §二 检查清单<br>跑 `pnpm gen:package-entries`：`exports` 与 vite `entries` 已由目录结构生成（`check:package-entries` 会校验） |
 | 新增发布包 | `scripts/publish-all.mjs` 的 `ORDER`（`check:publish-order` 会校验） |
 | 做了有取舍的架构决定 | `docs/design/` 新增一份设计稿，并在 `architecture.md` 的「设计决策记录」加一行 |
 
