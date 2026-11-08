@@ -111,10 +111,20 @@ lint → lint:deps → typecheck → test → build → check:surface → check:
 | 类别 | 命令 | 为什么不在门禁里 |
 |---|---|---|
 | 生成器 | `gen:style-index` `gen:resolver-map` `gen:chart-fixtures` | 门禁只做**校验**（`check:style-index` / `check:resolver-map`）；自动重写会让人永远看不到「我忘了重新生成」 |
-| 发布 | `release` `version-packages` | 由 CI 的 `changesets/action` 驱动，见附录 F.3 |
+| 发布 | `release` `version-packages` | 由 **Release** workflow 的 `changesets/action` 驱动；它只由「CI 成功」的完成事件触发，见 §四 |
 
 `check:impact` 的**退出码永远是 0**（脚本自身出错除外）。
 如果影响大就卡 CI，团队会开始「为了过 CI 而拆小 PR」，反而让变更更难审查。
+
+**发布不在这 20 道门里，但它必须等这 20 道全绿。** `release.yml` 由 CI 的 `completed`
+事件触发，只在 `conclusion == success`、触发事件是 push、且分支是 main 时才执行，
+checkout 显式取那次 CI 的 `head_sha`。改之前两者是**并行**的：
+
+> 2026-11-08 `e596bd6` 实测：Release 08:22:33 把 0.4.0 发上 npm，CI 08:27:22 才给结论 ——
+> 发布比门的结论早 4 分 49 秒。而发布路径自己只跑 `install` / `test` / `check:publish-order`
+> 三道，`attw`、`check:consumer`、`check:surface` 这些「装上就坏」类的门在发布前根本没跑。
+>
+> 常规兜底（让 main 只能合绿 PR）在这个仓库用不了：私有 + 免费计划，分支保护/ruleset 均 403。
 
 ## 五、本轮做了什么
 
@@ -837,7 +847,7 @@ fixed 组 = 8 个 UI 栈包
 
 ### F.9 剩余待办
 
-**需要人操作的**：无（发布链路已跑通一次，后续 push 即自动发布）。
+**需要人操作的**：无（`push → CI 20 步全绿 → Release` 才发布，见 §四；不再是与 CI 抢跑）。
 
 **代码层面（按路线图 M2–M4）**：
 

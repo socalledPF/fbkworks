@@ -169,28 +169,46 @@ tests/consumer/          消费者烟雾测试（按 exports 解析 dist，不�
 
 发布到公开 npm，scope 为 `@fbkworks`（需要在 npm 上创建同名组织并拥有发布权限）。
 
-**首次发布 `0.1.0`**（8 个包版本号当前都已是 `0.1.0`，不需要跑 `version-packages`）：
+**正常路径是全自动的**，不需要在本地跑任何发布命令：
+
+```
+push / 合并到 main
+  → CI（20 步门禁）全绿
+  → Release workflow 由 CI 的 completed 事件触发
+  → changesets/action：
+      · 有待发 changeset → 开/更新 "chore: version packages" PR（此时不发包）
+      · 没有待发 changeset、但有未发布的版本号 → pnpm release 发布
+```
+
+发布**必须等 CI 全绿**：Release 只在 CI 成功、触发事件是 push、且分支是 main 时才执行，
+并显式 checkout 那次 CI 的 `head_sha`。（2026-11-08 之前两者是并行的，实测出现过
+「0.4.0 已上 npm，CI 五分钟后才给结论」——见检查点 §四。）
+
+所以日常只有一件事要做：**改代码时带上 changeset**。
+
+```bash
+pnpm changeset          # 描述本次变更（决定 minor / patch）
+```
+
+之后合并版本 PR、等 CI 绿就行。
+
+### 应急：本地手动发布
+
+CI 长期不可用时，`publish:all` 仍然保留：
 
 ```bash
 npm login
 pnpm build
-pnpm publish:dry        # 先干跑一遍，确认 8 个包都能打包
+pnpm publish:dry        # 先干跑一遍，确认 12 个包都能打包
 pnpm publish:all        # 按依赖顺序正式发布
 ```
 
-`publish:all` 按拓扑序（tokens → shared → adapter-core → adapters/* → components → resolver）逐个发布，
-任何一个失败就停止后续——保证 registry 上任意时刻的已发布集合都是可安装的。
+按拓扑序（tokens → shared → data → adapter-core → chart-core → adapters/* → components →
+dashboard → screen → resolver）逐个发布，任何一个失败就停止后续——保证 registry 上任意时刻的
+已发布集合都是可安装的。
 
 > 必须走 `pnpm publish`，不能用 `npm publish`：包之间用 `workspace:^` 协议，
-> 只有 pnpm 会在打包时把它改写成真实版本号（`^0.1.0`）。用 npm 发出去的 tarball 里会字面量保留
+> 只有 pnpm 会在打包时把它改写成真实版本号。用 npm 发出去的 tarball 里会字面量保留
 > `workspace:^`，消费者安装直接失败，而且已发布的版本号不能覆盖，只能发新版本。
-
-**后续版本**：
-
-```bash
-pnpm changeset          # 描述本次变更
-pnpm version-packages   # 消费 changeset 并更新版本
-pnpm release            # changeset publish
-```
 
 所有发布包用 Changesets `fixed` 锁步版本，`publishConfig.access` 为 `public`。

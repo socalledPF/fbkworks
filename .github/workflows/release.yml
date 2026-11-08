@@ -1,8 +1,23 @@
 name: Release
 
+# 不在 push 上直接发布：必须等 CI 绿。
+#
+# 起因（2026-11-08，提交 e596bd6）：Release 在 08:22:33 就把 0.4.0 发上了 npm，
+# 而 CI 08:27:22 才给出结论 —— **发布比门的结论早 4 分 49 秒**。发布路径自己只跑
+# install / test / check:publish-order，verify 另外 17 道（attw、consumer 烟雾测试、
+# 公开类型面、体积基线……）在发布前根本不跑。
+#
+# 常规兜底是「让 main 只能合绿 PR」，但这个仓库是私有 + 免费计划，分支保护/ruleset
+# 都开不了（API 403）。所以只能在 workflow 层面解决：改成由 CI 的完成事件触发。
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
+  # 逃生口：CI 因与本次发布无关的原因红（比如视觉脚本抖动）时可以手动发。
+  # 手动触发没有 CI 结论可依赖，所以下面仍保留 test 与 publish-order 两道兜底。
+  # 别把它当常规路径 —— 绕过的就是这道门本身。
+  workflow_dispatch:
 
 concurrency:
   group: release-${{ github.ref }}
@@ -25,6 +40,9 @@ concurrency:
 
 jobs:
   release:
+    # workflow_run 也会被 PR 上的 CI 触发，三个条件缺一不可：
+    # 只有「push 到 main 触发的 CI」且成功才发布。手动触发不受此限。
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,6 +50,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          # 必须显式取触发那次 CI 的 sha：workflow_run 事件里 github.sha 是默认分支
+          # 的最新提交，不是这次通过门禁的那个提交。
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v5
@@ -44,6 +65,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # 这两道在 CI 里也跑过（test 是第 4 步、publish-order 是第 18 步）。
+      # 留在这里是为了 workflow_dispatch —— 手动发布时没有任何 CI 结论背书。
       - name: 发布前跑一遍契约测试
         run: pnpm test
 
