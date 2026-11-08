@@ -848,7 +848,7 @@ fixed 组 = 8 个 UI 栈包
 | 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
 | ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。5 个脚本里 4 个进 CI；`compare-controls.py` 故意排除（比较对象已不存在，需先窄化）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
-| a11y | 全库只有 2 个文件带 `aria`/`role` |
+| a11y | 实测 **17 个源文件**出现 `aria-*`/`role`（含 1 个 css；apps 侧 8 个、packages 侧 9 个）。原文写的「只有 2 个文件」已过期。真正缺的不是数量，而是**判据与门禁**：没有「每个交互原语必须有可访问名/键盘可达」的检查，所以现在是「有些地方做了，没人保证不退化」 |
 | `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |
 | `detail-drawer.md` | 组件已导出、有 demo，但**没有文档页** |
 | `components` ↔ `adapter-core` | 无运行时兼容护栏（拆 fixed 时的缺口；两者仍同组，暂不暴露） |
