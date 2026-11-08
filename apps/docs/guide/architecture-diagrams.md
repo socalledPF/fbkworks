@@ -481,7 +481,7 @@ flowchart LR
 | **M1 首发** | registry 可安装；新建空项目按文档接入并跑通「列表 + 查询 + 表单 + 详情」；改一个 patch 能自动发版且 tag 正确 |
 | **M2 契约稳定** | 新增原语走可选层、**不升** `ADAPTER_API_VERSION`；公开 API 有快照基线；`pnpm check:capabilities` 的 strict 模式转绿（已归零：0 条 `unverified`） |
 | **M3 覆盖扩展** | 新能力一律走可选层或 `chart-core` 的共享零件，不复制 |
-| **M4 治理成熟** | `scripts/visual/` 的 5 个脚本里 4 个进 CI（`compare-controls.py` 待窄化后才进）；全库 aria 覆盖；包体积有实测数据 |
+| **M4 治理成熟** | `scripts/visual/` 的 5 个脚本里 4 个进 CI（`compare-controls.py` 待窄化后才进）；全库 aria 覆盖；包体积有实测数据（`pnpm size` 出表，`check:size` 按入口可达性设阈） |
 
 ### 版本策略
 

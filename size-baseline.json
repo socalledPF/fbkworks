@@ -1,0 +1,151 @@
+{
+  "_note": "由 scripts/gen-size-baseline.mjs 生成，请勿手改。阈值：比基线涨超 5% 且涨超 2 KB 才红。有意增长时跑 pnpm gen:size-baseline，并把 diff 一起提交。",
+  "unit": "bytes",
+  "entries": {
+    "@fbkworks/adapter-core": {
+      "js": 15971,
+      "css": 0,
+      "files": 1
+    },
+    "@fbkworks/adapter-element-plus": {
+      "js": 31822,
+      "css": 13592,
+      "files": 18
+    },
+    "@fbkworks/adapter-element-plus/dark.css": {
+      "js": 0,
+      "css": 54,
+      "files": 0
+    },
+    "@fbkworks/adapter-naive-ui": {
+      "js": 37778,
+      "css": 17892,
+      "files": 18
+    },
+    "@fbkworks/adapter-naive-ui/dark.css": {
+      "js": 0,
+      "css": 182,
+      "files": 0
+    },
+    "@fbkworks/adapter-vant": {
+      "js": 35907,
+      "css": 7810,
+      "files": 17
+    },
+    "@fbkworks/adapter-vant/dark.css": {
+      "js": 0,
+      "css": 159,
+      "files": 0
+    },
+    "@fbkworks/chart-core": {
+      "js": 15815,
+      "css": 33312,
+      "files": 6
+    },
+    "@fbkworks/components": {
+      "js": 88369,
+      "css": 68614,
+      "files": 17
+    },
+    "@fbkworks/components/crud-page": {
+      "js": 41786,
+      "css": 425,
+      "files": 9
+    },
+    "@fbkworks/components/descriptions": {
+      "js": 7407,
+      "css": 9394,
+      "files": 2
+    },
+    "@fbkworks/components/detail-drawer": {
+      "js": 32942,
+      "css": 0,
+      "files": 9
+    },
+    "@fbkworks/components/detail-page": {
+      "js": 26860,
+      "css": 2248,
+      "files": 7
+    },
+    "@fbkworks/components/form-generator": {
+      "js": 12451,
+      "css": 2597,
+      "files": 3
+    },
+    "@fbkworks/components/form-modal": {
+      "js": 19894,
+      "css": 469,
+      "files": 4
+    },
+    "@fbkworks/components/page-container": {
+      "js": 5726,
+      "css": 4721,
+      "files": 2
+    },
+    "@fbkworks/components/pro-table": {
+      "js": 26580,
+      "css": 10108,
+      "files": 6
+    },
+    "@fbkworks/components/query-form": {
+      "js": 10713,
+      "css": 3802,
+      "files": 3
+    },
+    "@fbkworks/components/result": {
+      "js": 5743,
+      "css": 2525,
+      "files": 3
+    },
+    "@fbkworks/components/styles/index.css": {
+      "js": 0,
+      "css": 36975,
+      "files": 0
+    },
+    "@fbkworks/dashboard": {
+      "js": 23631,
+      "css": 41721,
+      "files": 8
+    },
+    "@fbkworks/data": {
+      "js": 7494,
+      "css": 0,
+      "files": 6
+    },
+    "@fbkworks/resolver": {
+      "js": 1361,
+      "css": 0,
+      "files": 1
+    },
+    "@fbkworks/screen": {
+      "js": 29705,
+      "css": 45813,
+      "files": 11
+    },
+    "@fbkworks/shared": {
+      "js": 5307,
+      "css": 0,
+      "files": 1
+    },
+    "@fbkworks/tokens": {
+      "js": 4907,
+      "css": 0,
+      "files": 1
+    },
+    "@fbkworks/tokens/css": {
+      "js": 0,
+      "css": 32037,
+      "files": 0
+    },
+    "@fbkworks/tokens/cyber.css": {
+      "js": 0,
+      "css": 6735,
+      "files": 0
+    },
+    "@fbkworks/tokens/dark.css": {
+      "js": 0,
+      "css": 5315,
+      "files": 0
+    }
+  }
+}

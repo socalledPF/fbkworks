@@ -57,6 +57,11 @@ jobs:
       - name: 公开 API 快照
         run: pnpm check:api-snapshot
 
+      # 按 exports 入口算「引入这一个入口实际要拉多少」（沿相对 import 走可达性）。
+      # 阈值：比基线涨超 5% 且涨超 2 KB。有意增长时 pnpm gen:size-baseline 并带上 diff。
+      - name: 包体积基线
+        run: pnpm check:size
+
       - name: 样式接入（gap/flex 静默失效）
         run: pnpm check:styles
 

@@ -36,6 +36,9 @@
     "check:resolver-map": "node scripts/gen-resolver-map.mjs --check",
     "gen:api-snapshot": "node scripts/gen-api-snapshot.mjs",
     "check:api-snapshot": "node scripts/gen-api-snapshot.mjs --check",
+    "size": "node scripts/gen-size-baseline.mjs --print",
+    "gen:size-baseline": "node scripts/gen-size-baseline.mjs",
+    "check:size": "node scripts/gen-size-baseline.mjs --check",
     "check:capabilities": "node scripts/check-capabilities.mjs",
     "verify:fresh": "node scripts/verify-fresh-clone.mjs",
     "gen:style-index": "node scripts/gen-style-entries.mjs",
@@ -44,7 +47,7 @@
     "lint:deps": "depcruise packages apps --config dependency-cruiser.config.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:styles && pnpm check:style-index && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm lint && pnpm lint:deps && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:size && pnpm check:styles && pnpm check:style-index && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbkworks/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbkworks/docs check:diagrams"
   },

@@ -64,6 +64,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm build` | turbo 构建全部包 |
 | `pnpm check:surface` | 扫描公开 `.d.ts`，禁止泄漏 UI 库类型 |
 | `pnpm check:api-snapshot` | 公开**类型**与基线一致（`api-snapshot/`）。改一个 prop 的名字/类型对消费者是破坏性变更，此前没有任何门禁会红 |
+| `pnpm check:size` | 每个 `exports` 入口的可达体积与基线一致（`size-baseline.json`）。涨超 5% 且涨超 2 KB 才红 |
 | `pnpm check:styles` | 每条组件样式是否被登记 + 布局声明（用了 `gap` 必须有 flex/grid） |
 | `pnpm check:style-index` | 两个样式入口的**生成结果**是否与组件目录一致（过期即红） |
 | `pnpm check:style-entries` | 各应用是否接了聚合样式入口 |
@@ -77,7 +78,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
 
-另有五个**不在 `verify` 里**的命令：
+另有七个**不在 `verify` 里**的命令：
 
 | 命令 | 何时用 |
 |---|---|
@@ -85,6 +86,8 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
 | `pnpm gen:api-snapshot` | 有意改公开 API 后重写类型基线——**把 diff 一起提交**，那正是不兼容变更的清单 |
+| `pnpm size` | 打印每个入口的体积表（JS/CSS 的 raw 与 gzip）。不写文件 |
+| `pnpm gen:size-baseline` | 有意改变体积后重写基线——**把 diff 一起提交**，那就是这次变胖/变瘦的账 |
 | `pnpm verify:fresh` | 在**全新克隆**里跑一遍完整 CI（实测 171–243s）。三次 CI 事故都是「本地通、全新克隆挂」，这是唯一能根治的手段 |
 
 ### 视觉回归（真实浏览器，跑在 CI 里）
@@ -116,6 +119,7 @@ jsdom 没有布局引擎，也没有 CSS 特异性——**布局、绘制、主�
 | 变更「什么情况该升契约版本」 | `apps/docs/guide/architecture.md` 的「什么时候该升版本号」<br>`packages/adapter-core/src/contracts/adapter.ts` 顶部注释 |
 | 新增 / 删除能力位 | `packages/internal/adapter-conformance/src/capability-coverage.ts`（必须交代验证责任，否则测试红） |
 | 有意修改公开 API（prop / 类型 / 导出） | `api-snapshot/*.json`（跑 `pnpm gen:api-snapshot`，把 diff 一起提交） |
+| 有意改变体积（新增依赖 / 大功能） | `size-baseline.json`（跑 `pnpm gen:size-baseline`，把 diff 一起提交） |
 | 新增组件 | `docs/style-guide.md` §二 检查清单<br>`packages/components/package.json` 的 `exports` + `vite.config.ts` entry（**仍是手写**） |
 | 新增发布包 | `scripts/publish-all.mjs` 的 `ORDER`（`check:publish-order` 会校验） |
 | 做了有取舍的架构决定 | `docs/design/` 新增一份设计稿，并在 `architecture.md` 的「设计决策记录」加一行 |
