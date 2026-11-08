@@ -2,7 +2,7 @@ import { inject, type InjectionKey, type Ref } from 'vue'
 import type { FbkTokens } from '@fbkworks/tokens'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'
-import type { UiAdapter } from './contracts/adapter'
+import { ADAPTER_API_VERSION, type UiAdapter } from './contracts/adapter'
 import { NOOP_REPORTER, type FbkReporter } from './observability'
 
 export interface AdapterContext {
@@ -38,6 +38,17 @@ export function useReporter(): FbkReporter {
   return useAdapterContext()?.reporter ?? NOOP_REPORTER
 }
 
+/**
+ * 取当前 UI 适配器。
+ *
+ * 顺带做一次**运行时兼容校验**：`components` 与 `adapter-core` 现在是同组发布，
+ * 但拆 `fixed` 之后两者可以各自升级 —— 那时「组件 0.5 配 core 0.4」或
+ * 「core 0.5 配一个按 0.4 契约写的适配器」都不会在构建期报错，只会在运行时
+ * 表现得莫名其妙（少了原语就是 undefined，多了字段就被忽略）。
+ *
+ * 所以每个用到适配器的组件在第一次渲染时都会经过这里，版本对不上就立刻带着
+ * 版本号说清楚 —— 而不是让问题漂到业务方的某个页面上。
+ */
 export function useAdapter(): UiAdapter {
   const ctx = useAdapterContext()
   if (!ctx) {
@@ -48,7 +59,26 @@ export function useAdapter(): UiAdapter {
         '文档：/guide/adapters',
     )
   }
+  assertAdapterVersion(ctx.adapter)
   return ctx.adapter
+}
+
+/**
+ * 版本对不上就在这里炸，带上双方版本号。
+ *
+ * 只在 `useAdapter()` 里做，而不是每个组件各写一遍 —— 组件拿适配器只有这一个入口，
+ * 挡在入口上就不存在「漏了一个组件」。
+ */
+function assertAdapterVersion(adapter: UiAdapter): void {
+  const actual = adapter.meta?.apiVersion
+  if (actual !== ADAPTER_API_VERSION) {
+    throw new Error(
+      `[fbk] 适配器「${adapter.meta?.name ?? 'unknown'}」的 apiVersion 是 ${actual ?? '未声明'}，` +
+        `当前 @fbkworks/adapter-core 要求 ${ADAPTER_API_VERSION}。` +
+        '这通常意味着 @fbkworks/components 与 @fbkworks/adapter-core 版本不匹配，' +
+        '或适配器是按旧契约写的。请把两者升到同一版本线。',
+    )
+  }
 }
 
 export function useAdapterCapabilities() {

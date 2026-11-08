@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import type { Component } from 'vue'
+import { h, type Component } from 'vue'
 import { ADAPTER_API_VERSION, type UiAdapter } from '@fbkworks/adapter-core'
 import { defaultTokens } from '@fbkworks/tokens'
 
@@ -249,6 +249,17 @@ export function runAdapterConformance(options: ConformanceOptions): void {
     it('DataGrid 空数据渲染空态', () => {
       const wrapper = mount(p.DataGrid, { columns, data: [], emptyText: '没有记录' })
       expect(wrapper.text()).toContain('没有记录')
+    })
+
+    it('DataGrid 空态：默认用 emptyText，传了 #empty 就必须用业务内容', () => {
+      const byDefault = mount(p.DataGrid, { columns, data: [], emptyText: '没有记录' })
+      expect(byDefault.text(), '默认空态没有用 emptyText').toContain('没有记录')
+      byDefault.unmount()
+
+      const custom = mount(p.DataGrid, { columns, data: [] }, { empty: () => h('div', { class: 'probe-empty' }, '自定义空态') })
+      expect(custom.find('.probe-empty').exists(), '适配器没有消费 empty 插槽').toBe(true)
+      expect(custom.text(), '传了插槽却还渲染默认空态').not.toContain('暂无数据')
+      custom.unmount()
     })
 
     it('DataGrid 渲染 loading 态', async () => {

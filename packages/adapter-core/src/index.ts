@@ -42,6 +42,7 @@ export type {
   DataGridEmits,
   DataGridPresentation,
   DataGridProps,
+  DataGridSlots,
   SortOrder,
   SortState,
 } from './contracts/data-grid'

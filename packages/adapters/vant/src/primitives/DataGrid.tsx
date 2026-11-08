@@ -58,9 +58,11 @@ export const DataGrid = defineComponent({
 
     return () => (
       <div class="fbk-vant-grid" data-fbk-part="data-grid" {...attrs}>
-        {props.data.length === 0 && !props.loading ? (
-          <VanEmpty description={props.emptyText ?? '暂无数据'} />
-        ) : null}
+        {props.data.length === 0 && !props.loading
+          ? slots.empty
+            ? slots.empty()
+            : <VanEmpty description={props.emptyText ?? '暂无数据'} />
+          : null}
 
         {props.data.map((row, index) => {
           const key = keyOf(row, index)

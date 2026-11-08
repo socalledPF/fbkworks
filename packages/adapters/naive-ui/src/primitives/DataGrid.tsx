@@ -69,7 +69,7 @@ export const DataGrid = defineComponent({
         loading={props.loading}
         size={size.value}
         v-slots={{
-          empty: () => <NEmpty description={props.emptyText ?? '暂无数据'} />,
+          empty: () => (slots.empty ? slots.empty() : <NEmpty description={props.emptyText ?? '暂无数据'} />),
         }}
         onUpdate:checkedRowKeys={(keys: Array<string | number>) => emit('update:selectedKeys', keys)}
         onUpdate:sorter={(sorter: any) => {

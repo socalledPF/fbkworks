@@ -163,7 +163,7 @@
     },
     "ProTableSlots": {
       "kind": "interface",
-      "text": "export interface ProTableSlots {\n    toolbar?: (props: {\n        selectedKeys: Key[];\n        reload: () => Promise<void>;\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    'card-footer'?: (props: any) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => Promise<void>;\n    }) => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
+      "text": "export interface ProTableSlots {\n    toolbar?: (props: {\n        selectedKeys: Key[];\n        reload: () => Promise<void>;\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    'card-footer'?: (props: any) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => Promise<void>;\n    }) => VNodeChild;\n    empty?: () => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
     },
     "ProTableUiProps": {
       "kind": "interface",

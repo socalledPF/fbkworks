@@ -3,12 +3,12 @@
   "unit": "bytes",
   "entries": {
     "@fbkworks/adapter-core": {
-      "js": 15971,
+      "js": 16654,
       "css": 0,
       "files": 1
     },
     "@fbkworks/adapter-element-plus": {
-      "js": 31822,
+      "js": 31900,
       "css": 13592,
       "files": 18
     },
@@ -18,7 +18,7 @@
       "files": 0
     },
     "@fbkworks/adapter-naive-ui": {
-      "js": 37778,
+      "js": 37808,
       "css": 17892,
       "files": 18
     },
@@ -28,7 +28,7 @@
       "files": 0
     },
     "@fbkworks/adapter-vant": {
-      "js": 35907,
+      "js": 35937,
       "css": 7810,
       "files": 17
     },
@@ -43,12 +43,12 @@
       "files": 6
     },
     "@fbkworks/components": {
-      "js": 88369,
+      "js": 88622,
       "css": 68614,
       "files": 17
     },
     "@fbkworks/components/crud-page": {
-      "js": 41786,
+      "js": 42039,
       "css": 425,
       "files": 9
     },
@@ -83,7 +83,7 @@
       "files": 2
     },
     "@fbkworks/components/pro-table": {
-      "js": 26580,
+      "js": 26833,
       "css": 10108,
       "files": 6
     },

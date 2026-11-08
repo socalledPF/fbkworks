@@ -311,6 +311,10 @@ defineExpose<ProTableExpose<T>>({
       <template v-if="$slots['card-footer']" #card-footer="slotProps">
         <slot name="card-footer" v-bind="slotProps" />
       </template>
+      <!-- 空态同理：只有业务方真的传了才转发，否则适配器用自己的默认空态 -->
+      <template v-if="$slots.empty" #empty="slotProps">
+        <slot name="empty" v-bind="slotProps" />
+      </template>
     </component>
 
     <div v-if="showPagination" class="fbk-pro-table__pagination" v-bind="paginationAttrs">

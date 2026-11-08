@@ -129,6 +129,13 @@ export interface ProTableSlots {
   'card-footer'?: (props: any) => VNodeChild
   /** 请求失败时替代表格出现的错误态 */
   error?: (props: { error: unknown; retry: () => Promise<void> }) => VNodeChild
+  /**
+   * 自定义空态。不传就用适配器自己的空态组件 + `emptyText` 文案。
+   *
+   * 为什么要它：默认空态只有一句文案，但业务上常常要做「还没有数据，去创建一个」
+   * 这类引导。给它一个插槽就够 —— 不为空态再造一个组件（`FbkEmpty` 曾存在并被删掉）。
+   */
+  empty?: () => VNodeChild
   /** 覆盖某一列的单元格，插槽名 `cell-${key}` */
   [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined
 }

@@ -4,17 +4,19 @@ import { defineVueLib } from '../internal/build-config/src/index.ts'
 
 export default defineVueLib({
   root: import.meta.dirname,
+  // <generated:entries>
   entries: {
     index: 'src/index.ts',
+    'crud-page/index': 'src/crud-page/index.ts',
+    'descriptions/index': 'src/descriptions/index.ts',
+    'detail-drawer/index': 'src/detail-drawer/index.ts',
+    'detail-page/index': 'src/detail-page/index.ts',
+    'form-generator/index': 'src/form-generator/index.ts',
+    'form-modal/index': 'src/form-modal/index.ts',
+    'page-container/index': 'src/page-container/index.ts',
     'pro-table/index': 'src/pro-table/index.ts',
     'query-form/index': 'src/query-form/index.ts',
-    'form-generator/index': 'src/form-generator/index.ts',
-    'page-container/index': 'src/page-container/index.ts',
-    'descriptions/index': 'src/descriptions/index.ts',
-    'crud-page/index': 'src/crud-page/index.ts',
-    'form-modal/index': 'src/form-modal/index.ts',
     'result/index': 'src/result/index.ts',
-    'detail-page/index': 'src/detail-page/index.ts',
-    'detail-drawer/index': 'src/detail-drawer/index.ts',
   },
+  // </generated:entries>
 })

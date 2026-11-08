@@ -38,6 +38,7 @@ export const DataGrid = defineComponent({
     return () => withDirectives(
       <ElTable
         {...attrs}
+        v-slots={slots.empty ? { empty: () => slots.empty!() } : undefined}
         data={props.data}
         rowKey={props.rowKey as any}
         size={elementSize.value}

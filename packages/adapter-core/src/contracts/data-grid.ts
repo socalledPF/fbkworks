@@ -66,6 +66,21 @@ export interface DataGridProps<T = any> {
   size?: 'sm' | 'md' | 'lg'
 }
 
+/**
+ * DataGrid 的插槽契约。目前只有一个 `empty`。
+ *
+ * 为什么是插槽而不是又一个组件：`FbkEmpty` 曾经存在并被删掉 ——
+ * 它只是把「空态」这件事又包了一层，多一个要同步的入口，而它本身没有任何行为。
+ * 空态的默认实现由各适配器用自己的空态组件渲染（`emptyText` 作为文案），
+ * 业务方需要自定义时传这一个插槽即可。
+ *
+ * 适配器实现要求：提供了 `empty` 就用它，没提供才渲染默认空态 ——
+ * 三者语义必须一致，否则「换库外观不变」这条承诺在这里就断了。
+ */
+export interface DataGridSlots {
+  empty?: () => any
+}
+
 export interface DataGridEmits<T = any> {
   'update:selectedKeys': [keys: Array<string | number>]
   /**
