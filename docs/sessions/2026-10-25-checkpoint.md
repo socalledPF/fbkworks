@@ -20,7 +20,7 @@
 | 未发布变更集 | 8 个（`.changeset/*.md`，README 除外） |
 
 > ⚠️ **上表是 2026-10-25 的快照，已经过期。** 当前状态见 [附录 F.8](#f8-当前状态)：
-> HEAD `7e403a4`、`pnpm verify` **18 步**、**840 通过 + 4 skipped / 74 文件**、
+> HEAD `7e8785c`、`pnpm verify` **18 步**、**840 通过 + 4 skipped / 74 文件**、
 > **0 个未发布变更集**（12 个包已全部发布为 **0.3.0**）。
 > 保留上表是为了让读者看清状态是怎么演进的，不是为了当现状用。
 
@@ -827,9 +827,9 @@ npm registry: @fbkworks/components@0.3.0 可查
 ### F.8 当前状态
 
 ```
-main = 6d642d9（版本 PR 合并后）
-pnpm verify = 17 步，全绿
-测试 830 通过 + 1 skipped / 74 文件
+main = 7e8785c
+pnpm verify = 18 步，全绿
+测试 840 通过 + 4 skipped / 74 文件
 发布包 12 个，全部 0.3.0，已上 npm
 fixed 组 = 8 个 UI 栈包
 原语 = 13 必填 + 1 可选（Drawer）
