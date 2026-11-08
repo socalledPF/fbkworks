@@ -10,6 +10,17 @@ ProTable 的 `.fbk-pro-table__bulk button` 压掉了 .fbk-demo-btn）。
     python scripts/visual/compare-controls.py [端口]
 
 退出码非 0 表示存在不一致。
+
+## ⚠️ 当前状态：未接入 CI，且已无法直接运行
+
+它比较的两端里，**playground header 的原生控件已经不存** ——
+playground 改版后 header 换成 el-select，`.playground__toggle` / `.playground__field select`
+这些选择器全部失效（2026-10-28 实测：TimeoutError）。
+
+没有删掉是因为它要防的问题仍然真实：组件样式以更高特异性压掉 `.fbk-demo-btn`
+（ProTable 的 `.fbk-pro-table__bulk button` 就干过）。
+正确的下一步是把它窄化成「跨 demo 的 .fbk-demo-btn 一致性对比」，去掉 header 那一半。
+在此之前**不要把它接进 CI** —— 一个红的检查挂上去只会被习惯性忽略。
 """
 
 import json
@@ -17,6 +28,14 @@ import json
 from playwright.sync_api import sync_playwright
 
 import sys
+
+# Windows 控制台默认 GBK，print("✓") 会 UnicodeEncodeError（verify-admin 实测崩过）。
+# CI 是 UTF-8 不踩这个坑，本地会；统一兜一层，让两边都能完整跑完。
+import sys as _sys_utf8
+
+if hasattr(_sys_utf8.stdout, "reconfigure"):
+    _sys_utf8.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 
 PORT = sys.argv[1] if len(sys.argv) > 1 else "5179"
 URL = f"http://localhost:{PORT}/"

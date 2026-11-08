@@ -46,6 +46,14 @@ import sys
 
 from playwright.sync_api import sync_playwright
 
+# Windows 控制台默认 GBK，print("✓") 会 UnicodeEncodeError（verify-admin 实测崩过）。
+# CI 是 UTF-8 不踩这个坑，本地会；统一兜一层，让两边都能完整跑完。
+import sys as _sys_utf8
+
+if hasattr(_sys_utf8.stdout, "reconfigure"):
+    _sys_utf8.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 PORT = sys.argv[1] if len(sys.argv) > 1 else "5174"
 BASE = f"http://localhost:{PORT}/probe.html"
 ADAPTERS = ["element-plus", "naive-ui", "vant"]

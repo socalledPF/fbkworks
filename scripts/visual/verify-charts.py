@@ -26,15 +26,32 @@ from playwright.sync_api import sync_playwright
 
 import sys
 
+# Windows 控制台默认 GBK，print("✓") 会 UnicodeEncodeError（verify-admin 实测崩过）。
+# CI 是 UTF-8 不踩这个坑，本地会；统一兜一层，让两边都能完整跑完。
+import sys as _sys_utf8
+
+if hasattr(_sys_utf8.stdout, "reconfigure"):
+    _sys_utf8.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 PORT = sys.argv[1] if len(sys.argv) > 1 else "5180"
 URL = f"http://localhost:{PORT}/"
 results = {}
 
 
-def goto_demo(page, demo):
-    page.goto(URL)
+def demo_url(demo, adapter="element-plus", theme="light"):
+    """Playground 支持 `#/<demo>?adapter=&theme=` 深链（见 apps/playground/src/App.vue）。
+
+    原先靠操作 `.playground__field select` 切 demo —— playground 改版后那是
+    hand-written 的原生 select，现在是 el-select + 侧边栏，选择器早就失效了。
+    直接导航深链更稳，也不依赖 UI 结构。
+    """
+    return f"{URL}#/{demo}?adapter={adapter}&theme={theme}"
+
+
+def goto_demo(page, demo, adapter="element-plus", theme="light"):
+    page.goto(demo_url(demo, adapter, theme))
     page.wait_for_load_state("networkidle")
-    page.locator(".playground__field select").nth(2).select_option(demo)
     page.wait_for_timeout(3500)
 
 
@@ -128,11 +145,8 @@ with sync_playwright() as p:
     theme_check = {}
     for theme in ["light", "dark", "cyber"]:
         page = browser.new_page(viewport={"width": 1440, "height": 1200})
-        page.goto(URL)
+        page.goto(demo_url("dashboard/basic", theme=theme))
         page.wait_for_load_state("networkidle")
-        page.locator(".playground__field select").nth(1).select_option(theme)
-        page.wait_for_timeout(400)
-        page.locator(".playground__field select").nth(2).select_option("dashboard/basic")
         page.wait_for_timeout(3500)
         theme_check[theme] = page.evaluate(
             """
