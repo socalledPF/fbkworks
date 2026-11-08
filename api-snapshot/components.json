@@ -1,0 +1,257 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/components",
+  "entries": [
+    ".",
+    "./crud-page",
+    "./descriptions",
+    "./detail-drawer",
+    "./detail-page",
+    "./form-generator",
+    "./form-modal",
+    "./page-container",
+    "./pro-table",
+    "./query-form",
+    "./result"
+  ],
+  "symbols": {
+    "BreadcrumbItem": {
+      "kind": "interface",
+      "text": "export interface BreadcrumbItem {\n    text: string;\n    to?: string;\n}"
+    },
+    "CrudPageExpose": {
+      "kind": "interface",
+      "text": "export interface CrudPageExpose<T = any> {\n    refresh: () => Promise<void>;\n    reset: () => Promise<void>;\n    getParams: () => Record<string, any>;\n    getData: () => T[];\n    getSelectedKeys: () => Key[];\n    clearSelection: () => void;\n}"
+    },
+    "CrudPageProps": {
+      "kind": "interface",
+      "text": "export interface CrudPageProps<T extends Record<string, any> = Record<string, any>> {\n    queryFields?: QueryField[];\n    queryProps?: Omit<QueryFormProps, 'fields' | 'modelValue'>;\n    columns: ProTableColumn<T>[];\n    request: TableRequest<T>;\n    rowKey?: ProTableProps<T>['rowKey'];\n    selection?: ProTableProps<T>['selection'];\n    tableProps?: Omit<ProTableProps<T>, 'columns' | 'request' | 'params' | 'rowKey' | 'selection'>;\n    immediate?: boolean;\n    defaultCollapsed?: boolean;\n}"
+    },
+    "CrudPageSlots": {
+      "kind": "interface",
+      "text": "export interface CrudPageSlots {\n    toolbar?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => void;\n    }) => VNodeChild;\n    form?: () => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
+    },
+    "DescriptionGroup": {
+      "kind": "interface",
+      "text": "export interface DescriptionGroup {\n    key: string;\n    title?: string;\n    column?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    collapsible?: boolean;\n    defaultCollapsed?: boolean;\n}"
+    },
+    "DescriptionItem": {
+      "kind": "interface",
+      "text": "export interface DescriptionItem<T = Record<string, any>> {\n    key: string;\n    label: string;\n    dataIndex?: (keyof T & string) | string;\n    getValue?: (row: T) => unknown;\n    span?: number;\n    render?: (ctx: {\n        row: T;\n        value: unknown;\n    }) => VNodeChild;\n    groups?: string[];\n    emptyText?: string;\n}"
+    },
+    "DescriptionsProps": {
+      "kind": "interface",
+      "text": "export interface DescriptionsProps<T = Record<string, any>> {\n    items: DescriptionItem<T>[];\n    data: T;\n    groups?: DescriptionGroup[];\n    column?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    bordered?: boolean;\n    direction?: 'horizontal' | 'vertical';\n    size?: Size;\n    labelWidth?: string;\n    groupGap?: 'sm' | 'md' | 'lg';\n}"
+    },
+    "DetailDrawerExpose": {
+      "kind": "interface",
+      "text": "export interface DetailDrawerExpose<T = any> {\n    data: T | null;\n    reload: () => Promise<void>;\n    close: () => void;\n}"
+    },
+    "DetailDrawerProps": {
+      "kind": "interface",
+      "text": "export interface DetailDrawerProps<T extends Record<string, any> = Record<string, any>> {\n    show?: boolean;\n    request: () => Promise<T | null>;\n    items: DescriptionItem<T>[];\n    title?: string | ((data: T) => string);\n    width?: string | number;\n    closeOnClickModal?: boolean;\n    showClose?: boolean;\n    expandText?: string;\n    showExpand?: boolean;\n    column?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    groups?: DescriptionGroup[];\n    emptyText?: string;\n    bordered?: boolean;\n    direction?: 'horizontal' | 'vertical';\n    size?: Size;\n}"
+    },
+    "DetailDrawerSlots": {
+      "kind": "type",
+      "text": "export type DetailDrawerSlots<T extends Record<string, any> = Record<string, any>> = DetailPageSlots<T>;"
+    },
+    "DetailPageExpose": {
+      "kind": "interface",
+      "text": "export interface DetailPageExpose<T> {\n    data: T | null;\n    loading: boolean;\n    error: unknown;\n    reload: () => Promise<void>;\n}"
+    },
+    "DetailPageProps": {
+      "kind": "interface",
+      "text": "export interface DetailPageProps<T extends Record<string, any> = Record<string, any>> {\n    request: () => Promise<T | null>;\n    items: DescriptionItem<T>[];\n    title?: string | ((data: T) => string);\n    subtitle?: string;\n    breadcrumbs?: BreadcrumbItem[];\n    back?: boolean | (() => void);\n    column?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    groups?: DescriptionGroup[];\n    emptyText?: string;\n    bordered?: boolean;\n    direction?: 'horizontal' | 'vertical';\n    size?: Size;\n    immediate?: boolean;\n    showHeader?: boolean;\n}"
+    },
+    "DetailPageSlots": {
+      "kind": "interface",
+      "text": "export interface DetailPageSlots<T> {\n    extra?: (props: {\n        data: T;\n    }) => VNodeChild;\n    actions?: (props: {\n        data: T;\n    }) => VNodeChild;\n    loading?: () => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => void;\n    }) => VNodeChild;\n    [fieldSlot: `field-${string}`]: ((props: {\n        data: T;\n        value: unknown;\n    }) => VNodeChild) | undefined;\n}"
+    },
+    "FbkCrudPage": {
+      "kind": "component"
+    },
+    "FbkDescriptions": {
+      "kind": "component"
+    },
+    "FbkDetailDrawer": {
+      "kind": "component"
+    },
+    "FbkDetailPage": {
+      "kind": "component"
+    },
+    "FbkFormGenerator": {
+      "kind": "component"
+    },
+    "FbkFormModal": {
+      "kind": "component"
+    },
+    "FbkPageContainer": {
+      "kind": "component"
+    },
+    "FbkProTable": {
+      "kind": "component"
+    },
+    "FbkQueryForm": {
+      "kind": "component"
+    },
+    "FbkResult": {
+      "kind": "component"
+    },
+    "FormField": {
+      "kind": "interface",
+      "text": "export interface FormField<V = any> extends Omit<QueryField<V>, 'type'> {\n    type: FormFieldType;\n    required?: boolean;\n    disabled?: boolean | ((model: Record<string, any>) => boolean);\n    help?: string;\n    dependencies?: string[];\n}"
+    },
+    "FormFieldType": {
+      "kind": "type",
+      "text": "export type FormFieldType = 'input' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'switch' | 'date' | 'datetime' | 'date-range' | 'time' | 'upload' | 'rate' | 'slider' | 'custom';"
+    },
+    "FormGeneratorExpose": {
+      "kind": "interface",
+      "text": "export interface FormGeneratorExpose {\n    validate: () => Promise<true>;\n    validateField: (prop: string | string[]) => Promise<true>;\n    resetFields: () => void;\n    getValues: () => Record<string, any>;\n    setValues: (values: Record<string, any>) => void;\n    submit: () => void;\n}"
+    },
+    "FormGeneratorProps": {
+      "kind": "interface",
+      "text": "export interface FormGeneratorProps<T extends Record<string, any> = Record<string, any>> {\n    schema: FormSchema<T>;\n    modelValue?: Partial<T>;\n    defaultValues?: Partial<T>;\n    mode?: 'create' | 'edit' | 'view';\n    disabled?: boolean;\n    loading?: boolean;\n    showActions?: boolean;\n    submitText?: string;\n    resetText?: string;\n    uiProps?: Record<string, any>;\n}"
+    },
+    "FormGroup": {
+      "kind": "interface",
+      "text": "export interface FormGroup {\n    title?: string;\n    fields: string[];\n}"
+    },
+    "FormModalExpose": {
+      "kind": "interface",
+      "text": "export interface FormModalExpose<T = any> {\n    open: (values?: Partial<T>) => void;\n    openEdit: (values: Partial<T>) => void;\n    close: () => void;\n    submit: () => Promise<void>;\n    getValues: () => Record<string, any>;\n    formRef: FormGeneratorExpose | undefined;\n    submitting: boolean;\n}"
+    },
+    "FormModalMode": {
+      "kind": "type",
+      "text": "export type FormModalMode = 'create' | 'edit';"
+    },
+    "FormModalProps": {
+      "kind": "interface",
+      "text": "export interface FormModalProps<T extends Record<string, any> = Record<string, any>> {\n    show?: boolean;\n    title?: string;\n    mode?: FormModalMode;\n    schema: FormSchema<T>;\n    initialValues?: Partial<T>;\n    defaultValues?: Partial<T>;\n    submit: (values: Record<string, any>, mode: FormModalMode) => Promise<void | boolean> | void | boolean;\n    width?: string | number;\n    placement?: 'center' | 'bottom';\n    closeOnClickModal?: boolean;\n    closeOnSuccess?: boolean;\n    autoFocus?: boolean;\n    submitText?: string;\n    cancelText?: string;\n    maskClosableWhileSubmitting?: boolean;\n}"
+    },
+    "FormSchema": {
+      "kind": "interface",
+      "text": "export interface FormSchema<T extends Record<string, any> = Record<string, any>> {\n    fields: FormField<keyof T extends never ? any : T[keyof T]>[];\n    groups?: FormGroup[];\n    columns?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    labelWidth?: string | number;\n    labelPosition?: 'left' | 'right' | 'top';\n    rules?: Record<string, FbkRule[]>;\n}"
+    },
+    "MOBILE_VIEWPORT_QUERY": {
+      "kind": "const",
+      "text": "MOBILE_VIEWPORT_QUERY = \"(max-width: 639px)\""
+    },
+    "PageContainerProps": {
+      "kind": "interface",
+      "text": "export interface PageContainerProps {\n    title?: string;\n    subtitle?: string;\n    back?: boolean | (() => void);\n    breadcrumbs?: BreadcrumbItem[];\n    loading?: boolean;\n    fixedHeader?: boolean;\n    showHeader?: boolean;\n    showFooter?: boolean;\n    maxWidth?: string | number;\n    uiProps?: {\n        header?: Record<string, any>;\n        backButton?: Record<string, any>;\n    };\n}"
+    },
+    "ProTableAction": {
+      "kind": "interface",
+      "text": "export interface ProTableAction<T = any> {\n    key: string;\n    text: string;\n    status?: Status;\n    variant?: 'default' | 'primary' | 'text' | 'link';\n    icon?: string;\n    confirm?: string;\n    visible?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    disabled?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    onClick?: (ctx: ProTableActionContext<T>) => void;\n}"
+    },
+    "ProTableActionContext": {
+      "kind": "interface",
+      "text": "export interface ProTableActionContext<T = any> {\n    row: T;\n    index: number;\n}"
+    },
+    "ProTableColumn": {
+      "kind": "interface",
+      "text": "export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<T> {\n    valueType?: ValueType;\n    valueEnum?: Record<string | number, ValueEnumItem>;\n    hideInTable?: boolean;\n    hideInCard?: boolean;\n    search?: boolean;\n    tooltip?: string;\n    copyable?: boolean;\n    actions?: ProTableAction<T>[];\n    max?: number;\n}"
+    },
+    "ProTableExpose": {
+      "kind": "interface",
+      "text": "export interface ProTableExpose<T = any> {\n    reload: (options?: {\n        resetPage?: boolean;\n    }) => Promise<void>;\n    getData: () => T[];\n    clearSelection: () => void;\n    setSelectedKeys: (keys: Key[]) => void;\n}"
+    },
+    "ProTableProps": {
+      "kind": "interface",
+      "text": "export interface ProTableProps<T extends Record<string, any> = Record<string, any>> {\n    columns: ProTableColumn<T>[];\n    rowKey?: (keyof T & string) | ((row: T) => Key);\n    data?: T[];\n    request?: TableRequest<T>;\n    params?: Record<string, any>;\n    loading?: boolean;\n    emptyText?: string;\n    presentation?: 'auto' | 'table' | 'cards';\n    page?: number;\n    pageSize?: number;\n    total?: number;\n    pagination?: false | {\n        pageSizes?: number[];\n        showTotal?: boolean;\n        showJumper?: boolean;\n    };\n    selection?: false | {\n        preserveOnReload?: boolean;\n        columnWidth?: number;\n    };\n    selectedKeys?: Key[];\n    sort?: SortState | null;\n    toolbar?: boolean;\n    uiProps?: ProTableUiProps;\n}"
+    },
+    "ProTableSlots": {
+      "kind": "interface",
+      "text": "export interface ProTableSlots {\n    toolbar?: (props: {\n        selectedKeys: Key[];\n        reload: () => Promise<void>;\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    'card-footer'?: (props: any) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => Promise<void>;\n    }) => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
+    },
+    "ProTableUiProps": {
+      "kind": "interface",
+      "text": "export interface ProTableUiProps {\n    grid?: Record<string, any>;\n    toolbar?: Record<string, any>;\n    pagination?: Record<string, any>;\n    actions?: Record<string, any>;\n}"
+    },
+    "QueryField": {
+      "kind": "interface",
+      "text": "export interface QueryField<V = any> {\n    name: string;\n    label: string;\n    type: QueryFieldType;\n    placeholder?: string;\n    options?: SelectOption[] | SelectOptionsResolver;\n    defaultValue?: V;\n    span?: number;\n    hidden?: boolean | ((values: Record<string, any>) => boolean);\n    rules?: FbkRule[];\n    uiProps?: Record<string, any>;\n    render?: (ctx: {\n        value: V;\n        values: Record<string, any>;\n        setValue: (value: V) => void;\n    }) => VNodeChild;\n}"
+    },
+    "QueryFieldType": {
+      "kind": "type",
+      "text": "export type QueryFieldType = 'input' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'switch' | 'date' | 'date-range' | 'custom';"
+    },
+    "QueryFormExpose": {
+      "kind": "interface",
+      "text": "export interface QueryFormExpose {\n    submit: () => void;\n    reset: () => void;\n    validate: () => Promise<true>;\n    getValues: () => Record<string, any>;\n    setValues: (values: Record<string, any>) => void;\n}"
+    },
+    "QueryFormProps": {
+      "kind": "interface",
+      "text": "export interface QueryFormProps {\n    fields: QueryField[];\n    modelValue?: Record<string, any>;\n    defaultValues?: Record<string, any>;\n    columns?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    collapsible?: boolean;\n    defaultCollapsed?: boolean;\n    visibleCount?: number;\n    submitText?: string;\n    resetText?: string;\n    loading?: boolean;\n    labelWidth?: string | number;\n    uiProps?: {\n        form?: Record<string, any>;\n        actions?: Record<string, any>;\n    };\n}"
+    },
+    "RESULT_DEFAULTS": {
+      "kind": "const",
+      "text": "RESULT_DEFAULTS: Record<ResultStatus, {\n    title: string;\n    subtitle?: string;\n}>"
+    },
+    "ResolvedGroup": {
+      "kind": "interface",
+      "text": "export interface ResolvedGroup<T = Record<string, any>> {\n    key: string;\n    title?: string;\n    items: DescriptionItem<T>[];\n    column?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    collapsible: boolean;\n    defaultCollapsed: boolean;\n}"
+    },
+    "ResultProps": {
+      "kind": "interface",
+      "text": "export interface ResultProps {\n    status?: ResultStatus;\n    title?: string;\n    subtitle?: string;\n    extra?: string;\n}"
+    },
+    "ResultSlots": {
+      "kind": "interface",
+      "text": "export interface ResultSlots {\n    icon?: () => unknown;\n    default?: () => unknown;\n    actions?: () => unknown;\n}"
+    },
+    "ResultStatus": {
+      "kind": "type",
+      "text": "export type ResultStatus = 'success' | 'warning' | 'error' | 'info' | '403' | '404' | '500';"
+    },
+    "TableRequest": {
+      "kind": "type",
+      "text": "export type TableRequest<T> = (params: TableRequestParams) => Promise<TableResponse<T>>;"
+    },
+    "TableRequestParams": {
+      "kind": "type",
+      "text": "export type TableRequestParams = PageQuery;"
+    },
+    "TableResponse": {
+      "kind": "type",
+      "text": "export type TableResponse<T> = Omit<Page<T>, 'total'> & {\n    total?: number;\n};"
+    },
+    "UseDetailOptions": {
+      "kind": "interface",
+      "text": "export interface UseDetailOptions<T> {\n    fetcher: () => Promise<T | null>;\n    immediate?: boolean;\n    onError?: (error: unknown) => void;\n}"
+    },
+    "UseDetailReturn": {
+      "kind": "interface",
+      "text": "export interface UseDetailReturn<T> {\n    data: Ref<T | null>;\n    loading: Ref<boolean>;\n    error: Ref<unknown>;\n    reload: () => Promise<void>;\n}"
+    },
+    "UseMobileViewportReturn": {
+      "kind": "interface",
+      "text": "export interface UseMobileViewportReturn {\n    isMobile: Ref<boolean>;\n}"
+    },
+    "ValueEnumItem": {
+      "kind": "interface",
+      "text": "export interface ValueEnumItem {\n    text: string;\n    status?: Status;\n}"
+    },
+    "ValueType": {
+      "kind": "type",
+      "text": "export type ValueType = 'text' | 'number' | 'money' | 'date' | 'datetime' | 'tag' | 'enum' | 'image' | 'actions';"
+    },
+    "useDetail": {
+      "kind": "function",
+      "text": "export declare function useDetail<T>(options: UseDetailOptions<T>): UseDetailReturn<T>;"
+    },
+    "useDetailWatch": {
+      "kind": "function",
+      "text": "export declare function useDetailWatch<T>(options: UseDetailOptions<T> & {\n    watchSource: () => unknown;\n}): UseDetailReturn<T>;"
+    },
+    "useMobileViewport": {
+      "kind": "function",
+      "text": "export declare function useMobileViewport(query?: string): UseMobileViewportReturn;"
+    },
+    "useTableRequest": {
+      "kind": "function",
+      "text": "export declare function useTableRequest<T>(options: UseTableRequestOptions<T>): {\n    data: Ref<T[], T[]>;\n    total: Ref<number, number>;\n    loading: Ref<boolean, boolean>;\n    error: import('vue').ShallowRef<unknown, unknown>;\n    finished: Ref<boolean, boolean>;\n    load: (append?: boolean) => Promise<void>;\n    reload: (options_?: {\n        resetPage?: boolean;\n    }) => Promise<void>;\n    loadMore: () => Promise<void> | undefined;\n};"
+    }
+  }
+}

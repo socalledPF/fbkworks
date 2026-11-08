@@ -1,0 +1,81 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/shared",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "DEFAULT_LOCALE": {
+      "kind": "const",
+      "text": "DEFAULT_LOCALE = \"zh-CN\""
+    },
+    "Key": {
+      "kind": "type",
+      "text": "type Key = string | number;"
+    },
+    "ResponsiveColumns": {
+      "kind": "type",
+      "text": "type ResponsiveColumns = number | {\n    xs?: number;\n    sm?: number;\n    md?: number;\n    lg?: number;\n};"
+    },
+    "RowKeyGetter": {
+      "kind": "type",
+      "text": "type RowKeyGetter<T> = string | ((row: T) => Key);"
+    },
+    "formatDate": {
+      "kind": "function",
+      "text": "declare function formatDate(value: unknown, pattern?: 'date' | 'datetime' | 'time', locale?: string): string;"
+    },
+    "formatMoney": {
+      "kind": "function",
+      "text": "declare function formatMoney(value: unknown, precision?: number, locale?: string): string;"
+    },
+    "formatNumber": {
+      "kind": "function",
+      "text": "declare function formatNumber(value: unknown, options?: Intl.NumberFormatOptions, locale?: string): string;"
+    },
+    "getRowKey": {
+      "kind": "function",
+      "text": "declare function getRowKey<T extends Record<string, any>>(row: T, index: number, rowKey?: RowKeyGetter<T>): Key;"
+    },
+    "isNil": {
+      "kind": "function",
+      "text": "declare function isNil(value: unknown): value is null | undefined;"
+    },
+    "mergeUiProps": {
+      "kind": "function",
+      "text": "declare function mergeUiProps(base: Record<string, any> | undefined, normalized: Record<string, any>, uiProps: Record<string, any> | undefined, deny?: string[]): Record<string, any>;"
+    },
+    "pickDefined": {
+      "kind": "function",
+      "text": "declare function pickDefined<T extends Record<string, any>>(source: T | undefined): Partial<T>;"
+    },
+    "resetWarnCache": {
+      "kind": "function",
+      "text": "declare function resetWarnCache(): void;"
+    },
+    "resolveColumns": {
+      "kind": "function",
+      "text": "declare function resolveColumns(columns: ResponsiveColumns | undefined): Record<string, string>;"
+    },
+    "toCssSize": {
+      "kind": "function",
+      "text": "declare function toCssSize(value: string | number | undefined): string | undefined;"
+    },
+    "toKeySet": {
+      "kind": "function",
+      "text": "declare function toKeySet(keys: Key[] | undefined): Set<Key>;"
+    },
+    "useControllableState": {
+      "kind": "function",
+      "text": "declare function useControllableState<T>(options: ControllableOptions<T>): [ComputedRef<T>, (value: T) => void];"
+    },
+    "warn": {
+      "kind": "function",
+      "text": "declare function warn(message: string): void;"
+    },
+    "warnOnce": {
+      "kind": "function",
+      "text": "declare function warnOnce(key: string, message: string): void;"
+    }
+  }
+}

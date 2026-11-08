@@ -1,0 +1,86 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/dashboard",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "BarChartProps": {
+      "kind": "interface",
+      "text": "export interface BarChartProps extends ChartCardProps {\n    categories: string[];\n    series: TrendSeries[];\n    direction?: 'vertical' | 'horizontal';\n    stacked?: boolean;\n}"
+    },
+    "ChangeTone": {
+      "kind": "type",
+      "text": "export type ChangeTone = 'auto' | 'positive' | 'negative' | 'neutral';"
+    },
+    "ChartCardProps": {
+      "kind": "interface",
+      "text": "export interface ChartCardProps {\n    title?: string;\n    subtitle?: string;\n    height?: string | number;\n    loading?: boolean;\n    empty?: boolean;\n    emptyText?: string;\n}"
+    },
+    "ChartCardSlots": {
+      "kind": "interface",
+      "text": "export interface ChartCardSlots {\n    extra?: () => VNodeChild;\n    default?: () => VNodeChild;\n}"
+    },
+    "FbkBarChart": {
+      "kind": "component"
+    },
+    "FbkChartCard": {
+      "kind": "component"
+    },
+    "FbkPieChart": {
+      "kind": "component"
+    },
+    "FbkRankList": {
+      "kind": "component"
+    },
+    "FbkStatCard": {
+      "kind": "component"
+    },
+    "FbkStatGroup": {
+      "kind": "component"
+    },
+    "FbkTrendChart": {
+      "kind": "component"
+    },
+    "PieChartProps": {
+      "kind": "interface",
+      "text": "export interface PieChartProps extends ChartCardProps {\n    data: PieDatum[];\n    innerRadius?: number;\n    centerLabel?: string;\n    centerValue?: string | number;\n}"
+    },
+    "PieDatum": {
+      "kind": "interface",
+      "text": "export interface PieDatum {\n    name: string;\n    value: number;\n    color?: string;\n}"
+    },
+    "RankItem": {
+      "kind": "interface",
+      "text": "export interface RankItem {\n    name: string;\n    value: number;\n    color?: string;\n}"
+    },
+    "RankListProps": {
+      "kind": "interface",
+      "text": "export interface RankListProps {\n    data: RankItem[];\n    max?: number;\n    formatter?: (value: number) => string;\n    limit?: number;\n}"
+    },
+    "StatCardProps": {
+      "kind": "interface",
+      "text": "export interface StatCardProps {\n    title: string;\n    value: number | string;\n    prefix?: string;\n    suffix?: string;\n    precision?: number;\n    change?: number | null;\n    changeTone?: ChangeTone;\n    changeLabel?: string;\n    trend?: number[];\n    loading?: boolean;\n    clickable?: boolean;\n}"
+    },
+    "StatCardSlots": {
+      "kind": "interface",
+      "text": "export interface StatCardSlots {\n    icon?: () => VNodeChild;\n    footer?: () => VNodeChild;\n}"
+    },
+    "StatGroupProps": {
+      "kind": "interface",
+      "text": "export interface StatGroupProps {\n    columns?: number | {\n        xs?: number;\n        sm?: number;\n        md?: number;\n        lg?: number;\n    };\n    gap?: 'sm' | 'md' | 'lg';\n}"
+    },
+    "TrendChartProps": {
+      "kind": "interface",
+      "text": "export interface TrendChartProps extends ChartCardProps {\n    categories: string[];\n    series: TrendSeries[];\n    area?: boolean;\n    smooth?: boolean;\n    startFromZero?: boolean;\n}"
+    },
+    "TrendDirection": {
+      "kind": "type",
+      "text": "export type TrendDirection = 'up' | 'down' | 'flat';"
+    },
+    "TrendSeries": {
+      "kind": "interface",
+      "text": "export interface TrendSeries {\n    name: string;\n    data: number[];\n    color?: string;\n}"
+    }
+  }
+}

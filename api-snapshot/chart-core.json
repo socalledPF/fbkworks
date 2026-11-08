@@ -1,0 +1,88 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/chart-core",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "CHART_AXIS_LABEL": {
+      "kind": "const",
+      "text": "CHART_AXIS_LABEL = \"var(--fbk-chart-axis-label)\""
+    },
+    "CHART_AXIS_LINE": {
+      "kind": "const",
+      "text": "CHART_AXIS_LINE = \"var(--fbk-chart-axis-line)\""
+    },
+    "CHART_SPLIT_LINE": {
+      "kind": "const",
+      "text": "CHART_SPLIT_LINE = \"var(--fbk-chart-split-line)\""
+    },
+    "FBK_CHART_PALETTE_SIZE": {
+      "kind": "const",
+      "text": "FBK_CHART_PALETTE_SIZE = 8"
+    },
+    "FbkChart": {
+      "kind": "component"
+    },
+    "FbkChartComponent": {
+      "kind": "type",
+      "text": "export type FbkChartComponent = 'grid' | 'tooltip' | 'legend' | 'title' | 'dataset' | 'transform' | 'markLine' | 'markPoint' | 'graphic' | 'geo' | 'visualMap' | 'dataZoom' | 'toolbox';"
+    },
+    "FbkChartOption": {
+      "kind": "type",
+      "text": "export type FbkChartOption = Record<string, any>;"
+    },
+    "FbkChartTheme": {
+      "kind": "interface",
+      "text": "export interface FbkChartTheme {\n    palette: string[];\n    axisLine: string;\n    axisLabel: string;\n    splitLine: string;\n    tooltipBg: string;\n    tooltipBorder: string;\n    tooltipText: string;\n    areaOpacity: number;\n    textColor: string;\n    textSecondary: string;\n    bgContainer: string;\n    fontFamily: string;\n    fontSize: number;\n    _echartsTheme: Record<string, any>;\n}"
+    },
+    "FbkChartType": {
+      "kind": "type",
+      "text": "export type FbkChartType = 'line' | 'bar' | 'pie' | 'gauge' | 'scatter' | 'radar' | 'funnel' | 'map';"
+    },
+    "RegisterChartsOptions": {
+      "kind": "interface",
+      "text": "export interface RegisterChartsOptions {\n    charts?: FbkChartType[];\n    components?: FbkChartComponent[];\n}"
+    },
+    "barRadius": {
+      "kind": "function",
+      "text": "export declare function barRadius(horizontal: boolean): number | number[];"
+    },
+    "chartColor": {
+      "kind": "function",
+      "text": "export declare function chartColor(index: number, theme?: FbkChartTheme): string;"
+    },
+    "isCssVar": {
+      "kind": "function",
+      "text": "export declare function isCssVar(value: unknown): value is string;"
+    },
+    "isFbkChartsRegistered": {
+      "kind": "function",
+      "text": "export declare function isFbkChartsRegistered(): boolean;"
+    },
+    "registerFbkCharts": {
+      "kind": "function",
+      "text": "export declare function registerFbkCharts(options?: RegisterChartsOptions): void;"
+    },
+    "resolveChartTheme": {
+      "kind": "function",
+      "text": "export declare function resolveChartTheme(): FbkChartTheme;"
+    },
+    "resolveCssValue": {
+      "kind": "function",
+      "text": "export declare function resolveCssValue(value: string): string;"
+    },
+    "resolveOptionVars": {
+      "kind": "function",
+      "text": "export declare function resolveOptionVars<T>(input: T): T;"
+    },
+    "seriesColor": {
+      "kind": "function",
+      "text": "export declare function seriesColor(index: number, explicit?: string): string;"
+    },
+    "stackedBarRadius": {
+      "kind": "function",
+      "text": "export declare function stackedBarRadius(index: number, total: number, horizontal: boolean): number | number[];"
+    }
+  }
+}

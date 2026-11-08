@@ -1,0 +1,91 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/screen",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "FbkScreenBarChart": {
+      "kind": "component"
+    },
+    "FbkScreenGaugeChart": {
+      "kind": "component"
+    },
+    "FbkScreenGrid": {
+      "kind": "component"
+    },
+    "FbkScreenHeader": {
+      "kind": "component"
+    },
+    "FbkScreenLineChart": {
+      "kind": "component"
+    },
+    "FbkScreenNumber": {
+      "kind": "component"
+    },
+    "FbkScreenPage": {
+      "kind": "component"
+    },
+    "FbkScreenPanel": {
+      "kind": "component"
+    },
+    "FbkScreenPieChart": {
+      "kind": "component"
+    },
+    "FbkScreenScrollList": {
+      "kind": "component"
+    },
+    "ScreenBarChartProps": {
+      "kind": "interface",
+      "text": "export interface ScreenBarChartProps extends ScreenChartProps {\n    categories: string[];\n    series: Array<{\n        name: string;\n        data: number[];\n        color?: string;\n    }>;\n    stacked?: boolean;\n}"
+    },
+    "ScreenChartProps": {
+      "kind": "interface",
+      "text": "export interface ScreenChartProps {\n    title?: string;\n    height?: string | number;\n    loading?: boolean;\n    empty?: boolean;\n}"
+    },
+    "ScreenGaugeChartProps": {
+      "kind": "interface",
+      "text": "export interface ScreenGaugeChartProps extends ScreenChartProps {\n    value: number;\n    max?: number;\n    unit?: string;\n    label?: string;\n}"
+    },
+    "ScreenGridProps": {
+      "kind": "interface",
+      "text": "export interface ScreenGridProps {\n    columns?: number;\n    gap?: 'sm' | 'md' | 'lg';\n    rows?: string;\n}"
+    },
+    "ScreenHeaderProps": {
+      "kind": "interface",
+      "text": "export interface ScreenHeaderProps {\n    title: string;\n    clock?: boolean;\n    fullscreen?: boolean;\n}"
+    },
+    "ScreenLineChartProps": {
+      "kind": "interface",
+      "text": "export interface ScreenLineChartProps extends ScreenChartProps {\n    categories: string[];\n    series: Array<{\n        name: string;\n        data: number[];\n        color?: string;\n    }>;\n    smooth?: boolean;\n    area?: boolean;\n}"
+    },
+    "ScreenNumberProps": {
+      "kind": "interface",
+      "text": "export interface ScreenNumberProps {\n    value: number;\n    precision?: number;\n    prefix?: string;\n    suffix?: string;\n    duration?: number;\n    size?: 'sm' | 'md' | 'lg';\n}"
+    },
+    "ScreenPageProps": {
+      "kind": "interface",
+      "text": "export interface ScreenPageProps {\n    designWidth?: number;\n    designHeight?: number;\n    mode?: 'fit' | 'fill';\n    grid?: boolean;\n    glow?: boolean;\n    fullscreen?: boolean;\n}"
+    },
+    "ScreenPanelProps": {
+      "kind": "interface",
+      "text": "export interface ScreenPanelProps {\n    title?: string;\n    extra?: string;\n    height?: string | number;\n    corners?: boolean;\n}"
+    },
+    "ScreenPanelSlots": {
+      "kind": "interface",
+      "text": "export interface ScreenPanelSlots {\n    extra?: () => VNodeChild;\n    default?: () => VNodeChild;\n}"
+    },
+    "ScreenPieChartProps": {
+      "kind": "interface",
+      "text": "export interface ScreenPieChartProps extends ScreenChartProps {\n    data: Array<{\n        name: string;\n        value: number;\n        color?: string;\n    }>;\n    innerRadius?: number;\n    centerValue?: string | number;\n    centerLabel?: string;\n}"
+    },
+    "ScreenScrollItem": {
+      "kind": "interface",
+      "text": "export interface ScreenScrollItem {\n    label: string;\n    value?: string | number;\n    meta?: string;\n    status?: 'success' | 'warning' | 'danger' | 'info';\n}"
+    },
+    "ScreenScrollListProps": {
+      "kind": "interface",
+      "text": "export interface ScreenScrollListProps {\n    items: ScreenScrollItem[];\n    itemHeight?: number;\n    interval?: number;\n    visibleRows?: number;\n    pauseOnHover?: boolean;\n}"
+    }
+  }
+}

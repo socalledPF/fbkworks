@@ -1,0 +1,308 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/adapter-core",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "ADAPTER_API_VERSION": {
+      "kind": "const",
+      "text": "ADAPTER_API_VERSION = 3"
+    },
+    "ADAPTER_CONTEXT": {
+      "kind": "const",
+      "text": "ADAPTER_CONTEXT: InjectionKey<AdapterContext>"
+    },
+    "AdapterContext": {
+      "kind": "interface",
+      "text": "interface AdapterContext {\n    adapter: UiAdapter;\n    themeMode: Ref<ThemeMode>;\n    setThemeMode: (mode: ThemeMode) => void;\n    locale: Ref<string>;\n    size: Ref<Size>;\n    tokens: FbkTokens;\n    reporter: FbkReporter;\n}"
+    },
+    "AdapterMeta": {
+      "kind": "interface",
+      "text": "interface AdapterMeta {\n    apiVersion: number;\n    name: string;\n    version: string;\n    uiLibrary: {\n        name: string;\n        version: string;\n    };\n    platform: 'desktop' | 'mobile';\n}"
+    },
+    "BusinessKitOptions": {
+      "kind": "interface",
+      "text": "interface BusinessKitOptions {\n    adapter: UiAdapter;\n    theme?: ThemeMode;\n    locale?: string;\n    size?: Size;\n    tokens?: FbkTokens;\n    components?: Array<{\n        name: string;\n        component: Component;\n    }>;\n    onError?: (event: FbkErrorEvent) => void;\n    onTelemetry?: (event: FbkTelemetryEvent) => void;\n    permissions?: PermissionResolver;\n}"
+    },
+    "ButtonProps": {
+      "kind": "interface",
+      "text": "interface ButtonProps {\n    variant?: ButtonVariant;\n    status?: Status;\n    size?: Size;\n    disabled?: boolean;\n    loading?: boolean;\n    block?: boolean;\n    nativeType?: 'button' | 'submit' | 'reset';\n}"
+    },
+    "ButtonVariant": {
+      "kind": "type",
+      "text": "type ButtonVariant = 'primary' | 'default' | 'dashed' | 'text' | 'link';"
+    },
+    "Capabilities": {
+      "kind": "interface",
+      "text": "interface Capabilities {\n    dataGrid: {\n        presentation: 'table' | 'cards' | 'responsive';\n        selection: boolean;\n        sort: 'client' | 'custom' | 'none';\n        expandable: boolean;\n        tree: boolean;\n        virtualScroll: boolean;\n        stickyHeader: boolean;\n    };\n    form: {\n        layout: 'horizontal' | 'vertical' | 'inline' | 'responsive';\n        labelWidth: boolean;\n        validateOn: Array<'change' | 'blur' | 'submit'>;\n        asyncValidator: boolean;\n    };\n    overlay: {\n        kind: 'dialog' | 'drawer' | 'popup';\n        supportsDrawer: boolean;\n        supportsTeleport: boolean;\n    };\n    pagination: {\n        mode: 'pages' | 'infinite' | 'both';\n        pageSizes: boolean;\n        jumper: boolean;\n    };\n    feedback: {\n        message: boolean;\n        notification: boolean;\n        confirm: boolean;\n        loading: boolean;\n    };\n    theme: {\n        darkMode: boolean;\n        provider: boolean;\n    };\n    features: Record<string, boolean>;\n}"
+    },
+    "CellRenderContext": {
+      "kind": "interface",
+      "text": "interface CellRenderContext<T = any> {\n    row: T;\n    index: number;\n    column: DataGridColumn<T>;\n    value: unknown;\n}"
+    },
+    "CheckboxEmits": {
+      "kind": "interface",
+      "text": "interface CheckboxEmits {\n    'update:modelValue': [value: boolean];\n    change: [value: boolean];\n}"
+    },
+    "CheckboxProps": {
+      "kind": "interface",
+      "text": "interface CheckboxProps {\n    modelValue?: boolean;\n    label?: string;\n    disabled?: boolean;\n    size?: Size;\n}"
+    },
+    "ConfirmApi": {
+      "kind": "type",
+      "text": "type ConfirmApi = (content: string, options?: ConfirmOptions) => Promise<boolean>;"
+    },
+    "ConfirmOptions": {
+      "kind": "interface",
+      "text": "interface ConfirmOptions {\n    title?: string;\n    confirmText?: string;\n    cancelText?: string;\n    type?: MessageType;\n    danger?: boolean;\n}"
+    },
+    "DataGridColumn": {
+      "kind": "interface",
+      "text": "interface DataGridColumn<T = Record<string, any>> {\n    key: string;\n    title: string;\n    dataIndex?: (keyof T & string) | string;\n    getValue?: (row: T) => unknown;\n    width?: number | string;\n    minWidth?: number | string;\n    fixed?: 'left' | 'right';\n    align?: 'left' | 'center' | 'right';\n    sortable?: boolean;\n    ellipsis?: boolean;\n    numeric?: boolean;\n    render?: (ctx: CellRenderContext<T>) => unknown;\n    mobile?: {\n        primary?: boolean;\n        hidden?: boolean;\n        label?: string;\n        order?: number;\n    };\n    uiProps?: Record<string, any>;\n}"
+    },
+    "DataGridEmits": {
+      "kind": "interface",
+      "text": "interface DataGridEmits<T = any> {\n    'update:selectedKeys': [keys: Array<string | number>];\n    'update:sort': [sort: SortState | null];\n    'row-click': [row: T, index: number, event: Event];\n    'load-more': [];\n}"
+    },
+    "DataGridPresentation": {
+      "kind": "type",
+      "text": "type DataGridPresentation = 'auto' | 'table' | 'cards';"
+    },
+    "DataGridProps": {
+      "kind": "interface",
+      "text": "interface DataGridProps<T = any> {\n    columns: DataGridColumn<T>[];\n    data: T[];\n    rowKey?: string | ((row: T) => string | number);\n    loading?: boolean;\n    presentation?: DataGridPresentation;\n    selectionEnabled?: boolean;\n    selectedKeys?: Array<string | number>;\n    selectionWidth?: number;\n    sort?: SortState | null;\n    emptyText?: string;\n    rowClickable?: boolean;\n    loadMore?: boolean;\n    finished?: boolean;\n    size?: 'sm' | 'md' | 'lg';\n}"
+    },
+    "DatePickerProps": {
+      "kind": "interface",
+      "text": "interface DatePickerProps {\n    modelValue?: string | string[] | null;\n    type?: DatePickerType;\n    placeholder?: string | [string, string];\n    disabled?: boolean;\n    clearable?: boolean;\n    size?: Size;\n    uiProps?: Record<string, any>;\n}"
+    },
+    "DatePickerType": {
+      "kind": "type",
+      "text": "type DatePickerType = 'date' | 'datetime' | 'time' | 'daterange' | 'datetimerange';"
+    },
+    "DialogProps": {
+      "kind": "interface",
+      "text": "interface DialogProps {\n    modelValue?: boolean;\n    title?: string;\n    width?: string | number;\n    placement?: 'center' | 'bottom';\n    closeOnClickModal?: boolean;\n    showClose?: boolean;\n}"
+    },
+    "DrawerProps": {
+      "kind": "interface",
+      "text": "interface DrawerProps {\n    modelValue?: boolean;\n    title?: string;\n    width?: string | number;\n    placement?: 'right' | 'bottom';\n    closeOnClickModal?: boolean;\n    showClose?: boolean;\n}"
+    },
+    "FbkErrorEvent": {
+      "kind": "interface",
+      "text": "interface FbkErrorEvent {\n    source: FbkErrorSource;\n    component?: string;\n    message: string;\n    stack?: string;\n    context?: Record<string, unknown>;\n}"
+    },
+    "FbkErrorSource": {
+      "kind": "type",
+      "text": "type FbkErrorSource = 'component' | 'request' | 'render';"
+    },
+    "FbkProvider": {
+      "kind": "component"
+    },
+    "FbkReporter": {
+      "kind": "interface",
+      "text": "interface FbkReporter {\n    error: (event: FbkErrorEvent) => void;\n    telemetry: (event: FbkTelemetryEvent) => void;\n    readonly enabled: boolean;\n    readonly handlers: FbkReporterOptions;\n}"
+    },
+    "FbkReporterOptions": {
+      "kind": "interface",
+      "text": "interface FbkReporterOptions {\n    onError?: (event: FbkErrorEvent) => void;\n    onTelemetry?: (event: FbkTelemetryEvent) => void;\n}"
+    },
+    "FbkRule": {
+      "kind": "interface",
+      "text": "interface FbkRule {\n    required?: boolean;\n    type?: 'string' | 'number' | 'boolean' | 'array' | 'email' | 'url' | 'date';\n    min?: number;\n    max?: number;\n    len?: number;\n    pattern?: RegExp;\n    message?: string;\n    trigger?: 'change' | 'blur' | 'submit';\n    validator?: (value: any, model: Record<string, any>) => true | string | void | Promise<true | string | void>;\n}"
+    },
+    "FbkTelemetryEvent": {
+      "kind": "interface",
+      "text": "interface FbkTelemetryEvent {\n    type: FbkTelemetryType;\n    name: string;\n    duration?: number;\n    success?: boolean;\n    context?: Record<string, unknown>;\n}"
+    },
+    "FbkTelemetryType": {
+      "kind": "type",
+      "text": "type FbkTelemetryType = 'request' | 'interaction';"
+    },
+    "FeedbackApi": {
+      "kind": "interface",
+      "text": "interface FeedbackApi {\n    message: MessageApi;\n    confirm: ConfirmApi;\n}"
+    },
+    "FormExpose": {
+      "kind": "interface",
+      "text": "interface FormExpose {\n    validate: () => Promise<true>;\n    validateField?: (prop: string | string[]) => Promise<true>;\n    resetFields: () => void;\n    clearValidate: (props?: string | string[]) => void;\n}"
+    },
+    "FormItemProps": {
+      "kind": "interface",
+      "text": "interface FormItemProps {\n    label?: string;\n    prop?: string;\n    required?: boolean;\n    rules?: FbkRule[];\n    help?: string;\n    labelWidth?: string | number;\n    span?: number;\n}"
+    },
+    "FormProps": {
+      "kind": "interface",
+      "text": "interface FormProps {\n    model: Record<string, any>;\n    rules?: Record<string, FbkRule[]>;\n    labelWidth?: string | number;\n    labelPosition?: 'left' | 'right' | 'top';\n    disabled?: boolean;\n    size?: Size;\n    scrollToError?: boolean;\n}"
+    },
+    "FormRules": {
+      "kind": "type",
+      "text": "type FormRules = Record<string, FbkRule[]>;"
+    },
+    "InputProps": {
+      "kind": "interface",
+      "text": "interface InputProps {\n    modelValue?: string | number;\n    type?: 'text' | 'textarea' | 'password' | 'number' | 'email' | 'tel';\n    placeholder?: string;\n    disabled?: boolean;\n    readonly?: boolean;\n    clearable?: boolean;\n    rows?: number;\n    size?: Size;\n}"
+    },
+    "MessageApi": {
+      "kind": "interface",
+      "text": "interface MessageApi {\n    (type: MessageType, content: string, options?: MessageOptions): () => void;\n    success: (content: string, options?: MessageOptions) => () => void;\n    warning: (content: string, options?: MessageOptions) => () => void;\n    error: (content: string, options?: MessageOptions) => () => void;\n    info: (content: string, options?: MessageOptions) => () => void;\n}"
+    },
+    "MessageOptions": {
+      "kind": "interface",
+      "text": "interface MessageOptions {\n    duration?: number;\n    closable?: boolean;\n}"
+    },
+    "MessageType": {
+      "kind": "type",
+      "text": "type MessageType = 'success' | 'warning' | 'error' | 'info';"
+    },
+    "NOOP_REPORTER": {
+      "kind": "const",
+      "text": "NOOP_REPORTER: FbkReporter"
+    },
+    "PERMISSION_CONTEXT": {
+      "kind": "const",
+      "text": "PERMISSION_CONTEXT: InjectionKey<PermissionContext>"
+    },
+    "PaginationProps": {
+      "kind": "interface",
+      "text": "interface PaginationProps {\n    page: number;\n    pageSize: number;\n    total: number;\n    pageSizes?: number[];\n    showTotal?: boolean;\n    showJumper?: boolean;\n    size?: Size;\n    disabled?: boolean;\n}"
+    },
+    "PermissionContext": {
+      "kind": "interface",
+      "text": "interface PermissionContext {\n    getPermissions: PermissionResolver;\n}"
+    },
+    "PermissionResolver": {
+      "kind": "type",
+      "text": "type PermissionResolver = () => string[];"
+    },
+    "RadioOption": {
+      "kind": "interface",
+      "text": "interface RadioOption<V = string | number> {\n    label: string;\n    value: V;\n    disabled?: boolean;\n}"
+    },
+    "RadioProps": {
+      "kind": "interface",
+      "text": "interface RadioProps<V = string | number> {\n    modelValue?: V | null;\n    options: RadioOption<V>[];\n    disabled?: boolean;\n    size?: Size;\n}"
+    },
+    "SelectOption": {
+      "kind": "interface",
+      "text": "interface SelectOption<V = string | number> {\n    label: string;\n    value: V;\n    disabled?: boolean;\n}"
+    },
+    "SelectProps": {
+      "kind": "interface",
+      "text": "interface SelectProps<V = string | number> {\n    modelValue?: V | V[] | null;\n    options: SelectOption<V>[];\n    multiple?: boolean;\n    filterable?: boolean;\n    clearable?: boolean;\n    placeholder?: string;\n    title?: string;\n    size?: Size;\n    disabled?: boolean;\n    loading?: boolean;\n}"
+    },
+    "Size": {
+      "kind": "type",
+      "text": "type Size = 'sm' | 'md' | 'lg';"
+    },
+    "SortOrder": {
+      "kind": "type",
+      "text": "type SortOrder = 'asc' | 'desc' | null;"
+    },
+    "SortState": {
+      "kind": "interface",
+      "text": "interface SortState {\n    field: string;\n    order: SortOrder;\n}"
+    },
+    "SpinProps": {
+      "kind": "interface",
+      "text": "interface SpinProps {\n    loading?: boolean;\n    size?: Size;\n    description?: string;\n}"
+    },
+    "Status": {
+      "kind": "type",
+      "text": "type Status = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';"
+    },
+    "THEME_IS_DARK": {
+      "kind": "const",
+      "text": "THEME_IS_DARK: Record<Exclude<ThemeMode, 'system'>, boolean>"
+    },
+    "TagProps": {
+      "kind": "interface",
+      "text": "interface TagProps {\n    status?: Status;\n    size?: Size;\n    closable?: boolean;\n    bordered?: boolean;\n}"
+    },
+    "ThemeBridge": {
+      "kind": "interface",
+      "text": "interface ThemeBridge {\n    apply: (mode: ThemeMode, tokens: FbkTokens) => void;\n    providerProps?: (mode: ThemeMode, tokens: FbkTokens) => Record<string, unknown>;\n}"
+    },
+    "ThemeMode": {
+      "kind": "type",
+      "text": "type ThemeMode = 'light' | 'dark' | 'cyber' | 'system';"
+    },
+    "UiAdapter": {
+      "kind": "interface",
+      "text": "interface UiAdapter {\n    meta: AdapterMeta;\n    capabilities: Capabilities;\n    primitives: UiPrimitives;\n    feedback: FeedbackApi;\n    RootProvider: Component;\n    theme: ThemeBridge;\n}"
+    },
+    "UiPrimitives": {
+      "kind": "interface",
+      "text": "interface UiPrimitives {\n    Button: Component;\n    Input: Component;\n    Select: Component;\n    Checkbox: Component;\n    DatePicker: Component;\n    Radio: Component;\n    Form: Component;\n    FormItem: Component;\n    DataGrid: Component;\n    Pagination: Component;\n    Dialog: Component;\n    Drawer?: Component;\n    Tag: Component;\n    Spin: Component;\n}"
+    },
+    "assertAdapterCompatible": {
+      "kind": "function",
+      "text": "declare function assertAdapterCompatible(adapter: UiAdapter): void;"
+    },
+    "createAdapterContext": {
+      "kind": "function",
+      "text": "declare function createAdapterContext(options: BusinessKitOptions): AdapterContext;"
+    },
+    "createBusinessKit": {
+      "kind": "function",
+      "text": "declare function createBusinessKit(options: BusinessKitOptions): Plugin;"
+    },
+    "createPermissionDirective": {
+      "kind": "function",
+      "text": "declare function createPermissionDirective(resolver: PermissionResolver): Directive<PermissionEl, string | string[]>;"
+    },
+    "createReporter": {
+      "kind": "function",
+      "text": "declare function createReporter(options?: FbkReporterOptions): FbkReporter;"
+    },
+    "getCellValue": {
+      "kind": "function",
+      "text": "declare function getCellValue<T>(column: DataGridColumn<T>, row: T): unknown;"
+    },
+    "hasPermission": {
+      "kind": "function",
+      "text": "declare function hasPermission(permissions: readonly string[], required: string | string[]): boolean;"
+    },
+    "renderCell": {
+      "kind": "function",
+      "text": "declare function renderCell<T>(column: DataGridColumn<T>, row: T, index: number): unknown;"
+    },
+    "requirePrimitive": {
+      "kind": "function",
+      "text": "declare function requirePrimitive<K extends keyof UiPrimitives>(adapter: UiAdapter, key: K, alternative: string): NonNullable<UiPrimitives[K]>;"
+    },
+    "safeContext": {
+      "kind": "function",
+      "text": "declare function safeContext(input: unknown, depth?: number): Record<string, unknown> | undefined;"
+    },
+    "toErrorEvent": {
+      "kind": "function",
+      "text": "declare function toErrorEvent(err: unknown, source: FbkErrorSource, component?: string, context?: unknown): FbkErrorEvent;"
+    },
+    "useAdapter": {
+      "kind": "function",
+      "text": "declare function useAdapter(): UiAdapter;"
+    },
+    "useAdapterCapabilities": {
+      "kind": "function",
+      "text": "declare function useAdapterCapabilities(): Capabilities;"
+    },
+    "useAdapterContext": {
+      "kind": "function",
+      "text": "declare function useAdapterContext(): AdapterContext | null;"
+    },
+    "useFbkTheme": {
+      "kind": "function",
+      "text": "declare function useFbkTheme(): {\n    mode: Ref<ThemeMode, ThemeMode>;\n    setMode: (mode: ThemeMode) => void;\n    locale: Ref<string, string>;\n    size: Ref<Size, Size>;\n};"
+    },
+    "usePermission": {
+      "kind": "function",
+      "text": "declare function usePermission(): {\n    can: (required: string | string[]) => boolean;\n    canAny: (required: string[]) => boolean;\n    canAll: (required: string[]) => boolean;\n    list: () => string[];\n};"
+    },
+    "useReporter": {
+      "kind": "function",
+      "text": "declare function useReporter(): FbkReporter;"
+    }
+  }
+}

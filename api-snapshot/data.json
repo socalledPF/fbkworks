@@ -1,0 +1,77 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/data",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "Backend": {
+      "kind": "interface",
+      "text": "export interface Backend<TRaw = any> {\n    page<T = unknown>(pathOrFetcher: string | ((query: PageQuery) => Promise<TRaw>), options?: PageOptions<TRaw, T>): PageFetcher<T>;\n    readonly config: BackendConfig<TRaw>;\n}"
+    },
+    "BackendConfig": {
+      "kind": "interface",
+      "text": "export interface BackendConfig<TRaw = any> {\n    request: (url: string, params: Record<string, any>, signal: AbortSignal) => Promise<TRaw>;\n    rows: PathSpec<TRaw>;\n    total?: PathSpec<TRaw>;\n    isSuccess?: (raw: TRaw) => boolean;\n    errorMessage?: (raw: TRaw) => string;\n    scope?: DataScope;\n    onError?: (event: PageRequestErrorEvent) => void;\n    mapParams?: (query: PageQuery) => Record<string, any>;\n}"
+    },
+    "CreatePageRequestConfig": {
+      "kind": "interface",
+      "text": "export interface CreatePageRequestConfig<TRaw, T> {\n    fetch: (query: PageQuery) => Promise<TRaw>;\n    rows: PathSpec<TRaw>;\n    total?: PathSpec<TRaw>;\n    mapRow?: (raw: unknown, index: number) => T;\n    isSuccess?: (raw: TRaw) => boolean;\n    errorMessage?: (raw: TRaw) => string;\n    scope?: DataScope;\n    feature?: string;\n    onError?: (event: PageRequestErrorEvent) => void;\n}"
+    },
+    "DataScope": {
+      "kind": "type",
+      "text": "export type DataScope = 'server-filtered' | 'client-filtered';"
+    },
+    "FbkDataError": {
+      "kind": "class",
+      "text": "export declare class FbkDataError extends Error {\n    readonly kind: 'business' | 'path';\n    readonly raw: unknown;\n    constructor(kind: 'business' | 'path', message: string, raw?: unknown);\n}"
+    },
+    "Page": {
+      "kind": "interface",
+      "text": "export interface Page<T> {\n    list: T[];\n    total: number;\n    hasMore?: boolean;\n}"
+    },
+    "PageFetcher": {
+      "kind": "type",
+      "text": "export type PageFetcher<T> = (query: PageQuery) => Promise<Page<T>>;"
+    },
+    "PageQuery": {
+      "kind": "interface",
+      "text": "export interface PageQuery {\n    page: number;\n    pageSize: number;\n    sort: PageSort | null;\n    params: Record<string, any>;\n    signal: AbortSignal;\n}"
+    },
+    "PageSort": {
+      "kind": "interface",
+      "text": "export interface PageSort {\n    field: string;\n    order: 'asc' | 'desc' | null;\n}"
+    },
+    "PathSpec": {
+      "kind": "type",
+      "text": "export type PathSpec<TRaw> = string | ((raw: TRaw) => unknown);"
+    },
+    "assertServerScope": {
+      "kind": "function",
+      "text": "export declare function assertServerScope(feature: string): void;"
+    },
+    "createPageRequest": {
+      "kind": "function",
+      "text": "export declare function createPageRequest<TRaw, T = unknown>(config: CreatePageRequestConfig<TRaw, T>): PageFetcher<T>;"
+    },
+    "defineBackend": {
+      "kind": "function",
+      "text": "export declare function defineBackend<TRaw = any>(config: BackendConfig<TRaw>): Backend<TRaw>;"
+    },
+    "extractRows": {
+      "kind": "function",
+      "text": "export declare function extractRows<TRaw>(raw: TRaw, spec: string | ((raw: TRaw) => unknown)): unknown[];"
+    },
+    "extractTotal": {
+      "kind": "function",
+      "text": "export declare function extractTotal<TRaw>(raw: TRaw, spec: string | ((raw: TRaw) => unknown)): number;"
+    },
+    "getByPath": {
+      "kind": "function",
+      "text": "export declare function getByPath(raw: unknown, path: string): unknown;"
+    },
+    "previewRaw": {
+      "kind": "function",
+      "text": "export declare function previewRaw(raw: unknown, limit?: number): string;"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/resolver",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "ComponentResolver": {
+      "kind": "interface",
+      "text": "interface ComponentResolver {\n    type: 'component';\n    resolve: (name: string) => {\n        name: string;\n        from: string;\n        sideEffects?: string;\n    } | undefined;\n}"
+    },
+    "FbkResolver": {
+      "kind": "function",
+      "text": "declare function FbkResolver(options?: ResolverOptions): ComponentResolver;"
+    },
+    "ResolverEntry": {
+      "kind": "interface",
+      "text": "interface ResolverEntry {\n    subpath: string;\n    style: string | undefined;\n}"
+    },
+    "ResolverOptions": {
+      "kind": "interface",
+      "text": "interface ResolverOptions {\n    importStyle?: boolean;\n}"
+    },
+    "componentMap": {
+      "kind": "const",
+      "text": "componentMap: Record<string, ResolverEntry>"
+    },
+    "default": {
+      "kind": "function",
+      "text": "declare function FbkResolver(options?: ResolverOptions): ComponentResolver;"
+    }
+  }
+}

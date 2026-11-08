@@ -52,6 +52,11 @@ jobs:
       - name: 公开类型面
         run: pnpm check:surface
 
+      # 改一个 prop 的名字/类型对消费者是破坏性变更，此前没有任何门禁会红。
+      # 基线在 api-snapshot/，有意改 API 时跑 pnpm gen:api-snapshot 并带上 diff。
+      - name: 公开 API 快照
+        run: pnpm check:api-snapshot
+
       - name: 样式接入（gap/flex 静默失效）
         run: pnpm check:styles
 

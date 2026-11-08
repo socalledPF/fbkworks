@@ -20,7 +20,7 @@
 | 未发布变更集 | 8 个（`.changeset/*.md`，README 除外） |
 
 > ⚠️ **上表是 2026-10-25 的快照，已经过期。** 当前状态见 [附录 F.8](#f8-当前状态)：
-> HEAD `7e8785c`、`pnpm verify` **18 步**、**840 通过 + 4 skipped / 74 文件**、
+> HEAD `a50fdbf`、`pnpm verify` **19 步**、**840 通过 + 4 skipped / 74 文件**、
 > **0 个未发布变更集**（12 个包已全部发布为 **0.3.0**）。
 > 保留上表是为了让读者看清状态是怎么演进的，不是为了当现状用。
 
@@ -80,11 +80,11 @@ tokens ← shared ← adapter-core ← components
 
 ## 四、门禁流水线
 
-`pnpm verify` = **18 步**，顺序不可调（build 在前，产物检查在后）：
+`pnpm verify` = **19 步**，顺序不可调（build 在前，产物检查在后）：
 
 ```
-lint → lint:deps → typecheck → test → build → check:surface → check:styles
-→ check:style-index → check:style-entries → check:runtime-deps
+lint → lint:deps → typecheck → test → build → check:surface → check:api-snapshot
+→ check:styles → check:style-index → check:style-entries → check:runtime-deps
 → check:packages → check:types → check:consumer → check:resolver-map
 → check:capabilities → check:publish-order → check:diagrams → docs:build
 ```
@@ -379,7 +379,7 @@ export type TableResponse<T> = Omit<Page<T>, 'total'> & { total?: number }
 
 ```bash
 # —— 当前口径（附录 F 之后）——
-pnpm verify                # 18 步门禁，840 通过 + 4 skipped / 74 文件
+pnpm verify                # 19 步门禁，840 通过 + 4 skipped / 74 文件
 pnpm check:styles          # 9 个组件样式均已接入 + 布局声明无遗漏
 pnpm check:style-index     # 两个样式入口的生成结果是否与组件目录一致
 pnpm check:resolver-map    # resolver 映射是否与 components 的导出（10 个组件）一致
@@ -827,8 +827,8 @@ npm registry: @fbkworks/components@0.3.0 可查
 ### F.8 当前状态
 
 ```
-main = 7e8785c
-pnpm verify = 18 步，全绿
+main = a50fdbf（+ 视觉回归进 CI、公开 API 快照）
+pnpm verify = 19 步，全绿
 测试 840 通过 + 4 skipped / 74 文件
 发布包 12 个，全部 0.3.0，已上 npm
 fixed 组 = 8 个 UI 栈包
@@ -845,7 +845,7 @@ fixed 组 = 8 个 UI 栈包
 |---|---|
 | ~~`scripts/verify-fresh-clone.mjs`~~ | ✅ **已做**（`pnpm verify:fresh`）。克隆到临时目录 → `install --frozen-lockfile` → `pnpm verify`，实测约 243s。**故意不进 CI**（CI 本身就是全新克隆）；克隆时强制 `core.autocrlf=true`，顺带把 `.gitattributes` 也变成有回归测试的东西 |
 | ~~`check:capabilities` strict 转绿~~ | ✅ **已归零并钉进门禁**（第 15 步）。路径：11 条欠债 → 修 4 个真缺陷 → 4 条 `browserOnly`（指向 `scripts/visual/verify-form-capabilities.py`，机制核对脚本存在且含标记）→ `pagination.mode` 用浏览器滚动验掉 → `features.table.fixedColumns` 进一致性套件 → `theme.cssVariables` 删除（零消费者且语义与可观测证据冲突） |
-| 公开 API 快照 | 只有图表 option 有（19 份），组件 props/expose 没有基线 |
+| ~~公开 API 快照~~ | ✅ **已做**（`check:api-snapshot`，verify 第 7 步）。9 个包 / 248 个符号的**类型声明**基线在 `api-snapshot/`，共 58 KB。排除三个 UI 适配器（d.ts 嵌了 UI 库类型，UI 库升版就假红）；`.vue` 组件的值签名只记名字（vue-tsc 的 `__VLS_` 跨版本会变），props 由各包导出的 `XxxProps` 类型覆盖。已证伪：加一个 prop → `~ 签名变了 ProTableProps`，还原 → 绿 |
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
 | ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。5 个脚本里 4 个进 CI；`compare-controls.py` 故意排除（比较对象已不存在，需先窄化）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
 | a11y | 实测 **17 个源文件**出现 `aria-*`/`role`（含 1 个 css；apps 侧 8 个、packages 侧 9 个）。原文写的「只有 2 个文件」已过期。真正缺的不是数量，而是**判据与门禁**：没有「每个交互原语必须有可访问名/键盘可达」的检查，所以现在是「有些地方做了，没人保证不退化」 |
