@@ -12,6 +12,21 @@ concurrency:
 env:
   TURBO_TELEMETRY_DISABLED: 1
 
+# ---- 关于 action 的 major 版本 ----
+# 这些 action 的 major 与它自己的 Node 运行时绑定。node20 那一批已被 GitHub 强制跑在
+# node24 上并警告弃用，弃用期结束后会直接失败 —— 所以钉的是**各自第一个跑 node24 的
+# major**，不是最新 major：升 major 会同时带来行为变化，只为解决运行时问题跳多个 major
+# 不值当。实测对照（升级前逐个查 action.yml 的 `using:`）：
+#
+#   checkout        v4=node20 → v5=node24
+#   setup-node      v4=node20 → v5=node24
+#   pnpm/action-setup v4=node20 → v5=node24
+#   setup-python    v5=node20 → v6=node24     ← 不在 GitHub 的警告列表里
+#   github-script   v7=node20 → v8=node24     ← 不在 GitHub 的警告列表里
+#   changesets/action v1=node24（无需升级）
+#
+# 后两个没被点名，但一样跑在 node20 上：警告列表并不完整，别只看它。
+
 jobs:
   verify:
     name: verify (${{ matrix.os }})
@@ -23,11 +38,11 @@ jobs:
         # 因此三平台都跑，而不是只在 Linux 上跑。
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -133,16 +148,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -207,12 +222,12 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # 需要完整历史才能 diff base 分支
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -226,7 +241,7 @@ jobs:
           cat impact.md
 
       - name: 贴到 PR 评论
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs')
@@ -264,9 +279,9 @@ jobs:
     name: 最小 peer 版本兼容
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
