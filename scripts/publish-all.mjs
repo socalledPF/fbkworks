@@ -24,21 +24,45 @@ const dryRun = process.argv.includes('--dry-run')
 /** 只校验清单与顺序，不打包也不发布。供 CI 在 changeset publish 之前当闸门用 */
 const checkOnly = process.argv.includes('--check-only')
 
-/** 拓扑序：被依赖的排前面 */
-const ORDER = [
-  'packages/tokens',
-  'packages/shared',
-  'packages/data',
-  'packages/adapter-core',
-  'packages/chart-core',
-  'packages/adapters/element-plus',
-  'packages/adapters/vant',
-  'packages/adapters/naive-ui',
-  'packages/components',
-  'packages/dashboard',
-  'packages/screen',
-  'packages/resolver',
-]
+/**
+ * 计算拓扑序：被依赖的排前面。
+ *
+ * 这里**不手写**，理由是它已经被证明会漂移：上一版手写清单漏了 4 个包，
+ * 结果发布出 components 依赖一个从未上架的 @fbkworks/data。
+ * 后来加的 assertOrder 只能告诉你「漂了」，不能告诉你「应该是什么」——
+ * 而这件事本来就有唯一答案：按各包 package.json 里的 @fbkworks 依赖做拓扑排序。
+ *
+ * 同层用目录名排序，保证结果确定、可复现；遇到环直接报错，
+ * 因为那说明仓库里真的存在循环依赖，不该被一个发布脚本悄悄吃掉。
+ *
+ * 只考虑**已发布包之间**的依赖：指向私有内部包（如 @fbkworks/demos）的边没有排序意义。
+ */
+function computeOrder(published) {
+  const publishedNames = new Set(published.map((pkg) => pkg.name))
+  const byName = new Map(published.map((pkg) => [pkg.name, pkg]))
+  const depth = new Map()
+
+  /* 依赖深度 = 1 + 已发布依赖的最大深度。按深度分层发布，日志读起来就是
+     「先基础层、再适配器、再业务组件」，而不是某个同样合法的偶然顺序。 */
+  const depthOf = (pkg, stack = new Set()) => {
+    if (depth.has(pkg.name)) return depth.get(pkg.name)
+    if (stack.has(pkg.name)) {
+      throw new Error(`[publish] 存在循环依赖：${[...stack, pkg.name].join(' → ')}`)
+    }
+    stack.add(pkg.name)
+    const deps = pkg.deps.filter((dep) => publishedNames.has(dep))
+    const value = deps.length
+      ? 1 + Math.max(...deps.map((dep) => depthOf(byName.get(dep), stack)))
+      : 0
+    stack.delete(pkg.name)
+    depth.set(pkg.name, value)
+    return value
+  }
+
+  return [...published]
+    .sort((a, b) => depthOf(a) - depthOf(b) || a.dir.localeCompare(b.dir))
+    .map((pkg) => pkg.dir)
+}
 
 /** 递归找 public 包；包目录不再向下钻，避免把包内子目录误当成包 */
 async function discoverPublicPackages(dir, out = []) {
@@ -69,36 +93,37 @@ async function discoverPublicPackages(dir, out = []) {
 }
 
 /**
- * ORDER 是手写清单，一定会漂移（这一版就漏了 4 个包，发布出去 components 会依赖
- * 一个从未上架的 @fbkworks/data）。所以每次发布前用文件系统核对，绝不靠人记。
+ * 顺序由 computeOrder() 从文件系统和 package.json 算出来，不再手写。
+ * 这里保留两条不变量作为**实现护栏**（算错时会红，而不是悄悄发错顺序）：
+ *   · 覆盖：每个 public 包恰好出现一次
+ *   · 拓扑：包声明的每个**已发布** @fbkworks 依赖都排在它前面
  *
- * 两个不变量：
- *   · 覆盖：public 包集合 == ORDER 集合
- *   · 拓扑：包声明的每个 @fbkworks 依赖都排在它前面
+ * 注意「已发布」这个限定：指向私有内部包（@fbkworks/demos 等）的边没有排序意义，
+ * 把它们算进来只会让脚本在无关的包上卡住。
  */
-async function assertOrder() {
+async function resolveOrder() {
   const published = await discoverPublicPackages(join(root, 'packages'))
-  const index = new Map(ORDER.map((dir, i) => [dir, i]))
+  const order = computeOrder(published)
+  const index = new Map(order.map((dir, i) => [dir, i]))
   const byName = new Map(published.map((p) => [p.name, p]))
   const problems = []
 
   for (const pkg of published) {
     if (!index.has(pkg.dir)) problems.push(`ORDER 漏了 public 包 ${pkg.name}（${pkg.dir}）`)
   }
-  for (const dir of ORDER) {
-    if (!published.some((p) => p.dir === dir)) {
-      problems.push(`ORDER 里的 ${dir} 不是 public 包（已私有或已删除）`)
-    }
+  if (order.length !== published.length) {
+    problems.push(`顺序里有 ${order.length} 个包，public 包有 ${published.length} 个`)
   }
   for (const pkg of published) {
     const self = index.get(pkg.dir)
     for (const dep of pkg.deps) {
       if (!dep.startsWith('@fbkworks/')) continue
       const target = byName.get(dep)
-      const depIndex = target ? index.get(target.dir) : undefined
-      if (depIndex === undefined) problems.push(`${pkg.name} 依赖 ${dep}，但它在 ORDER 里不存在`)
+      if (!target) continue // 私有内部包，不参与发布顺序
+      const depIndex = index.get(target.dir)
+      if (depIndex === undefined) problems.push(`${pkg.name} 依赖 ${dep}，但它不在顺序里`)
       else if (self !== undefined && depIndex > self) {
-        problems.push(`${pkg.name} 依赖 ${dep}，但 ORDER 里 ${dep} 排在它后面`)
+        problems.push(`${pkg.name} 依赖 ${dep}，但它排在前面`)
       }
     }
   }
@@ -109,10 +134,13 @@ async function assertOrder() {
     process.exit(1)
   }
 
-  console.log(`[publish] ORDER 校验通过：${published.length} 个 public 包全覆盖，拓扑序成立`)
+  console.log(`[publish] 顺序校验通过：${published.length} 个 public 包全覆盖，拓扑序成立`)
+  // 把算出来的顺序打出来：它是脚本算的，人至少得能看见它是什么
+  console.log(`[publish] 顺序：${order.map((dir) => dir.replace('packages/', '')).join(' → ')}`)
+  return order
 }
 
-await assertOrder()
+const ORDER = await resolveOrder()
 
 if (checkOnly) {
   console.log('[publish] --check-only：清单与拓扑序均通过，未打包也未发布')

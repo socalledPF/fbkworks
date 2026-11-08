@@ -91,6 +91,11 @@ jobs:
       - name: 样式清单与组件目录一致
         run: pnpm check:style-index
 
+      # 组件子路径入口在 package.json 的 exports 与 vite 的 entries 里各抄一份，
+      # 抄漏不报错：消费者 import 子路径直接解析失败。两处都由目录结构生成。
+      - name: 组件入口清单与目录一致
+        run: pnpm check:package-entries
+
       - name: 样式入口完整性
         run: pnpm check:style-entries
 
