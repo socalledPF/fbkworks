@@ -61,6 +61,11 @@ jobs:
       - name: 依赖方向
         run: pnpm lint:deps
 
+      # dependency-cruiser 对**裸说明符**不生效（实测：apps 里 import element-plus 报 0 违规），
+      # 所以「UI 库只能在 adapters」这条红线用静态扫描补一道。
+      - name: 架构红线（静态扫描）
+        run: pnpm check:ui-imports
+
       - name: Typecheck
         run: pnpm typecheck
 

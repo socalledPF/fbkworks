@@ -82,10 +82,26 @@ def scan(page, label, result, context):
     if not AXE.exists():
         print(f"[a11y] 找不到 {AXE}，先执行 pnpm install")
         sys.exit(2)
+    # 上下文必须真的存在：以前是「找不到就退回整页扫」，那会让一个渲染失败的页面
+    # 看起来扫过了（只是扫到了别的东西）。
+    rendered = page.evaluate(
+        """(sel) => {
+          const el = document.querySelector(sel)
+          if (!el) return { ok: false, reason: '找不到容器 ' + sel }
+          const text = (el.innerText || '').trim()
+          return { ok: text.length > 0 || el.querySelector('canvas, svg, img, input') !== null, reason: '容器里没有任何内容' }
+        }""",
+        context,
+    )
+    if not rendered["ok"]:
+        print(f"✗ [{label}] 页面没渲染出内容（{rendered['reason']}）")
+        sys.exit(1)
+
     page.add_script_tag(path=str(AXE))
     violations = page.evaluate(AXE_RUN, context)
+    # axe 永远返回数组；这里守的是「拿不到结果」而不是「没问题」
     if violations is None:
-        print(f"✗ [{label}] axe 没返回结果（页面可能没渲染）")
+        print(f"✗ [{label}] axe 没返回结果")
         sys.exit(1)
     result[label] = violations
 
@@ -177,6 +193,16 @@ def main() -> int:
                 failures.append(f"  + [{page_label}] {rule} ×{count}（基线里没有这条）")
             elif count > known[rule]:
                 failures.append(f"  ↑ [{page_label}] {rule} {known[rule]} → {count} 处")
+    # 一整页从「有违规」变成「零违规」有两种可能：真的修好了，或者这一页根本没渲染。
+    # 后者会把「覆盖面丢了」伪装成「还债了」，所以必须要求人显式确认（--update-baseline）。
+    vanished = [p for p in baseline if p not in gated]
+    if vanished:
+        print(f"✗ 有 {len(vanished)} 个页面这次一处 serious/critical 都没有（基线里原本有）：")
+        for p in vanished[:8]:
+            print(f"  ? [{p}]")
+        print("  要么真的修好了，要么这一页没渲染。确认无遗漏后跑 --update-baseline 把基线降下来。")
+        return 1
+
     improved = [
         f"  ↓ [{p}] {r} {c} → {gated.get(p, {}).get(r, 0)} 处"
         for p, rules in baseline.items()

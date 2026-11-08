@@ -136,6 +136,8 @@ const passedSlots = computed((): string[] =>
       name === 'bulk-actions' ||
       name === 'card-footer' ||
       name === 'error' ||
+      // 新增插槽必须同步加进白名单：白名单是显式的，漏了就是「传了没效果，还不报错」
+      name === 'empty' ||
       name.startsWith('cell-'),
   ),
 )

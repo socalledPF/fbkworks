@@ -194,6 +194,16 @@ if (failures > 0) {
   process.exit(1)
 }
 
+/* 一个包都没检查到 = 什么都没验。以前这里会打印「OK：0 个发布包」并 exit 0，
+   在干净克隆（dist 被 gitignore）上直接跑这条命令就是假绿。 */
+if (checkedPackages === 0) {
+  console.error(
+    '[runtime-deps] 没有检查到任何发布包的产物 —— dist 缺失时这条命令等于什么都没验。' +
+      '先执行 pnpm build，或在 pnpm verify 里跑（build 排在它前面）。',
+  )
+  process.exit(1)
+}
+
 console.log(
   `[runtime-deps] OK：${checkedPackages} 个发布包 / ${checkedFiles} 个产物文件 / ${checkedSpecifiers} 个 bare import，无禁止依赖`,
 )

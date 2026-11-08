@@ -27,6 +27,8 @@ export default {
       to: {
         // doNotFollow 关掉了 node_modules，未解析的依赖会以裸模块名出现，
         // 所以两种形态都要匹配。
+        // ⚠️ 实测：这条规则对本仓库的裸 import **并不生效**（详见 scripts/check-ui-imports.mjs
+        // 的说明）—— 那道门是用静态扫描补上的，这里保持原样不做无效改写。
         path: '^(node_modules/)?(element-plus|vant|naive-ui)(/|$)',
       },
     },

@@ -186,6 +186,10 @@ for size, info in results["screen"].items():
     if info["errors"]:
         print(f"FAIL [{size}] console 错误: {info['errors']}")
         ok = False
+    # 0 个 canvas 是「图表压根没挂载」，不是「图表没问题」——以前它会静默通过
+    if len(info["canvas"]) == 0:
+        print(f"FAIL [{size}] 一个 canvas 都没找到（图表没有挂载）")
+        ok = False
     blank = [c for c in info["canvas"] if not c.get("ok")]
     if blank:
         print(f"FAIL [{size}] 有 {len(blank)} 个 canvas 空白")
@@ -197,6 +201,12 @@ if d["statCards"] != 4:
     ok = False
 if d["errors"]:
     print(f"FAIL 看板 console 错误: {d['errors']}")
+    ok = False
+if len(d["canvas"]) == 0:
+    print("FAIL 看板一个 canvas 都没找到（图表没有挂载）")
+    ok = False
+if d["chartCards"] != 4:
+    print(f"FAIL 看板图表卡数量 {d['chartCards']} != 4")
     ok = False
 if any(not c.get("ok") for c in d["canvas"]):
     print("FAIL 看板有 canvas 空白")
