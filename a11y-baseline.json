@@ -1,0 +1,140 @@
+{
+  "_note": "由 scripts/visual/verify-a11y.py --update-baseline 生成。只含 serious/critical。修好一条就重跑一次，让这份文件的 diff 成为还债记录。",
+  "pages": {
+    "playground[element-plus]:pro-table/basic": {
+      "label": 1
+    },
+    "playground[element-plus]:pro-table/with-query": {
+      "color-contrast": 2,
+      "label": 1
+    },
+    "playground[element-plus]:pro-table/selection": {
+      "label": 1
+    },
+    "playground[element-plus]:query-form/basic": {
+      "color-contrast": 2
+    },
+    "playground[element-plus]:form-generator/basic": {
+      "color-contrast": 2,
+      "label": 1
+    },
+    "playground[element-plus]:page-container/basic": {
+      "color-contrast": 1
+    },
+    "playground[element-plus]:crud-page/basic": {
+      "color-contrast": 3,
+      "label": 1
+    },
+    "playground[element-plus]:form-modal/basic": {
+      "color-contrast": 1,
+      "label": 1
+    },
+    "playground[element-plus]:detail-page/basic": {
+      "color-contrast": 4
+    },
+    "playground[element-plus]:detail-drawer/basic": {
+      "label": 1
+    },
+    "playground[element-plus]:dashboard/basic": {
+      "color-contrast": 4
+    },
+    "playground[naive-ui]:pro-table/basic": {
+      "label": 1
+    },
+    "playground[naive-ui]:pro-table/with-query": {
+      "label": 1
+    },
+    "playground[naive-ui]:pro-table/selection": {
+      "aria-toggle-field-name": 21,
+      "label": 1
+    },
+    "playground[naive-ui]:form-generator/basic": {
+      "aria-toggle-field-name": 1
+    },
+    "playground[naive-ui]:crud-page/basic": {
+      "aria-toggle-field-name": 21,
+      "color-contrast": 1,
+      "label": 1
+    },
+    "playground[naive-ui]:form-modal/basic": {
+      "color-contrast": 1,
+      "label": 1
+    },
+    "playground[naive-ui]:detail-page/basic": {
+      "color-contrast": 4
+    },
+    "playground[naive-ui]:detail-drawer/basic": {
+      "label": 1
+    },
+    "playground[naive-ui]:dashboard/basic": {
+      "color-contrast": 4
+    },
+    "playground[vant]:pro-table/basic": {
+      "aria-required-children": 1
+    },
+    "playground[vant]:pro-table/with-query": {
+      "aria-required-children": 1,
+      "color-contrast": 1,
+      "nested-interactive": 1
+    },
+    "playground[vant]:pro-table/selection": {
+      "aria-required-children": 1,
+      "aria-toggle-field-name": 20
+    },
+    "playground[vant]:query-form/basic": {
+      "color-contrast": 1,
+      "nested-interactive": 1
+    },
+    "playground[vant]:form-generator/basic": {
+      "aria-toggle-field-name": 1,
+      "color-contrast": 1,
+      "nested-interactive": 2
+    },
+    "playground[vant]:page-container/basic": {
+      "color-contrast": 1
+    },
+    "playground[vant]:crud-page/basic": {
+      "aria-required-children": 1,
+      "aria-toggle-field-name": 20,
+      "color-contrast": 2,
+      "nested-interactive": 2
+    },
+    "playground[vant]:form-modal/basic": {
+      "aria-required-children": 1,
+      "color-contrast": 1
+    },
+    "playground[vant]:detail-page/basic": {
+      "color-contrast": 4
+    },
+    "playground[vant]:detail-drawer/basic": {
+      "aria-required-children": 1
+    },
+    "playground[vant]:dashboard/basic": {
+      "color-contrast": 4
+    },
+    "admin:/": {
+      "color-contrast": 5
+    },
+    "admin:/orders": {
+      "color-contrast": 4,
+      "label": 1
+    },
+    "admin:/orders/1": {
+      "color-contrast": 4
+    },
+    "admin:/users": {
+      "color-contrast": 4,
+      "label": 1
+    },
+    "admin:/settings": {
+      "color-contrast": 4,
+      "label": 2
+    },
+    "admin:/403": {
+      "color-contrast": 2
+    },
+    "admin:/404": {
+      "color-contrast": 1
+    }
+  }
+}

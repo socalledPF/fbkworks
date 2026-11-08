@@ -14,3 +14,7 @@ tests/visual/__screenshots__/**/diff*
 # 它跑的是运行中的页面而不是构建产物，不参与任何门禁，也不该进版本库。
 design-preview
 .diag
+
+# a11y 扫描的一次性产物；基线（a11y-baseline.json）才进版本库，
+# 它才是「还清了几条」的账。
+a11y-report.json

@@ -865,7 +865,8 @@ fixed 组 = 8 个 UI 栈包
 | 可选层实操一次 | `Drawer` 是唯一成员，还没有第二个原语走过这条路 |
 | ~~视觉回归进 CI~~ | ✅ **已做**（`ci.yml` 新增 `visual` job，ubuntu-only）。**5 个脚本现已全部进 CI** —— `compare-controls.py` 原本因前提消失被排除，已窄化成「跨 demo `.fbk-demo-btn` 形状一致性」并接入（证伪：在某页注入 `height:40px` → 精确报出那 2 个按钮 32→40px）。**故意不依赖 `pnpm build`**——已实测删掉全部 `dist` 后 playground 仍能起服务并通过，堵掉「本地有 dist 所以过、CI 没 dist 所以挂」这一类 |
 | ~~包体积数据~~ | ✅ **已做**（`check:size`，verify 第 8 步）。**按 `exports` 入口 + 相对 import 可达性**统计（不是包 dist 总量——components 的总量是 10 个组件的和，没有任何应用会全量引入）。29 个入口 / 12 个包，基线 `size-baseline.json` 3 KB。只卡原始字节不卡 gzip（压缩结果随 zlib 版本漂，会假红），阈值「涨超 5% 且涨超 2 KB」。已证伪：往 `use-table-request.ts` 灌 8 KB → 三个入口同时红（barrel +9.3%、crud-page +19.7%、pro-table +30.9%），还原即绿 |
-| a11y | 实测 **17 个源文件**出现 `aria-*`/`role`（含 1 个 css；apps 侧 8 个、packages 侧 9 个）。原文写的「只有 2 个文件」已过期。真正缺的不是数量，而是**判据与门禁**：没有「每个交互原语必须有可访问名/键盘可达」的检查，所以现在是「有些地方做了，没人保证不退化」 |
+| ~~a11y~~ | ✅ **判据与门禁已落地**（`check:a11y`，棘轮形态）。判据不自造：axe 的 WCAG 2.0/2.1 A/AA，只把 serious/critical 计入门禁。范围是**内容区**（`.pg__main` / `.admin-content`），不扫两个 demo 应用自己的侧边栏顶栏——实测把外壳算进来时 color-contrast 有 532 处，几乎全来自 playground 侧边栏，会把信号淹掉。共 52 个页面（15 demo × 3 适配器 + 7 个 admin 页）。**基线：38 个页面 / 181 处**（aria-toggle-field-name 84、color-contrast 68、label 17、aria-required-children 6、nested-interactive 6）。只拦新增，`--update-baseline` 的 diff 就是还债记录。另在一致性套件里补了一条「封装不许吞掉 aria-label/aria-describedby」，实测抓到 element-plus 的 DatePicker 只转发 aria-label（上游属性路由，已记录不硬改）。**不做**：键盘顺序、焦点可见性、屏幕阅读器实测 |
+
 | `FbkProTable` 自定义空态 | `DataGridProps` 只有 `emptyText`，没有 `empty` 插槽 |
 | `detail-drawer.md` | 组件已导出、有 demo，但**没有文档页** |
 | `components` ↔ `adapter-core` | 无运行时兼容护栏（拆 fixed 时的缺口；两者仍同组，暂不暴露） |

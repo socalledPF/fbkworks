@@ -78,7 +78,7 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:diagrams` | 校验架构图里的 Mermaid 语法与文件名引用 |
 | `pnpm docs:build` | VitePress 构建 |
 
-另有七个**不在 `verify` 里**的命令：
+另有九个**不在 `verify` 里**的命令：
 
 | 命令 | 何时用 |
 |---|---|
@@ -86,6 +86,8 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm gen:resolver-map` | 新增/删除组件后，重新生成 resolver 映射 |
 | `pnpm gen:chart-fixtures` | 有意调整图表配置后重新冻结 option 基线（**改动应可解释**） |
 | `pnpm gen:api-snapshot` | 有意改公开 API 后重写类型基线——**把 diff 一起提交**，那正是不兼容变更的清单 |
+| `pnpm check:a11y` | 用 axe 扫 52 个页面（15 demo × 3 适配器 + 7 个 admin 页），按 `a11y-baseline.json` 只拦**新增**的 serious/critical |
+| `pnpm gen:a11y-baseline` | 修掉一批无障碍问题后重写基线——**它的 diff 就是还债记录** |
 | `pnpm size` | 打印每个入口的体积表（JS/CSS 的 raw 与 gzip）。不写文件 |
 | `pnpm gen:size-baseline` | 有意改变体积后重写基线——**把 diff 一起提交**，那就是这次变胖/变瘦的账 |
 | `pnpm verify:fresh` | 在**全新克隆**里跑一遍完整 CI（实测 171–243s）。三次 CI 事故都是「本地通、全新克隆挂」，这是唯一能根治的手段 |
@@ -102,6 +104,7 @@ jsdom 没有布局引擎，也没有 CSS 特异性——**布局、绘制、主�
 | `verify-form-capabilities.py` | `pnpm playground` | `labelWidth` 要量真实宽度；`validateOn` 在 jsdom 里恒返回 true |
 | `compare-controls.py` | `pnpm playground` | 组件样式以更高特异性压掉业务方的类（`.fbk-pro-table__bulk button` 干过一次），只在「用了那个组件的那一页」露头 |
 | `verify-admin.py` | `pnpm admin` | 工具条与批量条的层级、权限是删 DOM 而非 `display:none`、上报事件真的可达 |
+| `verify-a11y.py` | `pnpm playground` + `pnpm admin` | 语义（可访问名、标题层级、label 关联）只有渲染完的 DOM 才看得出；用 axe 扫 52 个页面，按基线只拦新增 |
 
 `compare-controls.py` 曾经不在 CI 里：它原本还比较「playground header 的原生控件 vs demo 按钮」，
 而 header 改版后那半边的前提就不存在了。现在已窄化成只做**跨 demo 的 `.fbk-demo-btn` 形状一致性**，

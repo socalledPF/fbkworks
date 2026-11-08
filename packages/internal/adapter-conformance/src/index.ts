@@ -143,6 +143,44 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(wrapper.find('.fbk-test-class').exists()).toBe(true)
     })
 
+    /**
+     * 无障碍（a11y）里**只有我们能负责的那一半**：封装不许吞掉可访问属性。
+     *
+     * 为什么只断言这个、不在单测里断言「有没有 role/aria」：39 个原语实现里只有 2 个自己写了
+     * role —— 语义由 element-plus / vant / naive-ui 提供，我们只做转发。真正的语义问题要
+     * 用 axe 在真实浏览器里扫（`pnpm check:a11y`），这里守的是「别在封装时把它弄丢」。
+     */
+    it('交互原语不吞掉 aria-label / aria-describedby', () => {
+      const cases: Array<[string, Component, Record<string, any>]> = [
+        ['Button', p.Button, {}],
+        ['Input', p.Input, { modelValue: '' }],
+        ['Select', p.Select, { modelValue: '', options: [{ label: 'A', value: 'a' }] }],
+        ['Checkbox', p.Checkbox, { modelValue: false }],
+        ['Radio', p.Radio, { modelValue: 'a', value: 'a' }],
+        ['DatePicker', p.DatePicker, { modelValue: '' }],
+        ['Pagination', p.Pagination, { page: 1, pageSize: 10, total: 100 }],
+      ]
+
+      // element-plus 的 DatePicker 只转发 aria-label，不转发 aria-describedby：
+      // 实测同一份渲染结果里 aria-label 在、aria-describedby 不在。那是 UI 库自己的
+      // 属性路由，不在我们能修的范围内 —— 记录在案，不为它去改库内部。
+      const describedByMissingUpstream = new Set(['DatePicker'])
+
+      for (const [name, component, props] of cases) {
+        const wrapper = mount(component, {
+          ...props,
+          'aria-label': `探针-${name}`,
+          'aria-describedby': 'probe-desc',
+        })
+        const html = wrapper.html()
+        expect(html, `${name} 吞掉了 aria-label`).toContain(`探针-${name}`)
+        if (!describedByMissingUpstream.has(name)) {
+          expect(html, `${name} 吞掉了 aria-describedby`).toContain('probe-desc')
+        }
+        wrapper.unmount()
+      }
+    })
+
     it('Input 实现 v-model', async () => {
       const wrapper = mount(p.Input, { modelValue: 'a' })
       const input = wrapper.find('input')

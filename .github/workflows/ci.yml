@@ -217,6 +217,29 @@ jobs:
           done
           python scripts/visual/verify-admin.py 5185
 
+      # 无障碍：axe 扫 52 个页面（15 demo × 3 适配器 + 7 个 admin 页）的内容区。
+      # 棘轮形态 —— 现状 181 处 serious/critical 记在 a11y-baseline.json，
+      # 只拦新增；修好一批就跑 pnpm gen:a11y-baseline，那份 diff 就是还债记录。
+      - name: 无障碍（axe，按基线只拦新增）
+        run: |
+          pnpm playground > /tmp/playground-a11y.log 2>&1 &
+          PG_PID=$!
+          pnpm admin > /tmp/admin-a11y.log 2>&1 &
+          ADMIN_PID=$!
+          trap 'pkill -P $PG_PID 2>/dev/null || true; pkill -P $ADMIN_PID 2>/dev/null || true; kill $PG_PID $ADMIN_PID 2>/dev/null || true' EXIT
+          for port in 5174 5185; do
+            for i in $(seq 1 120); do
+              curl -sf -o /dev/null "http://localhost:$port/" && break
+              if [ "$i" = 120 ]; then
+                echo "::error::端口 $port 在 120s 内未就绪"
+                tail -n 40 /tmp/playground-a11y.log /tmp/admin-a11y.log
+                exit 1
+              fi
+              sleep 1
+            done
+          done
+          python scripts/visual/verify-a11y.py
+
   impact:
     name: 变更影响分析
     # 只在 PR 上跑：需要对比 base 分支，push 到 main 时没有对比对象
