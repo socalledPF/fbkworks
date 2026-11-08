@@ -115,7 +115,12 @@ jobs:
     # 的 exports 推导、把 dist/ 换成 src/，所以没构建产物也能起服务。
     # 这条已实测（删掉全部 dist 后起 playground，verify-charts 仍全过），
     # 不存在「本地有 dist 所以过、CI 没 dist 所以挂」的假绿。
-    runs-on: ubuntu-latest
+    #
+    # 镜像钉死到 24.04，不用 ubuntu-latest：`latest` 已经滚到 26.04，
+    # 而 Playwright 1.60.0 不认识它（实测报 "Playwright does not support chromium
+    # on ubuntu26.04-x64"）。这里钉镜像而不是升 Playwright —— 镜像升级会有明确的
+    # 弃用公告，Playwright 的版本漂移是静默的。
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
