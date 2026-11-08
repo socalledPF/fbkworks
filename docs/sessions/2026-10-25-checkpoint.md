@@ -843,10 +843,10 @@ npm registry: @fbkworks/components@0.3.0 可查
 ### F.8 当前状态
 
 ```
-main = a50fdbf（+ 视觉回归进 CI、公开 API 快照）
+main = e564805（+ 视觉回归进 CI、公开 API 快照、包体积基线、Release 改为 CI 绿后才发）
 pnpm verify = 20 步，全绿
 测试 840 通过 + 4 skipped / 74 文件
-发布包 12 个，全部 0.3.0，已上 npm
+发布包 12 个，全部 0.4.0，已上 npm
 fixed 组 = 8 个 UI 栈包
 原语 = 13 必填 + 1 可选（Drawer）
 ```
