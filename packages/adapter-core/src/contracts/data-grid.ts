@@ -48,7 +48,10 @@ export interface DataGridProps<T = any> {
   data: T[]
   rowKey?: string | ((row: T) => string | number)
   loading?: boolean
-  presentation?: DataGridPresentation
+  /* `presentation` 曾经在这里，但三个适配器**一次都没读过它**（grep 'props.presentation' 为 0）：
+     业务侧传 'cards' 得到的是「卡片类的外壳 + 表格 DOM」，静默无效。
+     展示形态唯一的真相是能力位 `capabilities.dataGrid.presentation`（ProTable 用它决定外壳类名）。
+     一个没人实现的字段比没有字段更糟 —— 它让类型定义看起来支持，实际不支持。 */
   selectionEnabled?: boolean
   selectedKeys?: Array<string | number>
   /**
@@ -57,7 +60,9 @@ export interface DataGridProps<T = any> {
    * 现在由 ProTable 的 `selection.columnWidth` 传下来。
    */
   selectionWidth?: number
-  sort?: SortState | null
+  /* `sort` 入参同样删除：只有 element-plus 读过它（用来设 defaultSort），
+     naive / vant 完全忽略 —— 受控排序在 2/3 适配器上不生效。
+     排序的对外契约只剩事件 `update:sort`（ProTable 据此驱动请求）。 */
   emptyText?: string
   rowClickable?: boolean
   /** 移动端无限滚动 */

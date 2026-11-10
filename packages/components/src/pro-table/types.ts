@@ -105,7 +105,6 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
 
   loading?: boolean
   emptyText?: string
-  presentation?: 'auto' | 'table' | 'cards'
 
   page?: number
   pageSize?: number
@@ -116,7 +115,8 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
   selectedKeys?: Key[]
 
   sort?: SortState | null
-  toolbar?: boolean
+  /* `toolbar` 曾经在这里，但代码里只判断 `$slots.toolbar`，从不读这个 prop ——
+     传 `:toolbar="false"` 没有任何效果。要么实现，要么删；没有真实需求的开关就是噪音。 */
   uiProps?: ProTableUiProps
 }
 

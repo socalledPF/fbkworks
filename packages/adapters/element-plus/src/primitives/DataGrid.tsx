@@ -4,7 +4,6 @@ import {
   renderCell,
   type DataGridColumn,
   type DataGridProps,
-  type SortState,
 } from '@fbkworks/adapter-core'
 import { getRowKey } from '@fbkworks/shared'
 
@@ -16,11 +15,9 @@ export const DataGrid = defineComponent({
     data: { type: Array as PropType<any[]>, default: () => [] },
     rowKey: { type: [String, Function] as PropType<DataGridProps['rowKey']>, default: 'id' },
     loading: Boolean,
-    presentation: { type: String as PropType<DataGridProps['presentation']>, default: 'auto' },
     selectionEnabled: Boolean,
     selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
-    sort: { type: Object as PropType<SortState | null>, default: null },
     emptyText: String,
     rowClickable: Boolean,
     size: { type: String, default: 'md' },
@@ -83,7 +80,6 @@ export const DataGrid = defineComponent({
         rowKey={props.rowKey as any}
         size={elementSize.value}
         emptyText={props.emptyText ?? '暂无数据'}
-        defaultSort={props.sort ? { prop: props.sort.field, order: props.sort.order === 'asc' ? 'ascending' : 'descending' } : undefined}
         onSelection-change={onSelectionChange}
         onSort-change={({ prop, order }: { prop: string | null; order: string | null }) =>
           emit(

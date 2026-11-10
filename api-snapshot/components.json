@@ -159,7 +159,7 @@
     },
     "ProTableProps": {
       "kind": "interface",
-      "text": "export interface ProTableProps<T extends Record<string, any> = Record<string, any>> {\n    columns: ProTableColumn<T>[];\n    rowKey?: (keyof T & string) | ((row: T) => Key);\n    data?: T[];\n    request?: TableRequest<T>;\n    params?: Record<string, any>;\n    loading?: boolean;\n    emptyText?: string;\n    presentation?: 'auto' | 'table' | 'cards';\n    page?: number;\n    pageSize?: number;\n    total?: number;\n    pagination?: false | {\n        pageSizes?: number[];\n        showTotal?: boolean;\n        showJumper?: boolean;\n    };\n    selection?: false | {\n        preserveOnReload?: boolean;\n        columnWidth?: number;\n    };\n    selectedKeys?: Key[];\n    sort?: SortState | null;\n    toolbar?: boolean;\n    uiProps?: ProTableUiProps;\n}"
+      "text": "export interface ProTableProps<T extends Record<string, any> = Record<string, any>> {\n    columns: ProTableColumn<T>[];\n    rowKey?: (keyof T & string) | ((row: T) => Key);\n    data?: T[];\n    request?: TableRequest<T>;\n    params?: Record<string, any>;\n    loading?: boolean;\n    emptyText?: string;\n    page?: number;\n    pageSize?: number;\n    total?: number;\n    pagination?: false | {\n        pageSizes?: number[];\n        showTotal?: boolean;\n        showJumper?: boolean;\n    };\n    selection?: false | {\n        preserveOnReload?: boolean;\n        columnWidth?: number;\n    };\n    selectedKeys?: Key[];\n    sort?: SortState | null;\n    uiProps?: ProTableUiProps;\n}"
     },
     "ProTableSlots": {
       "kind": "interface",

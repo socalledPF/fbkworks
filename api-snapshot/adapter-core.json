@@ -71,7 +71,7 @@
     },
     "DataGridProps": {
       "kind": "interface",
-      "text": "interface DataGridProps<T = any> {\n    columns: DataGridColumn<T>[];\n    data: T[];\n    rowKey?: string | ((row: T) => string | number);\n    loading?: boolean;\n    presentation?: DataGridPresentation;\n    selectionEnabled?: boolean;\n    selectedKeys?: Array<string | number>;\n    selectionWidth?: number;\n    sort?: SortState | null;\n    emptyText?: string;\n    rowClickable?: boolean;\n    loadMore?: boolean;\n    finished?: boolean;\n    size?: 'sm' | 'md' | 'lg';\n}"
+      "text": "interface DataGridProps<T = any> {\n    columns: DataGridColumn<T>[];\n    data: T[];\n    rowKey?: string | ((row: T) => string | number);\n    loading?: boolean;\n    selectionEnabled?: boolean;\n    selectedKeys?: Array<string | number>;\n    selectionWidth?: number;\n    emptyText?: string;\n    rowClickable?: boolean;\n    loadMore?: boolean;\n    finished?: boolean;\n    size?: 'sm' | 'md' | 'lg';\n}"
     },
     "DataGridSlots": {
       "kind": "interface",
