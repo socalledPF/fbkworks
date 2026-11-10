@@ -1,0 +1,56 @@
+fix: 跨适配器语义对齐 —— 首屏空态、DOM 属性泄漏、受控选中不回写、取消噪音
+
+第二轮全量 review 的修复批次（6 个只读审阅者，我逐条复核后落地）。
+
+## 一致性（同一个 props，三家必须同一个结果）
+
+**loading 期间不再渲染空态** —— 首帧 data 必空，此时喊「暂无数据」等于把「正在加载」
+说成「没有数据」。vant 一直抑制，element-plus / naive 照渲染。已加进一致性套件
+（断言的是「界面上有没有那句文案」，不看实现）。
+
+**loadMore / finished 不再透成 DOM 属性** —— 桌面两库不声明这两个字段，ProTable
+无条件传过来时它们落进 attrs 并被展开到表格根节点，变成 loadmore="false" finished="false"，
+@load-more 也退化成原生事件监听器。
+
+## 受控语义
+
+**reload() 清空选中时必须 emit update:selectedKeys** —— selectedKeys 是受控 prop，
+只改内部值会让父级 v-model 停在旧值：父级批量操作栏显示「已选 1 项」并可执行删除，
+而表格里已经一个都没勾。同时把清空移到「受控 data 直接返回」之前，
+否则 selection.preserveOnReload: false 配 :data 是彻底的空操作。
+
+## 数据层（两条是我上一轮引入/遗留的）
+
+**isSuccess 返回 falsy 即失败** —— 上一轮重构成 `ok === false`，于是
+`(res) => res.code` / `(res) => res.data?.ok` 这类常见写法返回的 undefined / 0 / 空串
+被当成成功。这是我自己造的回归，被这轮 review 抓到。
+
+**取消判定覆盖真实形状** —— 第一判据改为 signal.aborted，再叠加 AbortError /
+CanceledError / ERR_CANCELED 三种命名。此前 axios 的 CanceledError 与 abort(reason)
+都会当成错误上报，快速翻页时全是噪音。
+
+**total 必须是非负整数** —— 负数与小数同样让分页器显示错数。
+
+## 图表
+
+**replaceMerge 扩到 dataZoom / visualMap / geo** —— 只替换 series/legend 时，
+被删掉的缩放条会留在实例上（折线↔饼这类换图型残留）。坐标轴仍走合并（实测能正确归一）。
+
+**主题重建后补回 loading 遮罩** —— 重建实例让遮罩跟旧实例消失，而 props.loading 没变、
+watcher 不触发，看起来像加载完了。
+
+**大屏四个图表转发 @error** —— FbkChart 只 emit 不 console，大屏此前无人监听，
+配置写错时静默保留上一帧或空白。
+
+## 再清两个死字段
+
+ProTableProps.sort（半死路径：驱动不了 UI，还会在错误重试重挂后让箭头与真实排序相反）、
+uiProps.actions（全仓零读取）。vant 的 size 补上语义说明（移动端无尺寸档位，
+声明它是为了不透成 DOM 属性）。
+
+## 测试
+
+新增/更新：loading 与空态的跨适配器断言、isSuccess falsy 四态、取消四形状、
+total 三种非法值；两条因本轮改动而过时的用例改成走新路径。
+
+pnpm verify 全绿：882 passed / 5 skipped。

@@ -97,8 +97,20 @@ function applyOption() {
        replaceMerge 只替换这两类组件、其余照旧合并，所以动画与其它状态都保住了。
        这也是那四个图表组件敢用「series.length > 1 ? legend : undefined」这种写法
        的前提 —— 否则去掉的那一半根本不生效。 */
+    /* 重建实例（主题切换）后遮罩会跟着旧实例一起没了，而 props.loading 没变、
+       watcher 不会触发 —— 结果是「loading=true 却看不到遮罩」，看起来像加载完了。 */
+    if (props.loading) {
+      instance.showLoading('default', { text: '', color: '#3b82f6', maskColor: 'rgba(255,255,255,0.6)' })
+    }
+
     instance.setOption(resolved as any, {
-      replaceMerge: ['series', 'legend'],
+      /* 只替换「可能整块消失」的组件类型。
+         实测：series / legend / dataZoom 在新 option 里被删掉后，
+         纯合并会把它们留在实例上（折线↔饼这类换图型会留下空坐标系与残留缩放条）。
+         xAxis / yAxis / grid 不在这里 —— 它们的增减在合并语义下能正确归一
+         （实测轴互换后 axisLabel 的 width/overflow 被丢弃、axisLine.show 归一），
+         换成 replaceMerge 反而会让坐标轴动画每帧重建。 */
+      replaceMerge: ['series', 'legend', 'dataZoom', 'visualMap', 'geo'],
       lazyUpdate: false,
     })
   } catch (err) {

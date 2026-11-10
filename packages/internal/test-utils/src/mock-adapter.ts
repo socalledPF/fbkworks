@@ -349,7 +349,7 @@ function createMockPrimitives(): UiPrimitives {
                 )
               }),
             ),
-            props.data.length === 0
+            props.data.length === 0 && !props.loading
               /* 契约里 empty 是插槽：传了就用业务内容，没传才渲染默认空态。
                  mock 必须和真实适配器同一语义，否则「CrudPage 有没有转发 empty」
                  这类问题在测试里永远看不见。 */

@@ -220,8 +220,10 @@ describe('FbkProTable 筛选条件变化回到第一页', () => {
     await flushPromises()
     table.request.mockClear()
 
-    // 走 sort prop：绕过 ProTable.onSort 自己置 1 的那条路径，单看 useTableRequest 的语义
-    await table.wrapper.setProps({ sort: { key: 'name', order: 'desc' } })
+    /* 排序现在是**纯事件驱动**：`ProTableProps.sort` 已删除（它删掉 DataGridProps.sort
+       之后只剩播种内部状态，驱动不了任何 UI，还会在错误重试重挂时制造"箭头与数据相反"）。
+       所以这条用例改成走适配器事件 —— 也就是真实用户点表头的那条路径。 */
+    table.grid().vm.$emit('update:sort', { field: 'name', order: 'desc' })
     await flushPromises()
 
     expect(table.pages()).toEqual([1])

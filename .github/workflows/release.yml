@@ -41,8 +41,13 @@ concurrency:
 jobs:
   release:
     # workflow_run 也会被 PR 上的 CI 触发，三个条件缺一不可：
-    # 只有「push 到 main 触发的 CI」且成功才发布。手动触发不受此限。
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+    # 只有「push 到 main 触发的 CI」且成功才发布。
+    #
+    # 手动触发同样只允许 main：workflow_dispatch 可以选任意分支，
+    # 那样会用该分支的 package.json 直接 publish（npm 版本不可撤回），
+    # 而且 concurrency 组是 release-${{ github.ref }}，选别的分支就换了组，
+    # 会与正在跑的 main 发布**并行** —— 两次发布交叉，结果是半截版本被推上 registry。
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
     permissions:
       contents: write

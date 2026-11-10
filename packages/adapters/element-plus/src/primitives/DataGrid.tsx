@@ -19,6 +19,12 @@ export const DataGrid = defineComponent({
     selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
     emptyText: String,
+    /* 这两个是「无限滚动」这一族的能力位驱动字段，只有 vant 会真的用。
+       桌面端必须**声明**它们，否则 ProTable 无条件传过来时会落进 attrs，
+       再被 {...attrs} 展开到表格根节点，变成 loadmore="false" finished="false"
+       这种非法 DOM 属性，连 @load-more 都会变成原生事件监听器。 */
+    loadMore: Boolean,
+    finished: Boolean,
     rowClickable: Boolean,
     size: { type: String, default: 'md' },
   },
@@ -75,11 +81,23 @@ export const DataGrid = defineComponent({
       <ElTable
         {...attrs}
         ref={tableRef}
-        v-slots={slots.empty ? { empty: () => slots.empty!() } : undefined}
+        /* loading 期间不渲染空态：首帧 data 一定是空的，此时喊「暂无数据」
+           等于把「正在加载」说成「没有数据」。vant 一直是这么做的，
+           桌面端两库此前没有 —— 同一份业务代码换库外观就不一样。
+           传空插槽而不是空字符串：el-table 对空字符串仍会渲染它自己的默认空态。 */
+        v-slots={
+          props.loading
+            ? { empty: () => null }
+            : slots.empty
+              ? { empty: () => slots.empty!() }
+              : undefined
+        }
         data={props.data}
         rowKey={props.rowKey as any}
         size={elementSize.value}
-        emptyText={props.emptyText ?? '暂无数据'}
+        /* loading 期间两者一起关：只关插槽不够 —— el-table 在插槽渲染出空内容时
+           仍会回落到 emptyText。 */
+        emptyText={props.loading ? '' : (props.emptyText ?? '暂无数据')}
         onSelection-change={onSelectionChange}
         onSort-change={({ prop, order }: { prop: string | null; order: string | null }) =>
           emit(

@@ -69,9 +69,21 @@ export function createPageRequest<TRaw, T = unknown>(
     try {
       raw = await fetch(query)
     } catch (err) {
-      /* 取消是正常流程（快速翻页时旧请求被 abort），
-         不能当成错误上报 —— 否则监控里全是噪音。 */
-      const aborted = err instanceof DOMException && err.name === 'AbortError'
+      /* 取消是正常流程（快速翻页时旧请求被 abort），不能当成错误上报 —— 否则监控里全是噪音。
+         判据要覆盖三种真实形状：
+           · fetch 原生取消      → DOMException('AbortError')
+           · axios v1 signal 取消 → CanceledError（name='CanceledError', code='ERR_CANCELED'）
+           · abort(customReason)  → 直接以 reason 拒约，形状任意
+         最后一种无法靠形状识别，所以**第一判据看 signal 本身**：调用方已经 abort 了，
+         那么无论抛出来的是什么，都不该算错误。 */
+      const canceledBySignal = query.signal?.aborted === true
+      const cancelLike =
+        typeof err === 'object' &&
+        err !== null &&
+        ((err as { name?: string }).name === 'AbortError' ||
+          (err as { name?: string }).name === 'CanceledError' ||
+          (err as { code?: string }).code === 'ERR_CANCELED')
+      const aborted = canceledBySignal || cancelLike
       if (!aborted) {
         report({
           source: 'request',
@@ -116,7 +128,12 @@ export function createPageRequest<TRaw, T = unknown>(
         throw wrapped
       }
 
-      if (ok === false) {
+      /* 判据必须是「falsy 即失败」，不能写 ok === false：
+         `isSuccess: (res) => res.code`、`(res) => res.data?.ok`、`(res) => res.status`
+         这些写法返回的是 undefined / 0 / '' ，用 === false 会把业务失败全部放过 ——
+         失败响应带空数组时用户看到「暂无数据」，不带数组时报「列表位置不是数组」，
+         把排查引到字段名上。`!ok` 才是「不是成功」的意思。 */
+      if (!ok) {
         const text = message ?? '请求失败（未提供 errorMessage）'
         report({
           source: 'request',

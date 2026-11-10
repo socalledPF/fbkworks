@@ -25,7 +25,6 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
   pagination: undefined,
   selection: false,
   selectedKeys: undefined,
-  sort: undefined,
 })
 
 const attrs = useAttrs()
@@ -48,12 +47,14 @@ const { DataGrid, Pagination } = adapter.primitives
 
 const innerPage = ref(props.page ?? 1)
 const innerPageSize = ref(props.pageSize ?? 20)
-const innerSort = ref<SortState | null>(props.sort ?? null)
+/* 排序状态完全由表头交互驱动（onSort → 这里 → 请求）。
+   以前从 props.sort 播种，但 DataGridProps.sort 删除后适配器不再接收它，
+   播种就成了半死路径：错误重试重挂 DataGrid 时箭头全灭、而内部排序仍在生效。 */
+const innerSort = ref<SortState | null>(null)
 const innerSelected = ref<Key[]>(props.selectedKeys ?? [])
 
 watch(() => props.page, (value) => value !== undefined && (innerPage.value = value))
 watch(() => props.pageSize, (value) => value !== undefined && (innerPageSize.value = value))
-watch(() => props.sort, (value) => (innerSort.value = value ?? null))
 watch(() => props.selectedKeys, (value) => value !== undefined && (innerSelected.value = value))
 
 const isControlledData = computed(() => props.data !== undefined)
@@ -215,10 +216,18 @@ function onPageSize(size: number) {
 
 async function reload(options: { resetPage?: boolean } = {}) {
   emit('refresh')
+  /* 清空选中必须 emit：selectedKeys 是受控 prop，只改内部值的话
+     父级的 v-model 仍停在旧值 —— 父级自己渲染的批量操作栏会显示「已选 1 项」
+     并可以执行删除，而表格里其实已经一个都没勾。clearSelection 一直是正确 emit 的，
+     只有这条路径漏了。
+     而且它要放在「受控 data 直接返回」之前：否则 selection.preserveOnReload: false
+     配 :data 时是彻底的空操作。 */
+  if (!preserveOnReload.value && innerSelected.value.length > 0) {
+    innerSelected.value = []
+    emit('update:selectedKeys', [])
+  }
   if (isControlledData.value) return
   if (isInfinite.value) requestState.finished.value = false
-  // 重新查询后旧行的 key 通常已经不存在了，默认保留；显式关闭时清空
-  if (!preserveOnReload.value) innerSelected.value = []
   await requestState.reload(options)
 }
 

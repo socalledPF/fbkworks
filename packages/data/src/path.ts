@@ -123,6 +123,18 @@ export function extractTotal<TRaw>(
 
   const num = Number(value)
 
+  /* 非负整数。负数与小数同样会让分页器显示错数（「共 -5 条」「共 1.5 条」），
+     与 total:null 变成 0 是同一类伪装 —— 上面刚封了 null/空串/布尔/数组，这里一并封死。 */
+  if (!Number.isInteger(num) || num < 0) {
+    throw new FbkDataError(
+      'path',
+      `[fbk/data] 总数必须是非负整数（实际是 ${previewRaw(value)}）。` +
+        `\n  小数请四舍五入后再返回，负数通常意味着后端聚合写错了。` +
+        `\n  实际响应：${previewRaw(raw)}`,
+      raw,
+    )
+  }
+
   if (!Number.isFinite(num)) {
     throw new FbkDataError(
       'path',

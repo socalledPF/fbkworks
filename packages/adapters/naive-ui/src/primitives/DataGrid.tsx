@@ -19,6 +19,12 @@ export const DataGrid = defineComponent({
     selectionWidth: { type: Number, default: 48 },
     selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
     emptyText: String,
+    /* 这两个是「无限滚动」这一族的能力位驱动字段，只有 vant 会真的用。
+       桌面端必须**声明**它们，否则 ProTable 无条件传过来时会落进 attrs，
+       再被 {...attrs} 展开到表格根节点，变成 loadmore="false" finished="false"
+       这种非法 DOM 属性，连 @load-more 都会变成原生事件监听器。 */
+    loadMore: Boolean,
+    finished: Boolean,
     rowClickable: Boolean,
     size: { type: String, default: 'md' },
   },
@@ -72,7 +78,14 @@ export const DataGrid = defineComponent({
         loading={props.loading}
         size={size.value}
         v-slots={{
-          empty: () => (slots.empty ? slots.empty() : <NEmpty description={props.emptyText ?? '暂无数据'} />),
+          /* loading 期间不渲染空态 —— 首帧 data 必然是空的，
+             此时喊「暂无数据」等于把「正在加载」说成「没有数据」（vant 一直如此）。 */
+          empty: () =>
+            props.loading
+              ? null
+              : slots.empty
+                ? slots.empty()
+                : <NEmpty description={props.emptyText ?? '暂无数据'} />,
         }}
         onUpdate:checkedRowKeys={(keys: Array<string | number>) => emit('update:selectedKeys', keys)}
         onUpdate:sorter={(sorter: any) => {
@@ -89,7 +102,6 @@ export const DataGrid = defineComponent({
             order: sorter.order === 'ascend' ? 'asc' : 'desc',
           })
         }}
-        onUpdate:page={() => {}}
         rowProps={(row: any) => ({
           style: props.rowClickable ? 'cursor: pointer' : undefined,
           onClick: (event: Event) => {

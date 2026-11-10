@@ -29,9 +29,15 @@ export const DataGrid = defineComponent({
     rowClickable: Boolean,
     loadMore: Boolean,
     finished: Boolean,
-    size: String,
+    /* 移动端卡片列表没有尺寸档位 —— 接受这个契约字段只为两点：
+       ① 不声明它就会被 {...attrs} 透成 size="lg" 这样的非法 DOM 属性；
+       ② 与桌面端的默认值保持一致，免得「同一个字段两家默认值不同」。
+       它在这里**不产生视觉效果**，这是刻意的，不是漏实现。 */
+    size: { type: String, default: 'md' },
   },
-  emits: ['update:selectedKeys', 'update:sort', 'row-click', 'load-more'],
+  /* 不声明 update:sort：vant 的排序能力位是 'none'，这份实现从不发这个事件。
+     声明一个永不触发的事件会让读代码的人以为它接上了排序。 */
+  emits: ['update:selectedKeys', 'row-click', 'load-more'],
   setup(props, { attrs, emit, slots }) {
     const keyOf = (row: any, index: number) => getRowKey(row, index, props.rowKey)
 

@@ -326,6 +326,21 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       wrapper.unmount()
     })
 
+    it('loading 期间不渲染空态 —— 首帧不该喊「暂无数据」', async () => {
+      /* 首帧 data 必然是空的。此时若渲染「暂无数据」，等于把「正在加载」说成「没有数据」。
+         element-plus / naive 曾经照渲染，vant 不渲染 —— 同一份业务代码换库外观就不同。
+         这条断言不看内部实现，只看**界面上有没有那句文案**。 */
+      const loading = mount(p.DataGrid, { columns, data: [], rowKey: 'id', loading: true })
+      await flushPromises()
+      expect(loading.text(), 'loading 期间渲染了空态文案').not.toContain('暂无数据')
+      loading.unmount()
+
+      const idle = mount(p.DataGrid, { columns, data: [], rowKey: 'id' })
+      await flushPromises()
+      expect(idle.text(), '非 loading 且无数据时应当有空态').toContain('暂无数据')
+      idle.unmount()
+    })
+
     it('DataGrid 渲染 loading 态', async () => {
       /* 只断言「渲染出了 HTML」恒真，等于没测：element-plus 声明了 loading 却从不使用
          也能过。这里改成正反两个方向 —— loading 时必须出现适配器声明的 loading 标记，

@@ -119,7 +119,14 @@ async function resolveOrder() {
     for (const dep of pkg.deps) {
       if (!dep.startsWith('@fbkworks/')) continue
       const target = byName.get(dep)
-      if (!target) continue // 私有内部包，不参与发布顺序
+      /* 公开包依赖私有包必须报错，不能当作"无关边"跳过：
+         pnpm publish 会把 workspace:* 改写成具体版本号并发出去，
+         而那个私有包从未上架 —— 消费者装不上，且 registry 上的版本无法覆盖。
+         这一条闸门是这个形态唯一的守卫。 */
+      if (!target) {
+        problems.push(`${pkg.name} 依赖了未发布的 ${dep}（公开包不能依赖私有包）`)
+        continue
+      }
       const depIndex = index.get(target.dir)
       if (depIndex === undefined) problems.push(`${pkg.name} 依赖 ${dep}，但它不在顺序里`)
       else if (self !== undefined && depIndex > self) {

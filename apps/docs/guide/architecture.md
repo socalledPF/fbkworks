@@ -156,7 +156,7 @@ const isInfinite = computed(() => adapter.capabilities.pagination.mode === 'infi
 1. **纯逻辑单测**：`shared`、`adapter-core` 工具、`useTableRequest`。
 2. **适配器契约测试**：`@fbkworks/adapter-conformance` 提供一整套契约断言
    （`apiVersion` 兼容、能力合法且与实现一致、各原语的 v-model / 事件 / attrs 透传、
-   选择与排序、`presentation=cards`、Drawer 行为……），每个适配器一行接入。
+   受控选择、排序只发事件不本地重排、loading 期间不渲染空态、Drawer 行为……），每个适配器一行接入。
    **用例清单一律以 `runAdapterConformance` 源码为准，本文不重复具体条数**
    —— 这里的旧数字曾长期停留在 15，而实际已是 24。
    三个适配器跑同一套断言，保证"换适配器只改注入"这句话是真的。

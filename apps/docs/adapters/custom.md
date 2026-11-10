@@ -96,10 +96,15 @@ runAdapterConformance({
 })
 ```
 
-套件覆盖 **24 条断言**：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
-Checkbox 布尔值、Form `validate()`、DataGrid 渲染与事件、选择/排序、`presentation=cards`、
+套件覆盖：`apiVersion` 兼容、能力合法、Button 事件与 attrs 透传、Input v-model、
+Checkbox 布尔值、Form `validate()`、DataGrid 渲染与事件、**受控选择**（传 `selectedKeys` 必须真的勾上）、
+**排序只发事件不本地重排**、**loading 期间不渲染空态**、分页 `update:page` 的具体值、
 主题桥幂等，以及 **Drawer**（打开渲染 title 与默认插槽、关闭控件发出 `update:modelValue(false)`、
 `placement` 方位、`closeOnClickModal` 正反两向）。
+
+> `presentation=cards` 已不在断言里：`DataGridProps.presentation` 这个入参被删除了
+> （三个适配器从未读取它）。展示形态看能力位 `capabilities.dataGrid.presentation`。
+> 用例清单一律以 `runAdapterConformance` 源码为准，本文不写具体条数。
 
 > `Drawer` 是**可选**原语。缺了它不影响启动校验，也不影响库的其余部分 ——
 > 只有真正渲染 `FbkDetailDrawer` 时才会由 `requirePrimitive` 抛错并指向 `FbkDetailPage`。

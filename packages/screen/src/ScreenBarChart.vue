@@ -27,6 +27,10 @@ const props = withDefaults(defineProps<ScreenBarChartProps>(), {
 
 /* inheritAttrs: false 时必须手动转发 attrs，否则调用方的 class/style 会丢失 */
 const attrs = useAttrs()
+/* 把 FbkChart 的错误转出去。FbkChart 只 emit('error')、不 console，
+   而大屏这四个组件此前**一个都没监听** —— 配置写错时图表静默保留上一帧或空白，
+   生产环境没有任何信号。dashboard 的三个组件本来就有这条转发，这里补齐。 */
+const emit = defineEmits<{ error: [error: unknown] }>()
 
 const option = computed(() => ({
   grid: { left: 8, right: 16, top: props.series.length > 1 ? 44 : 20, bottom: 8, containLabel: true },
@@ -73,6 +77,7 @@ const option = computed(() => ({
   <div class="fbk-screen-chart" v-bind="attrs">
     <div v-if="title" class="fbk-screen-chart__title">{{ title }}</div>
     <FbkChart
+      @error="(e: unknown) => emit('error', e)"
       :option="option"
       :height="height"
       :loading="loading"

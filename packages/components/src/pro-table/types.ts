@@ -1,5 +1,5 @@
 import type { VNodeChild } from 'vue'
-import type { DataGridColumn, SortState, Status } from '@fbkworks/adapter-core'
+import type { DataGridColumn, Status } from '@fbkworks/adapter-core'
 import type { Key } from '@fbkworks/shared'
 import type { Page, PageQuery } from '@fbkworks/data'
 
@@ -90,7 +90,8 @@ export interface ProTableUiProps {
   grid?: Record<string, any>
   toolbar?: Record<string, any>
   pagination?: Record<string, any>
-  actions?: Record<string, any>
+  /* `actions` 曾经在这里，但全仓没有一处读取 —— 传了静默无效。
+     与刚删掉的 toolbar / presentation 是同一类问题。 */
 }
 
 export interface ProTableProps<T extends Record<string, any> = Record<string, any>> {
@@ -114,7 +115,12 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
   selection?: false | { preserveOnReload?: boolean; columnWidth?: number }
   selectedKeys?: Key[]
 
-  sort?: SortState | null
+  /* `sort` 入参已删除：`DataGridProps.sort` 没了之后它只剩「播种内部状态」，
+     驱动不了任何 UI —— 表头箭头由各适配器自己的交互维护。
+     留着它是半死路径：错误重试会把 DataGrid 整块重挂，箭头全灭而内部排序仍在生效，
+     界面显示的排序与实际数据顺序相反。
+     排序现在是**纯事件驱动**：用户点表头 → `update:sort` → 你据此请求 → 数据顺序由你决定。
+     需要初始排序时，把它写进 `params` 或 `request` 闭包里。 */
   /* `toolbar` 曾经在这里，但代码里只判断 `$slots.toolbar`，从不读这个 prop ——
      传 `:toolbar="false"` 没有任何效果。要么实现，要么删；没有真实需求的开关就是噪音。 */
   uiProps?: ProTableUiProps

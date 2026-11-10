@@ -56,14 +56,22 @@ const collect = (dir) => {
     if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.')) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) collect(full)
-    else if (/\.(mjs|cjs)$/.test(entry.name)) scriptFiles.push(full)
+    else if (/\.(mjs|cjs|mts|cts)$/.test(entry.name)) scriptFiles.push(full)
   }
 }
 collect(join(root, 'scripts'))
+/* apps 下的脚本同样会被直接加载并决定整条链路是否跑得起来
+   （docs 的 check-mermaid / gen-api / sync-brand）。漏掉它们，
+   坏掉要等到 verify 最后一步才暴露。 */
+collect(join(root, 'apps'))
+/* apps 下的脚本同样会被直接加载并决定整条链路是否跑得起来
+   （docs 的 check-mermaid / gen-api / sync-brand）。漏掉它们，
+   坏掉要等到 verify 最后一步才暴露。 */
+collect(join(root, 'apps'))
 
 /* 根目录的配置文件也算：它们同样会被工具直接加载，坏了同样是整条链路失效 */
 for (const entry of readdirSync(root, { withFileTypes: true })) {
-  if (entry.isFile() && /\.(mjs|cjs)$/.test(entry.name)) scriptFiles.push(join(root, entry.name))
+  if (entry.isFile() && /\.(mjs|cjs|mts|cts)$/.test(entry.name)) scriptFiles.push(join(root, entry.name))
 }
 
 for (const file of scriptFiles) {
@@ -80,7 +88,7 @@ for (const file of scriptFiles) {
 }
 
 /* ---------- 结果 ---------- */
-if (workflows === 0) {
+if (workflows === 0 || scriptFiles.length === 0) {
   console.error('[syntax] 一个 workflow 都没找到 —— 路径算错了，这道门等于没跑')
   process.exit(1)
 }

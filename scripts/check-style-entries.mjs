@@ -50,15 +50,20 @@ function discoverPackagesWithStyle(dir, out = {}) {
       continue
     }
     const cssFiles = []
-    const walkCss = (srcDir) => {
-      if (!existsSync(srcDir)) return
-      for (const item of readdirSync(srcDir, { withFileTypes: true })) {
-        const itemPath = join(srcDir, item.name)
+    const SKIP = new Set(['node_modules', 'dist', '.turbo', 'coverage'])
+    const walkCss = (dir) => {
+      if (!existsSync(dir)) return
+      for (const item of readdirSync(dir, { withFileTypes: true })) {
+        if (SKIP.has(item.name)) continue
+        const itemPath = join(dir, item.name)
         if (item.isDirectory()) walkCss(itemPath)
         else if (item.name.endsWith('.css')) cssFiles.push(relative(root, itemPath).replace(/\\/g, '/'))
       }
     }
-    walkCss(join(full, 'src'))
+    /* 扫整个包目录而不只是 src/：样式放在 <pkg>/styles/ 或 <pkg>/style.css 的新包
+       同样要被要求接入应用。只看 src/ 会让这类包静默缺席 —— 而这张表存在的唯一理由
+       就是「不漏」。node_modules / dist 由 walkCss 的调用方排除。 */
+    walkCss(full)
     if (cssFiles.length === 0) continue
     const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'))
     out[pkg.name] = cssFiles.sort()
