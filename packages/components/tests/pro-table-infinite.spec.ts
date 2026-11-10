@@ -278,4 +278,23 @@ describe('FbkProTable 筛选条件变化回到第一页', () => {
     expect(table.pages()).toEqual([1])
     expect(table.rowIds()).toEqual([40, 41])
   })
+
+  it('追加模式下 reload 必须回到第 1 页 —— 否则前 N-1 页数据永久丢失', async () => {
+    /* 真实路径：触底请求失败 → 切到错误态 → 点重试（reload）→ data 被清空，
+       而页码还停在第 2 页。以前 reload 只在显式 resetPage 时才回第一页，
+       于是列表从第 2 页开头，第 1 页的数据再也回不来了。 */
+    const table = mountInfinite({ request: createRequest() })
+    await flushPromises()
+
+    table.grid().vm.$emit('load-more')
+    await flushPromises()
+    expect(table.pages()).toEqual([1, 2])
+
+    table.request.mockClear()
+    ;(table.wrapper.findComponent(FbkProTable).vm as any).reload()
+    await flushPromises()
+
+    expect(table.pages(), 'reload 后请求的是第 2 页而不是第 1 页').toEqual([1])
+    expect(table.rowIds()).toEqual([10, 11])
+  })
 })

@@ -19,7 +19,6 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
   params: () => ({}),
   loading: undefined,
   emptyText: '暂无数据',
-  presentation: 'auto',
   page: undefined,
   pageSize: undefined,
   total: undefined,
@@ -27,7 +26,6 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
   selection: false,
   selectedKeys: undefined,
   sort: undefined,
-  toolbar: true,
 })
 
 const attrs = useAttrs()
@@ -70,6 +68,8 @@ const requestState = useTableRequest<T>({
   append: () => isInfinite.value,
   onLoad: (result, params) => emit('load', result, params),
   onError: (error, params) => emit('error', error, params),
+  // 内部改页码（触底、重置回第一页）也要让受控的 v-model:page 知道
+  onPageChange: (page) => emit('update:page', page),
 })
 
 const rows = computed<T[]>(() => (isControlledData.value ? (props.data ?? []) : requestState.data.value))
@@ -119,11 +119,9 @@ const gridProps = computed(() => ({
   data: rows.value,
   rowKey: props.rowKey,
   loading: loading.value,
-  presentation: props.presentation === 'auto' ? adapter.capabilities.dataGrid.presentation : props.presentation,
   selectionEnabled: selectionEnabled.value,
   selectionWidth: selectionWidth.value,
   selectedKeys: innerSelected.value,
-  sort: innerSort.value,
   emptyText: props.emptyText,
   rowClickable: true,
   loadMore: isInfinite.value && !isControlledData.value && props.pagination !== false,
@@ -199,9 +197,9 @@ function toggleSelectAll(checked: boolean) {
 function onSort(sort: SortState | null) {
   innerSort.value = sort
   emit('update:sort', sort)
-  if (!isControlledData.value) {
-    innerPage.value = 1
-  }
+  /* 排序变化等于换了一次查询，必须回到第一页 —— 但页码是受控的，
+     直接写 innerPage 会让父级的 URL 与真实请求页不一致，所以走 onPage。 */
+  if (!isControlledData.value && innerPage.value !== 1) onPage(1)
 }
 
 function onPage(page: number) {
@@ -212,7 +210,7 @@ function onPage(page: number) {
 function onPageSize(size: number) {
   innerPageSize.value = size
   emit('update:pageSize', size)
-  innerPage.value = 1
+  if (innerPage.value !== 1) onPage(1)
 }
 
 async function reload(options: { resetPage?: boolean } = {}) {

@@ -12,6 +12,13 @@ export interface UseTableRequestOptions<T> {
   append?: () => boolean
   onLoad?: (result: TableResponse<T>, requestParams: TableRequestParams) => void
   onError?: (error: unknown, requestParams: TableRequestParams) => void
+  /**
+   * 页码被**这里**改动时通知外部（loadMore 触底、重置回第一页）。
+   *
+   * 需要它的原因：`page` 是受控 prop（`v-model:page`），
+   * 而内部改动如果不 emit，父级的 URL 同步/页码显示就会和真实请求页不一致。
+   */
+  onPageChange?: (page: number) => void
 }
 
 export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
@@ -104,8 +111,19 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
     }
   }
 
+  /** 改页码的唯一入口：改了就要让外部知道，否则受控的 page 会失步 */
+  function setPage(next: number) {
+    if (options.page.value === next) return
+    options.page.value = next
+    options.onPageChange?.(next)
+  }
+
   function reload(options_: { resetPage?: boolean } = {}) {
-    if (options_.resetPage) options.page.value = 1
+    /* data 一定会被清空，所以 append 模式下载码必须一起回到 1。
+       否则「触底请求失败 → 切到错误态 → 点重试」会请求第 N 页而 data 是空的：
+       列表从第 N 页开头，前 N-1 页的数据永久丢失。
+       分页模式下仍允许 reload({ resetPage: false }) 刷新当前页。 */
+    if (options_.resetPage || isAppend()) setPage(1)
     data.value = []
     finished.value = false
     return load()
@@ -113,7 +131,7 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
 
   function loadMore() {
     if (loading.value || finished.value) return
-    options.page.value += 1
+    setPage(options.page.value + 1)
     return load()
   }
 
@@ -143,7 +161,7 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       /* 筛选条件（params / sort / pageSize）变了就回到第一页：
          停在第 3 页查一个只有 1 页结果的关键词会拿到空列表，用户看到「暂无数据」。
          翻页本身不改页码 —— 用户点第几页就查第几页。 */
-      if (prev !== undefined && next[0] === prev[0]) options.page.value = 1
+      if (prev !== undefined && next[0] === prev[0]) setPage(1)
       refresh()
     },
     { deep: true, immediate: true },

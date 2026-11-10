@@ -174,4 +174,26 @@ describe('FbkProTable 排序链路', () => {
     // 回第 1 页与改排序是同一次查询：首次 1 次 + 翻页 1 次 + 排序 1 次
     expect(request).toHaveBeenCalledTimes(3)
   })
+
+  it('排序把页码改回 1 时必须 emit update:page —— page 是受控的', async () => {
+    /* 以前 onSort 直接写 innerPage.value = 1，不发事件：
+       父级拿 v-model:page 同步 URL 时，地址栏还停在第 2 页，而真实请求已经是第 1 页。 */
+    const request = vi.fn(async ({ page }: any) => ({ list: [{ id: page }], total: 5 }))
+    const wrapper = mountWithAdapter(FbkProTable, {
+      props: { columns, request, pagination: { pageSize: 1, total: 5 } },
+    })
+    await flushPromises()
+
+    // 先翻到第 2 页：这样「排序把页码改回 1」才有可观察的变化
+    await wrapper.find('[data-fbk-part="next"]').trigger('click')
+    await flushPromises()
+    expect(request.mock.calls.at(-1)?.[0].page).toBe(2)
+
+    await wrapper.findAll(sortTriggerSelector)[0].trigger('click')
+    await flushPromises()
+
+    const emitted = wrapper.findComponent(FbkProTable).emitted('update:page') ?? []
+    expect(emitted.at(-1), '排序回第一页没有 emit update:page').toEqual([1])
+    expect(request.mock.calls.at(-1)?.[0].page).toBe(1)
+  })
 })
