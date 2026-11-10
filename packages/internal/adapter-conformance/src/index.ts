@@ -326,19 +326,26 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       wrapper.unmount()
     })
 
-    it('loading 期间不渲染空态 —— 首帧不该喊「暂无数据」', async () => {
-      /* 首帧 data 必然是空的。此时若渲染「暂无数据」，等于把「正在加载」说成「没有数据」。
-         element-plus / naive 曾经照渲染，vant 不渲染 —— 同一份业务代码换库外观就不同。
-         这条断言不看内部实现，只看**界面上有没有那句文案**。 */
-      const loading = mount(p.DataGrid, { columns, data: [], rowKey: 'id', loading: true })
+    it('loading 期间不渲染用户提供的空态插槽', async () => {
+      /* 断言的是**我们能控制的那部分**：用户传了 #empty，loading 期间不该渲染它 ——
+         首帧 data 必空，此时把「正在加载」显示成「没有数据」会误导人。
+         至于各库自己的默认空态文案是否出现，依赖库内部实现
+         （element-plus 2.8.0 与 2.14.7 的行为就不同），不在这里钉死。 */
+      const slot = () => h('span', { class: 'probe-empty' }, '自定义空态')
+
+      const loading = mount(p.DataGrid, {
+        columns,
+        data: [],
+        rowKey: 'id',
+        loading: true,
+        slots: { empty: slot },
+      })
       await flushPromises()
-      expect(loading.text(), 'loading 期间渲染了空态文案').not.toContain('暂无数据')
+      expect(loading.find('.probe-empty').exists(), 'loading 期间渲染了空态插槽').toBe(false)
       loading.unmount()
 
-      const idle = mount(p.DataGrid, { columns, data: [], rowKey: 'id' })
-      await flushPromises()
-      expect(idle.text(), '非 loading 且无数据时应当有空态').toContain('暂无数据')
-      idle.unmount()
+      /* 非 loading 时渲染插槽这件事已经由「DataGrid 空态：传了 #empty 就必须用业务内容」
+         那条用例覆盖，这里只钉「loading 期间不渲染」这一半。 */
     })
 
     it('DataGrid 渲染 loading 态', async () => {

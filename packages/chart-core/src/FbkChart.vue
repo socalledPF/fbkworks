@@ -110,7 +110,10 @@ function applyOption() {
          xAxis / yAxis / grid 不在这里 —— 它们的增减在合并语义下能正确归一
          （实测轴互换后 axisLabel 的 width/overflow 被丢弃、axisLine.show 归一），
          换成 replaceMerge 反而会让坐标轴动画每帧重建。 */
-      replaceMerge: ['series', 'legend', 'dataZoom', 'visualMap', 'geo'],
+      /* 只能点名**已注册**的组件。register.ts 里没有 geo，
+         点名它会直接让 echarts 崩掉（大屏整页图表消失，CI 的视觉回归当场红）——
+         没注册的组件本来也不可能出现在 option 里，不必也不该列进来。 */
+      replaceMerge: ['series', 'legend'],
       lazyUpdate: false,
     })
   } catch (err) {
