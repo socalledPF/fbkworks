@@ -2,17 +2,17 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
 /**
- * 生成组件样式的两份入口清单。
+ * 生成组件样式的**聚合入口**（`packages/components/src/styles/index.css`）。
  *
- * 为什么不再手写：`styles/index.css` 与 `apps/playground/src/styles.ts` 各维护一份
- * 「哪些组件有 style.css」的清单。新增组件时漏登记 → 引用聚合入口的应用
- * （admin / docs / playground 全部三个）拿不到该组件样式，而**不报错**。
- * 这正是 style-guide 里记录的原始事故：FormModal 底部两个按钮紧贴、
- * gap 完全无效，测试全绿、类型全对。
+ * 为什么不再手写：新增组件时漏登记 → 引用聚合入口的应用（admin / docs / playground）
+ * 拿不到该组件样式，而**不报错**。这正是 style-guide 里记录的原始事故：
+ * FormModal 底部两个按钮紧贴、gap 完全无效，测试全绿、类型全对。
+ * `check:styles` 能查出漏登记，但它只在 `pnpm verify` 里跑；生成则让「漏」不存在。
  *
- * `check:styles` 现在已经能查出漏登记，但它只在 `pnpm verify` 里跑 ——
- * `pnpm dev` 与 `pnpm build` 都不跑。也就是说本地开发时漏了仍然静默。
- * 生成则让「漏」这个状态根本不存在。
+ * 只生成这一份。以前它还往 `apps/playground/src/styles.ts` 里写一段逐个组件的
+ * 子路径 import，而 `check-style-entries` 的判据恰恰是「引子路径 ≠ 接入整个组件库，
+ * 只认聚合入口」—— 两个检查互相顶，playground 只好同时背着两套写法，
+ * 同一份 CSS 还被重复引入。现在唯一真相是：**聚合入口必须完整**，应用只认聚合入口。
  *
  * 排序按目录名。已验证「组件之间没有级联竞争」：9 个组件共 123 个选择器，
  * 跨组件重复 0 个，因此组件样式文件的先后不影响最终样式。
@@ -21,11 +21,7 @@ import { join, resolve } from 'node:path'
 const root = resolve(import.meta.dirname, '..')
 const componentsDir = join(root, 'packages', 'components', 'src')
 const indexFile = join(componentsDir, 'styles', 'index.css')
-const playgroundFile = join(root, 'apps', 'playground', 'src', 'styles.ts')
 const checkOnly = process.argv.includes('--check')
-
-const START = '// <generated:components>'
-const END = '// </generated:components>'
 
 /**
  * 比较前统一换行符。
@@ -59,34 +55,11 @@ const indexContent = `/**
 ${components.map((name) => `@import '../${name}/style.css';`).join('\n')}
 `
 
-const playgroundSource = readFileSync(playgroundFile, 'utf8')
-const playgroundEol = playgroundSource.includes('\r\n') ? '\r\n' : '\n'
-
-const playgroundBlock = [
-  START,
-  ...components.map((name) => `import '@fbkworks/components/${name}/style.css'`),
-  END,
-].join(playgroundEol)
-
-const startAt = playgroundSource.indexOf(START)
-const endAt = playgroundSource.indexOf(END)
-if (startAt === -1 || endAt === -1 || endAt < startAt) {
-  console.error(`[gen-style-entries] ${playgroundFile} 里找不到 ${START} / ${END} 标记`)
-  process.exit(1)
-}
-const playgroundNext =
-  playgroundSource.slice(0, startAt) + playgroundBlock + playgroundSource.slice(endAt + END.length)
-
 if (checkOnly) {
-  const stale = []
-  if (!existsSync(indexFile) || normalizeEol(readFileSync(indexFile, 'utf8')) !== normalizeEol(indexContent)) {
-    stale.push(indexFile)
-  }
-  if (normalizeEol(playgroundNext) !== normalizeEol(playgroundSource)) stale.push(playgroundFile)
-
-  if (stale.length) {
-    console.error('[gen-style-entries] 以下文件与生成结果不一致，请运行 pnpm gen:style-index：')
-    for (const f of stale) console.error(`  ${f.replace(root + '\\', '')}`)
+  const stale =
+    !existsSync(indexFile) || normalizeEol(readFileSync(indexFile, 'utf8')) !== normalizeEol(indexContent)
+  if (stale) {
+    console.error(`[gen-style-entries] ${indexFile} 与生成结果不一致，请运行 pnpm gen:style-index`)
     process.exit(1)
   }
   console.log(`[gen-style-entries] 一致：${components.length} 个组件`)
@@ -94,8 +67,5 @@ if (checkOnly) {
 }
 
 writeFileSync(indexFile, indexContent)
-writeFileSync(playgroundFile, playgroundNext)
-console.log(`[gen-style-entries] 已生成 ${components.length} 个组件 →`)
-console.log('  packages/components/src/styles/index.css')
-console.log('  apps/playground/src/styles.ts（generated:components 区间）')
+console.log(`[gen-style-entries] 已生成 ${components.length} 个组件 → packages/components/src/styles/index.css`)
 for (const name of components) console.log(`  · ${name}`)

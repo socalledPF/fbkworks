@@ -24,23 +24,49 @@
  */
 
 import { readdir, readFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join, relative, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 
-/** 有样式的发布包 → 它的 style.css 路径 */
-const PACKAGES_WITH_STYLE = {
-  '@fbkworks/tokens': ['packages/tokens/src/css/tokens.css', 'packages/tokens/src/css/dark.css'],
-  '@fbkworks/adapter-element-plus': ['packages/adapters/element-plus/src/style.css'],
-  '@fbkworks/adapter-vant': ['packages/adapters/vant/src/style.css'],
-  '@fbkworks/adapter-naive-ui': ['packages/adapters/naive-ui/src/style.css'],
-  '@fbkworks/components': ['packages/components/src/styles/index.css'],
-  '@fbkworks/chart-core': ['packages/chart-core/src/style.css'],
-  '@fbkworks/dashboard': ['packages/dashboard/src/style.css'],
-  '@fbkworks/screen': ['packages/screen/src/style.css'],
-  '@fbkworks/demos': ['packages/internal/demos/src/demo.css'],
+/**
+ * 有样式的包 → 它 src 下的 .css 文件（由文件系统扫出来，不手写）。
+ *
+ * 以前这里是一张手写表。手写表的问题不是「写错了」，而是**漏登记不会报错**：
+ * 某个包加了 style.css 却没进表，它的样式就不会被要求接进任何应用，
+ * 而这个检查照样打印「全部通过」。本项目已经在这个模式上栽过三次
+ * （样式入口清单、resolver 映射、components 的 exports），所以这里改成扫描。
+ *
+ * 判据：包目录里有 package.json，且 `src/**` 下存在 .css 文件。
+ * 私有包（@fbkworks/demos）同样计入 —— 它也被应用引用样式。
+ */
+function discoverPackagesWithStyle(dir, out = {}) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name === 'dist') continue
+    const full = join(dir, entry.name)
+    const pkgFile = join(full, 'package.json')
+    if (!existsSync(pkgFile)) {
+      discoverPackagesWithStyle(full, out)
+      continue
+    }
+    const cssFiles = []
+    const walkCss = (srcDir) => {
+      if (!existsSync(srcDir)) return
+      for (const item of readdirSync(srcDir, { withFileTypes: true })) {
+        const itemPath = join(srcDir, item.name)
+        if (item.isDirectory()) walkCss(itemPath)
+        else if (item.name.endsWith('.css')) cssFiles.push(relative(root, itemPath).replace(/\\/g, '/'))
+      }
+    }
+    walkCss(join(full, 'src'))
+    if (cssFiles.length === 0) continue
+    const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'))
+    out[pkg.name] = cssFiles.sort()
+  }
+  return out
 }
+
+const PACKAGES_WITH_STYLE = discoverPackagesWithStyle(resolve(root, 'packages'))
 
 /**
  * 应用入口：每个应用**使用**哪些包，就必须引入对应的样式。

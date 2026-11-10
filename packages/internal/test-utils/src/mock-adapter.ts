@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, watch, type PropType } from 'vue'
+import { defineComponent, h, ref, type PropType } from 'vue'
 import { ADAPTER_API_VERSION } from '@fbkworks/adapter-core'
 import type {
   Capabilities,
@@ -272,27 +272,20 @@ function createMockPrimitives(): UiPrimitives {
       selectionEnabled: Boolean,
       selectionWidth: { type: Number, default: 48 },
       selectedKeys: { type: Array as PropType<Array<string | number>>, default: () => [] },
-      presentation: { type: String, default: 'auto' },
       loading: Boolean,
       emptyText: String,
       loadMore: Boolean,
       finished: Boolean,
-      sort: { type: Object as PropType<SortState | null>, default: null },
-    },
+      },
     emits: ['update:selectedKeys', 'update:sort', 'row-click', 'load-more'],
-    setup(props, { emit }) {
+    setup(props, { emit, slots }) {
       const keyOf = (row: any, index: number) =>
         typeof props.rowKey === 'function' ? props.rowKey(row) : (row[props.rowKey] ?? index)
 
-      /* 排序状态必须自己记一份：契约要求同一列连点循环 asc → desc → null，
-         只看 props.sort 的话，没有 v-model 的挂载会一直停在第一个方向。
-         真实适配器同理（el-table 内部排序状态 + defaultSort 初始化）；
-         这里在 props.sort 变化时同步，ProTable 的受控回流就走这条路径。 */
-      const innerSort = ref<SortState | null>(props.sort ?? null)
-      watch(
-        () => props.sort,
-        (value) => (innerSort.value = value ?? null),
-      )
+      /* 排序状态完全由内部持有：契约里已经没有 sort 入参
+         （它只在 element-plus 上被读过，naive/vant 忽略，等于受控排序在 2/3 适配器上不生效）。
+         对外契约只剩 update:sort 事件，由 ProTable 据此发起请求。 */
+      const innerSort = ref<SortState | null>(null)
 
       const fieldOf = (column: DataGridColumn<any>) => (column.dataIndex ?? column.key) as string
 
@@ -323,7 +316,6 @@ function createMockPrimitives(): UiPrimitives {
           'div',
           {
             'data-fbk-part': 'data-grid',
-            'data-presentation': props.presentation,
             'data-loading': String(props.loading),
             'data-selection-width': props.selectionEnabled ? String(props.selectionWidth) : undefined,
           },
@@ -358,7 +350,14 @@ function createMockPrimitives(): UiPrimitives {
               }),
             ),
             props.data.length === 0
-              ? h('div', { 'data-fbk-part': 'empty' }, props.emptyText ?? '暂无数据')
+              /* 契约里 empty 是插槽：传了就用业务内容，没传才渲染默认空态。
+                 mock 必须和真实适配器同一语义，否则「CrudPage 有没有转发 empty」
+                 这类问题在测试里永远看不见。 */
+              ? h(
+                  'div',
+                  { 'data-fbk-part': 'empty' },
+                  slots.empty ? slots.empty() : (props.emptyText ?? '暂无数据'),
+                )
               : props.data.map((row, index) => {
                 const cells = props.columns.map((column) => {
                   const key = (column.dataIndex ?? column.key) as string

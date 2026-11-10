@@ -341,4 +341,22 @@ describe('CrudPage 事件透出', () => {
     await flushPromises()
     expect(onPage).toHaveBeenCalledWith(2)
   })
+
+  it('自定义 empty 插槽会一路转发到表格（CrudPage → ProTable → DataGrid）', async () => {
+    /* 这条守的是 passedSlots 白名单：CrudPage 用显式白名单转发插槽，
+       漏写一个名字 = 传了没效果、也不报错。empty 插槽上线时就漏过一次。 */
+    const wrapper = mountWithAdapter(FbkCrudPage, {
+      props: {
+        queryFields: fields,
+        columns,
+        request: vi.fn().mockResolvedValue({ list: [], total: 0 }),
+        rowKey: 'id',
+      },
+      slots: { empty: () => h('span', { class: 'probe-empty' }, '还没有数据，去创建') },
+    })
+    await flushPromises()
+    const empty = wrapper.find('.probe-empty')
+    expect(empty.exists(), 'empty 插槽没有转发到表格').toBe(true)
+    expect(empty.text()).toBe('还没有数据，去创建')
+  })
 })

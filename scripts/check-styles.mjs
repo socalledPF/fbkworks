@@ -35,7 +35,6 @@ import { join, relative, resolve } from 'node:path'
 const root = resolve(import.meta.dirname, '..')
 const componentsDir = join(root, 'packages', 'components', 'src')
 const aggregate = join(componentsDir, 'styles', 'index.css')
-const playgroundStyles = join(root, 'apps', 'playground', 'src', 'styles.ts')
 
 const problems = []
 
@@ -54,7 +53,7 @@ for (const entry of entries) {
 }
 
 const aggregateCss = await readFile(aggregate, 'utf8')
-const playgroundCss = await readFile(playgroundStyles, 'utf8')
+
 
 for (const name of components) {
   if (!aggregateCss.includes(`../${name}/style.css`)) {
@@ -62,12 +61,12 @@ for (const name of components) {
       `[接入] 组件 "${name}" 的 style.css 没有登记到 packages/components/src/styles/index.css`,
     )
   }
-  if (!playgroundCss.includes(`@fbkworks/components/${name}/style.css`)) {
-    problems.push(
-      `[接入] 组件 "${name}" 的 style.css 没有登记到 apps/playground/src/styles.ts` +
-        '（漏了这条，开发与评审时看不到真实效果）',
-    )
-  }
+  /* 这里以前还要求 apps/playground/src/styles.ts 逐个 import 每个组件的 style.css。
+     那是同一事实的第二份抄写：聚合入口（`@fbkworks/components/styles/index.css`）
+     已经包含全部子组件，playground 也已经引了它。
+     两个判据互相顶的结果是 playground 同时背着「聚合入口」和「9 条子路径」，
+     同一份 CSS 被引入两次 —— 而 check-style-entries 恰恰明说「引子路径 ≠ 接入组件库」。
+     现在唯一真相：聚合入口必须完整（下面继续校验），应用只认聚合入口。 */
 }
 
 /* ---------- 3：布局属性必须有 display ---------- */

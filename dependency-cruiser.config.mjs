@@ -16,22 +16,11 @@ export default {
       from: {},
       to: { circular: true },
     },
-    {
-      name: 'ui-libs-only-in-adapters',
-      severity: 'error',
-      comment:
-        'UI 库只能出现在 packages/adapters/**。这是整套架构的命门——一旦业务组件 import type 了 element-plus，适配层就被击穿了。',
-      from: {
-        pathNot: '^packages/adapters/',
-      },
-      to: {
-        // doNotFollow 关掉了 node_modules，未解析的依赖会以裸模块名出现，
-        // 所以两种形态都要匹配。
-        // ⚠️ 实测：这条规则对本仓库的裸 import **并不生效**（详见 scripts/check-ui-imports.mjs
-        // 的说明）—— 那道门是用静态扫描补上的，这里保持原样不做无效改写。
-        path: '^(node_modules/)?(element-plus|vant|naive-ui)(/|$)',
-      },
-    },
+    /* 「UI 库只能出现在 packages/adapters/**」不在这里 —— 见 scripts/check-ui-imports.mjs。
+       曾经在这里写过一条 to.path 匹配 node_modules 的规则，但实测它对**裸 import 完全失明**
+       （往 apps/playground 写 import { ElButton } from 'element-plus'，violations 仍是 0）。
+       一条永不触发的规则比没有规则更糟：它让配置读起来像有防护。
+       所以那条规则被删掉，改用不依赖解析器的静态扫描，并在它自己的文件里写明原因。 */
     {
       name: 'components-must-not-depend-on-adapters',
       severity: 'error',
@@ -67,17 +56,9 @@ export default {
       from: { path: '^packages/tokens/' },
       to: { path: '^packages/(shared|adapter-core|adapters|components)/' },
     },
-    {
-      name: 'no-business-runtime-deps',
-      severity: 'error',
-      comment:
-        '发布包禁止第一类运行时依赖（传输/路由/状态/i18n/工具库）：请求由调用方注入，日期用 Intl。' +
-        '详见 docs/style-guide.md 的三类划分。',
-      from: { path: '^packages/(components|adapter-core|shared|tokens|chart-core|dashboard|screen|data)/' },
-      to: {
-        path: '^node_modules/(axios|ky|ofetch|superagent|vue-router|pinia|vuex|vue-i18n|dayjs|moment|lodash|ramda|date-fns)(/|$)',
-      },
-    },
+    /* 「发布包禁止第一类运行时依赖」同样移到了静态扫描（scripts/check-ui-imports.mjs 负责源码、
+       scripts/check-runtime-deps.mjs 负责产物）。理由同上：这里那条 path 谓词只对
+       解析进 node_modules 的边有效，裸依赖命中不了。 */
     {
       name: 'no-orphans',
       severity: 'warn',
@@ -95,6 +76,8 @@ export default {
           '(^|/)src/index\\.ts$',
           '^apps/',
           '^scripts/',
+          // 测试文件是 runner 的入口，本来就不会被谁 import
+          '(^|/)tests?/.*\\.(spec|test)\\.(ts|tsx)$',
         ],
       },
       to: {},

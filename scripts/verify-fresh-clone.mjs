@@ -89,7 +89,9 @@ try {
   run('pnpm', ['install', '--frozen-lockfile'], dest)
   done()
 
-  done = step('pnpm verify（17 步全量门禁）')
+  /* 别写死步数：它会漂。这里只声明跑的是 verify 链，
+     并明确它**不含**浏览器采证 —— 那 6 个脚本要起 dev server，属于 CI 的 visual job。 */
+  done = step('pnpm verify（本地全部门禁；不含 CI 的 6 个浏览器脚本）')
   run('pnpm', ['verify'], dest)
   done()
 

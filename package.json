@@ -12,6 +12,7 @@
     "dev": "turbo run dev --parallel",
     "test": "vitest run",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "check:syntax": "node scripts/check-syntax.mjs",
     "lint": "eslint .",
     "playground": "pnpm --filter @fbkworks/playground dev",
     "admin": "pnpm --filter @fbkworks/admin dev",
@@ -52,7 +53,7 @@
     "check:ui-imports": "node scripts/check-ui-imports.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm lint && pnpm lint:deps && pnpm check:ui-imports && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:size && pnpm check:styles && pnpm check:style-index && pnpm check:package-entries && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm check:syntax && pnpm lint && pnpm lint:deps && pnpm check:ui-imports && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:size && pnpm check:styles && pnpm check:style-index && pnpm check:package-entries && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbkworks/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbkworks/docs check:diagrams"
   },
@@ -82,6 +83,7 @@
     "vitest": "^3.0.0",
     "vue": "^3.5.13",
     "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "yaml": "^2.9.1"
   }
 }

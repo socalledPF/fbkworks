@@ -68,6 +68,8 @@ pnpm verify        # 一次跑完全部门禁
 | `pnpm check:styles` | 每条组件样式是否被登记 + 布局声明（用了 `gap` 必须有 flex/grid） |
 | `pnpm check:style-index` | 两个样式入口的**生成结果**是否与组件目录一致（过期即红） |
 | `pnpm check:package-entries` | 组件子路径的两份清单（`exports` + vite `entries`）是否与组件目录一致 |
+| `pnpm check:syntax` | workflow 的 YAML 能否解析、`scripts/**` 的脚本语法是否正确（写坏一个文件 = 整轮 CI 白跑） |
+| `pnpm check:ui-imports` | 静态扫描源码：UI 库只准出现在 `packages/adapters`，发布包不含被禁运行时依赖 |
 | `pnpm check:style-entries` | 各应用是否接了聚合样式入口 |
 | `pnpm check:runtime-deps` | 发布包的运行时依赖是否被正确声明 |
 | `pnpm check:packages` | publint |

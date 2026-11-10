@@ -10,21 +10,10 @@ import '@fbkworks/adapter-vant/style.css'
 import '@fbkworks/adapter-vant/dark.css'
 import '@fbkworks/adapter-naive-ui/style.css'
 import '@fbkworks/adapter-naive-ui/dark.css'
-// 组件库聚合入口：一次性覆盖全部子组件（check:style-entries 要求命中的就是这一条）
+/* 组件库只引**聚合入口**：它内部逐条 @import 全部子组件样式（由 gen-style-entries 生成）。
+   以前这里还逐个引了 9 个子路径 —— 那是同一个事实的第二份抄写，
+   既让同一份 CSS 被引入两次，也和 check-style-entries 的判据（只认聚合入口）互相矛盾。 */
 import '@fbkworks/components/styles/index.css'
-// 子组件样式：这一段由 scripts/gen-style-entries.mjs 生成，勿手改。
-// 新增组件后运行 pnpm gen:style-index。
-// <generated:components>
-import '@fbkworks/components/crud-page/style.css'
-import '@fbkworks/components/descriptions/style.css'
-import '@fbkworks/components/detail-page/style.css'
-import '@fbkworks/components/form-generator/style.css'
-import '@fbkworks/components/form-modal/style.css'
-import '@fbkworks/components/page-container/style.css'
-import '@fbkworks/components/pro-table/style.css'
-import '@fbkworks/components/query-form/style.css'
-import '@fbkworks/components/result/style.css'
-// </generated:components>
 import '@fbkworks/chart-core/style.css'
 import '@fbkworks/dashboard/style.css'
 import '@fbkworks/screen/style.css'
