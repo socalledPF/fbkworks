@@ -187,8 +187,21 @@ jobs:
       # 悬空版本会出现「本地过了、CI 起不来浏览器」。
       - name: 安装 Playwright 与 chromium
         run: |
-          python -m pip install --disable-pip-version-check "playwright==1.60.0"
-          python -m playwright install --with-deps chromium
+          # 两条命令都要访问外网：pip 走 pypi，install --with-deps 走 apt（azure.archive.ubuntu.com）
+          # 与 Playwright 自己的 CDN。runner 偶发 DNS 抖动是真实发生过的：
+          #   Temporary failure resolving 'azure.archive.ubuntu.com'
+          # 代价是整个视觉 job 红一次 + 一轮完整 CI 的白等。这类失败与代码无关，
+          # 重试是唯一有效的对策；重试仍失败才说明是镜像或版本问题。
+          retry() {
+            for i in 1 2 3; do
+              "$@" && return 0
+              echo "第 $i 次失败，10 秒后重试：$*"
+              sleep 10
+            done
+            return 1
+          }
+          retry python -m pip install --disable-pip-version-check "playwright==1.60.0"
+          retry python -m playwright install --with-deps chromium
 
       # 每个脚本都要一个 dev server，且「起服务 → 等就绪 → 跑脚本 → 收尾」放在
       # 同一步里：后台进程跨步骤存活在 runner 上不可靠。
