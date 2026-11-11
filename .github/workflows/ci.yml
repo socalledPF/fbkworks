@@ -202,15 +202,16 @@ jobs:
           }
           retry python -m pip install --disable-pip-version-check "playwright==1.60.0"
 
-          # --with-deps 会用 apt-get 装字体等系统依赖，而 runner 解析
-          # azure.archive.ubuntu.com 会失败。这不是偶发抖动：连续两次运行都是同一个错误
-          #   E: Failed to fetch ...fonts... Temporary failure resolving 'azure.archive.ubuntu.com'
-          # 所以光重试不够 —— 失败时必须有一条不依赖 apt 的路。
-          # ubuntu-24.04 镜像本身已带 chromium 需要的运行库，无 deps 安装通常够用。
-          retry python -m playwright install --with-deps chromium || {
-            echo "带 --with-deps 装不上（apt 解析失败），改走无 deps 安装"
-            python -m playwright install chromium
-          }
+          # --with-deps 会用 apt-get 装字体等系统依赖。runner 上解析
+          # azure.archive.ubuntu.com 会失败，而且 apt 自己失败一次要耗约 10 分钟
+          # （实测：连续两次运行都卡在这里，报 Temporary failure resolving）。
+          # 所以**先探测再决定**，而不是撞上去重试 —— 三次重试会直接撞穿 job 的 20 分钟上限。
+          if getent hosts azure.archive.ubuntu.com >/dev/null 2>&1; then
+            retry python -m playwright install --with-deps chromium
+          else
+            echo "apt 源域名解析不了，跳过 --with-deps，直接装浏览器（镜像已带运行库）"
+            retry python -m playwright install chromium
+          fi
 
           # 证明浏览器真的能起来：否则后面 6 个脚本会以更难懂的方式失败
           # （"没有 canvas"/"元素找不到"），排查成本高得多。
