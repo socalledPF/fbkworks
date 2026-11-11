@@ -201,7 +201,26 @@ jobs:
             return 1
           }
           retry python -m pip install --disable-pip-version-check "playwright==1.60.0"
-          retry python -m playwright install --with-deps chromium
+
+          # --with-deps 会用 apt-get 装字体等系统依赖，而 runner 解析
+          # azure.archive.ubuntu.com 会失败。这不是偶发抖动：连续两次运行都是同一个错误
+          #   E: Failed to fetch ...fonts... Temporary failure resolving 'azure.archive.ubuntu.com'
+          # 所以光重试不够 —— 失败时必须有一条不依赖 apt 的路。
+          # ubuntu-24.04 镜像本身已带 chromium 需要的运行库，无 deps 安装通常够用。
+          retry python -m playwright install --with-deps chromium || {
+            echo "带 --with-deps 装不上（apt 解析失败），改走无 deps 安装"
+            python -m playwright install chromium
+          }
+
+          # 证明浏览器真的能起来：否则后面 6 个脚本会以更难懂的方式失败
+          # （"没有 canvas"/"元素找不到"），排查成本高得多。
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              print("chromium ok:", browser.version)
+              browser.close()
+          PY
 
       # 每个脚本都要一个 dev server，且「起服务 → 等就绪 → 跑脚本 → 收尾」放在
       # 同一步里：后台进程跨步骤存活在 runner 上不可靠。
