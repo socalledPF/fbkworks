@@ -13,8 +13,13 @@ start_service() {
   local script="$1" log="$2"
   pnpm "$script" > "$log" 2>&1 &
   local pid=$!
+  /* 240 秒：CI 上的冷启动实测要 120 秒上下（pnpm 解析 + vite 首次预打包），
+     窗口卡在 120 秒会以「差一秒」的形式随机失败。 */
   local i port
-  for i in $(seq 1 120); do
+  for i in $(seq 1 240); do
+    if [ $((i % 15)) -eq 0 ]; then
+      echo "[start-service] 等待 $script 报出端口……（${i}s，pid $pid）"
+    fi
     if ! kill -0 "$pid" 2>/dev/null; then
       echo "::error::$script 启动后立刻退出（pid $pid）" >&2
       tail -n 40 "$log" >&2
@@ -30,7 +35,7 @@ start_service() {
     fi
     sleep 1
   done
-  echo "::error::$script 在 120s 内没有报出监听端口" >&2
+  echo "::error::$script 在 240s 内没有报出监听端口" >&2
   tail -n 40 "$log" >&2
   return 1
 }
