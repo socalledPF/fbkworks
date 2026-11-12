@@ -8,12 +8,16 @@ coverage
 apps/docs/.vitepress/dist
 apps/docs/.vitepress/cache
 apps/docs/.vitepress/theme/generated
-tests/visual/__screenshots__/**/diff*
+# 视觉脚本的截图已经写到仓库外的临时目录，这条规则守的是不存在的产物（留着会误导）。
+# 真正的漏项是 CI 在仓库根写出的 impact.md，见文件末尾。
 
 # 视觉改版方案的试验田：CDP 注入截图 + 三个方向的样式表。
 # 它跑的是运行中的页面而不是构建产物，不参与任何门禁，也不该进版本库。
 design-preview
 .diag
+
+# CI / 本地跑 check:impact 时在仓库根生成的报告
+impact.md
 
 # a11y 扫描的一次性产物；基线（a11y-baseline.json）才进版本库，
 # 它才是「还清了几条」的账。

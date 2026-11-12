@@ -211,6 +211,18 @@ for (const [key, cur] of Object.entries(sorted)) {
   }
 }
 
+/* 反向遍历：基线里有、这次没测到的入口。
+   删掉一个导出子路径对消费者是破坏性的，而只遍历当前集合的话这道门一个字都不说、
+   旧基线还会原地留着冒充覆盖。口径与 gen-api-snapshot 的「删除」一致。 */
+const vanished = Object.keys(before).filter((key) => !(key in sorted))
+if (vanished.length > 0) {
+  console.error(
+    `[size] 基线里有 ${vanished.length} 个入口这次不存在了：\n  ${vanished.join('\n  ')}` +
+      '\n  删掉导出子路径对消费者是破坏性变更。确认是有意为之：pnpm gen:size-baseline。',
+  )
+  process.exit(1)
+}
+
 if (failures.length) {
   console.error('[size] 以下入口的体积超出阈值：')
   console.error(failures.join('\n'))

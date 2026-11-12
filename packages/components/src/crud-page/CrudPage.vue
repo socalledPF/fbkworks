@@ -142,6 +142,15 @@ const passedSlots = computed((): string[] =>
   ),
 )
 
+/* 查询区自己的三个插槽（QueryForm 的 actions / before-actions / after-actions）。
+   以前 CrudPage 把它们挡在外面，想放「导出」「高级筛选」按钮没有任何位置。
+   与表格插槽分开成两个列表：这几个只能挂在查询表单上，混进 gridSlots 会被
+   转发给 ProTable 而那里没有对应插槽名，等于静默丢弃。 */
+const querySlotNames = ['actions', 'before-actions', 'after-actions'] as const
+const passedQuerySlots = computed((): string[] =>
+  querySlotNames.filter((name) => Boolean(slots?.[name])),
+)
+
 const queryProps = computed(() => ({
   ...(props.queryProps ?? {}),
   fields: props.queryFields,
@@ -157,7 +166,13 @@ const queryProps = computed(() => ({
       v-bind="queryProps"
       @submit="onSubmit"
       @reset="onReset"
-    />
+    >
+      <!-- 与表格插槽同一套做法：用 v-for + 名字数组，而不是 v-if 逐个声明
+           （后者不会被 Vue 编译成具名插槽，实测会静默丢失）。 -->
+      <template v-for="name in passedQuerySlots" #[name]="slotProps" :key="name">
+        <slot :name="name" v-bind="slotProps ?? {}" />
+      </template>
+    </FbkQueryForm>
 
     <FbkProTable
       ref="tableRef"

@@ -2,7 +2,7 @@ import { inject, type InjectionKey, type Ref } from 'vue'
 import type { FbkTokens } from '@fbkworks/tokens'
 import type { Size } from './contracts/primitives'
 import type { ThemeMode } from './contracts/theme'
-import { ADAPTER_API_VERSION, type UiAdapter } from './contracts/adapter'
+import { ADAPTER_API_VERSION, assertAdapterCompatible, type UiAdapter } from './contracts/adapter'
 import { NOOP_REPORTER, type FbkReporter } from './observability'
 
 export interface AdapterContext {
@@ -59,8 +59,26 @@ export function useAdapter(): UiAdapter {
         '文档：/guide/adapters',
     )
   }
-  assertAdapterVersion(ctx.adapter)
+  /* 三条入口必须给出同一个结论。
+     以前这里只查 apiVersion：一个 apiVersion 正确但缺 DataGrid / RootProvider 的适配器，
+     assertAdapterCompatible 会拒绝、这里放行、requirePrimitive 也放行 —— 同一个对象三种答案。
+     现在首次取用时跑一遍全量校验，通过后记进 WeakSet：后续调用零成本，
+     且适配器对象是模块级常量，WeakSet 不会拖住任何东西。 */
+  validateOnce(ctx.adapter)
   return ctx.adapter
+}
+
+/** 已经通过全量校验的适配器（模块级常量，天然幂等） */
+const validatedAdapters = new WeakSet<object>()
+
+function validateOnce(adapter: UiAdapter): void {
+  if (validatedAdapters.has(adapter)) return
+  /* 先跑版本判定再跑全量校验：两者都会拒绝版本不符的适配器，但前者的文案
+     「适配器 apiVersion 是 2，当前要求 3」比后者的一句「不兼容」更好排查。
+     顺序固定，不会出现「先报缺原语、修好后又报版本」的来回。 */
+  assertAdapterVersion(adapter)
+  assertAdapterCompatible(adapter)
+  validatedAdapters.add(adapter)
 }
 
 /**

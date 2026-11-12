@@ -250,8 +250,15 @@ let totalSymbols = 0
 
 for (const { dir, pkg } of targets) {
   const entries = collectTypeEntries(dir, pkg)
+  /* 零入口是失败，不是「跳过」。
+     以前这里 continue 并 exit 0：一个包把 exports 改成 string 形态、或换成 ./dist/index.d.mts 后，
+     --check 照旧绿、旧基线文件原地冒充保护。判据的覆盖面缩到 0 时必须响。 */
   if (entries.length === 0) {
-    console.error(`[api-snapshot] ${pkg.name} 没有任何 .d.ts 入口，跳过`)
+    console.error(
+      `[api-snapshot] ${pkg.name} 没有任何 .d.ts 入口 —— 它的公开类型面完全没被检查。` +
+        '\n  检查包 package.json 的 exports 是否还指向 .d.ts 文件。',
+    )
+    failures += 1
     continue
   }
   const snapshot = snapshotPackage(dir, pkg.name, entries)

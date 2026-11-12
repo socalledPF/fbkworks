@@ -281,6 +281,26 @@ describe('FbkProTable 筛选条件变化回到第一页', () => {
     expect(table.rowIds()).toEqual([40, 41])
   })
 
+  it('后端不给 hasMore 时，空页即结束 —— 不能无限往后请求', async () => {
+    /* 最常见的返回形态是 { list, total }，没有 hasMore。
+       只认 hasMore === false 的话，触底会一页页往后请求、每页追加 0 行、底部一直转圈。 */
+    const request = vi.fn(async ({ page }: { page: number }) => ({
+      list: page === 1 ? toRows([10, 11]) : [],
+      total: 6,
+    }))
+    const table = mountTable({ request })
+    await flushPromises()
+
+    table.grid().vm.$emit('load-more')
+    await flushPromises()
+    expect(table.pages()).toEqual([1, 2])
+
+    table.request.mockClear()
+    table.grid().vm.$emit('load-more')
+    await flushPromises()
+    expect(table.pages(), '空页之后还在继续请求').toEqual([])
+  })
+
   it('追加模式下 reload 必须回到第 1 页 —— 否则前 N-1 页数据永久丢失', async () => {
     /* 真实路径：触底请求失败 → 切到错误态 → 点重试（reload）→ data 被清空，
        而页码还停在第 2 页。以前 reload 只在显式 resetPage 时才回第一页，

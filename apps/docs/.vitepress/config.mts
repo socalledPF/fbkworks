@@ -86,20 +86,16 @@ export default withMermaid(
     plugins: [vueJsx()],
 
     // dev 模式下 Vite 只从 index.html 做依赖发现，element-plus / naive-ui 这些
-    // 被间接 import 的 CJS 包（dayjs 等）不会被预打包，浏览器按 ESM 解析就会报
+    // 被间接 import 的 CJS 包不会被预打包，浏览器按 ESM 解析就会报
     // "does not provide an export named 'default'"。构建时 Rollup 会处理互操作，
     // 所以只有 dev 白屏。显式列出，保证 dev 与 build 行为一致。
+    //
+    // 只列**本包真实依赖**。这里曾经有 9 条 dayjs（含 8 个 plugin 子路径），
+    // 但 dayjs 只是 element-plus 的传递依赖、apps/docs 没声明它，pnpm 严格提升下
+    // 这些名字根本解析不到 —— Vite 只会打一行 warning 然后跳过，预打包一条都没生效。
+    // 现在 element-plus 本身就在 include 里，它内部的 dayjs 由 Vite 的依赖发现处理。
     optimizeDeps: {
       include: [
-        'dayjs',
-        'dayjs/plugin/customParseFormat',
-        'dayjs/plugin/advancedFormat',
-        'dayjs/plugin/localeData',
-        'dayjs/plugin/weekOfYear',
-        'dayjs/plugin/weekYear',
-        'dayjs/plugin/dayOfYear',
-        'dayjs/plugin/isSameOrAfter',
-        'dayjs/plugin/isSameOrBefore',
         'element-plus',
         'naive-ui',
         'vant',

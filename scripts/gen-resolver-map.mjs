@@ -39,9 +39,18 @@ const toPascal = (dir) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 
-const exportedFbk = new Set(
-  [...readFileSync(componentsIndex, 'utf8').matchAll(/\bFbk[A-Z][A-Za-z]*/g)].map((m) => m[0]),
-)
+/* 只认**值导出**的组件名。
+   以前是对整个 index.ts 跑 /\bFbk[A-Z][A-Za-z]* 的宽松正则：
+   一旦导出 `export type { FbkProTableProps }` 这类类型（Fbk 前缀对类型同样自然），
+   反向判定就会报「找不到对应源码目录」—— 假红会逼人改名或建假目录。
+   这里按语句切分，跳过 export type 分支。 */
+const componentsIndexSource = readFileSync(componentsIndex, 'utf8')
+const valueExportNames = new Set()
+for (const statement of componentsIndexSource.split(/\n(?=export )/)) {
+  if (/^export\s+type\b/.test(statement.trim())) continue
+  for (const match of statement.matchAll(/\bFbk[A-Z][A-Za-z]*/g)) valueExportNames.add(match[0])
+}
+const exportedFbk = valueExportNames
 
 const entries = []
 const problems = []

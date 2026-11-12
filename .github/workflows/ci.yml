@@ -227,65 +227,46 @@ jobs:
       # 同一步里：后台进程跨步骤存活在 runner 上不可靠。
       - name: 图表 / Playground / 表单能力位
         run: |
-          pnpm playground > /tmp/playground.log 2>&1 &
-          PG_PID=$!
+          # 不用「curl 固定端口」判就绪：应用没有 strictPort，端口被占时 vite 会静默换端口，
+          # 于是命中的可能是上一次残留的实例 —— 探测通过、评的却不是这次启动的服务。
+          # helper 等到进程报出真实端口，并且每轮都确认进程还活着。
+          source scripts/visual/start-service.sh
+          start_service playground /tmp/playground.log
+          PG_PID=$FBK_PID
           # 本地实测：只 kill pnpm 时 vite 会活下来占着端口（Windows 的 shim 不转发信号）。
-          # Linux 上 pnpm 一般会转发，pkill 只是兜底；两者都没命中也不影响 —— 下一步用的是另一个端口。
+          # Linux 上 pnpm 一般会转发，pkill 只是兜底。
           trap 'pkill -P $PG_PID 2>/dev/null || true; kill $PG_PID 2>/dev/null || true' EXIT
-          for i in $(seq 1 120); do
-            curl -sf -o /dev/null http://localhost:5174/ && break
-            if [ "$i" = 120 ]; then
-              echo "::error::playground 在 120s 内未就绪"
-              tail -n 40 /tmp/playground.log
-              exit 1
-            fi
-            sleep 1
-          done
-          python scripts/visual/verify-charts.py 5174
-          python scripts/visual/verify-playground.py 5174
-          python scripts/visual/verify-form-capabilities.py 5174
-          python scripts/visual/compare-controls.py 5174
+          python scripts/visual/verify-charts.py "$FBK_PORT"
+          python scripts/visual/verify-playground.py "$FBK_PORT"
+          python scripts/visual/verify-form-capabilities.py "$FBK_PORT"
+          python scripts/visual/compare-controls.py "$FBK_PORT"
 
       # verify-admin 覆盖的是「组件在页面级组合场景」：工具条/批量条层级、
       # 权限移除是删 DOM 而不是 display:none、上报事件真的可达 —— 单测看不到这些。
       - name: 后台系统端到端
         run: |
-          pnpm admin > /tmp/admin.log 2>&1 &
-          ADMIN_PID=$!
+          # 不用「curl 固定端口」：没有 strictPort 时 vite 会静默换端口，
+          # 命中的可能是残留实例。helper 等到进程报出真实端口，并证明进程还活着。
+          source scripts/visual/start-service.sh
+          start_service admin /tmp/admin.log
+          ADMIN_PID=$FBK_PID
           trap 'pkill -P $ADMIN_PID 2>/dev/null || true; kill $ADMIN_PID 2>/dev/null || true' EXIT
-          for i in $(seq 1 120); do
-            curl -sf -o /dev/null http://localhost:5185/ && break
-            if [ "$i" = 120 ]; then
-              echo "::error::admin 在 120s 内未就绪"
-              tail -n 40 /tmp/admin.log
-              exit 1
-            fi
-            sleep 1
-          done
-          python scripts/visual/verify-admin.py 5185
+          python scripts/visual/verify-admin.py "$FBK_PORT"
 
       # 无障碍：axe 扫 52 个页面（15 demo × 3 适配器 + 7 个 admin 页）的内容区。
       # 棘轮形态 —— 现状 181 处 serious/critical 记在 a11y-baseline.json，
       # 只拦新增；修好一批就跑 pnpm gen:a11y-baseline，那份 diff 就是还债记录。
       - name: 无障碍（axe，按基线只拦新增）
         run: |
-          pnpm playground > /tmp/playground-a11y.log 2>&1 &
-          PG_PID=$!
-          pnpm admin > /tmp/admin-a11y.log 2>&1 &
-          ADMIN_PID=$!
+          source scripts/visual/start-service.sh
+          start_service playground /tmp/playground-a11y.log
+          PG_PID=$FBK_PID; PG_PORT=$FBK_PORT
+          start_service admin /tmp/admin-a11y.log
+          ADMIN_PID=$FBK_PID; ADMIN_PORT=$FBK_PORT
           trap 'pkill -P $PG_PID 2>/dev/null || true; pkill -P $ADMIN_PID 2>/dev/null || true; kill $PG_PID $ADMIN_PID 2>/dev/null || true' EXIT
-          for port in 5174 5185; do
-            for i in $(seq 1 120); do
-              curl -sf -o /dev/null "http://localhost:$port/" && break
-              if [ "$i" = 120 ]; then
-                echo "::error::端口 $port 在 120s 内未就绪"
-                tail -n 40 /tmp/playground-a11y.log /tmp/admin-a11y.log
-                exit 1
-              fi
-              sleep 1
-            done
-          done
-          python scripts/visual/verify-a11y.py
+          # 走 package.json 的脚本，而不是把命令再抄一遍：两处各写一份的话，
+          # 改一处（加 --report、换 python 路径、改 baseline）对另一处零影响，静默漂移。
+          FBK_PLAYGROUND_PORT="$PG_PORT" FBK_ADMIN_PORT="$ADMIN_PORT" pnpm check:a11y
 
   impact:
     name: 变更影响分析

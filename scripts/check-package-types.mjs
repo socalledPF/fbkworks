@@ -43,19 +43,23 @@ const cssEntrypoints = (exportsField) =>
 
 async function discoverPackages() {
   const dirs = []
-  for (const group of ['packages', 'packages/adapters', 'packages/internal']) {
-    for (const entry of await readdir(join(root, group), { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue
-      const dir = join(root, group, entry.name)
-      // 跳过 adapters/ 这类只做分组的目录
+  /* 递归发现，与 publish-all / gen-api-snapshot / gen-size-baseline 同一规则：
+     目录里有 package.json 就是包，不再往下钻。
+     写死三层目录的后果：新增 packages/vue/* 这类分组时，那三道门都看得见它，
+     唯独 attw（这道发布形态门禁）静默不查 —— 公开包清单的第 4 份实现且形态不同。 */
+  const walk = async (dir) => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name === 'dist') continue
+      const full = join(dir, entry.name)
       try {
-        await access(join(dir, 'package.json'))
-        dirs.push(dir)
+        await access(join(full, 'package.json'))
+        dirs.push(full)
       } catch {
-        // 不是包目录
+        await walk(full)
       }
     }
   }
+  await walk(join(root, 'packages'))
   return dirs
 }
 

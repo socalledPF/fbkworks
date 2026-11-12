@@ -71,7 +71,13 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       if (id !== requestId) return
 
       data.value = append ? [...data.value, ...result.list] : result.list
-      finished.value = result.hasMore === false
+      /* 终止条件有两条：
+         ① 后端显式说 hasMore === false；
+         ② 这一页返回 0 行 —— 这才是 hasMore 缺省时唯一的可靠信号。
+         只认 ① 的话，业务方按最常见的 { list, total } 返回（不写 hasMore）时，
+         触底会一页页往后请求、每页追加 0 行、底部一直转圈，永远不会停。
+         "最后一页刚好满行" 会多发一次请求、拿到空页后停止，这个代价可以接受。 */
+      finished.value = result.hasMore === false || result.list.length === 0
       total.value = result.total ?? data.value.length
       options.onLoad?.(result, requestParams)
 

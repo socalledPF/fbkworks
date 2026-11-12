@@ -24,6 +24,7 @@ DOM 才看得出来，jsdom 里没有布局也没有焦点。
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -41,8 +42,14 @@ BASELINE = ROOT / "a11y-baseline.json"
 REPORT = ROOT / "a11y-report.json"
 AXE = ROOT / "node_modules" / "axe-core" / "axe.min.js"
 
-PLAYGROUND_PORT = "5174"
-ADMIN_PORT = "5185"
+# 端口由调用方给：应用没有 strictPort，vite 在端口被占时会静默换端口，
+# 写死端口就可能评的是上一次残留的实例（CI 里由 scripts/visual/start-service.sh
+# 从启动日志里取真实端口再传进来）。
+# 端口来源优先级：环境变量 > 命令行参数 > 默认值。
+# 走环境变量是因为 CI 里通过 `pnpm check:a11y` 调用 —— pnpm 对「脚本名后面跟参数」
+# 的转发规则与 npm 不同，传参容易在本地与 CI 之间出现两种行为。
+PLAYGROUND_PORT = os.environ.get("FBK_PLAYGROUND_PORT") or (sys.argv[1] if len(sys.argv) > 1 else "5174")
+ADMIN_PORT = os.environ.get("FBK_ADMIN_PORT") or (sys.argv[2] if len(sys.argv) > 2 else "5185")
 GATED_IMPACTS = {"serious", "critical"}
 
 DEMOS = [

@@ -342,6 +342,26 @@ describe('CrudPage 事件透出', () => {
     expect(onPage).toHaveBeenCalledWith(2)
   })
 
+  it('查询区插槽能透到 QueryForm（actions / before-actions / after-actions）', async () => {
+    /* 以前 CrudPage 把它们挡在白名单外：想放「导出」「高级筛选」按钮没有任何位置，
+       传了没效果也不报错。 */
+    const wrapper = mountWithAdapter(FbkCrudPage, {
+      props: {
+        queryFields: fields,
+        columns,
+        request: vi.fn().mockResolvedValue({ list: rows, total: 1 }),
+        rowKey: 'id',
+      },
+      slots: {
+        actions: () => h('button', { class: 'probe-action' }, '导出'),
+        'before-actions': () => h('span', { class: 'probe-before' }, '筛选'),
+      },
+    })
+    await flushPromises()
+    expect(wrapper.find('.probe-action').exists(), 'actions 插槽没有转发到 QueryForm').toBe(true)
+    expect(wrapper.find('.probe-before').exists()).toBe(true)
+  })
+
   it('自定义 empty 插槽会一路转发到表格（CrudPage → ProTable → DataGrid）', async () => {
     /* 这条守的是 passedSlots 白名单：CrudPage 用显式白名单转发插槽，
        漏写一个名字 = 传了没效果、也不报错。empty 插槽上线时就漏过一次。 */
