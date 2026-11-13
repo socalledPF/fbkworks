@@ -106,6 +106,86 @@ describe('FbkChart 生命周期', () => {
 })
 
 describe('FbkChart option 处理', () => {
+  it('某类组件整个消失时改用 notMerge —— 残留的缩放条才会被清掉', async () => {
+    /* 合并语义下「新 option 没给 dataZoom」= 「别动」，旧缩放条会永远留着。
+       replaceMerge 里直接点名 dataZoom 在 echarts 层是可行的，但在大屏页面里
+       会让整页不渲染（根因未定位），所以这里绕开它：形状收缩的那一次整块重设。 */
+    const withZoom = {
+      xAxis: { type: 'category', data: ['a', 'b'] },
+      yAxis: { type: 'value' },
+      dataZoom: [{ type: 'slider' }],
+      series: [{ type: 'line', data: [1, 2] }],
+    }
+    const withoutZoom = {
+      xAxis: { type: 'category', data: ['a', 'b'] },
+      yAxis: { type: 'value' },
+      series: [{ type: 'line', data: [3, 4] }],
+    }
+
+    const wrapper = mountChart({ option: withZoom })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+
+    await wrapper.setProps({ option: withoutZoom })
+    await flushPromises()
+
+    const calls = instances[0]!.setOption.mock.calls
+    expect(calls.length, '第二次更新没有发生').toBeGreaterThanOrEqual(2)
+    const second = calls.at(-1)![1] as { notMerge?: boolean; replaceMerge?: string[] }
+    expect(second.notMerge, 'dataZoom 消失时没有走 notMerge，缩放条会残留').toBe(true)
+    wrapper.unmount()
+  })
+
+  it('形状不变时仍走 replaceMerge（不重置动画与缩放位置）', async () => {
+    const option = (data: number[]) => ({
+      xAxis: { type: 'category', data: ['a', 'b'] },
+      yAxis: { type: 'value' },
+      dataZoom: [{ type: 'slider' }],
+      series: [{ type: 'line', data }],
+    })
+    const wrapper = mountChart({ option: option([1, 2]) })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+
+    await wrapper.setProps({ option: option([3, 4]) })
+    await flushPromises()
+
+    const second = instances[0]!.setOption.mock.calls.at(-1)![1] as {
+      notMerge?: boolean
+      replaceMerge?: string[]
+    }
+    expect(second.notMerge, '只是换数据不该整块重建').toBeFalsy()
+    expect(second.replaceMerge).toEqual(expect.arrayContaining(['series', 'legend']))
+    wrapper.unmount()
+  })
+
+  it('反复收缩要能反复触发 —— 记账必须跟着 notMerge 一起重置', async () => {
+    /* 可达的序列：带 dataZoom → 不带（notMerge，实例被清空）→ 又带 → 又不带。
+       第二轮收缩仍然必须走 notMerge：如果记账没重置（例如只在 init 时清），
+       第二次会以为实例上还有 dataZoom 而不触发。 */
+    const mk = (withZoom: boolean) => {
+      const opt: Record<string, any> = {
+        xAxis: { type: 'category', data: ['a'] },
+        yAxis: { type: 'value' },
+        series: [{ type: 'line', data: [1] }],
+      }
+      if (withZoom) opt.dataZoom = [{ type: 'slider' }]
+      return opt
+    }
+    const wrapper = mountChart({ option: mk(true) })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+
+    for (const [step, withZoom] of [['第一次收缩', false], ['重新加上', true], ['第二次收缩', false]] as const) {
+      await wrapper.setProps({ option: mk(withZoom) })
+      await flushPromises()
+      const opts = instances[0]!.setOption.mock.calls.at(-1)![1] as any
+      if (withZoom) expect(opts.notMerge, step + '：加组件不该整块重建').toBeFalsy()
+      else expect(opts.notMerge, step + '：没走 notMerge，缩放条会残留').toBe(true)
+    }
+    wrapper.unmount()
+  })
+
   it('setOption 前把 CSS 变量解析成真实色值', async () => {
     document.documentElement.style.setProperty('--fbk-chart-1', '#123456')
     mountChart({

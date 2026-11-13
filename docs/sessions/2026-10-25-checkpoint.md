@@ -890,14 +890,32 @@ fixed 组 = 8 个 UI 栈包
 | release.yml 用 detached head_sha 检出后推不了版本号 | **否**。查 c2d3576 那次日志：git checkout changeset-release/main → 提交 → push origin HEAD:changeset-release/main --force → creating pull request，PR #3 就是它开的 |
 | compat job 真的装了最低 peer 版本 | **否**（但方向对）。pnpm add -w 只改根 importer，适配器有独立副本，实测仍解析到 2.14.7。改成 overrides 后才真正压到 2.8.0，并因此抓到 requestAnimationFrame 未定义 |
 
-### G.2 判为「不该按建议修」的一条
+### G.2 dataZoom / visualMap 残留：已用「形状感知」修掉（并订正一条错判）
 
-把 setOption 的 replaceMerge 扩到 dataZoom / visualMap：**实测会让大屏图表一个都不渲染**
-（CI 视觉回归 5 条 FAIL、本地 verify-charts 复现，回退即全绿）。原因未查到底，因此：
+**先订正**：这里原本写的是「replaceMerge 点名 dataZoom 会让大屏图表全灭」。那是把**现象当成了根因**。
+分层实测之后：
 
-- 保留 replaceMerge 为 series + legend；
-- **已知局限**：同一实例上新 option 删掉 dataZoom 后旧缩放条会留下（折线↔饼这类换图型）；
-- 今后要动这块，必须先有「大屏四个分辨率都渲染出来」的验证。
+- **echarts 核心层（SSR）**：`replaceMerge: ['dataZoom']` 完全正常 —— 残留清成 0，不抛错；
+- **浏览器层**：点名 dataZoom 后大屏页面**整个不渲染**（失败形态是 `no stage`，比早先的
+  「没有 canvas」更靠前）。说明问题在页面级集成路径，与 echarts 的组件删除逻辑无关，**根因仍未定位**。
+
+**修法（已落地）**：形状感知 —— 记住上一次 option 里存在哪些组件类型（`SHAPE_COMPONENT_KEYS`），
+某类在新 option 里整个消失时，这一次改用 `notMerge: true` 整块重设；形状不变时仍走
+`replaceMerge: ['series', 'legend']`（动画与缩放位置不受影响）。
+代价只有「换图型」那一下丢动画 —— 而那时动画本来也要重来。
+
+**证据链**：
+
+| 层 | 证据 |
+| --- | --- |
+| echarts 语义 | `dz-demo.html`（未跟踪，排错用）三个面板：A 纯合并 → 残留 1（幽灵缩放条肉眼可见）、B `replaceMerge`+dataZoom → 0、C `notMerge` → 0 |
+| 组件编排 | 单测三条：形状收缩走 notMerge / 形状不变仍合并 / 反复收缩能反复触发。证伪：把 `vanished` 恒置 false → 红 |
+| 真实浏览器 | 本地 `verify-charts` 在 helper 报出的真实端口上「全部通过」，大屏四个分辨率照常渲染 |
+
+**顺带记一个本地验证的坑**：我第一次跑本地视觉检查时把端口写死成 5174，而 5174 上是你另一个项目的
+dev server（vite 自己换到 5175 并打印了 `Port 5174 is in use`），于是检查报 `no stage` —— 
+**正是「固定端口会评错对象」那条缺陷，我自己在本地又踩了一遍**。改用 `start-service.sh` 
+取真实端口后立刻全绿。
 
 ### G.3 两轮共修的（摘要）
 
