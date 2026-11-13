@@ -74,6 +74,31 @@ for (const [name, adapter] of adapters) {
 const strict = process.env.FBK_STRICT_CAPABILITIES === '1'
 
 describe('能力位与实现的绑定', () => {
+  it('能力分组必须逐个登记 —— 新增分组不能静默逃过覆盖检查', () => {
+    /* activePaths() 里遍历的是**硬编码的 6 个分组**，任何新分组（比如 datePicker / chart）
+       都不会被读，里面的能力位无论布尔还是字符串全都不可见 —— 门禁会一直绿。
+       这条守卫把「新增分组」变成显式动作：不登记就红。
+       （字符串能力位的登记表 ENUM_BASELINES 仍是手写，那条等契约出现第三个开关再说。） */
+    const known = new Set([
+      'dataGrid',
+      'form',
+      'overlay',
+      'pagination',
+      'feedback',
+      'theme',
+      'features',
+    ])
+    for (const [name, adapter] of adapters) {
+      for (const group of Object.keys(adapter.capabilities)) {
+        expect(
+          known.has(group),
+          `${name} 出现了未登记的能力分组「${group}」：` +
+            '请把它加进 activePaths 的分组遍历，并在覆盖表里交代它的验证责任',
+        ).toBe(true)
+      }
+    }
+  })
+
   it('每个"真值"能力位都在覆盖表里交代了验证责任', () => {
     const missing = [...allActive.keys()].filter((p) => !(p in CAPABILITY_COVERAGE)).sort()
     expect(

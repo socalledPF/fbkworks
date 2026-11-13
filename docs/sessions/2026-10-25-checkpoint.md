@@ -874,3 +874,65 @@ fixed 组 = 8 个 UI 栈包
 
 **明确搁置**：`blocks`（等 2–3 个真实接入方）、`fixed` 档 C（12 个全拆 + 元包）。
 
+
+---
+
+## 附录 G：两轮全量 review 的结论（2026-11-08 ~ 11-13，第四/五轮）
+
+两轮各派 6 个只读审阅者（业务组件 / 适配器契约 / 数据层 / 图表大屏 / 门禁脚本 / 应用与交付链路），
+共约 70 条发现。**逐条复核后才动手** —— 其中 3 条被实测推翻，1 条判为「不该按建议修」。
+
+### G.1 被实测推翻的审阅结论（记在这里，避免下次重复采信）
+
+| 审阅说法 | 实测结果 |
+| --- | --- |
+| dependency-cruiser 会记录裸依赖边，所以 ui-libs-only-in-adapters 规则有效 | **否**。造一个 import ElButton from element-plus 的探针，depcruise 报 0 违规；辅助检查显示 element-plus 那条边根本不存在，dayjs 是 couldNotResolve |
+| release.yml 用 detached head_sha 检出后推不了版本号 | **否**。查 c2d3576 那次日志：git checkout changeset-release/main → 提交 → push origin HEAD:changeset-release/main --force → creating pull request，PR #3 就是它开的 |
+| compat job 真的装了最低 peer 版本 | **否**（但方向对）。pnpm add -w 只改根 importer，适配器有独立副本，实测仍解析到 2.14.7。改成 overrides 后才真正压到 2.8.0，并因此抓到 requestAnimationFrame 未定义 |
+
+### G.2 判为「不该按建议修」的一条
+
+把 setOption 的 replaceMerge 扩到 dataZoom / visualMap：**实测会让大屏图表一个都不渲染**
+（CI 视觉回归 5 条 FAIL、本地 verify-charts 复现，回退即全绿）。原因未查到底，因此：
+
+- 保留 replaceMerge 为 series + legend；
+- **已知局限**：同一实例上新 option 删掉 dataZoom 后旧缩放条会留下（折线↔饼这类换图型）；
+- 今后要动这块，必须先有「大屏四个分辨率都渲染出来」的验证。
+
+### G.3 两轮共修的（摘要）
+
+**门禁假绿**：lint:deps 裸依赖失明（改用静态扫描 check:ui-imports）、check:type-surface 只扫 1/12 个包、
+check-runtime-deps 零覆盖仍绿、a11y 棘轮把「扫空」记成还债、charts 对 0 canvas 空转、
+check:size 不检测入口消失、check:api-snapshot 零入口跳过、compat job 假绿。
+
+**契约说谎**：DataGridProps 的 presentation 与 sort（入参）、ProTableProps 的 toolbar 与 sort、
+ProTableUiProps.actions 全部删除（三个适配器从未读取）；vant 的 size 写明「接受但不生效」。
+
+**适配器语义**：element-plus 受控选择、naive 的 sorter 本地重排、vant 的 pagination.mode 默认值、
+loading 期间渲染空态、loadMore/finished 透成 DOM 属性。
+
+**运行时**：isSuccess 返回 falsy 即失败、取消判定覆盖 axios 与自定义 reason、total 必须非负整数、
+reload() 在追加模式回第 1 页、内部改页码 emit update:page、大屏图表转发 error 事件、
+主题重建后补回遮罩、无限滚动「空页即结束」。
+
+**流程**：check:syntax（workflow YAML + 脚本语法）、CI 就绪判据改成「进程自己报出的真实端口」、
+Playwright 在 apt 不可解析时退回无 deps 安装并验证 chromium 可启动、jsdom 打开 pretendToBeVisual。
+
+### G.4 仍然开着的（明确记录，别以为忘了）
+
+| 项 | 状态 |
+| --- | --- |
+| a11y 债：38 页面 / 181 处 serious+critical | 棘轮守着不恶化；按决定暂不还债。color-contrast 的 68 处集中在令牌层，改 tokens 一次能消一大半 |
+| check:capabilities 的**字符串能力位** | ENUM_BASELINES 只有 2 个手写键；等契约出现第三个字符串开关再做（分组硬编码已加守卫：新增分组会红） |
+| dataZoom / visualMap 残留 | 见 G.2，已知局限 |
+| release 的 concurrency | 每组只保留 1 running + 1 pending，≥3 连合并时中间那次被顶掉；危害有界（分支 force 重建、publish 幂等收敛），未改 |
+| start-service.sh 依赖 vite 的 Local: 日志行 | 格式变了会误红（不会假绿：240s 超时 + 心跳 + 进程存活检查） |
+
+### G.5 这一轮的方法论教训
+
+**自己写的修复会引入新缺陷，而且通常是同类。** 两轮里我引入过：
+isSuccess 的 ok === false（把 falsy 判成成功，是上一轮自己的重构）、受控 sort 的半死路径（删字段的连带）、
+/* */ 注释写进 bash 被当成通配符展开、模板里的反斜杠 n 变成真实换行把 YAML 与 JS 写坏（两次）。
+
+对策不是「更小心」，而是**让错误自己暴露**：check:syntax、证伪时必须断言「注入已落地」、
+CI 上的 compat 与 visual 两条真实路径。这轮 4 个真缺陷都是 CI 或证伪脚本抓到的，不是靠读代码。
