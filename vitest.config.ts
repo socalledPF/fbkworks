@@ -30,6 +30,14 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    /* jsdom 默认**不提供 requestAnimationFrame**，除非打开 pretendToBeVisual。
+       真实后果（compat job 实测，element-plus 2.8.0）：
+         ReferenceError: requestAnimationFrame is not defined
+           at ElTable doLayout（debounce 排的那一帧，在测试环境拆除后触发）
+       用例全过、但 vitest 把它记成 unhandled error → pnpm test 退出 1。
+       这不是某一个用例的问题，而是「组件库会在动画帧里排活」这一类问题 ——
+       在环境里补上 rAF，比在每个用例里等一拍更可靠。 */
+    environmentOptions: { jsdom: { pretendToBeVisual: true } },
     globals: false,
     setupFiles: ['./tests/setup.ts'],
     include: ['packages/**/tests/**/*.spec.ts', 'packages/**/tests/**/*.spec.tsx'],
