@@ -1,5 +1,12 @@
 # @fbkworks/screen
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [73fa267]
+  - @fbkworks/chart-core@0.7.1
+
 ## 0.7.0
 
 ### Patch Changes
