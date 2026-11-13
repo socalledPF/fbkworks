@@ -348,6 +348,100 @@ export function runAdapterConformance(options: ConformanceOptions): void {
          那条用例覆盖，这里只钉「loading 期间不渲染」这一半。 */
     })
 
+    /* ---------- 负向路径与移动端卡片布局 ----------
+       这一批的共同点：以前**没有任何断言**覆盖它们。
+       实测过：把 element-plus / naive 里 `if (!props.rowClickable) return` 整行删掉，
+       全套 206 条用例照绿 —— 而后果是「行内点删除按钮也会触发 row-click」。 */
+
+    it('rowClickable=false 时点击行不发 row-click', async () => {
+      const wrapper = mount(p.DataGrid, {
+        columns,
+        data: rows,
+        rowKey: 'id',
+        rowClickable: false,
+      })
+      await flushPromises()
+      await wrapper.findAll(selectors.row)[0].trigger('click')
+      await flushPromises()
+      /* 取法与正向用例一致（findComponent().emitted()）：
+         两者用不同写法的话，负向断言可能因为取错了对象而永远为真。 */
+      expect(
+        wrapper.findComponent(p.DataGrid).emitted('row-click'),
+        'rowClickable=false 仍然发出了 row-click（业务侧会在点「删除」时跳详情页）',
+      ).toBeUndefined()
+      wrapper.unmount()
+    })
+
+    it('size / selectionWidth 不得透成 DOM 属性', async () => {
+      /* 与 loadMore/finished 同一类问题：契约字段没被适配器消费时，
+         会顺着 {...attrs} 落到根节点上，变成 size="lg" 这样的非法属性。 */
+      const wrapper = mount(p.DataGrid, {
+        columns,
+        data: rows,
+        rowKey: 'id',
+        size: 'lg',
+        selectionEnabled: true,
+        selectionWidth: 77,
+      })
+      await flushPromises()
+      const html = wrapper.html()
+      expect(html, 'size 透成了 DOM 属性').not.toMatch(/\ssize="lg"/)
+      expect(html, 'selectionWidth 透成了 DOM 属性').not.toMatch(/\sselectionwidth="77"/i)
+      wrapper.unmount()
+    })
+
+    /* 移动端卡片布局只在移动端适配器上成立 —— 桌面适配器拿到的是表格，
+       没有 title/field 这套结构，所以按 platform 跳过而不是硬断言。 */
+    const itIfMobile = adapter.meta.platform === 'mobile' ? it : it.skip
+
+    const mobileColumns = [
+      { key: 'name', title: '名称', dataIndex: 'name', mobile: { primary: true } },
+      { key: 'age', title: '年龄', dataIndex: 'age', mobile: { order: 2 } },
+      { key: 'city', title: '城市', dataIndex: 'city', mobile: { order: 1, label: '所在地' } },
+      { key: 'secret', title: '内部编号', dataIndex: 'secret', mobile: { hidden: true } },
+    ]
+    const mobileRows = [{ id: 1, name: '张三', age: 30, city: '杭州', secret: 'INT-001' }]
+
+    itIfMobile('卡片模式：mobile.hidden 的列不出现（隐私字段不能漏到手机端）', async () => {
+      const wrapper = mount(p.DataGrid, {
+        columns: mobileColumns,
+        data: mobileRows,
+        rowKey: 'id',
+      })
+      await flushPromises()
+      const text = wrapper.text()
+      expect(text, 'mobile.hidden 的列泄露到了卡片里').not.toContain('内部编号')
+      expect(text).not.toContain('INT-001')
+      wrapper.unmount()
+    })
+
+    itIfMobile('卡片模式：mobile.primary 决定标题，其余按 mobile.order 排序', async () => {
+      const wrapper = mount(p.DataGrid, {
+        columns: mobileColumns,
+        data: mobileRows,
+        rowKey: 'id',
+      })
+      await flushPromises()
+      expect(wrapper.find('.fbk-vant-grid__title').text(), '主标题不是 primary 列').toBe('张三')
+      const labels = wrapper.findAll('.fbk-vant-grid__field dt').map((w: any) => w.text())
+      // city.order=1 在 age.order=2 之前；name 是主标题，不进字段列表
+      expect(labels, '字段顺序没有按 mobile.order 排').toEqual(['所在地', '年龄'])
+      wrapper.unmount()
+    })
+
+    itIfMobile('卡片模式：mobile.label 覆盖桌面列名', async () => {
+      const wrapper = mount(p.DataGrid, {
+        columns: mobileColumns,
+        data: mobileRows,
+        rowKey: 'id',
+      })
+      await flushPromises()
+      const text = wrapper.text()
+      expect(text, 'mobile.label 没有生效').toContain('所在地')
+      expect(text, '桌面列名「城市」不该出现在卡片上').not.toContain('城市')
+      wrapper.unmount()
+    })
+
     it('DataGrid 渲染 loading 态', async () => {
       /* 只断言「渲染出了 HTML」恒真，等于没测：element-plus 声明了 loading 却从不使用
          也能过。这里改成正反两个方向 —— loading 时必须出现适配器声明的 loading 标记，
