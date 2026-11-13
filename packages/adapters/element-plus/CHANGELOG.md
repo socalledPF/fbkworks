@@ -1,5 +1,11 @@
 # @fbkworks/adapter-element-plus
 
+## 0.7.1
+
+### Patch Changes
+
+- @fbkworks/adapter-core@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
