@@ -29,6 +29,12 @@ export const Input = defineComponent({
         disabled={props.disabled}
         placeholder={props.placeholder}
         onUpdate:modelValue={(value: string) => emit('update:modelValue', value)}
+        /* change 以前只在 emits 里声明、从不 emit（element-plus / naive-ui 都发）。
+           DOM 的 change 会从内层 input 冒泡上来，所以在 van-field 上挂一个监听即可。
+           van-field 的 props 类型里没有 onChange，用展开 + as any 挂上去（运行时就是普通 DOM 监听）。 */
+        {...({
+          onChange: (event: Event) => emit('change', event),
+        } as Record<string, unknown>)}
         onBlur={(event: Event) => emit('blur', event)}
         onFocus={(event: Event) => emit('focus', event)}
         v-slots={slots}

@@ -23,10 +23,13 @@ export const defaultMockCapabilities: Capabilities = {
     presentation: 'table',
     selection: true,
     sort: 'custom',
-    expandable: true,
+    /* 三个真实适配器都是 false（element-plus / naive-ui 的 DataGrid 没有展开行）。
+       基座声明 true 会让「读 capabilities 分支」的代码走进真实环境不存在的路径 ——
+       现在没人读，但这是一颗定时炸弹。 */
+    expandable: false,
     tree: false,
     virtualScroll: false,
-    stickyHeader: true,
+    stickyHeader: false,
   },
   form: {
     layout: 'horizontal',

@@ -73,7 +73,7 @@ const columns: ProTableColumn<UserRow>[] = [
         variant: 'link',
         onClick: async ({ row }) => {
           await toggleUser(row.id, !row.enabled)
-          crudRef.value?.reload()
+          crudRef.value?.refresh()
         },
       },
     ],

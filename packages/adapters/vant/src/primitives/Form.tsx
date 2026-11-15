@@ -97,7 +97,16 @@ export const Form = defineComponent({
 
     expose({
       validate,
-      validateField: async () => true as const,
+      /* 以前恒 resolve(true)：移动端对非法值也返回通过，业务方据此放行提交。
+         van-form 的 validate(name) 解析成 boolean，这里按契约的「不通过就 reject」转换。 */
+      validateField: async (prop: string | string[]) => {
+        const names = Array.isArray(prop) ? prop : [prop]
+        const results = await Promise.all(names.map((name) => formRef.value?.validate(name as any)))
+        if (results.some((result) => result === false)) {
+          throw new Error('[fbk/vant] 字段校验未通过')
+        }
+        return true as const
+      },
       resetFields: () => formRef.value?.resetValidation(),
       clearValidate: () => formRef.value?.resetValidation(),
     })

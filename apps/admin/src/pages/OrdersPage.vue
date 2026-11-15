@@ -114,7 +114,7 @@ const columns: ProTableColumn<OrderRow>[] = [
         visible: () => hasPermission(permissions(), 'order:delete'),
         onClick: async ({ row }) => {
           await deleteOrders([row.id])
-          crudRef.value?.reload()
+          crudRef.value?.refresh()
         },
       },
     ],
@@ -176,7 +176,7 @@ async function batchDelete(keys: number[], clear: () => void) {
   if (!keys.length) return
   await deleteOrders(keys)
   clear()
-  crudRef.value?.reload()
+  crudRef.value?.refresh()
 }
 </script>
 
@@ -233,7 +233,7 @@ async function batchDelete(keys: number[], clear: () => void) {
     :schema="formSchema"
     :initial-values="editing"
     :submit="onSubmit"
-    @success="crudRef?.reload()"
+    @success="crudRef?.refresh()"
   />
 </template>
 
