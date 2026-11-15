@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import ts from 'typescript'
@@ -71,6 +72,34 @@ function pick(list, kind) {
     }))
 }
 
+/**
+ * vue-component-meta 对 **generic SFC**（`<script setup generic="T extends ...">`）
+ * 提取不到 defineExpose —— 于是 ProTable / FormGenerator / Descriptions 的
+ * 「暴露方法」表渲染成一行「无」，而同一页正文正在教用户调 validate() / reload()。
+ *
+ * 兜底静态读源码：defineExpose 的参数是对象字面量，成员按 2 空格缩进排列，
+ * 正则足够且不会误报；工具能提到时用工具的，提不到才补。
+ */
+function exposedFromSource(file) {
+  const source = readFileSync(resolve(root, file), 'utf8')
+  const block = /defineExpose[^(]*\(\s*\{([\s\S]*?)\}\s*\)/.exec(source)
+  if (!block) return []
+  const lines = block[1].split(new RegExp(String.fromCharCode(10)))
+  return lines
+    .map((line) => {
+      const hit = /^ {2}([A-Za-z_$][\w$]*)[ ]*[,:]/.exec(line)
+      return hit ? hit[1] : undefined
+    })
+    .filter(Boolean)
+    .map((name) => ({
+      name,
+      type: '() => unknown',
+      default: '',
+      required: false,
+      description: '',
+      kind: 'exposed',
+    }))
+}
 const output = {}
 
 for (const [name, file] of Object.entries(components)) {
@@ -80,7 +109,10 @@ for (const [name, file] of Object.entries(components)) {
       props: pick(meta.props, 'prop'),
       events: pick(meta.events, 'event'),
       slots: pick(meta.slots, 'slot'),
-      exposed: pick(meta.exposed, 'exposed'),
+      exposed: (() => {
+        const list = pick(meta.exposed, 'exposed')
+        return list.length ? list : exposedFromSource(file)
+      })(),
     }
     console.warn(`[gen-api] ${name}: ${meta.props.length} props, ${meta.events.length} events`)
   } catch (error) {
