@@ -121,7 +121,10 @@ async function testBusinessError() {
   check('不被当成空列表', !(error === null))
   check('onError 收到事件', captured.length === 1, `实际 ${captured.length}`)
   check('事件带 feature', captured[0]?.feature === 'order.list', captured[0]?.feature)
-  check('事件带原始响应', captured[0]?.raw?.code === 401)
+  /* raw 默认不再收集（事件常直接进监控，整包响应含 PII）——
+     默认路径断言截断预览，结构化访问走 includeRaw（下面一条真实请求会覆盖）。 */
+  check('事件带原始响应预览', String(captured[0]?.rawPreview ?? '').includes('401'), captured[0]?.rawPreview)
+  check('默认不收集完整响应', captured[0]?.raw === undefined)
 }
 
 /* ══════════════════════════════════════════════════════════
