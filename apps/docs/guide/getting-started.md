@@ -80,7 +80,7 @@ const request = async ({ page, pageSize, signal }: any) => {
 
 同一份代码：
 
-- 在 element-plus 下渲染为可排序、可选中的表格；
+- 在 element-plus 下渲染为表格（多选默认关闭，需要时传 `selection: {}`）；
 - 在 naive-ui 下渲染为表格；
 - 在 vant 下渲染为卡片列表，`orderNo` 是标题，其余字段按 `mobile.order` 排列，分页变成下拉加载。
 

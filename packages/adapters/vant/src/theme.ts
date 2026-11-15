@@ -1,6 +1,23 @@
 import type { Size, ThemeBridge, ThemeMode } from '@fbkworks/adapter-core'
 import { THEME_IS_DARK } from '@fbkworks/adapter-core'
+import { cyberColorOverrides, darkColorOverrides } from '@fbkworks/tokens'
 import type { FbkTokens } from '@fbkworks/tokens'
+
+/**
+ * 按模式取令牌。**必须做**，理由和 element-plus 那份一样：
+ * apply() 把 --van-* 写成 documentElement 的**行内样式**，而行内优先级高于
+ * vant 自己的 `html.van-theme-dark` 规则。之前这里不看 mode，暗色下照样写浅色令牌，
+ * 结果是「页面底色是暗的、van-field / van-cell / van-popup 表面还是白的」，
+ * 辅助文字压在深底上约 3.4:1（不达 AA）。cyber 同理，它的色值也要自己注入。
+ */
+function resolveTokens(mode: ThemeMode, tokens: FbkTokens): FbkTokens {
+  if (mode === 'cyber') {
+    return { ...tokens, color: { ...tokens.color, ...cyberColorOverrides } }
+  }
+  const dark = mode === 'system' ? false : THEME_IS_DARK[mode]
+  if (!dark) return tokens
+  return { ...tokens, color: { ...tokens.color, ...darkColorOverrides } }
+}
 
 function toVantVars(tokens: FbkTokens): Record<string, string> {
   return {
@@ -63,7 +80,7 @@ export const vantTheme: ThemeBridge = {
     const root = document.documentElement
     root.setAttribute('data-fbk-theme', mode)
     // vant 的暗色同时依赖 ConfigProvider，这里负责 fbk 自身的变量与文档根标记
-    for (const [key, value] of Object.entries(toVantVars(tokens))) {
+    for (const [key, value] of Object.entries(toVantVars(resolveTokens(mode, tokens)))) {
       root.style.setProperty(key, value)
     }
   },

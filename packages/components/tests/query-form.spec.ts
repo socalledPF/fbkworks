@@ -3,6 +3,53 @@ import { describe, expect, it } from 'vitest'
 import { mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkQueryForm } from '../src/query-form'
 
+describe('函数型 options（联动）', () => {
+  /* 类型允许 options: (values) => SelectOption[]，但实现曾经只做 as SelectOption[] 断言，
+     适配器对函数调 .map → 渲染期 TypeError，整块查询区挂掉。
+     这两条既证明「函数被执行」，也证明「它的入参是当前表单值」。 */
+  const linkFields = [
+    {
+      name: 'province',
+      label: '省份',
+      type: 'select' as const,
+      options: [
+        { label: '浙江', value: 'zj' },
+        { label: '江苏', value: 'js' },
+      ],
+    },
+    {
+      name: 'city',
+      label: '城市',
+      type: 'select' as const,
+      options: (values: Record<string, any>) =>
+        values.province === 'js'
+          ? [{ label: '南京', value: 'nj' }]
+          : [{ label: '杭州', value: 'hz' }],
+    },
+  ]
+
+  it('函数型 options 会被执行，而不是把函数交给适配器', async () => {
+    const wrapper = mountWithAdapter(FbkQueryForm, {
+      props: { modelValue: { province: 'zj' }, fields: linkFields },
+    })
+    await flushPromises()
+    expect(wrapper.html(), '函数没有被解析，选项为空（真实环境这里会抛 .map is not a function）').toContain('杭州')
+  })
+
+  it('函数入参是当前表单值：省份变了，城市选项跟着变', async () => {
+    const wrapper = mountWithAdapter(FbkQueryForm, {
+      props: { modelValue: { province: 'zj' }, fields: linkFields },
+    })
+    await flushPromises()
+    expect(wrapper.html()).toContain('杭州')
+
+    await wrapper.setProps({ modelValue: { province: 'js' } })
+    await flushPromises()
+    expect(wrapper.html(), '联动失效：函数没有拿到新的表单值').toContain('南京')
+    expect(wrapper.html()).not.toContain('杭州')
+  })
+})
+
 const fields = [
   { name: 'keyword', label: '关键词', type: 'input' as const },
   {

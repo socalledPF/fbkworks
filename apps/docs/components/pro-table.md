@@ -17,8 +17,11 @@
 
 <DemoBlock id="pro-table/selection" />
 
-`selection` 能力由 `adapter.capabilities.dataGrid.selection` 声明。
-适配器不支持时（`selection: false`），ProTable 不会渲染选择列，也不会报错。
+多选**默认关闭**：不传 `selection` 就没有选择列，`bulk-actions` 槽也不会渲染。
+要启用请显式传 `selection: {}`（或带配置的对象）。
+
+`selection` 能力另由 `adapter.capabilities.dataGrid.selection` 声明 ——
+适配器不支持时即使传了也不会渲染选择列，且不会报错。
 
 `selection` 也可以传配置对象：
 

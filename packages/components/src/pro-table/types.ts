@@ -112,6 +112,10 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
   total?: number
   pagination?: false | { pageSizes?: number[]; showTotal?: boolean; showJumper?: boolean }
 
+  /**
+   * 多选。**默认关闭** —— 不传就没有选择列、批量操作栏也不会渲染。
+   * 需要多选请显式传 `{}`（或带配置的对象），传 `false` 与不传等价。
+   */
   selection?: false | { preserveOnReload?: boolean; columnWidth?: number }
   selectedKeys?: Key[]
 

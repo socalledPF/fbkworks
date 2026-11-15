@@ -1,8 +1,9 @@
 import { computed, defineComponent, type PropType } from 'vue'
 import { ConfigProvider } from 'vant'
 import type { Size, ThemeMode } from '@fbkworks/adapter-core'
+import { defaultTokens } from '@fbkworks/tokens'
 import type { FbkTokens } from '@fbkworks/tokens'
-import { vantSizeVars } from './theme'
+import { vantSizeVars, vantTheme } from './theme'
 
 /**
  * vant 4 支持 CSS 变量 + ConfigProvider theme="dark"。
@@ -27,13 +28,24 @@ export const RootProvider = defineComponent({
       return sizeVars ? { ...own, ...sizeVars } : own
     })
 
+    /* 主题映射交给 theme bridge，别再在这里手写一遍：
+       这里原来写的是 `mode === 'dark' ? 'dark' : 'light'`，于是 **cyber 被映射成 light**，
+       而 bridge 里那段「cyber 是暗底，按暗色处理」的 providerProps 从没被消费
+       （RootProvider 的 props 里没有 theme，传下来落进 attrs 又被这行覆盖）。 */
+    const configTheme = computed<'light' | 'dark'>(() => {
+      /* providerProps 的签名要求带 tokens；vant 的映射只看 mode，
+         但按签名传（缺省时用默认令牌）比在这里再猜一次 mode 更不容易漂。 */
+      const resolved = vantTheme.providerProps?.(props.mode, props.tokens ?? defaultTokens)
+      return (resolved?.theme as 'light' | 'dark' | undefined) ?? 'light'
+    })
+
     return () => (
       /* ConfigProvider 自己渲染一层元素（tag 默认 'div'，class="van-config-provider"），
          attrs 交给它就能落到真实 DOM，不必再套一层。
          attrs 在前：显式的 theme / provider props 优先。 */
       <ConfigProvider
         {...attrs}
-        theme={props.mode === 'dark' ? 'dark' : 'light'}
+        theme={configTheme.value}
         themeVars={themeVars.value}
       >
         {slots.default?.()}

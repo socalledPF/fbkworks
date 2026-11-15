@@ -119,7 +119,7 @@ const tableProps = computed(() => ({
   request: props.request,
   params: params.value,
   rowKey: props.rowKey,
-  // 不传时保持 ProTable 的默认（开启多选）；显式 false 才关闭
+  // 不传时保持 ProTable 的默认（**关闭**多选）；要开就显式传 selection: {}
   ...(props.selection === undefined ? {} : { selection: props.selection }),
 }))
 

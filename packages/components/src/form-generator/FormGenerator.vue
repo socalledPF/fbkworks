@@ -6,6 +6,7 @@ import type { SelectOption } from '@fbkworks/adapter-core'
 import { resolveColumns, warnOnce } from '@fbkworks/shared'
 import type { FormField, FormGeneratorExpose, FormGeneratorProps } from './types'
 import type { QueryField } from '../query-form/types'
+import { resolveFieldOptions } from '../query-form/resolve-options'
 import { useQueryModel } from '../query-form/use-query-model'
 
 defineOptions({ name: 'FbkFormGenerator', inheritAttrs: false })
@@ -56,20 +57,11 @@ const { values, setValue, setValues, reset } = useQueryModel({
  *
  * 动态形式用于联动：选了省份后城市选项变化。
  */
-function resolveOptions(field: FormField): SelectOption[] {
-  const raw = field.options
-  if (!raw) return []
-  if (typeof raw === 'function') {
-    try {
-      return raw(values.value)
-    } catch {
-      /* 解析函数抛错不该让整个表单崩 —— 退化成空选项，
-         用户看到「无选项」比白屏好排查。 */
-      return []
-    }
-  }
-  return raw
-}
+/* 数组 / 函数两种形态的归一只有一份实现（query-form/resolve-options.ts）——
+   两个组件各写一遍的话，QueryForm 那份漏了「函数」分支就会渲染期抛 TypeError，
+   而这里照常工作，谁也不会发现两边的行为不一样。 */
+const resolveOptions = (field: FormField): SelectOption[] =>
+  resolveFieldOptions(field, values.value as Record<string, unknown>)
 
 const isView = computed(() => props.mode === 'view')
 const isDisabled = computed(() => props.disabled || isView.value)

@@ -2,9 +2,9 @@
 import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
 import { useAdapter } from '@fbkworks/adapter-core'
-import type { SelectOption } from '@fbkworks/adapter-core'
 import { resolveColumns, warnOnce } from '@fbkworks/shared'
 import type { QueryField, QueryFormExpose, QueryFormProps } from './types'
+import { resolveFieldOptions } from './resolve-options'
 import { useQueryModel } from './use-query-model'
 
 defineOptions({ name: 'FbkQueryForm', inheritAttrs: false })
@@ -96,7 +96,7 @@ function renderControl(field: QueryField) {
       return h(Select, {
         ...common,
         modelValue: value ?? undefined,
-        options: (field.options ?? []) as SelectOption[],
+        options: resolveFieldOptions(field, values.value as Record<string, unknown>),
         placeholder: field.placeholder ?? `请选择${field.label}`,
         'onUpdate:modelValue': update,
       })
@@ -125,7 +125,7 @@ function renderControl(field: QueryField) {
       return h(Radio, {
         ...common,
         modelValue: value ?? null,
-        options: (field.options ?? []) as SelectOption[],
+        options: resolveFieldOptions(field, values.value as Record<string, unknown>),
         'onUpdate:modelValue': update,
       })
     case 'custom':
