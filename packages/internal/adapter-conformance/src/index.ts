@@ -786,20 +786,41 @@ export function runAdapterConformance(options: ConformanceOptions): void {
       expect(() => adapter.feedback.message.info('契约测试')).not.toThrow()
     })
 
-    // @capability theme.darkMode
-    it('主题桥 apply 幂等', () => {
-      const apply = vi.spyOn(adapter.theme, 'apply')
+    /* @capability theme.darkMode
+       原来这条只断言「apply 被调了 2 次」—— 任何实现都能满足，包括
+       「暗色下照样写浅色变量」。vant 就长期如此：页面底色暗了、van-field 表面还是白的，
+       而这条用例一直绿着。现在断言**结果**：暗色注入的变量必须与浅色不同。 */
+    it('切到暗色会真的改掉注入的 CSS 变量（不是只换根标记）', () => {
+      /* provider 型适配器（naive-ui）本来就不写 CSS 变量 —— 它的暗色由 providerProps 承担，
+         语义由下一条用例验证。这里只管「变量型」适配器。 */
+      if (adapter.capabilities.theme.provider) return
+      const styleOf = () => document.documentElement.style.cssText
       adapter.theme.apply('light', defaultTokens)
+      const light = styleOf()
+      adapter.theme.apply('dark', defaultTokens)
+      const dark = styleOf()
+      expect(
+        dark,
+        '暗色与浅色注入的变量完全一致 —— 等于没换调色板（暗色下会让表单/弹窗表面保持白底）',
+      ).not.toBe(light)
+      // 还原，避免污染后面的用例
       adapter.theme.apply('light', defaultTokens)
-      expect(apply).toHaveBeenCalledTimes(2)
-      apply.mockRestore()
     })
 
-    // @capability theme.provider
-    it('provider 型适配器必须提供 providerProps', () => {
-      if (adapter.capabilities.theme.provider) {
-        expect(typeof adapter.theme.providerProps).toBe('function')
-      }
+    /* @capability theme.provider
+       原来只断言 typeof providerProps === 'function' —— 函数返回什么都行。
+       vant 那段「cyber 按暗色处理」的映射从没被消费（RootProvider 手写了另一套），
+       这条用例照样绿。现在断言语义：cyber 与 dark 必须给出同一份 props，且与 light 不同。 */
+    it('providerProps 把 cyber 当作暗色，且与 light 不同', () => {
+      if (!adapter.capabilities.theme.provider) return
+      const resolve = adapter.theme.providerProps
+      expect(typeof resolve, '声明了 provider 型主题却没有 providerProps').toBe('function')
+      /* 只比**模式**那一项：cyber 的色值与 dark 不同（它有自己的 cyberColorOverrides），
+         但两者都必须是「暗」。整对象比较会把正确的实现判成错的。 */
+      const modeOf = (m: string) => (resolve!(m as any, defaultTokens) as any).theme
+      expect(modeOf('cyber'), 'cyber 没有按暗色处理（暗底主题会渲染成浅色）').toBe('dark')
+      expect(modeOf('dark')).toBe('dark')
+      expect(modeOf('light')).toBe('light')
     })
   })
 }
