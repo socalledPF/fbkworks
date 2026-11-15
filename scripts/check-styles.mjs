@@ -286,6 +286,9 @@ const STYLE_ROOTS = [
   join(root, 'packages', 'components', 'src'),
   join(root, 'packages', 'adapters'),
   join(root, 'packages', 'tokens', 'src'),
+  /* chart-core 是唯一有 style.css 却长期不在扫描根的发布包 —— 它恰恰是历史上
+     「样式没接入 → 容器高度 0 → canvas 全空白」的那个包，最该被扫。 */
+  join(root, 'packages', 'chart-core', 'src'),
   join(root, 'packages', 'screen', 'src'),
   join(root, 'packages', 'dashboard', 'src'),
   join(root, 'packages', 'internal', 'demos'),

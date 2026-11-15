@@ -56,22 +56,23 @@ const collect = (dir) => {
     if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.')) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) collect(full)
-    else if (/\.(mjs|cjs|mts|cts)$/.test(entry.name)) scriptFiles.push(full)
+    /* 只收 node --check 真能解析的扩展名。.mts/.cts 会让它直接
+       ERR_UNKNOWN_FILE_EXTENSION，被这里报成「语法错误」——而它同时是 verify 与 CI
+       的第 1 步，整条链路会为一个不存在的错误变红。.ts/.mts 由 vue-tsc 与各自构建负责。 */
+    else if (/\.(mjs|cjs)$/.test(entry.name)) scriptFiles.push(full)
   }
 }
 collect(join(root, 'scripts'))
 /* apps 下的脚本同样会被直接加载并决定整条链路是否跑得起来
    （docs 的 check-mermaid / gen-api / sync-brand）。漏掉它们，
    坏掉要等到 verify 最后一步才暴露。 */
-collect(join(root, 'apps'))
-/* apps 下的脚本同样会被直接加载并决定整条链路是否跑得起来
-   （docs 的 check-mermaid / gen-api / sync-brand）。漏掉它们，
-   坏掉要等到 verify 最后一步才暴露。 */
+/* 下面这一行以前被复制粘贴了两遍，同一个文件 --check 两次：
+   报出的脚本数虚高 3 个（33 vs 30），错误也会打印两遍。 */
 collect(join(root, 'apps'))
 
 /* 根目录的配置文件也算：它们同样会被工具直接加载，坏了同样是整条链路失效 */
 for (const entry of readdirSync(root, { withFileTypes: true })) {
-  if (entry.isFile() && /\.(mjs|cjs|mts|cts)$/.test(entry.name)) scriptFiles.push(join(root, entry.name))
+  if (entry.isFile() && /\.(mjs|cjs)$/.test(entry.name)) scriptFiles.push(join(root, entry.name))
 }
 
 for (const file of scriptFiles) {

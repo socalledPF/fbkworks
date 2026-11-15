@@ -63,7 +63,18 @@ const COMPONENT_MAP = {
   dataZoom: DataZoomComponent,
 } as const
 
-const DEFAULT_CHARTS = ['line', 'bar', 'pie', 'gauge'] as const
+/**
+ * 默认注册的图表类型 = CHART_MAP 的全部键。
+ *
+ * 以前写死 4 个（line/bar/pie/gauge），而公开类型 FbkChartType 承诺 8 种、
+ * FbkChart 又是**无参数**调用 —— scatter / radar / funnel 的用户拿到
+ * 「有坐标轴、没有任何系列、也不显示空态」的空图表：echarts 只打一行
+ * "Series scatter is used but not imported"，不抛错，所以 try/catch 抓不到、
+ * emit('error') 也不触发。
+ *
+ * 从 CHART_MAP 推导而不是再抄一份：抄的清单迟早和类型联合不一致。
+ */
+const DEFAULT_CHARTS = Object.keys(CHART_MAP) as FbkChartType[]
 const DEFAULT_COMPONENTS = [
   'grid',
   'tooltip',

@@ -32,6 +32,10 @@ const BANNED_RUNTIME = /^(axios|ky|ofetch|superagent|vue-router|pinia|vuex|vue-i
 
 /** 说明符出现在这些位置都算引用 */
 const SPECIFIER_PATTERNS = [
+  /* 裸副作用 import：`import 'element-plus/dist/index.css'`。
+     这是「缺样式就补一行 import」的典型写法，也是最容易漏掉的一种形态 ——
+     原来的四条正则都要求带 from / 括号 / 引号形式的 import()，一条都不匹配。 */
+  /^\s*import\s*['"]([^'"]+)['"]/gm,
   /\bfrom\s*['"]([^'"]+)['"]/g,
   /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
   /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,

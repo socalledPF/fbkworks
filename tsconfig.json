@@ -6,9 +6,7 @@
     "packages/**/*.vue",
     "apps/**/*.ts",
     "apps/**/*.tsx",
-    "apps/**/*.vue",
-    "scripts/**/*.mts",
-    "scripts/**/*.mjs"
+    "apps/**/*.vue"
   ],
   "exclude": ["**/node_modules", "**/dist", "apps/docs/.vitepress/cache"]
 }

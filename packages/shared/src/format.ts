@@ -50,6 +50,13 @@ export function formatNumber(
   locale: string = DEFAULT_LOCALE,
 ): string {
   if (value === null || value === undefined || value === '') return '-'
+  /* 只接受 number 与非空白数字串。不能让 Number() 替我们决定：
+     Number('  ')=0、Number([])=0、Number(false)=0、Number(true)=1 ——
+     于是表格里「空白单元格」显示成 0.00，用户读到「这笔金额是 0」，真实语义是「没有值」。
+     仓库里另外两处（formatDate 挡布尔、path.ts 挡 total）早已封过这个口子，这是第三处。 */
+  if (typeof value === 'boolean' || Array.isArray(value)) return '-'
+  if (typeof value === 'string' && value.trim() === '') return '-'
+  if (typeof value === 'object') return '-'
   const num = Number(value)
   if (Number.isNaN(num)) return String(value)
   return getFormatter(locale, options).format(num)

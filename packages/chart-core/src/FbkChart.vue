@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useAttrs, watch } from 'vue'
 import { init, type ECharts } from 'echarts/core'
 import { registerFbkCharts } from './register'
-import { resolveOptionVars } from './color'
+import { resolveCssValue, resolveOptionVars } from './color'
 import { resolveChartTheme } from './theme'
 import type { FbkChartOption } from './types'
 
@@ -120,6 +120,31 @@ const resolvedEmpty = computed(() => {
  */
 let liveComponentKeys: Set<string> | undefined
 
+/**
+ * 加载遮罩的**唯一**配置。
+ *
+ * 以前有两份互不相同的：挂载路径那份是「60% 白纱 + 无文案」，
+ * loading watcher 那份是「透明遮罩 + 加载中」。同一个 loading 状态，
+ * 首屏挂着进来走前者、之后切换走后者 —— 同屏两种外观，
+ * 暗色/cyber 大屏上那份白纱还会整块闪一下。
+ *
+ * 颜色必须落到字面值：ECharts 用 Canvas 绘制，不认 var(--x)。
+ * 直接传 var 字符串会把 strokeStyle 赋成非法值（canvas 保留上一次的颜色、SVG 不描边），
+ * 而代码看起来完全正常 —— 转圈不是品牌色，深色主题下几乎看不见。
+ */
+function loadingOptions(): Record<string, unknown> {
+  const cssColor = (name: string, fallback: string) => {
+    const resolved = resolveCssValue("var(" + name + ")")
+    return resolved.includes("var(") ? fallback : resolved
+  }
+  return {
+    text: "加载中",
+    color: cssColor("--fbk-color-primary", "#3b82f6"),
+    textColor: cssColor("--fbk-color-text-secondary", "#5c6370"),
+    maskColor: "rgba(255,255,255,0.6)",
+  }
+}
+
 function applyOption() {
   const instance = chart.value
   if (!instance) return
@@ -151,7 +176,7 @@ function applyOption() {
     /* 重建实例（主题切换）后遮罩会跟着旧实例一起没了，而 props.loading 没变、
        watcher 不会触发 —— 结果是「loading=true 却看不到遮罩」，看起来像加载完了。 */
     if (props.loading) {
-      instance.showLoading('default', { text: '', color: '#3b82f6', maskColor: 'rgba(255,255,255,0.6)' })
+      instance.showLoading('default', loadingOptions())
     }
 
     instance.setOption(
@@ -278,12 +303,7 @@ watch(
     const instance = chart.value
     if (!instance) return
     if (loading) {
-      instance.showLoading('default', {
-        text: '加载中',
-        color: 'var(--fbk-color-primary)',
-        textColor: 'var(--fbk-color-text-secondary)',
-        maskColor: 'transparent',
-      })
+      instance.showLoading('default', loadingOptions())
     } else {
       instance.hideLoading()
     }

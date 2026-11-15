@@ -74,6 +74,20 @@ function discoverPackagesWithStyle(dir, out = {}) {
 const PACKAGES_WITH_STYLE = discoverPackagesWithStyle(resolve(root, 'packages'))
 
 /**
+ * 应用「应该引哪些包的样式」：从它 package.json 的依赖里挑带样式的发布包。
+ *
+ * 以前这里是手抄的子集（admin 只写了 components/chart-core/dashboard），
+ * 而 admin 实际还引了 tokens 与 adapter-element-plus 的 style.css / dark.css ——
+ * 把 tokens 那行删掉，门禁照样绿。手抄清单的覆盖面永远等于抄的人记得多少。
+ */
+function requiredByDeps(appDir) {
+  const pkg = JSON.parse(readFileSync(join(root, appDir, 'package.json'), 'utf8'))
+  return Object.keys(pkg.dependencies ?? {})
+    .filter((name) => name in PACKAGES_WITH_STYLE)
+    .sort()
+}
+
+/**
  * 应用入口：每个应用**使用**哪些包，就必须引入对应的样式。
  *
  * `uses` 是应用 package.json 里真实声明依赖的 @fbkworks 包；
@@ -97,7 +111,7 @@ const APP_ENTRIES = [
   {
     name: 'admin',
     file: 'apps/admin/src/styles/index.ts',
-    requires: ['@fbkworks/components', '@fbkworks/chart-core', '@fbkworks/dashboard'],
+    requires: requiredByDeps('apps/admin'),
   },
 ]
 

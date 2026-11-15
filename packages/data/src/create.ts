@@ -1,4 +1,4 @@
-import { warnOnce } from '@fbkworks/shared'
+import { warnOnce } from './warn'
 import { FbkDataError } from './error'
 import { extractRows, extractTotal } from './path'
 import type {
@@ -154,7 +154,17 @@ export function createPageRequest<TRaw, T = unknown>(
         ? rawRows.map((item, index) => mapRow(item, index))
         : (rawRows as unknown as T[])
 
-      return { list, total: totalValue } satisfies Page<T>
+      /* hasMore：契约里写着（无限滚动用它判断到头），但以前从来不产出 ——
+         业务方想用就只能放弃 createPageRequest 手写 fetcher，否则只能落到
+         「空页才结束」这条兜底上（每次滚到底多打一次必然为空的请求）。
+         只在调用方声明了 total 字段路径时才下结论：没声明时 totalValue 是当前页行数，
+         据此算出的 hasMore 永远是 false，比不给更糟。 */
+      const hasMore =
+        total !== undefined && query.page > 0 && query.pageSize > 0
+          ? query.page * query.pageSize < totalValue
+          : undefined
+
+      return { list, total: totalValue, hasMore } satisfies Page<T>
     } catch (err) {
       /* 路径解析失败是**开发期错误**（字段名写错），
          但线上同样会走到这里，所以也要上报。 */

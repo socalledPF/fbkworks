@@ -19,9 +19,7 @@
   "scripts": {
     "build": "vite build"
   },
-  "dependencies": {
-    "@fbkworks/shared": "workspace:^"
-  },
+  "dependencies": {},
   "publishConfig": {
     "access": "public"
   },

@@ -186,6 +186,42 @@ describe('FbkChart option 处理', () => {
     wrapper.unmount()
   })
 
+  it('loading 遮罩只有一份配置：挂载即 loading 与之后切换必须完全一致', async () => {
+    /* 以前是两份：applyOption 里「60% 白纱 + 无文案」、watcher 里「透明 + 加载中」。
+       同一个 loading 状态两种外观，暗色大屏上那份白纱还会整块闪一下。 */
+    const option = { xAxis: { type: 'category', data: ['a'] }, yAxis: { type: 'value' }, series: [{ type: 'line', data: [1] }] }
+
+    const mounted = mountChart({ option, loading: true })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+    const onMount = instances[0]!.showLoading.mock.calls.at(-1)?.[1]
+
+    const toggled = mountChart({ option, loading: false })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+    await toggled.setProps({ loading: true })
+    await flushPromises()
+    const viaWatcher = instances[1]!.showLoading.mock.calls.at(-1)?.[1]
+
+    expect(onMount, '挂载路径没有走统一配置').toBeTruthy()
+    expect(viaWatcher).toEqual(onMount)
+    expect(onMount.text).toBe('加载中')
+
+    mounted.unmount()
+    toggled.unmount()
+  })
+
+  it('loading 的颜色是解析后的真实色值（Canvas 不认 var()）', async () => {
+    document.documentElement.style.setProperty('--fbk-color-primary', '#123456')
+    mountChart({ option: { series: [{ type: 'line', data: [1] }] }, loading: true })
+    await flushPromises()
+    await new Promise((r) => setTimeout(r, 50))
+
+    const args = instances[0]!.showLoading.mock.calls.at(-1)?.[1]
+    expect(JSON.stringify(args), '把 var(--x) 直接交给了 echarts，转圈会不是品牌色').not.toContain('var(')
+    document.documentElement.removeAttribute('style')
+  })
+
   it('setOption 前把 CSS 变量解析成真实色值', async () => {
     document.documentElement.style.setProperty('--fbk-chart-1', '#123456')
     mountChart({

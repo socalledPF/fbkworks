@@ -179,7 +179,21 @@ export default tseslint.config(
     files: ['packages/**/*.{ts,tsx,vue}', 'apps/**/*.{ts,tsx,vue}', 'scripts/**/*.{ts,mts,mjs}'],
     ignores: ['packages/adapters/**'],
     rules: {
-      'no-restricted-imports': ['error', { paths: noUiImports }],
+      /* patterns 必须有：paths 按**精确模块名**匹配，`element-plus/dist/index.css`
+         这类子路径一条都不命中 —— 而那正是「缺样式就补一行 import」的写法。 */
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: noUiImports,
+          patterns: [
+            {
+              group: ['element-plus/*', 'vant/*', 'naive-ui/*'],
+              message: uiLibraryMessage,
+              allowTypeImports: false,
+            },
+          ],
+        },
+      ],
     },
   },
 
