@@ -47,7 +47,7 @@ const emit = defineEmits<{
   back: []
 }>()
 
-const { data, loading, error, reload } = useDetail<T>({
+const { data, loading, error, hasLoaded, reload } = useDetail<T>({
   fetcher: props.request,
   immediate: props.immediate,
   onError: (err) => emit('error', err),
@@ -73,7 +73,12 @@ const resolvedTitle = computed(() => {
  *   null      → 资源不存在（404）—— 不是异常
  *   error     → 请求失败（网络/服务端）—— 是异常，可重试
  */
-const notFound = computed(() => !loading.value && !error.value && data.value === null)
+const notFound = computed(
+  /* hasLoaded 是必须的：immediate:false 时（等拿到 id 再 reload）data 永远是初始 null、
+     loading 与 error 都是 false/null —— 少了这个条件，界面会立刻显示
+     「该记录可能已被删除，或链接有误」，而请求一次都还没发。 */
+  () => hasLoaded.value && !loading.value && !error.value && data.value === null,
+)
 
 const FIELD_SLOT_PREFIX = 'field-'
 const ITEM_SLOT_PREFIX = 'item-'

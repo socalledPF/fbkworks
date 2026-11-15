@@ -13,6 +13,9 @@ import { resolveColumnRenderer } from './value-renderer'
 defineOptions({ name: 'FbkProTable', inheritAttrs: false })
 
 const props = withDefaults(defineProps<ProTableProps<T>>(), {
+  /* 必须显式给 true：Boolean 类型的 prop 缺省时 Vue 会转成 **false**（不是 undefined），
+     于是 `immediate: props.immediate` 会把「没传」变成「明确关闭」，首屏一次都不请求。 */
+  immediate: true,
   rowKey: 'id',
   data: undefined,
   request: undefined,
@@ -61,6 +64,7 @@ const isControlledData = computed(() => props.data !== undefined)
 const isInfinite = computed(() => adapter.capabilities.pagination.mode === 'infinite')
 
 const requestState = useTableRequest<T>({
+  immediate: props.immediate,
   request: () => (isControlledData.value ? undefined : props.request),
   params: () => props.params,
   page: innerPage,

@@ -64,9 +64,18 @@ watch(
   (mode) => (innerMode.value = mode),
 )
 
+/* 命令式打开（open/openEdit）带进来的那份值。
+   必须比 initialValues 优先：v-model:show 的常规用法下，openEdit(rowB) 先写 rowB、
+   紧接着 show 变 true 触发 syncOnOpen，于是被还停在 rowA 的 initialValues 覆盖 ——
+   表现为「打开是空的」或更糟「用户在编辑 B、表单里是 A、保存把 A 的值写进 B」。 */
+let pendingValues: Record<string, unknown> | null = null
+
 function syncOnOpen() {
-  // 打开时按当前 mode 决定回填哪一份
-  const source = innerMode.value === 'edit' ? (props.initialValues ?? {}) : (props.defaultValues ?? {})
+  // 打开时按当前 mode 决定回填哪一份；命令式带进来的值最优先
+  const source =
+    pendingValues ??
+    (innerMode.value === 'edit' ? (props.initialValues ?? {}) : (props.defaultValues ?? {}))
+  pendingValues = null
   values.value = { ...source }
   /* 递增 key 强制 FormGenerator 重建，清掉上一轮的内部状态。
      注意顺序：必须在 values 赋值之后。FormGenerator 内部的 useQueryModel
@@ -170,6 +179,7 @@ function open(next?: Partial<T>) {
   if (next) {
     innerMode.value = 'edit'
     values.value = { ...next }
+    pendingValues = { ...next }
   }
   emit('update:show', true)
 }
@@ -177,6 +187,7 @@ function open(next?: Partial<T>) {
 function openEdit(next: Partial<T>) {
   innerMode.value = 'edit'
   values.value = { ...next }
+  pendingValues = { ...next }
   emit('update:show', true)
 }
 

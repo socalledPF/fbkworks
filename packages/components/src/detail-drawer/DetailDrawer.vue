@@ -73,10 +73,22 @@ const loaded = shallowRef<T | null>(null)
 /** 每次打开递增，作为内层 DetailPage 的 key —— 强制重建即重新请求 */
 const session = ref(0)
 
+/* close 只发一次：内部关闭会立刻 emit，父级随后把 show 改成 false 又会触发 watch ——
+   没有这个标记的话每次关闭会收到两遍 close。
+   声明必须在 watch 之前：watch 是 immediate，setup 期间就会执行，那时读到这里会 TDZ。 */
+let closeEmitted = false
+
 watch(
   () => props.show,
-  (visible) => {
-    if (!visible) return
+  (visible, prev) => {
+    if (!visible) {
+      /* 注释承诺过「调用方自己改 show 也算关闭」，但实现里只 return ——
+         最常见的收尾路径（提交成功后 show.value = false、切路由关）拿不到 close，
+         依赖它复位选中/停轮询/清缓存的地方全部泄漏。prev 为 undefined 是首次求值，跳过。 */
+      if (prev) emitCloseOnce()
+      return
+    }
+    closeEmitted = false
     // 上一行的标题不该在新数据回来前继续显示
     loaded.value = null
     session.value += 1
@@ -104,17 +116,23 @@ const resolvedTitle = computed(() => {
 /** actions 在模板里单独处理（要并进「展开为整页」），其余插槽原样转发 */
 const forwardedSlots = computed(() => Object.keys(slots).filter((name) => name !== 'actions'))
 
+function emitCloseOnce() {
+  if (closeEmitted) return
+  closeEmitted = true
+  emit('close')
+}
+
 function setShow(next: boolean) {
   // 受控：父级没改 show 时重复收到同一个值不该再发一遍 close
   if (next === props.show) return
   emit('update:show', next)
-  if (!next) emit('close')
+  if (!next) emitCloseOnce()
 }
 
 function close() {
   if (!props.show) return
   emit('update:show', false)
-  emit('close')
+  emitCloseOnce()
 }
 
 function onLoad(data: T) {

@@ -27,6 +27,14 @@ export interface UseDetailReturn<T> {
   data: Ref<T | null>
   loading: Ref<boolean>
   error: Ref<unknown>
+  /**
+   * 是否至少发过一次请求。
+   *
+   * 没有它的话，`immediate: false`（等拿到 id 再 reload）会被 404 判定误伤：
+   * data 还是初始的 null、loading 是 false、error 是 null —— 三个条件同时成立，
+   * 界面直接显示「该记录可能已被删除」，而请求一次都还没发。
+   */
+  hasLoaded: Ref<boolean>
   /** 重新请求 */
   reload: () => Promise<void>
 }
@@ -35,6 +43,7 @@ export function useDetail<T>(options: UseDetailOptions<T>): UseDetailReturn<T> {
   const data = shallowRef<T | null>(null) as Ref<T | null>
   const loading = ref(false)
   const error = shallowRef<unknown>(null)
+  const hasLoaded = ref(false)
 
   const reporter = useReporter()
 
@@ -43,6 +52,7 @@ export function useDetail<T>(options: UseDetailOptions<T>): UseDetailReturn<T> {
 
   async function load() {
     const id = ++requestId
+    hasLoaded.value = true
 
     /* 取消上一次请求。
        详情页的典型竞态：快速切换 id（列表里连点几条）。
@@ -94,7 +104,7 @@ export function useDetail<T>(options: UseDetailOptions<T>): UseDetailReturn<T> {
     requestId++
   })
 
-  return { data, loading, error, reload: load }
+  return { data, loading, error, hasLoaded, reload: load }
 }
 
 /**

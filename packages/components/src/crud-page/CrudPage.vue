@@ -119,6 +119,9 @@ const tableProps = computed(() => ({
   request: props.request,
   params: params.value,
   rowKey: props.rowKey,
+  /* immediate 以前声明了、给了默认值，但从不读取 —— 挂载即发请求，
+     :immediate="false" 静默无效。现在真的透下去。 */
+  immediate: props.immediate,
   // 不传时保持 ProTable 的默认（**关闭**多选）；要开就显式传 selection: {}
   ...(props.selection === undefined ? {} : { selection: props.selection }),
 }))
@@ -147,9 +150,13 @@ const passedSlots = computed((): string[] =>
    与表格插槽分开成两个列表：这几个只能挂在查询表单上，混进 gridSlots 会被
    转发给 ProTable 而那里没有对应插槽名，等于静默丢弃。 */
 const querySlotNames = ['actions', 'before-actions', 'after-actions'] as const
-const passedQuerySlots = computed((): string[] =>
-  querySlotNames.filter((name) => Boolean(slots?.[name])),
-)
+const passedQuerySlots = computed((): string[] => [
+  ...querySlotNames.filter((name) => Boolean(slots?.[name])),
+  /* field-<name>：给单个筛选项换控件（树选择器、自绘控件）。
+     QueryForm 支持它，但 CrudPage 的白名单没带它 —— 写了无效果、无警告，
+     只能弃用 CrudPage 手拼 QueryForm。动态名字只能按前缀收。 */
+  ...Object.keys(slots ?? {}).filter((name) => name.startsWith('field-')),
+])
 
 const queryProps = computed(() => ({
   ...(props.queryProps ?? {}),

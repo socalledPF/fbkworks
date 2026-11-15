@@ -106,6 +106,8 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
 
   loading?: boolean
   emptyText?: string
+  /** 首屏是否自动请求，默认 true。传 false 由调用方自己 reload()（等路由参数/权限就绪） */
+  immediate?: boolean
 
   page?: number
   pageSize?: number

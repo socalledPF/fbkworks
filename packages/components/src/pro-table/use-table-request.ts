@@ -19,6 +19,12 @@ export interface UseTableRequestOptions<T> {
    * 而内部改动如果不 emit，父级的 URL 同步/页码显示就会和真实请求页不一致。
    */
   onPageChange?: (page: number) => void
+  /**
+   * 首屏是否自动请求，默认 true。
+   * 传 false 时不发第一次请求，等调用方自己 reload() ——
+   * 场景是「路由参数 / 权限 / 父级下发的默认筛选条件还没回来」。
+   */
+  immediate?: boolean
 }
 
 export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
@@ -170,7 +176,7 @@ export function useTableRequest<T>(options: UseTableRequestOptions<T>) {
       if (prev !== undefined && next[0] === prev[0]) setPage(1)
       refresh()
     },
-    { deep: true, immediate: true },
+    { deep: true, immediate: options.immediate !== false },
   )
 
   onBeforeUnmount(() => {
