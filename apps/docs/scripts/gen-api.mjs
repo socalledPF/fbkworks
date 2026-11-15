@@ -80,6 +80,33 @@ function pick(list, kind) {
  * 兜底静态读源码：defineExpose 的参数是对象字面量，成员按 2 空格缩进排列，
  * 正则足够且不会误报；工具能提到时用工具的，提不到才补。
  */
+/**
+ * 动态插槽名（`item-<key>` 这类）不在组件类型里，vue-component-meta 提不到，
+ * 于是 Descriptions 的插槽表渲染成一行「无」—— 而同一页正文在讲 item-<key>。
+ *
+ * 两个坑（都实测过）：
+ *   1. $ 必须转义成 \$ —— 不转义它是「行尾」锚点，整条正则永远匹配不到；
+ *   2. 只认 :name="`xx-${...}`" 这种绑定 —— 宽泛的「xx-${」会把 CSS 类名模板
+ *      （`fbk-descriptions--gap-${x}`）也当成插槽，给每个组件塞一条假条目。
+ */
+const DYNAMIC_SLOT_RE = new RegExp(
+  ':name="' + String.fromCharCode(96) + '([a-z][a-z-]*)-' + String.fromCharCode(92) + String.fromCharCode(36) + String.fromCharCode(123),
+  'g',
+)
+
+function dynamicSlotsFromSource(file) {
+  const source = readFileSync(resolve(root, file), 'utf8')
+  const found = new Set()
+  for (const match of source.matchAll(DYNAMIC_SLOT_RE)) found.add(match[1] + '-<dynamic>')
+  return [...found].map((name) => ({
+    name,
+    type: 'unknown',
+    default: '',
+    required: false,
+    description: '动态插槽名（工具链提取不到，按源码里的模板字符串补）',
+    kind: 'slot',
+  }))
+}
 function exposedFromSource(file) {
   const source = readFileSync(resolve(root, file), 'utf8')
   const block = /defineExpose[^(]*\(\s*\{([\s\S]*?)\}\s*\)/.exec(source)
@@ -108,7 +135,7 @@ for (const [name, file] of Object.entries(components)) {
     output[name] = {
       props: pick(meta.props, 'prop'),
       events: pick(meta.events, 'event'),
-      slots: pick(meta.slots, 'slot'),
+      slots: [...pick(meta.slots, 'slot'), ...dynamicSlotsFromSource(file)],
       exposed: (() => {
         const list = pick(meta.exposed, 'exposed')
         return list.length ? list : exposedFromSource(file)
