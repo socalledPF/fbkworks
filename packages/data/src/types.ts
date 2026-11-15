@@ -125,6 +125,14 @@ export interface CreatePageRequestConfig<TRaw, T> {
    * ```
    */
   onError?: (event: PageRequestErrorEvent) => void
+  /**
+   * 是否把**完整响应体**放进错误事件的 raw。
+   *
+   * 默认 false：事件通常直接进监控，而整包响应可能包含大量业务数据（含 PII）。
+   * 打开后 raw 是原始对象，可读 raw.code 这类结构化字段做分支处理；
+   * 无论开关如何，rawPreview（截断字符串）始终可用。
+   */
+  includeRaw?: boolean
 }
 
 /** 数据层错误事件。与 adapter-core 的 FbkErrorEvent 形状对齐，但不依赖它 */
@@ -134,8 +142,20 @@ export interface PageRequestErrorEvent {
   /** 业务标识：通常是接口名，由 feature 选项提供 */
   feature?: string
   message: string
-  /** 原始响应（截断后）。网络层错误时为 undefined */
+  /**
+   * 原始响应。**默认不填充**（`includeRaw: true` 时才给），网络层错误时也是 undefined。
+   *
+   * 为什么不默认给：这个事件的设计用途是直接进监控（见下面 onError 的示例），
+   * 而 raw 是整个 HTTP 响应体 —— 列表接口一页 1000 行是常态，带上就是整页业务数据（含 PII）。
+   * 需要读后端错误码做分支处理时显式打开 includeRaw。
+   */
   raw?: unknown
+  /**
+   * 原始响应的**截断预览**（字符串，约 500 字符）。永远有值（网络层错误时除外）。
+   *
+   * 这条是给日志用的：默认路径下 raw 不填充，想看到「响应长什么样」就看它。
+   */
+  rawPreview?: string
   /** 原始异常（fetch 抛错时） */
   cause?: unknown
   /** 本次请求的参数快照（用于复现） */

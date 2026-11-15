@@ -1,3 +1,4 @@
+import { previewRaw } from './error'
 import { warnOnce } from './warn'
 import { FbkDataError } from './error'
 import { extractRows, extractTotal } from './path'
@@ -64,6 +65,10 @@ export function createPageRequest<TRaw, T = unknown>(
     params: query.params,
   })
 
+  /* 完整响应体只在显式开启时才进事件（默认不收集：事件通常直接进监控，
+     整包业务数据带着 PII 不该是默认行为）。rawPreview 无论如何都有。 */
+  const includeRaw = config.includeRaw === true
+
   return async (query) => {
     let raw: TRaw
     try {
@@ -122,7 +127,8 @@ export function createPageRequest<TRaw, T = unknown>(
           feature,
           message: wrapped.message,
           cause: err,
-          raw,
+          raw: includeRaw ? raw : undefined,
+          rawPreview: previewRaw(raw),
           context: snapshot(query),
         })
         throw wrapped
@@ -139,7 +145,8 @@ export function createPageRequest<TRaw, T = unknown>(
           source: 'request',
           feature,
           message: text,
-          raw,
+          raw: includeRaw ? raw : undefined,
+          rawPreview: previewRaw(raw),
           context: snapshot(query),
         })
         throw new FbkDataError('business', text, raw)
@@ -172,7 +179,8 @@ export function createPageRequest<TRaw, T = unknown>(
         source: 'request',
         feature,
         message: err instanceof Error ? err.message : String(err),
-        raw,
+        raw: includeRaw ? raw : undefined,
+        rawPreview: previewRaw(raw),
         cause: err,
         context: snapshot(query),
       })

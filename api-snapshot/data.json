@@ -15,7 +15,7 @@
     },
     "CreatePageRequestConfig": {
       "kind": "interface",
-      "text": "export interface CreatePageRequestConfig<TRaw, T> {\n    fetch: (query: PageQuery) => Promise<TRaw>;\n    rows: PathSpec<TRaw>;\n    total?: PathSpec<TRaw>;\n    mapRow?: (raw: unknown, index: number) => T;\n    isSuccess?: (raw: TRaw) => boolean;\n    errorMessage?: (raw: TRaw) => string;\n    scope?: DataScope;\n    feature?: string;\n    onError?: (event: PageRequestErrorEvent) => void;\n}"
+      "text": "export interface CreatePageRequestConfig<TRaw, T> {\n    fetch: (query: PageQuery) => Promise<TRaw>;\n    rows: PathSpec<TRaw>;\n    total?: PathSpec<TRaw>;\n    mapRow?: (raw: unknown, index: number) => T;\n    isSuccess?: (raw: TRaw) => boolean;\n    errorMessage?: (raw: TRaw) => string;\n    scope?: DataScope;\n    feature?: string;\n    onError?: (event: PageRequestErrorEvent) => void;\n    includeRaw?: boolean;\n}"
     },
     "DataScope": {
       "kind": "type",

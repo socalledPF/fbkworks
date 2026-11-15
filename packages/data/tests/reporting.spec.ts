@@ -76,7 +76,7 @@ describe('网络层错误', () => {
 })
 
 describe('业务码失败', () => {
-  it('上报并带上原始响应', async () => {
+  it('默认不把完整响应放进事件，但给截断预览', async () => {
     const { events, onError } = collect()
     const request = createPageRequest<any, unknown>({
       fetch: async () => ({ code: 401, msg: '登录已过期', rows: [] }),
@@ -90,7 +90,10 @@ describe('业务码失败', () => {
     await expect(request(query)).rejects.toThrow('登录已过期')
     expect(events).toHaveLength(1)
     expect(events[0]!.message).toBe('登录已过期')
-    expect(events[0]!.raw).toMatchObject({ code: 401 })
+    /* 默认不收集完整响应：事件通常是直接进监控的，整包业务数据带着 PII 不该是默认行为。
+       想看响应长相用 rawPreview（截断字符串）。 */
+    expect(events[0]!.raw, '默认把完整响应塞进了事件').toBeUndefined()
+    expect(events[0]!.rawPreview).toContain('401')
   })
 })
 
@@ -107,8 +110,10 @@ describe('路径解析失败', () => {
     await expect(request(query)).rejects.toThrow()
     expect(events).toHaveLength(1)
     expect(events[0]!.message).toContain('rows')
-    // 路径错误也要带 raw，否则排查要重新抓包
-    expect(events[0]!.raw).toEqual({ data: [] })
+    /* 路径错误要能看到响应，否则排查要重新抓包 —— 但默认只给截断预览，
+       完整对象要显式 includeRaw（见 reporting-raw.spec.ts）。 */
+    expect(events[0]!.raw).toBeUndefined()
+    expect(events[0]!.rawPreview).toContain('data')
   })
 })
 
