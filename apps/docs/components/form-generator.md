@@ -29,14 +29,17 @@ interface FormSchema<T> {
 ```ts
 interface FbkRule {
   required?: boolean
-  type?: 'string' | 'number' | 'boolean' | 'array' | 'email' | 'url'
+  type?: 'string' | 'number' | 'boolean' | 'array' | 'email' | 'url' | 'date'
   min?: number
   max?: number
   len?: number
   pattern?: RegExp
   message?: string
-  trigger?: 'blur' | 'change'
-  validator?: (value: unknown) => boolean | Promise<boolean>
+  trigger?: 'blur' | 'change' | 'submit'
+  /* 返回 true / undefined 表示通过；返回**字符串**表示错误信息；
+     返回 false 会被当成 new Error(false) —— 用户看到的就是文案 "false" */
+  validator?: (value: unknown, model: Record<string, any>) =>
+    true | string | void | Promise<true | string | void>
 }
 ```
 

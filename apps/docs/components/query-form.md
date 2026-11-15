@@ -25,7 +25,7 @@ interface QueryField {
   span?: number
   hidden?: boolean
   /** type='custom' 时的渲染函数 */
-  render?: (ctx: { value: unknown; onChange: (v: unknown) => void; field: QueryField }) => VNodeChild
+  render?: (ctx: { value: unknown; values: Record<string, any>; setValue: (v: unknown) => void }) => VNodeChild
 }
 ```
 
@@ -63,8 +63,9 @@ interface QueryField {
 
 ```vue
 <FbkQueryForm :fields="fields">
-  <template #field-owner="{ value, onChange }">
-    <UserPicker :model-value="value" @update:model-value="onChange" />
+  <!-- 插槽参数是 value / setValue / values —— **没有 onChange**（写错的话选完值不回写，且不报错） -->
+  <template #field-owner="{ value, setValue }">
+    <UserPicker :model-value="value" @update:model-value="setValue" />
   </template>
 </FbkQueryForm>
 ```

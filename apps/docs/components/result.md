@@ -38,10 +38,12 @@
 | `actions` | 操作区（按钮组） |
 
 ```vue
+<!-- 本库不提供 Button 组件（见 docs/design 的「不用 <FbkButton>」决定），
+     示例用原生按钮；实际项目里换成你们自己的按钮即可 -->
 <FbkResult status="404">
   <template #actions>
-    <FbkButton variant="primary" @click="$router.push('/')">返回首页</FbkButton>
-    <FbkButton @click="reload">重试</FbkButton>
+    <button type="button" class="demo-btn demo-btn--primary" @click="$router.push('/')">返回首页</button>
+    <button type="button" class="demo-btn" @click="reload">重试</button>
   </template>
 </FbkResult>
 ```
