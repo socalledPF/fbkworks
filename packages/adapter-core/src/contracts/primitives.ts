@@ -192,6 +192,16 @@ export interface FormProps {
 export interface FormExpose {
   validate: () => Promise<true>
   validateField?: (prop: string | string[]) => Promise<true>
+  /**
+   * **重置字段**：清值 + 清校验。
+   *
+   * 三端的实现能力不同，这一点必须知道：
+   *   · element-plus：原生支持（ElForm.resetFields）
+   *   · naive-ui / vant：Form 拿不到「初始值」，只能清校验 ——
+   *     调用时会 warnOnce 提示，清值需要业务方自己重置 v-model
+   * 只想清红框、不动输入值的场景请用 clearValidate。
+   */
   resetFields: () => void
+  /** **只清校验状态**（不清值）。三端语义一致。 */
   clearValidate: (props?: string | string[]) => void
 }

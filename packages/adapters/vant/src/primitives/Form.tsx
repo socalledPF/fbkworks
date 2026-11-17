@@ -11,6 +11,7 @@ import {
 } from 'vue'
 import { Form as VanForm, Field } from 'vant'
 import type { FieldRule } from 'vant'
+import { warnOnce } from '@fbkworks/shared'
 import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
 
 /**
@@ -107,7 +108,14 @@ export const Form = defineComponent({
         }
         return true as const
       },
-      resetFields: () => formRef.value?.resetValidation(),
+      /* 同 naive-ui：van-form 拿不到初始值，只能清校验 —— 显式告警而不是静默。 */
+      resetFields: () => {
+        warnOnce(
+          'form.resetFields',
+          'resetFields 在 vant 上只能清校验：Form 拿不到初始值，清值请业务方重置 v-model；只清校验请用 clearValidate',
+        )
+        formRef.value?.resetValidation()
+      },
       clearValidate: () => formRef.value?.resetValidation(),
     })
 

@@ -1,6 +1,7 @@
 import { computed, defineComponent, ref, type PropType } from 'vue'
 import { NForm, NFormItem, type FormInst, type FormRules } from 'naive-ui'
 import type { FbkRule, FormProps, Size } from '@fbkworks/adapter-core'
+import { warnOnce } from '@fbkworks/shared'
 
 function toNaiveRules(rules: FbkRule[] | undefined): FormRules | undefined {
   if (!rules?.length) return undefined
@@ -59,7 +60,16 @@ export const Form = defineComponent({
         await formRef.value?.validate(undefined, (rule) => props_.includes(rule.key as string))
         return true as const
       },
-      resetFields: () => formRef.value?.restoreValidation(),
+      /* 契约里 resetFields = 清值 + 清校验，但 NForm 拿不到初始值，只能清校验。
+         以前这里**静默**只清校验 —— 用户点「重置」看到输入值原样保留，以为按钮坏了。
+         现在显式告警，并且把「只清校验」的正确入口 clearValidate 摆在旁边。 */
+      resetFields: () => {
+        warnOnce(
+          'form.resetFields',
+          'resetFields 在 naive-ui 上只能清校验：Form 拿不到初始值，清值请业务方重置 v-model；只清校验请用 clearValidate',
+        )
+        formRef.value?.restoreValidation()
+      },
       clearValidate: () => formRef.value?.restoreValidation(),
     })
 

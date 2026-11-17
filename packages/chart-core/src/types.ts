@@ -13,7 +13,15 @@ import type { EChartsOption } from 'echarts'
 export type FbkChartOption = Record<string, any>
 
 /** 图表类型（按需注册用） */
-export type FbkChartType = 'line' | 'bar' | 'pie' | 'gauge' | 'scatter' | 'radar' | 'funnel' | 'map'
+/**
+ * 可用的图表类型。
+ *
+ * 这里**必须**与 register.ts 的 CHART_MAP 一一对应 —— 类型比映射表宽的那种情况
+ * （原来多一个 'map'）意味着「类型上允许、注册时被静默丢弃」：
+ * echarts 的 map 还需要业务方提供 GeoJSON（registerMap），本库没有这个入口，
+ * 与其留一个假装支持的联合成员，不如删掉。
+ */
+export type FbkChartType = 'line' | 'bar' | 'pie' | 'gauge' | 'scatter' | 'radar' | 'funnel'
 
 /** ECharts 组件（按需注册用） */
 export type FbkChartComponent =

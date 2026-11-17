@@ -25,9 +25,11 @@ describe('registerFbkCharts', () => {
     resetWarnCache()
   })
 
+  /* map 已从 FbkChartType 删除（本库不支持地图）。这些用例要表达的是
+     「调用方绕过类型传了未登记的类型」——用 as any 显式越界，而不是让联合类型留一个假成员。 */
   it('未登记的类型给出告警，且同样请求只提示一次', () => {
-    registerFbkCharts({ charts: ['map'], components: [] })
-    registerFbkCharts({ charts: ['map'], components: [] })
+    registerFbkCharts({ charts: ['map' as any], components: [] })
+    registerFbkCharts({ charts: ['map' as any], components: [] })
 
     const mapWarns = warned().filter((m) => m.includes('map'))
     expect(mapWarns, JSON.stringify(warned())).toHaveLength(1)
@@ -42,26 +44,26 @@ describe('registerFbkCharts', () => {
   })
 
   it('请求的项一个都没实现时不算注册成功', () => {
-    registerFbkCharts({ charts: ['map'], components: ['geo', 'toolbox'] })
+    registerFbkCharts({ charts: ['map' as any], components: ['geo', 'toolbox'] })
     expect(isFbkChartsRegistered()).toBe(false)
   })
 
   it('未登记的项不会被标记为已注册，下次调用仍会重试', () => {
     const mapWarns = () => warned().filter((m) => m.includes('"map"')).length
 
-    registerFbkCharts({ charts: ['map'], components: [] })
+    registerFbkCharts({ charts: ['map' as any], components: [] })
     const first = mapWarns()
 
     // 清掉去重缓存后再调一次：若被误标为已注册，这里会走早退分支、不再告警
     resetWarnCache()
-    registerFbkCharts({ charts: ['map'], components: [] })
+    registerFbkCharts({ charts: ['map' as any], components: [] })
 
     expect(first).toBe(1)
     expect(mapWarns()).toBe(2)
   })
 
   it('合法类型照常注册，缺失项不影响其它项', () => {
-    registerFbkCharts({ charts: ['line', 'map'], components: ['grid'] })
+    registerFbkCharts({ charts: ['line', 'map' as any], components: ['grid'] })
     expect(isFbkChartsRegistered()).toBe(true)
     expect(warned().join('\n')).toContain('map')
   })

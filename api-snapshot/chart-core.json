@@ -38,7 +38,7 @@
     },
     "FbkChartType": {
       "kind": "type",
-      "text": "export type FbkChartType = 'line' | 'bar' | 'pie' | 'gauge' | 'scatter' | 'radar' | 'funnel' | 'map';"
+      "text": "export type FbkChartType = 'line' | 'bar' | 'pie' | 'gauge' | 'scatter' | 'radar' | 'funnel';"
     },
     "RegisterChartsOptions": {
       "kind": "interface",
