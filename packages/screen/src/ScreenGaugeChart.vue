@@ -4,7 +4,7 @@ import {
   FbkChart,
   seriesColor,
 } from '@fbkworks/chart-core'
-import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE, SCREEN_AXIS_LINE } from './chart-colors'
+import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE } from './chart-colors'
 import type { ScreenGaugeChartProps } from './types'
 
 /**

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
 import { FbkChart, seriesColor } from '@fbkworks/chart-core'
-import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE, SCREEN_AXIS_LINE } from './chart-colors'
+import { SCREEN_AXIS_LABEL } from './chart-colors'
 import type { ScreenPieChartProps } from './types'
 
 /**
