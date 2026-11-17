@@ -42,8 +42,7 @@ export interface FormModalProps<T extends Record<string, any> = Record<string, a
   closeOnClickModal?: boolean
   /** 提交成功后是否自动关闭，默认 true */
   closeOnSuccess?: boolean
-  /** 打开时是否自动聚焦第一个可输入项，默认 true */
-  autoFocus?: boolean
+  /* autoFocus 已删除：从来没有实现过聚焦逻辑，留着等于承诺一个不存在的行为。 */
   submitText?: string
   cancelText?: string
   /** 提交中是否禁止关闭（防止半途关掉导致状态错乱），默认 true */

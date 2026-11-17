@@ -99,7 +99,7 @@
     },
     "FormField": {
       "kind": "interface",
-      "text": "export interface FormField<V = any> extends Omit<QueryField<V>, 'type'> {\n    type: FormFieldType;\n    required?: boolean;\n    disabled?: boolean | ((model: Record<string, any>) => boolean);\n    help?: string;\n    dependencies?: string[];\n}"
+      "text": "export interface FormField<V = any> extends Omit<QueryField<V>, 'type'> {\n    type: FormFieldType;\n    required?: boolean;\n    disabled?: boolean | ((model: Record<string, any>) => boolean);\n    help?: string;\n}"
     },
     "FormFieldType": {
       "kind": "type",
@@ -127,7 +127,7 @@
     },
     "FormModalProps": {
       "kind": "interface",
-      "text": "export interface FormModalProps<T extends Record<string, any> = Record<string, any>> {\n    show?: boolean;\n    title?: string;\n    mode?: FormModalMode;\n    schema: FormSchema<T>;\n    initialValues?: Partial<T>;\n    defaultValues?: Partial<T>;\n    submit: (values: Record<string, any>, mode: FormModalMode) => Promise<void | boolean> | void | boolean;\n    width?: string | number;\n    placement?: 'center' | 'bottom';\n    closeOnClickModal?: boolean;\n    closeOnSuccess?: boolean;\n    autoFocus?: boolean;\n    submitText?: string;\n    cancelText?: string;\n    maskClosableWhileSubmitting?: boolean;\n}"
+      "text": "export interface FormModalProps<T extends Record<string, any> = Record<string, any>> {\n    show?: boolean;\n    title?: string;\n    mode?: FormModalMode;\n    schema: FormSchema<T>;\n    initialValues?: Partial<T>;\n    defaultValues?: Partial<T>;\n    submit: (values: Record<string, any>, mode: FormModalMode) => Promise<void | boolean> | void | boolean;\n    width?: string | number;\n    placement?: 'center' | 'bottom';\n    closeOnClickModal?: boolean;\n    closeOnSuccess?: boolean;\n    submitText?: string;\n    cancelText?: string;\n    maskClosableWhileSubmitting?: boolean;\n}"
     },
     "FormSchema": {
       "kind": "interface",
@@ -143,7 +143,7 @@
     },
     "ProTableAction": {
       "kind": "interface",
-      "text": "export interface ProTableAction<T = any> {\n    key: string;\n    text: string;\n    status?: Status;\n    variant?: 'default' | 'primary' | 'text' | 'link';\n    icon?: string;\n    confirm?: string;\n    visible?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    disabled?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    onClick?: (ctx: ProTableActionContext<T>) => void;\n}"
+      "text": "export interface ProTableAction<T = any> {\n    key: string;\n    text: string;\n    status?: Status;\n    variant?: 'default' | 'primary' | 'text' | 'link';\n    confirm?: string;\n    visible?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    disabled?: boolean | ((ctx: ProTableActionContext<T>) => boolean);\n    onClick?: (ctx: ProTableActionContext<T>) => void;\n}"
     },
     "ProTableActionContext": {
       "kind": "interface",
@@ -151,7 +151,7 @@
     },
     "ProTableColumn": {
       "kind": "interface",
-      "text": "export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<T> {\n    valueType?: ValueType;\n    valueEnum?: Record<string | number, ValueEnumItem>;\n    hideInTable?: boolean;\n    hideInCard?: boolean;\n    search?: boolean;\n    tooltip?: string;\n    copyable?: boolean;\n    actions?: ProTableAction<T>[];\n    max?: number;\n}"
+      "text": "export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<T> {\n    valueType?: ValueType;\n    valueEnum?: Record<string | number, ValueEnumItem>;\n    hideInTable?: boolean;\n    search?: boolean;\n    tooltip?: string;\n    copyable?: boolean;\n    actions?: ProTableAction<T>[];\n    max?: number;\n}"
     },
     "ProTableExpose": {
       "kind": "interface",

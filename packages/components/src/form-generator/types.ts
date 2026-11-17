@@ -23,8 +23,8 @@ export interface FormField<V = any> extends Omit<QueryField<V>, 'type'> {
   required?: boolean
   disabled?: boolean | ((model: Record<string, any>) => boolean)
   help?: string
-  /** 依赖字段：值变化时重新计算 disabled/hidden */
-  dependencies?: string[]
+  /* dependencies 已删除：全表本来就会重算 disabled/hidden，这个字段从不被读取，
+     留着会让人以为「不声明依赖就不会重算」。 */
 }
 
 export interface FormGroup {

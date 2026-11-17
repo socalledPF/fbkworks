@@ -14,6 +14,9 @@ export const Pagination = defineComponent({
        不显式给默认值的话，所有没传 showTotal 的分页器都会静默丢掉总数。 */
     showTotal: { type: Boolean, default: true },
     showJumper: Boolean,
+    /* mode 是契约里的字段，但 element-plus 只有分页形态（没有无限滚动）——
+       声明它只是为了让 Vue 消费掉，否则会经 {...attrs} 落成 <div mode="pages"> 这种非法属性。 */
+    mode: { type: String as PropType<PaginationProps['mode']>, default: undefined },
     size: { type: String as PropType<PaginationProps['size']>, default: 'md' },
     disabled: Boolean,
   },

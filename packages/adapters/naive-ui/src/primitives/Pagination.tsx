@@ -13,6 +13,8 @@ export const Pagination = defineComponent({
     pageSizes: { type: Array as PropType<number[]>, default: () => [10, 20, 50, 100] },
     showTotal: Boolean,
     showJumper: Boolean,
+    /* 同 element-plus：mode 在 naive-ui 上没有对应能力，声明只为消费掉它。 */
+    mode: { type: String as PropType<PaginationProps['mode']>, default: undefined },
     size: { type: String as PropType<PaginationProps['size']>, default: 'md' },
     disabled: Boolean,
   },

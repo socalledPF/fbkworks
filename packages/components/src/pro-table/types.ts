@@ -56,7 +56,7 @@ export interface ProTableAction<T = any> {
   status?: Status
   /** text 变体渲染成链接样式，用于「查看」这类次要操作 */
   variant?: 'default' | 'primary' | 'text' | 'link'
-  icon?: string
+  /* icon 已删除：value-renderer 的按钮只渲染 text，这个字段从来没有被读取过。 */
   /** 危险操作二次确认文案；不传则不确认 */
   confirm?: string
   visible?: boolean | ((ctx: ProTableActionContext<T>) => boolean)
@@ -68,7 +68,8 @@ export interface ProTableColumn<T = Record<string, any>> extends DataGridColumn<
   valueType?: ValueType
   valueEnum?: Record<string | number, ValueEnumItem>
   hideInTable?: boolean
-  hideInCard?: boolean
+  /* hideInCard 已删除：卡片模式实际看的是 DataGridColumn.mobile.hidden。
+     两套「隐藏」并存只会让人写错那个不生效的。 */
   search?: boolean
   /** 悬停时以原生 tooltip 展示的说明。与 `render` 并存时，说明包在渲染结果外面。 */
   tooltip?: string
