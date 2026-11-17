@@ -91,7 +91,9 @@ with sync_playwright() as p:
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
-        goto_demo(page, "screen/basic")
+        # 大屏是暗底场景：颜色固定取 cyber 的值，**必须在 cyber 下验收** ——
+        # 之前一直用默认的 light 主题跑，于是「浅底大屏 + 3.66:1 的刻度」能一路绿着。
+        goto_demo(page, "screen/basic", theme="cyber")
 
         info = page.evaluate(
             """

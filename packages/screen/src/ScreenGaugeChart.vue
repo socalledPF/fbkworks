@@ -2,10 +2,9 @@
 import { computed, useAttrs } from 'vue'
 import {
   FbkChart,
-  CHART_AXIS_LABEL,
-  CHART_SPLIT_LINE,
   seriesColor,
 } from '@fbkworks/chart-core'
+import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE, SCREEN_AXIS_LINE } from './chart-colors'
 import type { ScreenGaugeChartProps } from './types'
 
 /**
@@ -53,13 +52,13 @@ const option = computed(() => ({
       axisLine: {
         lineStyle: {
           width: 10,
-          color: [[1, CHART_SPLIT_LINE]],
+          color: [[1, SCREEN_SPLIT_LINE]],
         },
       },
       axisTick: { show: false },
       splitLine: { show: false },
       axisLabel: {
-        color: CHART_AXIS_LABEL,
+        color: SCREEN_AXIS_LABEL,
         fontSize: 11,
         // 往内收，避免与 detail/title 抢位置
         distance: 6,
@@ -81,7 +80,7 @@ const option = computed(() => ({
       title: {
         show: Boolean(props.label),
         offsetCenter: [0, '72%'],
-        color: CHART_AXIS_LABEL,
+        color: SCREEN_AXIS_LABEL,
         fontSize: 13,
       },
       detail: {

@@ -2,13 +2,11 @@
 import { computed, useAttrs } from 'vue'
 import {
   FbkChart,
-  CHART_AXIS_LABEL,
-  CHART_AXIS_LINE,
-  CHART_SPLIT_LINE,
   barRadius,
   seriesColor,
   stackedBarRadius,
 } from '@fbkworks/chart-core'
+import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE, SCREEN_AXIS_LINE } from './chart-colors'
 import type { ScreenBarChartProps } from './types'
 
 /**
@@ -42,15 +40,15 @@ const option = computed(() => ({
   xAxis: {
     type: 'category',
     data: props.categories,
-    axisLine: { lineStyle: { color: CHART_AXIS_LINE } },
-    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
+    axisLine: { lineStyle: { color: SCREEN_AXIS_LINE } },
+    axisLabel: { color: SCREEN_AXIS_LABEL, fontSize: 14 },
     axisTick: { show: false },
   },
   yAxis: {
     type: 'value',
     axisLine: { show: false },
-    axisLabel: { color: CHART_AXIS_LABEL, fontSize: 14 },
-    splitLine: { lineStyle: { color: CHART_SPLIT_LINE, type: 'dashed' } },
+    axisLabel: { color: SCREEN_AXIS_LABEL, fontSize: 14 },
+    splitLine: { lineStyle: { color: SCREEN_SPLIT_LINE, type: 'dashed' } },
   },
   series: props.series.map((s, i) => {
     const color = seriesColor(i, s.color)

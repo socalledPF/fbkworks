@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import { FbkChart, CHART_AXIS_LABEL, seriesColor } from '@fbkworks/chart-core'
+import { FbkChart, seriesColor } from '@fbkworks/chart-core'
+import { SCREEN_AXIS_LABEL, SCREEN_SPLIT_LINE, SCREEN_AXIS_LINE } from './chart-colors'
 import type { ScreenPieChartProps } from './types'
 
 /**
@@ -36,7 +37,7 @@ const option = computed(() => ({
     icon: 'circle',
     itemWidth: 9,
     itemHeight: 9,
-    textStyle: { color: CHART_AXIS_LABEL, fontSize: 14 },
+    textStyle: { color: SCREEN_AXIS_LABEL, fontSize: 14 },
   },
   series: [
     {
