@@ -1,0 +1,85 @@
+{
+  "series": [
+    {
+      "type": "gauge",
+      "min": 0,
+      "max": 100,
+      "radius": "88%",
+      "center": [
+        "50%",
+        "58%"
+      ],
+      "progress": {
+        "show": true,
+        "width": 10,
+        "itemStyle": {
+          "color": "var(--fbk-chart-1)",
+          "shadowColor": "var(--fbk-chart-1)",
+          "shadowBlur": 10
+        }
+      },
+      "axisLine": {
+        "lineStyle": {
+          "width": 10,
+          "color": [
+            [
+              1,
+              "#142433"
+            ]
+          ]
+        }
+      },
+      "axisTick": {
+        "show": false
+      },
+      "splitLine": {
+        "show": false
+      },
+      "axisLabel": {
+        "color": "#94b8c4",
+        "fontSize": 11,
+        "distance": 6
+      },
+      "pointer": {
+        "width": 4,
+        "length": "62%",
+        "itemStyle": {
+          "color": "var(--fbk-chart-1)"
+        }
+      },
+      "anchor": {
+        "show": true,
+        "size": 10,
+        "itemStyle": {
+          "color": "var(--fbk-chart-1)"
+        }
+      },
+      "title": {
+        "show": true,
+        "offsetCenter": [
+          0,
+          "72%"
+        ],
+        "color": "#94b8c4",
+        "fontSize": 13
+      },
+      "detail": {
+        "valueAnimation": true,
+        "offsetCenter": [
+          0,
+          "38%"
+        ],
+        "fontSize": 24,
+        "fontWeight": 600,
+        "color": "var(--fbk-color-text)",
+        "formatter": "{value}%"
+      },
+      "data": [
+        {
+          "value": 76.4,
+          "name": "转化率"
+        }
+      ]
+    }
+  ]
+}
