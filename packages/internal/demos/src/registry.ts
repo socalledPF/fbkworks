@@ -1,7 +1,7 @@
 import { defineAsyncComponent, type Component } from 'vue'
 
 /** Demo 分组。侧边栏按这个顺序渲染 */
-export const DEMO_GROUPS = ['表格', '表单', '数据展示', '反馈', '数据看板', '可视化大屏', '评审'] as const
+export const DEMO_GROUPS = ['表格'表单'数据展示'反馈'数据看板'可视化大屏] as const
 
 export type DemoGroup = (typeof DEMO_GROUPS)[number]
 
@@ -19,11 +19,6 @@ export interface DemoEntry {
  * 同一份 .vue 同时被两边编译，从机制上消除“文档示例过期”。
  */
 export const demos: Record<string, DemoEntry> = {
-  'review/bugs': {
-    title: '评审问题陈列（临时）',
-    group: '评审',
-    description: '每条已核实的发现在页面上的直观表现，看完可删。',
-    component: defineAsyncComponent(() => import('./review-bugs.vue')),
   },
   'pro-table/basic': {
     title: '基础表格',
