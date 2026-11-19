@@ -103,7 +103,8 @@ export interface RadioProps<V = string | number> {
 
 export interface SpinProps {
   loading?: boolean
-  size?: Size
+  /* size 已删除：三个适配器的 Spin 都没有 size prop，传了只会经 {...attrs}
+     漏成 <div size="lg"> 这种非法属性（与 loadMore/finished 同一类问题）。 */
   description?: string
 }
 

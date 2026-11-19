@@ -210,7 +210,7 @@
     },
     "SpinProps": {
       "kind": "interface",
-      "text": "interface SpinProps {\n    loading?: boolean;\n    size?: Size;\n    description?: string;\n}"
+      "text": "interface SpinProps {\n    loading?: boolean;\n    description?: string;\n}"
     },
     "Status": {
       "kind": "type",

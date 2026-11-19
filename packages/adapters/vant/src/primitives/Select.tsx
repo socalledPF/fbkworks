@@ -64,8 +64,14 @@ export const Select = defineComponent({
           isLink
           modelValue={selectedLabels.value}
           placeholder={props.placeholder ?? '请选择'}
-          disabled={props.disabled}
-          onClick={open}
+          /* loading 期间同样不可交互：element-plus / naive-ui 都是 disabled={disabled || loading}，
+             以前 vant 只认 disabled，于是「加载中还能拉开一个空列表再选」。
+             另外把 loading 传给 Field，vant 会在右侧显示 loading 图标。 */
+          disabled={props.disabled || props.loading}
+          onClick={() => {
+            if (props.disabled || props.loading) return
+            open()
+          }}
         />
         <Popup v-model:show={show.value} position="bottom" round teleport="body">
           {props.multiple ? (
