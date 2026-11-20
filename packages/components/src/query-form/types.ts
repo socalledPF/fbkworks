@@ -30,7 +30,7 @@ export interface QueryField<V = any> {
   placeholder?: string
   options?: SelectOption[] | SelectOptionsResolver
   defaultValue?: V
-  span?: number
+  /* span 已删除，理由见 adapter-core 的 FormItemProps：它从来没有被实现过。 */
   hidden?: boolean | ((values: Record<string, any>) => boolean)
   rules?: FbkRule[]
   uiProps?: Record<string, any>

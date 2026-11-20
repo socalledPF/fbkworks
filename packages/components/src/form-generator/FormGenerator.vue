@@ -274,7 +274,6 @@ defineExpose<FormGeneratorExpose>({
             :required="field.required"
             :rules="rulesOf(field.name)"
             :help="field.help"
-            :span="field.span"
           >
             <slot v-if="slots[`field-${field.name}`]" :name="`field-${field.name}`" :value="values[field.name]" :set-value="(v: any) => setValue(field.name, v)" :values="values" />
             <FieldControl v-else :field="field" />

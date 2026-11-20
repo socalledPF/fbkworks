@@ -134,7 +134,7 @@
     },
     "FormItemProps": {
       "kind": "interface",
-      "text": "interface FormItemProps {\n    label?: string;\n    prop?: string;\n    required?: boolean;\n    rules?: FbkRule[];\n    help?: string;\n    labelWidth?: string | number;\n    span?: number;\n}"
+      "text": "interface FormItemProps {\n    label?: string;\n    prop?: string;\n    required?: boolean;\n    rules?: FbkRule[];\n    help?: string;\n    labelWidth?: string | number;\n}"
     },
     "FormProps": {
       "kind": "interface",

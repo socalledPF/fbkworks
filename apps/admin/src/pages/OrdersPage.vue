@@ -147,8 +147,8 @@ const formSchema: FormSchema<OrderRow> = {
       required: true,
       options: Object.entries(ORDER_STATUS_MAP).map(([value, v]) => ({ label: v.text, value })),
     },
-    { name: 'address', label: '收货地址', type: 'textarea', span: 2 },
-    { name: 'remark', label: '备注', type: 'textarea', span: 2 },
+    { name: 'address', label: '收货地址', type: 'textarea' },
+    { name: 'remark', label: '备注', type: 'textarea' },
   ],
   labelWidth: 90,
 }

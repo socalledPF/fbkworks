@@ -194,7 +194,6 @@ const formProps = computed(() => ({
           :label="field.label"
           :prop="field.name"
           :rules="field.rules"
-          :span="field.span"
         >
           <slot v-if="slots[`field-${field.name}`]" :name="`field-${field.name}`" :value="values[field.name]" :set-value="(v: any) => setValue(field.name, v)" :values="values" />
           <div v-else class="fbk-query-form__control">

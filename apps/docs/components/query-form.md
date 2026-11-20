@@ -22,7 +22,6 @@ interface QueryField {
   placeholder?: string
   options?: SelectOption[]
   defaultValue?: unknown
-  span?: number
   hidden?: boolean
   /** type='custom' 时的渲染函数 */
   render?: (ctx: { value: unknown; values: Record<string, any>; setValue: (v: unknown) => void }) => VNodeChild

@@ -28,8 +28,8 @@ const model = ref<Record<string, any>>({
 })
 
 const settingsFields: FormField[] = [
-  { name: 'siteName', label: '站点名称', type: 'input', required: true, span: 2 },
-  { name: 'siteDesc', label: '站点描述', type: 'textarea', span: 2 },
+  { name: 'siteName', label: '站点名称', type: 'input', required: true },
+  { name: 'siteDesc', label: '站点描述', type: 'textarea' },
   { name: 'contactEmail', label: '联系邮箱', type: 'input', required: true },
   { name: 'dateFormat', label: '日期格式', type: 'select', options: [
     { label: '2026-10-22', value: 'YYYY-MM-DD' },

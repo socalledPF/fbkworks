@@ -166,7 +166,9 @@ export interface FormItemProps {
   help?: string
   /** 同 FormProps.labelWidth，条目级覆盖表单级 */
   labelWidth?: string | number
-  span?: number
+  /* span 已删除：三个适配器的 FormItem 都只声明不实现（props.span 引用数为 0）。
+     「表单跨列」如果要做，正确形态是 QueryForm 层面的 columns 布局开关，
+     而不是让每个字段自己写 span —— 那样才能在移动端做响应式单列。 */
 }
 
 export interface FormProps {

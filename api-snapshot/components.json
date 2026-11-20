@@ -171,7 +171,7 @@
     },
     "QueryField": {
       "kind": "interface",
-      "text": "export interface QueryField<V = any> {\n    name: string;\n    label: string;\n    type: QueryFieldType;\n    placeholder?: string;\n    options?: SelectOption[] | SelectOptionsResolver;\n    defaultValue?: V;\n    span?: number;\n    hidden?: boolean | ((values: Record<string, any>) => boolean);\n    rules?: FbkRule[];\n    uiProps?: Record<string, any>;\n    render?: (ctx: {\n        value: V;\n        values: Record<string, any>;\n        setValue: (value: V) => void;\n    }) => VNodeChild;\n}"
+      "text": "export interface QueryField<V = any> {\n    name: string;\n    label: string;\n    type: QueryFieldType;\n    placeholder?: string;\n    options?: SelectOption[] | SelectOptionsResolver;\n    defaultValue?: V;\n    hidden?: boolean | ((values: Record<string, any>) => boolean);\n    rules?: FbkRule[];\n    uiProps?: Record<string, any>;\n    render?: (ctx: {\n        value: V;\n        values: Record<string, any>;\n        setValue: (value: V) => void;\n    }) => VNodeChild;\n}"
     },
     "QueryFieldType": {
       "kind": "type",

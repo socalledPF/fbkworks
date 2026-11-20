@@ -102,7 +102,6 @@ export const FormItem = defineComponent({
     rules: { type: Array as PropType<FbkRule[]>, default: undefined },
     help: String,
     labelWidth: { type: [String, Number] as PropType<string | number>, default: undefined },
-    span: Number,
   },
   setup(props, { slots }) {
     return () => (

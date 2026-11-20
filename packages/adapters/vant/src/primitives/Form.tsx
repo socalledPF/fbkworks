@@ -152,7 +152,6 @@ export const FormItem = defineComponent({
     rules: { type: Array as PropType<FbkRule[]>, default: undefined },
     help: String,
     labelWidth: { type: [String, Number] as PropType<string | number>, default: undefined },
-    span: Number,
   },
   setup(props, { slots }) {
     /* 表单级规则在 Form 里，通过 inject 取；条目级规则优先合并进来。
