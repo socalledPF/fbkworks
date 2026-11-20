@@ -1,5 +1,44 @@
 # @fbkworks/components
 
+## 0.8.0
+
+### Minor Changes
+
+- 418946d: ### 删掉四个从不读取的公开字段；分页的 mode 不再漏成 DOM 属性
+
+  这四个字段都是「声明了、文档写了、实现从不读取」——留着只会让人写了一个不生效的配置，
+  还以为是自己用法不对：
+
+  - `ProTableAction.icon`：按钮只渲染 `text`
+  - `ProTableColumn.hideInCard`：卡片模式实际看 `DataGridColumn.mobile.hidden`（两套「隐藏」并存）
+  - `FormField.dependencies`：全表本来就会重算，字段本身是噪音
+  - `FormModal.autoFocus`：聚焦逻辑从未实现
+
+  `PaginationProps.mode` 保留在契约里（vant 的无限滚动形态需要它），但 element-plus / naive-ui
+  现在也声明它 —— 之前没有声明，于是经 `{...attrs}` 落成 `<div mode="pages">` 这种非法属性。
+
+- 49df8d1: ### 删掉 `FormItemProps.span` / `QueryField.span`
+
+  这个字段从来没被实现过：三个适配器的 `FormItem` 都只声明不读取（`props.span` 引用数为 0），
+  `QueryForm` / `FormGenerator` 一路把它透传下去，最后什么也没发生 ——
+  而文档写着「跨列」。写 `span: 2` 的人会以为布局没生效是别的原因。
+
+  **迁移**：删掉即可，行为不变（它本来就不生效）。
+
+  「多列表单」如果要做，正确形态是 `QueryForm` 层面的 `columns` 布局开关，
+  而不是逐字段写 `span` —— 那样才能在移动端做响应式单列。
+
+  （`DescriptionsItem.span` 是详情页的另一个字段，**不受影响**。）
+
+### Patch Changes
+
+- Updated dependencies [7b204e9]
+- Updated dependencies [1850231]
+- Updated dependencies [49df8d1]
+- Updated dependencies [9dc3efb]
+  - @fbkworks/adapter-core@0.8.0
+  - @fbkworks/data@0.6.0
+
 ## 0.7.1
 
 ### Patch Changes
