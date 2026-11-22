@@ -214,6 +214,16 @@ export default tseslint.config(
               group: ['@fbkworks/resolver', '@fbkworks/demos', '@fbkworks/test-utils'],
               message: '发布包不得依赖内部工具包。',
             },
+            {
+              /* 必须写在这个规则对象里：flat config 中**后写的同名规则会整条替换前面的**，
+                 所以边界 1（files 含 packages/**）里的那组 UI 子路径 patterns 在发布包里
+                 从来没生效过 —— 实测在 packages/components 写
+                 import 'element-plus/dist/index.css' 时 eslint 0 报错。
+                 paths 按精确模块名匹配，子路径一条都不命中，因此这里必须用 patterns。 */
+              group: ['element-plus/*', 'vant/*', 'naive-ui/*'],
+              message: uiLibraryMessage,
+              allowTypeImports: false,
+            },
           ],
         },
       ],
