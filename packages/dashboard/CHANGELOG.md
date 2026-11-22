@@ -1,5 +1,12 @@
 # @fbkworks/dashboard
 
+## 0.9.0
+
+### Patch Changes
+
+- Updated dependencies [3346f18]
+  - @fbkworks/chart-core@0.9.0
+
 ## 0.8.0
 
 ### Patch Changes
