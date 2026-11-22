@@ -10,7 +10,13 @@ import { fetchUsers, toggleUser, type UserRow } from '../mock/data'
  * 用户管理。
  *
  * 与订单页的差别：这里检验**表格内的即时操作**（开关切换），
- * 不弹窗、不跳转 —— 状态变更后只更新单行，不整表刷新。
+ * 不弹窗、不跳转。
+ *
+ * 状态切换后是**整表刷新**：crudRef.refresh() → ProTable.reload()，
+ * 当前页的列表请求会重发一遍。组件库没有行级更新的能力（ProTable 只暴露
+ * reload / getData / clearSelection / setSelectedKeys），想做行级更新就得
+ * 绕过表格自持的请求结果自己改一份，反而更容易与筛选命中数、排序脱节。
+ * 代价是每切一次开关打一次列表接口 —— 这是当前组件库能力下的取舍，不是遗漏。
  */
 const crudRef = ref<any>(null)
 

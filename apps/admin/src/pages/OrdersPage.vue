@@ -14,7 +14,6 @@ import {
   ORDER_STATUS_MAP,
   saveOrder,
   type OrderRow,
-  type OrderStatus,
 } from '../mock/data'
 import { navigate } from '../router'
 
@@ -29,6 +28,15 @@ import { navigate } from '../router'
  */
 const crudRef = ref<any>(null)
 const { list: permissions } = usePermission()
+
+/* 表格当前页码。页面本来不需要它 —— 它只为「删空某页后回退」而存在。
+   见 refreshAfterDelete 的注释：CrudPage 没有暴露页码控制，
+   所以页码以受控 prop 的形式经 tableProps 喂回 ProTable。 */
+const currentPage = ref(1)
+
+function onPageChange(page: number) {
+  currentPage.value = page
+}
 
 const queryFields: QueryField[] = [
   { name: 'keyword', label: '关键词', type: 'input', placeholder: '订单号 / 客户 / 手机' },
@@ -113,8 +121,9 @@ const columns: ProTableColumn<OrderRow>[] = [
         // 无权限时整列按钮不渲染（ProTable 的 visible 支持函数）
         visible: () => hasPermission(permissions(), 'order:delete'),
         onClick: async ({ row }) => {
+          const shown = crudRef.value?.getData()?.length ?? 0
           await deleteOrders([row.id])
-          crudRef.value?.refresh()
+          refreshAfterDelete(shown - 1)
         },
       },
     ],
@@ -125,7 +134,11 @@ const columns: ProTableColumn<OrderRow>[] = [
 
 const modalVisible = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
+/** edit 模式的回填值 */
 const editing = ref<Partial<OrderRow>>({})
+/* create 模式的默认值。FormModal 只在 defaultValues 上读它 ——
+   写进 initialValues 时 create 模式拿到的是 {}，弹窗永远空白打开。 */
+const createDefaults: Partial<OrderRow> = { status: 'pending', channel: '直营', itemCount: 1 }
 
 const formSchema: FormSchema<OrderRow> = {
   fields: [
@@ -155,7 +168,6 @@ const formSchema: FormSchema<OrderRow> = {
 
 function openCreate() {
   modalMode.value = 'create'
-  editing.value = { status: 'pending' as OrderStatus, channel: '直营', itemCount: 1 }
   modalVisible.value = true
 }
 
@@ -170,13 +182,38 @@ async function onSubmit(values: Record<string, any>) {
   // 返回后 FormModal 会自己关闭（closeOnSuccess 默认 true）
 }
 
+// ---------- 删除后的刷新 ----------
+
+/**
+ * 删除成功后刷新，并把「删空一页」的页码收回来。
+ *
+ * 只调 refresh() 会停在原页：CrudPage 的 refresh 就是 ProTable.reload()，
+ * 不带 resetPage，删掉某页最后一条后用户看到的是一张空白页。
+ * CrudPage 没有暴露页码控制，所以页码走受控 prop：把 page 放进 tableProps，
+ * ProTable 的 watch(() => props.page) 会把内部页码同步过去并重发那一页。
+ *
+ * @param remainingOnPage 本页删除之后还剩几行
+ */
+function refreshAfterDelete(remainingOnPage: number) {
+  if (remainingOnPage <= 0 && currentPage.value > 1) {
+    currentPage.value -= 1
+    return
+  }
+  crudRef.value?.refresh()
+}
+
 // ---------- 批量操作 ----------
 
 async function batchDelete(keys: number[], clear: () => void) {
   if (!keys.length) return
+  /* 选中项可以跨页保留（selection.preserveOnReload），
+     所以只能数「落在本页上的那几个」，直接用 keys.length 会多算。 */
+  const keysOnPage = new Set((crudRef.value?.getData() ?? []).map((row: OrderRow) => row.id))
+  const shown = keysOnPage.size
+  const deletedHere = keys.filter((key) => keysOnPage.has(key)).length
   await deleteOrders(keys)
   clear()
-  crudRef.value?.refresh()
+  refreshAfterDelete(shown - deletedHere)
 }
 </script>
 
@@ -195,6 +232,8 @@ async function batchDelete(keys: number[], clear: () => void) {
       :request="fetchOrders"
       row-key="id"
       :selection="{ preserveOnReload: true }"
+      :table-props="{ page: currentPage }"
+      @update:page="onPageChange"
     >
       <!-- 工具栏：插槽名是 toolbar（不是 actions），参数带当前查询条件 -->
       <template #toolbar>
@@ -232,6 +271,7 @@ async function batchDelete(keys: number[], clear: () => void) {
     :title="modalMode === 'create' ? '新建订单' : '编辑订单'"
     :schema="formSchema"
     :initial-values="editing"
+    :default-values="createDefaults"
     :submit="onSubmit"
     @success="crudRef?.refresh()"
   />
