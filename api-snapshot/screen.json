@@ -65,7 +65,7 @@
     },
     "ScreenPageProps": {
       "kind": "interface",
-      "text": "export interface ScreenPageProps {\n    designWidth?: number;\n    designHeight?: number;\n    mode?: 'fit' | 'fill';\n    grid?: boolean;\n    glow?: boolean;\n    fullscreen?: boolean;\n}"
+      "text": "export interface ScreenPageProps {\n    designWidth?: number;\n    designHeight?: number;\n    mode?: 'fit' | 'fill';\n    grid?: boolean;\n    glow?: boolean;\n}"
     },
     "ScreenPanelProps": {
       "kind": "interface",

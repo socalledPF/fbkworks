@@ -18,8 +18,9 @@ export interface ScreenPageProps {
   grid?: boolean
   /** 是否显示顶部光晕，默认 true */
   glow?: boolean
-  /** 是否显示全屏按钮（需放在 ScreenHeader 里） */
-  fullscreen?: boolean
+  /* `fullscreen` 曾在这里，但 ScreenPage 只渲染一个默认插槽、从不渲染 ScreenHeader
+     （模板里零引用）—— 传了没有任何效果，也不报错。全屏按钮属于 Header，
+     请写在 `<FbkScreenHeader :fullscreen="false">` 上。 */
 }
 
 export interface ScreenHeaderProps {

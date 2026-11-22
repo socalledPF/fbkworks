@@ -134,6 +134,21 @@ describe('ScreenPage 等比缩放', () => {
   })
 })
 
+describe('ScreenPage 的公开 props 只留真正生效的', () => {
+  /**
+   * ScreenPage 只渲染一个默认插槽，从不渲染 ScreenHeader —— 它曾经声明
+   * fullscreen，模板里零引用：传了没有任何效果，也不报错。
+   * 全屏按钮属于 ScreenHeader，声明必须留在那里。
+   */
+  it('ScreenPage 不再声明 fullscreen，ScreenHeader 仍然声明', () => {
+    const pageProps = Object.keys(((FbkScreenPage as any).props ?? {}) as Record<string, unknown>)
+    // 先确认运行时 props 真的被声明了，否则下面的「不含」是在空转
+    expect(pageProps, 'ScreenPage 的 props 没有生成，这条用例失去意义').toContain('designWidth')
+    expect(pageProps).not.toContain('fullscreen')
+    expect(Object.keys((FbkScreenHeader as any).props ?? {})).toContain('fullscreen')
+  })
+})
+
 describe('ScreenPanel', () => {
   it('渲染标题', () => {
     const wrapper = mount(FbkScreenPanel, { props: { title: '区域销售' } })

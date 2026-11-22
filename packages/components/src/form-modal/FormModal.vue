@@ -27,7 +27,6 @@ const props = withDefaults(defineProps<FormModalProps<T>>(), {
   placement: 'center',
   closeOnClickModal: true,
   closeOnSuccess: true,
-  autoFocus: true,
   submitText: undefined,
   cancelText: '取消',
   maskClosableWhileSubmitting: true,
@@ -88,6 +87,10 @@ function clearOnClose() {
   // 关闭时清掉校验状态，避免下次打开带着上次的红框
   formRef.value?.resetFields?.()
   values.value = {}
+  /* 也必须清掉命令式带进来的那份值：它只在 show 发生 false→true 跳变时被消费，
+     而「已打开状态下再 openEdit 一次」和「父级否决了这次打开」都没有那次跳变。
+     留着的下一轮会盖掉 initialValues —— 与上面 pendingValues 注释里那个 bug 同症状。 */
+  pendingValues = null
 }
 
 watch(

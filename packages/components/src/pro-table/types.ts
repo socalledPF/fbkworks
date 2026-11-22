@@ -136,7 +136,12 @@ export interface ProTableProps<T extends Record<string, any> = Record<string, an
 export interface ProTableSlots {
   /** 表格上方工具栏 */
   toolbar?: (props: { selectedKeys: Key[]; reload: () => Promise<void> }) => VNodeChild
-  /** 批量操作区，仅在选中行时渲染 */
+  /**
+   * 批量操作区。渲染条件是 `selectionEnabled && 当前页有数据 && 非错误态` ——
+   * **没有选中行时也渲染**（表头「全选当前页」与已选计数就在这个容器里），
+   * 所以按钮要自己判 `selectedKeys.length`。之前这里写「仅在选中行时渲染」，
+   * 与 ProTable.vue 的 v-if 对不上。
+   */
   'bulk-actions'?: (props: { selectedKeys: Key[]; clear: () => void }) => VNodeChild
   /** 卡片模式下每张卡片的页脚，参数由适配器决定 */
   'card-footer'?: (props: any) => VNodeChild

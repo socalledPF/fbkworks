@@ -48,12 +48,20 @@ CrudPage 只负责**列表这一屏**，避免变成"万能组件"：
 
 ## 插槽
 
+下表就是 **CrudPage 转发的全部插槽**，与 `CrudPageSlots` 类型一一对应。
+两边都要有：白名单漏一个 = 传了没效果也不报错，类型漏一个 = 模板里直接报错。
+
 | 名称 | 参数 | 说明 |
 |---|---|---|
 | `toolbar` | `{ params, selectedKeys }` | 表格上方工具栏，如「新建」按钮 |
-| `bulk-actions` | `{ selectedKeys, clear }` | 批量操作区 |
+| `bulk-actions` | `{ selectedKeys, clear }` | 批量操作区（开启多选且当前页有数据时渲染） |
+| `error` | `{ error, retry }` | 覆盖表格错误态（加载失败时替代表格出现） |
+| `empty` | — | 自定义空态，不传用适配器自己的空态 |
+| `card-footer` | 同 ProTable | 卡片模式下每张卡片的页脚 |
 | `form` | — | 弹窗表单等，渲染在表格之后 |
 | `cell-<key>` | 同 ProTable | 覆盖某一列的单元格 |
+| `field-<name>` | `{ value, setValue, values }` | 给单个筛选项换控件（树选择器、自绘控件） |
+| `before-actions` / `after-actions` / `actions` | `{ params, selectedKeys }` | 查询区按钮组的前、后、末尾；放「导出」「高级筛选」 |
 
 ## 暴露方法
 

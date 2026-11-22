@@ -25,11 +25,11 @@
     },
     "CrudPageProps": {
       "kind": "interface",
-      "text": "export interface CrudPageProps<T extends Record<string, any> = Record<string, any>> {\n    queryFields?: QueryField[];\n    queryProps?: Omit<QueryFormProps, 'fields' | 'modelValue'>;\n    columns: ProTableColumn<T>[];\n    request: TableRequest<T>;\n    rowKey?: ProTableProps<T>['rowKey'];\n    selection?: ProTableProps<T>['selection'];\n    tableProps?: Omit<ProTableProps<T>, 'columns' | 'request' | 'params' | 'rowKey' | 'selection'>;\n    immediate?: boolean;\n    defaultCollapsed?: boolean;\n}"
+      "text": "export interface CrudPageProps<T extends Record<string, any> = Record<string, any>> {\n    queryFields?: QueryField[];\n    queryProps?: Omit<QueryFormProps, 'fields' | 'modelValue'>;\n    columns: ProTableColumn<T>[];\n    request: TableRequest<T>;\n    rowKey?: ProTableProps<T>['rowKey'];\n    selection?: ProTableProps<T>['selection'];\n    tableProps?: Omit<ProTableProps<T>, 'columns' | 'request' | 'params' | 'rowKey' | 'selection' | 'immediate'>;\n    immediate?: boolean;\n    defaultCollapsed?: boolean;\n}"
     },
     "CrudPageSlots": {
       "kind": "interface",
-      "text": "export interface CrudPageSlots {\n    toolbar?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => void;\n    }) => VNodeChild;\n    form?: () => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
+      "text": "export interface CrudPageSlots {\n    toolbar?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    'bulk-actions'?: (props: {\n        selectedKeys: Key[];\n        clear: () => void;\n    }) => VNodeChild;\n    error?: (props: {\n        error: unknown;\n        retry: () => void;\n    }) => VNodeChild;\n    empty?: () => VNodeChild;\n    'card-footer'?: (props: any) => VNodeChild;\n    form?: () => VNodeChild;\n    'before-actions'?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    'after-actions'?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    actions?: (props: {\n        params: Record<string, any>;\n        selectedKeys: Key[];\n    }) => VNodeChild;\n    [cellSlot: `cell-${string}`]: ((props: any) => VNodeChild) | undefined;\n    [fieldSlot: `field-${string}`]: ((props: any) => VNodeChild) | undefined;\n}"
     },
     "DescriptionGroup": {
       "kind": "interface",

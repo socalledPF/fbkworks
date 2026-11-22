@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createMockAdapter, mountWithAdapter } from '@fbkworks/test-utils'
 import { FbkCrudPage } from '../src/crud-page'
+import type { CrudPageProps, CrudPageSlots } from '../src/crud-page'
 
 const fields = [
   { name: 'keyword', label: '关键词', type: 'input' as const },
@@ -380,3 +381,42 @@ describe('CrudPage 事件透出', () => {
     expect(empty.text()).toBe('还没有数据，去创建')
   })
 })
+
+/**
+ * 类型契约锁。
+ *
+ * 插槽转发在 CrudPage.vue 里是运行时白名单（passedSlots / passedQuerySlots），
+ * 类型是**另一份名单**。两边都得有，而类型这一侧漏了的表现是
+ * 「<template #field-x> 报错」或「IDE 不补全」—— 运行时断言一条也抓不到。
+ * 这里用一次赋值把两份名单钉在一起：谁漏了，vue-tsc 就红。
+ */
+describe('CrudPageSlots 覆盖运行时真正转发的插槽', () => {
+  it('每个被转发的插槽名都在类型里', () => {
+    const forwarded: CrudPageSlots = {
+      toolbar: () => null,
+      'bulk-actions': () => null,
+      error: () => null,
+      empty: () => null,
+      'card-footer': () => null,
+      form: () => null,
+      actions: () => null,
+      'before-actions': () => null,
+      'after-actions': () => null,
+      'cell-name': () => null,
+      'field-status': () => null,
+    }
+    // 断言的是类型覆盖率，运行时只要有值就算过；缺类型会在编译期炸
+    expect(Object.keys(forwarded)).toHaveLength(11)
+  })
+
+  it('tableProps 不接受 immediate —— 顶层 prop 是唯一入口', () => {
+    const props: CrudPageProps = {
+      columns,
+      request: async () => ({ list: rows, total: 1 }),
+      // @ts-expect-error tableProps 不再接受 immediate：写在这里只会被顶层 prop 静默压掉
+      tableProps: { immediate: false },
+    }
+    expect(props.columns).toBe(columns)
+  })
+})
+

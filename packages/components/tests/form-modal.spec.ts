@@ -254,3 +254,35 @@ describe('FormModal 时序（业务侧的真实写法）', () => {
   })
 })
 })
+
+/**
+ * 关闭时清掉「命令式打开」带进来的那份值。
+ *
+ * pendingValues 只在 show 发生 false→true 跳变时被消费。已打开状态下再 openEdit
+ * 一次（或父级否决了这次打开），它就一直在 —— 下一次打开时盖掉 initialValues，
+ * 症状与会话早期修掉的「编辑 B、表单里是 A」完全一样。
+ */
+describe('FormModal 关闭时清理命令式残留值', () => {
+  const firstInput = (wrapper: any) =>
+    (wrapper.findAll('input[data-fbk-part="input"]')[0].element as HTMLInputElement).value
+
+  it('已打开状态下 openEdit 后关闭，再打开用的是 initialValues', async () => {
+    const wrapper = mountModal({ show: true, mode: 'edit', initialValues: { name: '真实值' } })
+    await flushPromises()
+    expect(firstInput(wrapper)).toBe('真实值')
+
+    const vm = wrapper.vm as any
+    // show 已经是 true：没有 false→true 跳变，syncOnOpen 不会来消费 pendingValues
+    vm.openEdit({ name: '残留值' })
+    await flushPromises()
+    expect(firstInput(wrapper)).toBe('残留值')
+
+    await wrapper.setProps({ show: false })
+    await flushPromises()
+
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+    expect(firstInput(wrapper), '上次命令式打开的值盖掉了 initialValues').toBe('真实值')
+  })
+})
+
