@@ -1,5 +1,50 @@
 # @fbkworks/adapter-vant
 
+## 0.8.0
+
+### Minor Changes
+
+- 30b5ae8: ### vant 的 Select.filterable / clearable 与 DatePicker.clearable 真的生效了
+
+  这三个字段以前只声明不读取（渲染体里零引用），传了没有任何效果：
+
+  - **filterable**：弹层顶部现在有搜索框，按 label 过滤选项；
+  - **clearable**：右侧出现自绘的清除按钮（有值且未禁用时），点击清空并 emit change。
+
+  清除按钮是自绘的：vant 的 Field 只在**可编辑**时显示自带清除图标，
+  而这两个组件的展示字段是 readonly（只读展示 + 弹层选择），传 clearable 给它不会出现任何东西。
+  **体积**：vant 适配器的 JS 从 35.7 → 39.1 KB（+3.3 KB，+9.3%），来自上面两个功能
+  （关键字过滤、清除按钮、以及两个 computed 的形状判断）。已同步更新 size 基线。
+
+### Patch Changes
+
+- 7b204e9: ### 删掉 map 图型；resetFields 的语义写清楚并显式告警
+
+  **FbkChartType 不再包含 map。** 它从来没有被实现过：CHART_MAP 里没有它，
+  echarts 的 map 还需要业务方提供 GeoJSON（registerMap），本库没有这个入口。
+  留着它意味着「类型上允许、注册时被静默丢弃」。需要地图请直接用 echarts 或专门的地图组件。
+
+  **resetFields 的三端差异写进契约并显式告警。**
+  契约一直是「清值 + 清校验」，但只有 element-plus 做得到 —— naive-ui / vant 的 Form
+  拿不到初始值，只能清校验，而且**静默**如此：用户点「重置」看到输入值原样保留，以为按钮坏了。
+
+  - element-plus：不变（原生支持）
+  - naive-ui / vant：清校验 + warnOnce 提示「清值请业务方重置 v-model」
+  - 只想清红框：用 clearValidate（三端语义一致）
+
+- 9dc3efb: ### 删掉 `SpinProps.size`；vant 的 Select 在 loading 期间不可交互
+
+  **`SpinProps.size`** 三个适配器的 Spin 都没有这个 prop，传了只会经 `{...attrs}`
+  漏成 `<div size="lg">` 这种非法属性（与 `loadMore`/`finished` 同一类问题）。
+
+  **vant `Select` 的 `loading`** 以前只声明不读取 —— element-plus / naive-ui 都是
+  `disabled={disabled || loading}`，只有 vant 允许在加载中拉开一个空列表再选。现在一致。
+
+- Updated dependencies [7b204e9]
+- Updated dependencies [49df8d1]
+- Updated dependencies [9dc3efb]
+  - @fbkworks/adapter-core@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes
