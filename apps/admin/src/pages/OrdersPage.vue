@@ -184,6 +184,13 @@ async function onSubmit(values: Record<string, any>) {
 
 // ---------- 删除后的刷新 ----------
 
+/* 新建成功后必须回到第 1 页：新行被 unshift 到首页顶部，停在第 3 页时刷新也看不到它。
+   编辑成功则留在原页。 */
+async function onFormSuccess() {
+  if (modalMode.value === 'create') currentPage.value = 1
+  await crudRef.value?.refresh()
+}
+
 /**
  * 删除成功后刷新，并把「删空一页」的页码收回来。
  *
@@ -192,15 +199,12 @@ async function onSubmit(values: Record<string, any>) {
  * CrudPage 没有暴露页码控制，所以页码走受控 prop：把 page 放进 tableProps，
  * ProTable 的 watch(() => props.page) 会把内部页码同步过去并重发那一页。
  *
+ * **注**：这段「何时该回退」的判断没有测试覆盖 —— 它属于 app 自己的逻辑，
+ * 库测试只锁了它依赖的那条契约（外部改 page → 重发该页，见
+ * packages/components/tests/pro-table-controlled-page.spec.ts）。
+ *
  * @param remainingOnPage 本页删除之后还剩几行
  */
-/* 新建成功后必须回到第 1 页：新行被 unshift 到首页顶部，停在第 3 页时刷新也看不到它。
-   编辑成功则留在原页。 */
-async function onFormSuccess() {
-  if (modalMode.value === 'create') currentPage.value = 1
-  await crudRef.value?.refresh()
-}
-
 function refreshAfterDelete(remainingOnPage: number) {
   if (remainingOnPage <= 0 && currentPage.value > 1) {
     currentPage.value -= 1
