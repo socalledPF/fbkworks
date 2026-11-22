@@ -137,11 +137,17 @@ function loadingOptions(): Record<string, unknown> {
     const resolved = resolveCssValue("var(" + name + ")")
     return resolved.includes("var(") ? fallback : resolved
   }
+  const textColor = cssColor("--fbk-color-text-secondary", "#5c6370")
+  /* 遮罩必须跟底色：以前固定 60% 白纱，暗色后台 / 大屏上每次刷新整块图表变白，
+     而「加载中」用的是 text-secondary（#646a73），压在白纱上约 1.2:1 —— 读不出来。 */
+  const bg = cssColor("--fbk-color-bg", "#ffffff").replace("#", "")
+  const channel = (i: number) => parseInt(bg.slice(i, i + 2), 16) || 255
+  const luma = (0.299 * channel(0) + 0.587 * channel(2) + 0.114 * channel(4)) / 255
   return {
     text: "加载中",
     color: cssColor("--fbk-color-primary", "#3b82f6"),
-    textColor: cssColor("--fbk-color-text-secondary", "#5c6370"),
-    maskColor: "rgba(255,255,255,0.6)",
+    textColor,
+    maskColor: luma > 0.5 ? "rgba(255,255,255,0.6)" : "rgba(10,17,25,0.72)",
   }
 }
 

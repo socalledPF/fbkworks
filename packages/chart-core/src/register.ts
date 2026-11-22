@@ -75,16 +75,15 @@ const COMPONENT_MAP = {
  * 从 CHART_MAP 推导而不是再抄一份：抄的清单迟早和类型联合不一致。
  */
 const DEFAULT_CHARTS = Object.keys(CHART_MAP) as FbkChartType[]
-const DEFAULT_COMPONENTS = [
-  'grid',
-  'tooltip',
-  'legend',
-  'title',
-  'dataset',
-  'markLine',
-  'markPoint',
-  'graphic',
-] as const
+/**
+ * 默认注册的组件 = COMPONENT_MAP 的全部键。
+ *
+ * 以前手写 8 个（缺 visualMap / dataZoom / transform），而同一份 JSDoc 写着
+ * 「不传 = 注册全部」—— 用户写 visualMap 色阶或 dataZoom 缩放时，echarts 只打一行
+ * "Component visualMap is used but not imported"，整块不渲染、不抛错、emit(error) 也不触发。
+ * 与图型那边同一个毛病，这里一并改成从映射表推导。
+ */
+const DEFAULT_COMPONENTS = Object.keys(COMPONENT_MAP) as readonly string[]
 
 let registered = false
 const doneCharts = new Set<string>()

@@ -122,17 +122,21 @@ function emitCloseOnce() {
   emit('close')
 }
 
+/* 只「请求关闭」，不在这里发 close。
+   原因：父级可能否决这次关闭（提交中禁止关闭、有未保存内容先 confirm）——
+   它收到 update:show(false) 但保持 show=true。旧实现在这里就 emit('close')，
+   于是业务方立刻复位选中/停轮询，而抽屉还开着；更糟的是 closeEmitted 被置真，
+   **真正关闭时 watch 里的那次反被去重吞掉**。
+   close 的唯一来源是「show 真的从 true 变成 false」，即下面的 watch。 */
 function setShow(next: boolean) {
-  // 受控：父级没改 show 时重复收到同一个值不该再发一遍 close
+  // 受控：父级没改 show 时重复收到同一个值不该再发一遍
   if (next === props.show) return
   emit('update:show', next)
-  if (!next) emitCloseOnce()
 }
 
 function close() {
   if (!props.show) return
   emit('update:show', false)
-  emitCloseOnce()
 }
 
 function onLoad(data: T) {

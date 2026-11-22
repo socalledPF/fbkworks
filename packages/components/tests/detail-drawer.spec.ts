@@ -394,8 +394,16 @@ describe('受控关闭', () => {
     await wrapper.find('[data-fbk-part="drawer-close"]').trigger('click')
     await flushPromises()
 
+    /* 点关闭只是**请求**关闭：父级可能否决（提交中禁止关闭 / 未保存内容先 confirm）。
+       close 必须等 show 真的变成 false 才发 —— 否则父级否决时业务方会误复位，
+       而且那一次会把 closeEmitted 置真，真正关闭时反被去重吞掉。 */
     expect(wrapper.emitted('update:show')?.at(-1)).toEqual([false])
-    expect(wrapper.emitted('close')).toBeTruthy()
+    expect(wrapper.emitted('close'), '父级还没确认关闭就发了 close').toBeFalsy()
+
+    // 父级确认关闭 → 此时才应该收到 close，且只一次
+    await wrapper.setProps({ show: false })
+    await flushPromises()
+    expect(wrapper.emitted('close')).toHaveLength(1)
     wrapper.unmount()
   })
 
