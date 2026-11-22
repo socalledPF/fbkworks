@@ -20,8 +20,13 @@ describe('registerFbkCharts 的默认集合', () => {
     /* register 内部是 use([...charts, ...components]) 一次调用，参数本身是数组，
        所以要拍平到底（flat() 一层只到「那个数组」）。 */
     const registered = useSpy.mock.calls.flat(Infinity) as unknown[]
-    /* CHART_MAP 有 7 个图型（line/bar/pie/gauge/scatter/radar/funnel）。
-       断言下界而不是精确值：将来加图型时这条用例不该因为数字变了而红。 */
-    expect(registered.length, '默认注册集比 CHART_MAP 少，未注册的图型会被静默丢弃').toBeGreaterThanOrEqual(7)
+    /* 注意：这一条 use() 的参数是 charts + components + renderer 混在一起的（16 个），
+       只断言 >= 7 是假绿 —— 把 DEFAULT_CHARTS 退回 4 个（4+8+1=13）照样通过，
+       而它正是为「图型被静默丢弃」写的守卫。
+       现在的下界 = 7 个图型 + 8 个组件 + 1 个渲染器；少任何一个都会红。 */
+    expect(
+      registered.length,
+      '默认注册集变少了（图型或组件被静默丢弃）',
+    ).toBeGreaterThanOrEqual(16)
   })
 })
