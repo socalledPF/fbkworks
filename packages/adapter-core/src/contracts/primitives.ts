@@ -205,6 +205,12 @@ export interface FormExpose {
    * 只想清红框、不动输入值的场景请用 clearValidate。
    */
   resetFields: () => void
-  /** **只清校验状态**（不清值）。三端语义一致。 */
+  /**
+   * **只清校验状态**（不清值）。三端语义一致：
+   *   · 传 prop / prop[] —— 只清这几个字段的校验状态，其它字段原样保留
+   *   · 不传 —— 清全部
+   * 库自身没有按名 API 的（naive-ui 的 NForm 只能全清）由适配器自己按名派发，
+   * 不允许退化成「静默全清」。
+   */
   clearValidate: (props?: string | string[]) => void
 }

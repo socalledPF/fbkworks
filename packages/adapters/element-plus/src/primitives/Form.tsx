@@ -1,9 +1,27 @@
-import { computed, defineComponent, ref, type PropType } from 'vue'
+import {
+  computed,
+  defineComponent,
+  inject,
+  provide,
+  ref,
+  type InjectionKey,
+  type PropType,
+} from 'vue'
 import { ElForm, ElFormItem, type FormInstance } from 'element-plus'
 import type { FormProps, FbkRule, Size } from '@fbkworks/adapter-core'
 import { toElementSize } from '../size'
 
-function toElementRules(rules: FbkRule[] | undefined) {
+/**
+ * ⑦ Form 把 model 的 **getter** 交给子孙 FormItem。
+ *
+ * 契约（adapter-core/contracts/form.ts 的 FbkRule.validator(value, model)）和文档
+ * 都说 validator 的第二个参数是表单 model，但这里以前恒传 `{}` ——
+ * 「两次密码一致」这类跨字段校验永远不成立。传 getter 而不是对象本身，
+ * 是因为 model 允许被整体替换，校验时必须读到当下的那个。
+ */
+const FBK_FORM_MODEL: InjectionKey<() => Record<string, any>> = Symbol('fbk.element-plus.form.model')
+
+function toElementRules(rules: FbkRule[] | undefined, model?: Record<string, any>) {
   if (!rules?.length) return undefined
   return rules.map((rule) => ({
     required: rule.required,
@@ -17,7 +35,7 @@ function toElementRules(rules: FbkRule[] | undefined) {
     validator:
       rule.validator &&
       ((_r: unknown, value: unknown, callback: (error?: Error) => void) => {
-        const result = rule.validator!(value, {})
+        const result = rule.validator!(value, model ?? {})
         if (result instanceof Promise) {
           result.then((message) => (message === true || !message ? callback() : callback(new Error(message))))
           return
@@ -44,9 +62,11 @@ export const Form = defineComponent({
     const elementRules = computed(() => {
       if (!props.rules) return undefined
       return Object.fromEntries(
-        Object.entries(props.rules).map(([key, rules]) => [key, toElementRules(rules)]),
+        Object.entries(props.rules).map(([key, rules]) => [key, toElementRules(rules, props.model)]),
       )
     })
+
+    provide(FBK_FORM_MODEL, () => props.model)
 
     expose({
       validate: async () => {
@@ -94,12 +114,15 @@ export const FormItem = defineComponent({
     labelWidth: { type: [String, Number] as PropType<string | number>, default: undefined },
   },
   setup(props, { slots }) {
+    /* FormItem 被单独使用（没有外层 Form）时拿不到 model —— 保持原来传 {} 的行为。 */
+    const getModel = inject<(() => Record<string, any>) | null>(FBK_FORM_MODEL, null)
+
     return () => (
       <ElFormItem
         label={props.label}
         prop={props.prop}
         required={props.required}
-        rules={toElementRules(props.rules)}
+        rules={toElementRules(props.rules, getModel?.())}
         labelWidth={props.labelWidth}
       >
         {slots.default?.()}

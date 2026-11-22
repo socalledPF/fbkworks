@@ -31,11 +31,21 @@ import type { FbkRule, FormProps } from '@fbkworks/adapter-core'
 const VANT_FORM_RULES: InjectionKey<ComputedRef<FormProps['rules'] | undefined>> =
   Symbol('fbk.vant.form.rules')
 
+/**
+ * ⑦ Form 把 model 的 **getter** 交给各个 Field。
+ *
+ * 契约（adapter-core/contracts/form.ts 的 FbkRule.validator(value, model)）和文档
+ * 都说 validator 的第二个参数是表单 model，但这里以前恒传 `{}` ——
+ * 「两次密码一致」这类跨字段校验永远不成立。传 getter 而不是对象本身，
+ * 是因为 model 允许被整体替换，校验时必须读到当下的那个。
+ */
+const VANT_FORM_MODEL: InjectionKey<() => Record<string, any>> = Symbol('fbk.vant.form.model')
+
 function toVantLabelWidth(width: string | number | undefined) {
   return width === 'auto' ? undefined : width
 }
 
-function toVantRules(rules: FbkRule[] | undefined) {
+function toVantRules(rules: FbkRule[] | undefined, model?: Record<string, any>) {
   if (!rules?.length) return undefined
   return rules.map((rule) => ({
     required: rule.required,
@@ -59,7 +69,7 @@ function toVantRules(rules: FbkRule[] | undefined) {
             : typeof result === 'string'
               ? result
               : false
-        const result = rule.validator!(value, {})
+        const result = rule.validator!(value, model ?? {})
         return result instanceof Promise ? result.then(normalize) : normalize(result)
       }),
   }))
@@ -95,6 +105,7 @@ export const Form = defineComponent({
       })
 
     provide(VANT_FORM_RULES, vantRules)
+    provide(VANT_FORM_MODEL, () => props.model)
 
     expose({
       validate,
@@ -116,7 +127,9 @@ export const Form = defineComponent({
         )
         formRef.value?.resetValidation()
       },
-      clearValidate: () => formRef.value?.resetValidation(),
+      /* ⑤ van-form 自带按名清理：resetValidation(name) 只清 name 命中的 Field，
+         不传才是全清。以前这里恒不传参数 —— 传了名字的调用方也被全清。 */
+      clearValidate: (names?: string | string[]) => formRef.value?.resetValidation(names),
     })
 
     return () => (
@@ -158,6 +171,8 @@ export const FormItem = defineComponent({
        van-form 不支持 rules prop，这是唯一可行的传递路径。 */
     const fieldRef = ref<any>()
     const formRules = inject(VANT_FORM_RULES, null)
+    /* 没有外层 Form（FormItem 被单独使用）时拿不到 model —— 保持原来传 {} 的行为。 */
+    const getModel = inject<(() => Record<string, any>) | null>(VANT_FORM_MODEL, null)
     const mergedRules = computed<FbkRule[] | undefined>(() => {
       const fromForm = props.prop ? formRules?.value?.[props.prop] : undefined
       if (fromForm?.length && props.rules?.length) return [...fromForm, ...props.rules]
@@ -170,7 +185,7 @@ export const FormItem = defineComponent({
         name={props.prop}
         label={props.label}
         required={props.required}
-        rules={toVantRules(mergedRules.value) as FieldRule[] | undefined}
+        rules={toVantRules(mergedRules.value, getModel?.()) as FieldRule[] | undefined}
         labelWidth={toVantLabelWidth(props.labelWidth)}
         v-slots={{
           /* 我们把 van-field 的输入槽整个换成了自定义 Input，
