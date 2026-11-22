@@ -190,7 +190,10 @@ export async function saveOrder(row: Partial<OrderRow>, signal?: AbortSignal): P
       return ORDERS[idx]!
     }
   }
-  const created = makeOrder(ORDERS.length + 1)
+  /* 用「当前最大 id + 1」，不是数组长度 + 1：删过行之后长度会小于最大 id，
+     于是新建出来的 id 可能和既有行撞车（表现为保存后列表里出现重复 key）。 */
+  const nextId = ORDERS.reduce((max, order) => Math.max(max, Number(order.id) || 0), 0) + 1
+  const created = makeOrder(nextId)
   ORDERS.unshift({ ...created, ...row } as OrderRow)
   return ORDERS[0]!
 }

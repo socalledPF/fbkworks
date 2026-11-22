@@ -194,6 +194,13 @@ async function onSubmit(values: Record<string, any>) {
  *
  * @param remainingOnPage 本页删除之后还剩几行
  */
+/* 新建成功后必须回到第 1 页：新行被 unshift 到首页顶部，停在第 3 页时刷新也看不到它。
+   编辑成功则留在原页。 */
+async function onFormSuccess() {
+  if (modalMode.value === 'create') currentPage.value = 1
+  await crudRef.value?.refresh()
+}
+
 function refreshAfterDelete(remainingOnPage: number) {
   if (remainingOnPage <= 0 && currentPage.value > 1) {
     currentPage.value -= 1
@@ -273,7 +280,7 @@ async function batchDelete(keys: number[], clear: () => void) {
     :initial-values="editing"
     :default-values="createDefaults"
     :submit="onSubmit"
-    @success="crudRef?.refresh()"
+    @success="onFormSuccess"
   />
 </template>
 
