@@ -34,13 +34,19 @@ export const Select = defineComponent({
         .join(', ')
     })
 
+    /* 必须是**完整** options，不能是过滤后的子集。
+       vant 的 Picker 在 columns 变化时会 resetSelectedValues：当前值不在新列里就改成第一项，
+       列变空则 confirm 出 undefined。用 filteredOptions 喂它意味着「用户只是搜了一下」
+       就会静默改写甚至清空已选值（实测可复现：选中「南京」，搜「杭」，点确定 → 变成 hz）。
+       过滤只作用于多选分支的 Checkbox 列表（那里没有 Picker 的这层语义）。 */
     const pickerColumns = computed(() =>
-      filteredOptions.value.map((option) => ({ text: option.label, value: option.value })),
+      props.options.map((option) => ({ text: option.label, value: option.value })),
     )
 
     const open = () => {
-      if (props.disabled) return
+      if (props.disabled || props.loading) return
       tempValue.value = props.modelValue
+      resetKeyword()
       show.value = true
     }
 
@@ -62,6 +68,10 @@ export const Select = defineComponent({
        不用 Field 自带的 clearable —— vant 只在**可编辑**时显示那个图标，
        而我们的 Field 是 readonly（只读展示 + 弹层选择）。 */
     const keyword = ref('')
+    /* 关闭后清空搜索词：否则下次打开还停在上次的过滤结果里，用户不知道自己在看子集。 */
+    function resetKeyword() {
+      keyword.value = ''
+    }
     const filteredOptions = computed(() => {
       const key = keyword.value.trim().toLowerCase()
       if (!key) return props.options
