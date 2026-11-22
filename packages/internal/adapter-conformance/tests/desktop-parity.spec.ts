@@ -1,5 +1,5 @@
 import { flushPromises } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, type Component } from 'vue'
 import { readFileSync } from 'node:fs'
@@ -7,6 +7,19 @@ import { join } from 'node:path'
 import { elementPlusAdapter } from '@fbkworks/adapter-element-plus'
 import { naiveUiAdapter } from '@fbkworks/adapter-naive-ui'
 import type { UiAdapter } from '@fbkworks/adapter-core'
+
+/**
+ * 每个用例结束后等一拍，让组件在动画帧里排的活跑完。
+ *
+ * 为什么需要：element-plus / naive-ui 的过渡与表格布局会 requestAnimationFrame 排活。
+ * 若这一帧在**测试环境拆除之后**才执行，jsdom 已经把 rAF 从 globalThis 摘掉，
+ * 于是抛 ReferenceError 且被 vitest 记成 unhandled error → pnpm test 退出 1，
+ * 而所有用例其实是绿的（compat job 实测，element-plus 最低版本时必现）。
+ * 在环境还活着的时候把它冲掉，比事后 catch 更可靠，也不会掩盖真实错误。
+ */
+afterEach(async () => {
+  await new Promise((resolve) => setTimeout(resolve, 16))
+})
 
 /**
  * 桌面端双适配器一致性约束（element-plus ↔ naive-ui）。
