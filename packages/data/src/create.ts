@@ -166,10 +166,20 @@ export function createPageRequest<TRaw, T = unknown>(
          「空页才结束」这条兜底上（每次滚到底多打一次必然为空的请求）。
          只在调用方声明了 total 字段路径时才下结论：没声明时 totalValue 是当前页行数，
          据此算出的 hasMore 永远是 false，比不给更糟。 */
-      const hasMore =
-        total !== undefined && query.page > 0 && query.pageSize > 0
+      /* 「本页还有没有下一页」的判据。两个坑都要躲：
+         (1) 后端不返回总数时，文档推荐业务方写 total: (raw) => raw.rows.length ——
+             此时 totalValue === 本页行数，若直接用它算 page*pageSize < total 就恒为 false，
+             移动端无限滚动第一页就显示「没有更多了」，数据被静默截断；
+         (2) 反过来也不能一律靠「本页满」，那会在最后一页多发一次请求（可以接受）。
+         所以：只有当总数**大于**本页行数时才认为它是真总数并据此提前收尾；
+         否则退回「本页满 = 可能还有」。宁可多打一次请求，也不截断数据。 */
+      const declaredTotal = total !== undefined && query.page > 0 && query.pageSize > 0
+      const totalLooksReal = declaredTotal && totalValue > rawRows.length
+      const hasMore = !declaredTotal
+        ? undefined /* 没声明 total 就不做结论（契约如此，调用方按「空页即结束」兜底） */
+        : totalLooksReal
           ? query.page * query.pageSize < totalValue
-          : undefined
+          : rawRows.length >= query.pageSize
 
       return { list, total: totalValue, hasMore } satisfies Page<T>
     } catch (err) {
