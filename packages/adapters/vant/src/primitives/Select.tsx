@@ -35,7 +35,7 @@ export const Select = defineComponent({
     })
 
     const pickerColumns = computed(() =>
-      props.options.map((option) => ({ text: option.label, value: option.value })),
+      filteredOptions.value.map((option) => ({ text: option.label, value: option.value })),
     )
 
     const open = () => {
@@ -57,6 +57,30 @@ export const Select = defineComponent({
       show.value = false
     }
 
+    /* filterable / clearable 以前只声明不读取（渲染体里零引用）。
+       这里就地实现：关键字过滤 + 一个自绘的清除按钮。
+       不用 Field 自带的 clearable —— vant 只在**可编辑**时显示那个图标，
+       而我们的 Field 是 readonly（只读展示 + 弹层选择）。 */
+    const keyword = ref('')
+    const filteredOptions = computed(() => {
+      const key = keyword.value.trim().toLowerCase()
+      if (!key) return props.options
+      return props.options.filter((option) => option.label.toLowerCase().includes(key))
+    })
+    const hasValue = computed(() =>
+      Array.isArray(props.modelValue)
+        ? props.modelValue.length > 0
+        : props.modelValue !== null && props.modelValue !== undefined && props.modelValue !== '',
+    )
+    const showClear = computed(
+      () => Boolean(props.clearable) && hasValue.value && !props.disabled && !props.loading,
+    )
+    function clear() {
+      const empty = props.multiple ? [] : undefined
+      emit('update:modelValue', empty as any)
+      emit('change', empty as any)
+    }
+
     return () => (
       <div class="fbk-vant-select" {...attrs}>
         <Field
@@ -73,12 +97,30 @@ export const Select = defineComponent({
             open()
           }}
         />
+        {showClear.value ? (
+          <button
+            type="button"
+            class="fbk-vant-select__clear"
+            aria-label="清除"
+            onClick={(event: Event) => {
+              event.stopPropagation()
+              clear()
+            }}
+          >
+            ×
+          </button>
+        ) : null}
         <Popup v-model:show={show.value} position="bottom" round teleport="body">
+          {props.filterable ? (
+            <div class="fbk-vant-select__search">
+              <Field v-model={keyword.value} placeholder="搜索" clearable />
+            </div>
+          ) : null}
           {props.multiple ? (
             <div class="fbk-vant-select__multiple">
               <Cell title={props.title ?? '请选择'} />
               <CheckboxGroup modelValue={tempValue.value as any[]} onUpdate:modelValue={(value: any[]) => (tempValue.value = value)}>
-                {props.options.map((option) => (
+                {filteredOptions.value.map((option) => (
                   <Cell key={String(option.value)} title={option.label}>
                     {{
                       rightIcon: () => (

@@ -103,6 +103,22 @@ export const DatePicker = defineComponent({
             open.value = true
           }}
         />
+        {/* clearable 以前只声明不读取。自绘按钮：vant 的 Field 只在可编辑时显示清除图标，
+            而这里是 readonly 的只读展示。 */}
+        {props.clearable && display.value && !props.disabled && !unsupported.value ? (
+          <button
+            type="button"
+            class="fbk-vant-date-picker__clear"
+            aria-label="清除"
+            onClick={(event: Event) => {
+              event.stopPropagation()
+              emit('update:modelValue', null)
+              emit('change', null)
+            }}
+          >
+            ×
+          </button>
+        ) : null}
         {/* 拒绝态不挂弹层：滚轮不存在，就不存在「点了确认拿到值」的路径 */}
         {unsupported.value ? null : (
           <Popup v-model:show={open.value} position="bottom" round teleport="body">

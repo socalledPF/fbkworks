@@ -3,12 +3,12 @@
   "unit": "bytes",
   "entries": {
     "@fbkworks/adapter-core": {
-      "js": 16654,
+      "js": 16887,
       "css": 0,
       "files": 1
     },
     "@fbkworks/adapter-element-plus": {
-      "js": 32932,
+      "js": 33531,
       "css": 13592,
       "files": 18
     },
@@ -18,7 +18,7 @@
       "files": 0
     },
     "@fbkworks/adapter-naive-ui": {
-      "js": 38836,
+      "js": 39557,
       "css": 17892,
       "files": 18
     },
@@ -28,8 +28,8 @@
       "files": 0
     },
     "@fbkworks/adapter-vant": {
-      "js": 36595,
-      "css": 7810,
+      "js": 39993,
+      "css": 8567,
       "files": 17
     },
     "@fbkworks/adapter-vant/dark.css": {
@@ -38,19 +38,19 @@
       "files": 0
     },
     "@fbkworks/chart-core": {
-      "js": 16491,
+      "js": 17159,
       "css": 33312,
       "files": 6
     },
     "@fbkworks/components": {
-      "js": 88817,
+      "js": 91039,
       "css": 68614,
-      "files": 17
+      "files": 18
     },
     "@fbkworks/components/crud-page": {
-      "js": 42234,
+      "js": 43856,
       "css": 425,
-      "files": 9
+      "files": 10
     },
     "@fbkworks/components/descriptions": {
       "js": 7407,
@@ -58,24 +58,24 @@
       "files": 2
     },
     "@fbkworks/components/detail-drawer": {
-      "js": 32942,
+      "js": 33604,
       "css": 0,
       "files": 9
     },
     "@fbkworks/components/detail-page": {
-      "js": 26860,
+      "js": 27276,
       "css": 2248,
       "files": 7
     },
     "@fbkworks/components/form-generator": {
-      "js": 12451,
+      "js": 12594,
       "css": 2597,
-      "files": 3
+      "files": 4
     },
     "@fbkworks/components/form-modal": {
-      "js": 19894,
+      "js": 20137,
       "css": 469,
-      "files": 4
+      "files": 5
     },
     "@fbkworks/components/page-container": {
       "js": 5726,
@@ -83,14 +83,14 @@
       "files": 2
     },
     "@fbkworks/components/pro-table": {
-      "js": 26882,
+      "js": 27016,
       "css": 10108,
       "files": 6
     },
     "@fbkworks/components/query-form": {
-      "js": 10713,
+      "js": 11077,
       "css": 3802,
-      "files": 3
+      "files": 4
     },
     "@fbkworks/components/result": {
       "js": 5743,
@@ -108,9 +108,9 @@
       "files": 8
     },
     "@fbkworks/data": {
-      "js": 9175,
+      "js": 9823,
       "css": 0,
-      "files": 6
+      "files": 7
     },
     "@fbkworks/resolver": {
       "js": 1361,
@@ -118,12 +118,12 @@
       "files": 1
     },
     "@fbkworks/screen": {
-      "js": 30243,
-      "css": 45813,
-      "files": 11
+      "js": 30637,
+      "css": 45950,
+      "files": 12
     },
     "@fbkworks/shared": {
-      "js": 5307,
+      "js": 5490,
       "css": 0,
       "files": 1
     },

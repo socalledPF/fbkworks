@@ -244,3 +244,37 @@
   padding: var(--fbk-spacing-md) var(--fbk-spacing-lg) var(--fbk-spacing-lg);
   border-top: 1px solid var(--fbk-color-border);
 }
+
+/* 自绘的清除按钮与搜索框（vant 的 Field 只在可编辑时给清除图标，
+   而 Select / DatePicker 的展示字段是 readonly 的）。 */
+.fbk-vant-select,
+.fbk-vant-date-picker {
+  position: relative;
+}
+
+.fbk-vant-select__clear,
+.fbk-vant-date-picker__clear {
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--fbk-color-fill);
+  color: var(--fbk-color-text-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.fbk-vant-select__search {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--fbk-color-border-light);
+}
+
