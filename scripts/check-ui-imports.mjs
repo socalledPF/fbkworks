@@ -43,7 +43,11 @@ const SPECIFIER_PATTERNS = [
   /@import\s+(?:url\()?['"]([^'"]+)['"]/g,
 ]
 
-const SOURCE_EXT = /\.(ts|tsx|mts|cts|vue|js|jsx|mjs)$/
+/* .css / .scss / .less 必须收进来：@import 的说明符只在这些文件里出现。
+   漏掉它们时上面那条「.vue / .css 里的 @import 也会带出 UI 库样式」是一次空承诺 ——
+   把 packages/adapters/element-plus/src/dark.css（内容是 @import element-plus 的 css-vars）
+   复制成 packages/components/src/x.css，这条门连同 lint/lint:deps 三道全绿。 */
+const SOURCE_EXT = /\.(ts|tsx|mts|cts|vue|js|jsx|mjs|css|scss|less)$/
 
 function walk(dir, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {

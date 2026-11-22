@@ -39,6 +39,9 @@ import type { FbkChartType, RegisterChartsOptions } from './types'
  * 要极致瘦身应改用 `echarts/core` 手动注册（文档里说明）。
  */
 
+/* satisfies 是 types.ts 里「必须与 CHART_MAP 一一对应」这句承诺唯一能被编译期强制的写法：
+   往 FbkChartType 里加一个成员却忘了加映射 → 这里缺 key，直接编译失败。
+   不用类型标注（: Record<...>）是因为那样会擦掉字面量类型，as const 与它叠加才两者兼得。 */
 const CHART_MAP = {
   line: LineChart,
   bar: BarChart,
@@ -47,7 +50,7 @@ const CHART_MAP = {
   scatter: ScatterChart,
   radar: RadarChart,
   funnel: FunnelChart,
-} as const
+} as const satisfies Record<FbkChartType, unknown>
 
 const COMPONENT_MAP = {
   grid: GridComponent,

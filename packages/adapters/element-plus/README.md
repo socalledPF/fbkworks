@@ -29,7 +29,12 @@ import '@fbkworks/adapter-element-plus/dark.css'
 
 ## 能力
 
-`dataGrid.presentation: 'table'`、`pagination.mode: 'pages'`、`theme.cssVariables: true`。
+`dataGrid.presentation: 'table'`、`pagination.mode: 'pages'`、`theme.darkMode: true`、`theme.provider: false`。
+
+`theme` 只有 `darkMode` / `provider` 两个字段（`cssVariables` 已从契约移除）；
+本适配器走 CSS 变量，暗色由 `html.dark` + `dark.css` 生效，没有 provider 型入口。
+`dataGrid` 的 `expandable` / `tree` / `virtualScroll` / `stickyHeader` 一律是 `false`：
+`DataGridProps` 里没有对应 prop，声明 `true` 会让调用方按能力位分支却传不进去。
 
 ## License
 

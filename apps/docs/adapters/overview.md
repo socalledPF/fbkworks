@@ -45,7 +45,7 @@ ProTable 读取 `capabilities.pagination.mode`：
 | 暗色 | `html.dark` | `van-config-provider` | `NConfigProvider` |
 
 ::: warning provider 型主题
-naive-ui 的 `theme.cssVariables === false`。只 `apply()` 不包 `<FbkProvider>` 时暗色不会生效。
+naive-ui 的 `theme.provider === true` —— 主题只能经 `NConfigProvider` 下发。只 `apply()` 不包 `<FbkProvider>` 时暗色不会生效。
 :::
 
 ## 读取能力

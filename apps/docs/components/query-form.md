@@ -17,18 +17,40 @@ type QueryFieldType =
 
 interface QueryField {
   name: string
-  label?: string
-  type?: QueryFieldType
+  label: string
+  type: QueryFieldType
   placeholder?: string
-  options?: SelectOption[]
+  options?: SelectOption[] | SelectOptionsResolver
   defaultValue?: unknown
-  hidden?: boolean
+  hidden?: boolean | ((values: Record<string, any>) => boolean)
   /** type='custom' 时的渲染函数 */
   render?: (ctx: { value: unknown; values: Record<string, any>; setValue: (v: unknown) => void }) => VNodeChild
 }
 ```
 
 `custom` 是逃生舱：需要业务特有控件时不必扩展契约。
+
+### 选项联动
+
+`options` 除静态数组外还可以是一个函数：`SelectOptionsResolver` 收到当前表单值，返回选项数组。
+
+```ts
+type SelectOptionsResolver = (values: Record<string, any>) => SelectOption[]
+```
+
+```ts
+{
+  name: 'city',
+  label: '城市',
+  type: 'select',
+  // 收到当前表单值，返回选项
+  options: (values) => CITIES_OF[values.province] ?? [],
+}
+```
+
+**表单值一变就重新求值**：选完省份，城市的候选值立刻换掉。业务方不必自己 `watch` 省份再手改
+`options`，也就不会出现「省份变了，城市还挂着旧选项」。解析函数抛错时退化成空选项，
+只影响这一个字段，查询区不会整片白屏。
 
 ## 折叠
 
@@ -56,7 +78,20 @@ interface QueryField {
 <FbkQueryForm v-model="values" :fields="fields" @submit="search" />
 ```
 
-`submit` 会先校验再抛事件；`reset` 会恢复 `defaultValues` 并触发一次 `change`。
+点「查询」**不做校验**：`submit` 只把当前值 `emit` 出去。按钮原语的 `nativeType` 默认是 `button`，
+也不会触发浏览器原生 submit —— 点了就是点了。
+
+需要校验请自己调 `validate()`（返回 `Promise<true>`，不通过就 reject）：
+
+```ts
+const formRef = ref()
+async function onSearch(values: Record<string, any>) {
+  await formRef.value.validate() // 不通过会 reject
+  search(values)
+}
+```
+
+`reset` 会恢复 `defaultValues` 并触发一次 `change`。
 
 ## 字段插槽
 

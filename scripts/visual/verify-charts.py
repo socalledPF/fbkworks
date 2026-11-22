@@ -99,12 +99,16 @@ with sync_playwright() as p:
             """
             () => {
               const stage = document.querySelector('.fbk-screen__stage');
+              const themeAttr = document.documentElement.getAttribute('data-fbk-theme');
               const screen = document.querySelector('.fbk-screen');
               if (!stage) return { error: 'no stage' };
               const sr = stage.getBoundingClientRect();
               const cr = screen.getBoundingClientRect();
               const m = /scale\\(([^)]+)\\)/.exec(stage.style.transform) || [];
               return {
+                // 采集主题属性：断言区要拿它证明「这一轮真的是在 cyber 下量的」——
+                // 少了它，把 theme= 改回 light 时下面所有断言照样全绿。
+                themeAttr,
                 transform: stage.style.transform,
                 scale: m[1] || null,
                 stageW: Math.round(sr.width), stageH: Math.round(sr.height),
@@ -187,6 +191,11 @@ for size, info in results["screen"].items():
         ok = False
     if info["errors"]:
         print(f"FAIL [{size}] console 错误: {info['errors']}")
+        ok = False
+    # 大屏是暗底场景：不在 cyber 下量，刻度对比度那类问题会一路绿着（此前就是这么绿的）。
+    # 这里直接读 DOM 上的 data-fbk-theme，而不是信任调用方的 theme= 参数。
+    if info["themeAttr"] != "cyber":
+        print(f"FAIL [{size}] 大屏不是在 cyber 主题下验收的：data-fbk-theme={info['themeAttr']!r}（应为 'cyber'）")
         ok = False
     # 0 个 canvas 是「图表压根没挂载」，不是「图表没问题」——以前它会静默通过
     if len(info["canvas"]) == 0:

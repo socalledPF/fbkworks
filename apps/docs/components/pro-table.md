@@ -97,14 +97,19 @@ interface ProTableColumn<T> extends DataGridColumn<T> {
   valueType?: 'text' | 'number' | 'money' | 'date' | 'datetime' | 'tag' | 'enum' | 'image' | 'actions'
   valueEnum?: Record<string | number, { text: string; status?: Status }>
   hideInTable?: boolean
-  hideInCard?: boolean
-  search?: boolean | QueryField
+  search?: boolean
   /** 悬停以原生 tooltip 展示的说明 */
   tooltip?: string
   /** 悬停显示复制按钮，点击写入剪贴板 */
   copyable?: boolean
 }
 ```
+
+`hideInCard` 已删除：卡片模式的隐藏统一看 `DataGridColumn.mobile.hidden`，
+两套「隐藏」并存只会让人写错那个不生效的。
+
+`search` 目前**无效**：全仓没有一处读取它。查询区请用 `FbkQueryForm` 单独声明字段，
+见 [QueryForm](/components/query-form)。
 
 `valueType` 是"业务语义"，由业务组件解析成 `render` 函数；**适配器不需要知道什么是金额**。
 

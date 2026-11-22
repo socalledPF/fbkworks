@@ -28,7 +28,11 @@ Naive UI 没有可覆盖的 CSS 变量体系，主题必须走 `NConfigProvider`
 
 ## 能力
 
-`theme.cssVariables: false`、`theme.provider: true`、`dataGrid.virtualScroll: true`。
+`theme.provider: true`、`dataGrid.presentation: 'table'`、`dataGrid.virtualScroll: false`。
+
+`theme` 只有 `darkMode` / `provider` 两个字段（`cssVariables` 已从契约移除）。
+`dataGrid` 的 `expandable` / `tree` / `virtualScroll` / `stickyHeader` 一律是 `false`：
+`DataGridProps` 里没有对应 prop，声明 `true` 会让调用方按能力位分支却传不进去。
 
 ## License
 

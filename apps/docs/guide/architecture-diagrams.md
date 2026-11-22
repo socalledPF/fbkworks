@@ -11,7 +11,7 @@
 |---|---|---|---|
 | 后台管理 | element-plus | desktop | 表格密集、表单密集 |
 | 移动端 H5 | vant4 | mobile | 卡片、下拉加载、picker |
-| 新业务线 | naive-ui | desktop | provider 型主题、虚拟滚动 |
+| 新业务线 | naive-ui | desktop | provider 型主题（`NConfigProvider`）|
 
 三种错误的解法：
 

@@ -72,6 +72,21 @@ async function discoverPublishedPackages(dir, out = []) {
  */
 const ALLOWED_ALWAYS = ['vue']
 
+/**
+ * 棘轮：这几个包的产物**必须**不出现 vue。
+ *
+ * ALLOWED_ALWAYS 里的 vue 是给 components / adapters 那类必须 peer 依赖 vue 的包开的口子。
+ * @fbkworks/data 是纯数据层（package.json 的 dependencies 是空的，实现里也不碰响应式），
+ * 它的 dist 一旦冒出 `from "vue"` / `require("vue")`，说明有人把响应式或 SFC 依赖漏了进来：
+ * 「数据层可以在 node 里独立用」这条前提当场作废 —— 而上面那条 allowlist 会让它一路绿灯
+ * （既不算未声明依赖，也不算禁止依赖），于是一次悄悄的回归没有任何门禁能拦住。
+ */
+const VUE_FREE_PACKAGES = ['@fbkworks/data']
+
+/** 任何形态的 vue 引用：静态 import / re-export / 副作用 import / 动态 import / require / 子路径 */
+const VUE_REF_RE =
+  /(?:\bfrom\s*['"]vue(?:['"]|\/)|\bimport\s*['"]vue['"]|\bimport\s*\(\s*['"]vue['"]\s*\)|\brequire\s*\(\s*['"]vue['"]\s*\))/
+
 const isForbidden = (specifier) =>
   FORBIDDEN.some((name) => specifier === name || specifier.startsWith(`${name}/`))
 
@@ -160,11 +175,19 @@ for (const pkg of published) {
 
   for (const file of files) {
     const code = await readFile(file, 'utf8')
+    const rel = file.replace(root, '').replace(/\\/g, '/')
+
+    /* 检查 0：VUE_FREE_PACKAGES 的产物里不许出现 vue（不看包名推导，直接读字节） */
+    if (VUE_FREE_PACKAGES.includes(pkg.name)) {
+      const hit = VUE_REF_RE.exec(code)
+      if (hit) {
+        report(`${rel} 出现了「${hit[0]}」—— ${pkg.name} 的产物必须不依赖 vue`)
+      }
+    }
+
     for (const specifier of extractSpecifiers(code)) {
       if (!isBare(specifier)) continue
       checkedSpecifiers += 1
-
-      const rel = file.replace(root, '').replace(/\\/g, '/')
 
       // 检查 1：第一类禁止依赖
       if (isForbidden(specifier)) {

@@ -5,9 +5,11 @@ import { __resetChartRegistration, isFbkChartsRegistered, registerFbkCharts } fr
 /**
  * 按需注册。
  *
- * 关键承诺：`FbkChartType` / `FbkChartComponent` 联合类型比映射表宽
- * （'map' / 'geo' / 'toolbox' 列在类型里但还没有对应实现）。
- * 注册时必须把它们当作「没注册上」处理 —— 标记成已注册会让它永不重试，
+ * 两个联合类型的现状不一样：
+ *   · `FbkChartType` 与 CHART_MAP 一一对应（'map' 已删除，见 types.ts），
+ *     这条一致性由 register.ts 的 satisfies 在编译期强制；
+ *   · `FbkChartComponent` 仍比 COMPONENT_MAP 宽（'geo' / 'toolbox' 还没实现）。
+ * 对「绕过类型传进来的未登记项」必须当作「没注册上」处理 —— 标记成已注册会让它永不重试，
  * 表现是图表静默空白，且没有任何线索指向原因。
  */
 const warned = (): string[] => (console.warn as any).mock.calls.map((c: any[]) => String(c[0]))

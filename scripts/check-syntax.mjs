@@ -17,6 +17,20 @@ import { parseDocument } from 'yaml'
  *      jobs 为空）。那次 push 的白等成本 = 一整轮 CI 的时间。
  *
  * 这类错误在本地几乎零成本发现，在 CI 上却要等一轮才暴露。所以放在 verify 的第一步。
+ *
+ * ## 边界：这条门禁**不管** .ts / .mts / .cts
+ *
+ * 根 tsconfig.json 本会话删掉了 `scripts/**` 这个死 include —— 删得对（scripts 下没有 .ts，
+ * 留着只会让人以为脚本被 vue-tsc 覆盖了），但删掉之后要如实承认这个盲区：
+ *
+ *   · scripts 下的 .mjs / .cjs：只有本文件这一步的 node --check（语法，不含类型）；
+ *   · scripts 下的 .ts / .mts / .cts：**一条门禁都没有**。node --check 对它们直接
+ *     ERR_UNKNOWN_FILE_EXTENSION，所以下面 collect() 的扩展名白名单只收 .mjs/.cjs；
+ *     vue-tsc 也看不到它们，因为 tsconfig 的 include 里没有 scripts。
+ *
+ * 所以「verify 全绿」不等于脚本被类型覆盖。要补只能另立一个脚本专用 tsconfig
+ * （allowJs + checkJs，或把 .mts 迁进某个有 typecheck 的工程），
+ * 不要靠把那条假 include 加回去 —— 加回去只会让盲区披上一层绿。
  */
 
 const root = resolve(import.meta.dirname, '..')
@@ -58,7 +72,9 @@ const collect = (dir) => {
     if (entry.isDirectory()) collect(full)
     /* 只收 node --check 真能解析的扩展名。.mts/.cts 会让它直接
        ERR_UNKNOWN_FILE_EXTENSION，被这里报成「语法错误」——而它同时是 verify 与 CI
-       的第 1 步，整条链路会为一个不存在的错误变红。.ts/.mts 由 vue-tsc 与各自构建负责。 */
+       的第 1 步，整条链路会为一个不存在的错误变红。
+       注意：.ts/.mts 并非「由 vue-tsc 负责」—— 根 tsconfig 的 include 里没有 scripts，
+       它们在 scripts 下是零门禁（详见文件头「边界」一节）。 */
     else if (/\.(mjs|cjs)$/.test(entry.name)) scriptFiles.push(full)
   }
 }

@@ -88,16 +88,28 @@ function pick(list, kind) {
  *   1. $ 必须转义成 \$ —— 不转义它是「行尾」锚点，整条正则永远匹配不到；
  *   2. 只认 :name="`xx-${...}`" 这种绑定 —— 宽泛的「xx-${」会把 CSS 类名模板
  *      （`fbk-descriptions--gap-${x}`）也当成插槽，给每个组件塞一条假条目。
+ *
+ *   3. 前两条都躲过了也还会误报：模板串在任何元素上都能出现，而 :name 不是
+ *      <slot> 的专属属性。所以扫描范围收窄到 <slot ...> 标签内（见 SLOT_TAG_RE）。
  */
 const DYNAMIC_SLOT_RE = new RegExp(
   ':name="' + String.fromCharCode(96) + '([a-z][a-z-]*)-' + String.fromCharCode(92) + String.fromCharCode(36) + String.fromCharCode(123),
   'g',
 )
 
+/* <slot 标签的范围。用 [^<] 而不是 [^>] 收尾：标签里的箭头函数
+   （:set-value="(v) => setValue(v)"）自带一个 >，按 > 截断会把后面的
+   :name 一起切掉。 */
+const SLOT_TAG_RE = /<slot[^<]*/g
+
 function dynamicSlotsFromSource(file) {
   const source = readFileSync(resolve(root, file), 'utf8')
   const found = new Set()
-  for (const match of source.matchAll(DYNAMIC_SLOT_RE)) found.add(match[1] + '-<dynamic>')
+  /* 只在 <slot> 标签里找：:name 不是 slot 的专属属性，整文件扫会把
+     `<X :name="`tip-${id}`">` 这种普通组件绑定也当成插槽，凭空多一条假条目。 */
+  for (const tag of source.matchAll(SLOT_TAG_RE)) {
+    for (const match of tag[0].matchAll(DYNAMIC_SLOT_RE)) found.add(match[1] + '-<dynamic>')
+  }
   return [...found].map((name) => ({
     name,
     type: 'unknown',
@@ -107,19 +119,81 @@ function dynamicSlotsFromSource(file) {
     kind: 'slot',
   }))
 }
+/** 与开头的 '{' 配对的那个 '}'，返回两者之间的文本；找不到返回 null。
+ *  跳过字符串字面量（含模板串），免得 getParams 里的对象字面量把配对算错。 */
+function sliceObjectBody(source, openIndex) {
+  let depth = 0
+  for (let i = openIndex; i < source.length; i += 1) {
+    const ch = source[i]
+    if (ch === "'" || ch === '"' || ch === String.fromCharCode(96)) {
+      for (i += 1; i < source.length && source[i] !== ch; i += 1) {
+        if (source[i] === String.fromCharCode(92)) i += 1
+      }
+      continue
+    }
+    if (ch === '{') depth += 1
+    else if (ch === '}') {
+      depth -= 1
+      if (depth === 0) return source.slice(openIndex + 1, i)
+    }
+  }
+  return null
+}
+
+/** 按顶层逗号切成员：() / [] / {} 里的逗号是值的一部分，不是成员分隔符。 */
+function splitMembers(body) {
+  const parts = []
+  let current = ''
+  let depth = 0
+  for (let i = 0; i < body.length; i += 1) {
+    const ch = body[i]
+    if (ch === "'" || ch === '"' || ch === String.fromCharCode(96)) {
+      current += ch
+      for (i += 1; i < body.length && body[i] !== ch; i += 1) current += body[i]
+      if (i < body.length) current += body[i]
+      continue
+    }
+    if (ch === '{' || ch === '(' || ch === '[') depth += 1
+    else if (ch === '}' || ch === ')' || ch === ']') depth -= 1
+    if (ch === ',' && depth === 0) {
+      parts.push(current)
+      current = ''
+      continue
+    }
+    current += ch
+  }
+  parts.push(current)
+  return parts
+}
+
+/** 成员名：允许 async / get / set 前缀，名字后面跟 :: ( , 任意一种 */
+const MEMBER_NAME_RE = /^(?:async[ ]+)?(?:get[ ]+|set[ ]+)?([A-Za-z_$][A-Za-z0-9_$]*)/
+
+/**
+ * 从 defineExpose 的对象字面量里读成员名。三条实测过的坑：
+ *   1. 原来的非贪婪正则停在**第一个**「} 紧跟 )」上 —— CrudPage 的
+ *      `getParams: () => ({ ...params.value })` 正是这个形状，于是它后面的
+ *      getData / getSelectedKeys / clearSelection 全被截掉，文档里少三行方法。
+ *   2. 成员行正则要求「恰好两空格缩进」：QueryForm.vue 那种单行 defineExpose
+ *      整块只有一行、开头是空格，一条成员都匹配不到（表格退化成「无」）。
+ *   3. `get data() {}` 访问器同样采不到 —— 'get' 后面是空格，不是 , 或 :。
+ * 现在：花括号配对取对象体 → 顶层逗号切成员 → 每段取首个标识符。
+ */
 function exposedFromSource(file) {
   const source = readFileSync(resolve(root, file), 'utf8')
-  const block = /defineExpose[^(]*\(\s*\{([\s\S]*?)\}\s*\)/.exec(source)
-  if (!block) return []
-  const lines = block[1].split(new RegExp(String.fromCharCode(10)))
-  return lines
-    .map((line) => {
-      const hit = /^ {2}([A-Za-z_$][\w$]*)[ ]*[,:]/.exec(line)
-      return hit ? hit[1] : undefined
-    })
+  const marker = source.indexOf('defineExpose')
+  if (marker === -1) return []
+  const call = source.indexOf('(', marker)
+  if (call === -1) return []
+  const open = source.indexOf('{', call)
+  if (open === -1) return []
+  const body = sliceObjectBody(source, open)
+  if (body === null) return []
+  return splitMembers(body)
+    .map((part) => MEMBER_NAME_RE.exec(part.trim()))
     .filter(Boolean)
-    .map((name) => ({
-      name,
+    .map((hit) => ({
+      name: hit[1],
       type: '() => unknown',
       default: '',
       required: false,

@@ -25,7 +25,7 @@
 
 import { readdir, readFile } from 'node:fs/promises'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 
@@ -73,6 +73,39 @@ function discoverPackagesWithStyle(dir, out = {}) {
 
 const PACKAGES_WITH_STYLE = discoverPackagesWithStyle(resolve(root, 'packages'))
 
+/** 包目录（仓库相对）→ 包名。用于给「相对路径 @import」找归属。 */
+function discoverPackageDirs(dir, out = {}) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === 'node_modules' || entry.name === 'dist') continue
+    const full = join(dir, entry.name)
+    const pkgFile = join(full, 'package.json')
+    if (!existsSync(pkgFile)) {
+      discoverPackageDirs(full, out)
+      continue
+    }
+    out[relative(root, full).replace(/\\/g, '/')] = JSON.parse(readFileSync(pkgFile, 'utf8')).name
+  }
+  return out
+}
+
+const PACKAGE_DIRS = discoverPackageDirs(resolve(root, 'packages'))
+
+/**
+ * 一个仓库内的样式文件能不能算作某个包「对外 style.css 入口」的源码。
+ *
+ * 判据：路径正好等于 `<包目录>/src/style.css`。各发布包的 package.json 里
+ * `./style.css` 指向 `./dist/style.css`，而 dist 那份就是这个 src/style.css 打出来的。
+ * 子组件样式（components/src/pro-table/style.css）不算 —— 与上面聚合入口那条同理：
+ * 引一个子组件样式 ≠ 接入了整个包。
+ */
+function packageStyleRefFor(absFile) {
+  const rel = relative(root, absFile).replace(/\\/g, '/')
+  for (const [dir, name] of Object.entries(PACKAGE_DIRS)) {
+    if (rel === `${dir}/src/style.css`) return `${name}/style.css`
+  }
+  return null
+}
+
 /**
  * 应用「应该引哪些包的样式」：从它 package.json 的依赖里挑带样式的发布包。
  *
@@ -105,8 +138,11 @@ const APP_ENTRIES = [
   {
     name: 'docs',
     file: 'apps/docs/.vitepress/theme/index.ts',
-    // 文档站渲染 demo，需要 components + demos；图表 demo 需要 chart-core
-    requires: ['@fbkworks/components', '@fbkworks/chart-core', '@fbkworks/dashboard', '@fbkworks/screen', '@fbkworks/demos'],
+    /* 与 admin 一样走推导，不再手抄。
+       它的三个适配器样式不在 index.ts 里，而在 .vitepress/theme/docs.css 的
+       相对路径 @import 里（`../../../../packages/adapters/vant/src/style.css`）——
+       collectStyleRefs 会跟进去并把它们折成包引用，所以这里不需要另设豁免。 */
+    requires: requiredByDeps('apps/docs'),
   },
   {
     name: 'admin',
@@ -121,13 +157,21 @@ const report = (msg) => {
   failures += 1
 }
 
-/** 从入口文件里提取所有 @fbkworks 样式引用（import 语句与 @import 都算） */
-async function collectStyleRefs(file) {
+/**
+ * 从入口文件里提取所有样式引用（import 语句与 @import 都算）。
+ *
+ * 除了直接的 @fbkworks 说明符，还要跟进本地相对路径：docs 的适配器样式不在
+ * index.ts 里，而在 `.vitepress/theme/docs.css` 的相对路径 @import 里。
+ * 不跟进的话 docs 只能退回手抄清单 —— 而手抄清单删一行没人知道（admin 那条的老毛病）。
+ */
+async function collectStyleRefs(file, seen = new Set()) {
   const abs = resolve(root, file)
   if (!existsSync(abs)) {
     report(`入口文件不存在：${file}`)
     return null
   }
+  if (seen.has(abs)) return new Set()
+  seen.add(abs)
   const source = await readFile(abs, 'utf8')
   const refs = new Set()
 
@@ -144,6 +188,21 @@ async function collectStyleRefs(file) {
   for (const m of source.matchAll(/['"]\.\.\/([a-z-]+)\/style\.css['"]/g)) {
     refs.add(`@fbkworks/components/${m[1]}/style.css`)
   }
+
+  /* 本地相对路径要跟进去：index.ts 用 import './docs.css' 引主题样式，
+     docs.css 又用 @import '.../packages/adapters/vant/src/style.css' 引适配器样式。
+     只读入口文件本身，这两处全是隐形的 —— docs 就只能退回手抄清单。 */
+  const followLocal = async (specifier) => {
+    if (!specifier.startsWith('./') && !specifier.startsWith('../')) return
+    const target = resolve(dirname(abs), specifier)
+    const pkgRef = packageStyleRefFor(target)
+    if (pkgRef) refs.add(pkgRef)
+    if (!target.endsWith('.css') || !existsSync(target)) return
+    const nested = await collectStyleRefs(relative(root, target).replace(/\\/g, '/'), seen)
+    if (nested) for (const ref of nested) refs.add(ref)
+  }
+  for (const m of source.matchAll(/@import\s+(?:url\()?['"]([^'"]+)['"]/g)) await followLocal(m[1])
+  for (const m of source.matchAll(/\bimport\s+['"]([^'"]+)['"]/g)) await followLocal(m[1])
   return refs
 }
 

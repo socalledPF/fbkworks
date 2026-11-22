@@ -40,21 +40,30 @@ export const arcoCapabilities: Capabilities = {
     presentation: 'table',
     selection: true,
     sort: 'custom',
-    expandable: true,
+    expandable: false,
     tree: false,
-    virtualScroll: true,
-    stickyHeader: true,
+    virtualScroll: false,
+    stickyHeader: false,
   },
   form: { layout: 'horizontal', labelWidth: true, validateOn: ['change', 'blur', 'submit'], asyncValidator: true },
   overlay: { kind: 'dialog', supportsDrawer: true, supportsTeleport: true },
   pagination: { mode: 'pages', pageSizes: true, jumper: true },
-  feedback: { message: true, notification: true, confirm: true, loading: true },
-  theme: { darkMode: true, cssVariables: false, provider: true },
+  feedback: { message: true, notification: false, confirm: true, loading: false },
+  theme: { darkMode: true, provider: true },
   features: {},
 }
 ```
 
-**如实声明**。把不支持的能力写成 `true` 只会让业务组件在运行时崩在别处。
+**如实声明**。能力位是调用方的**分支依据**：写 `true` 就等于承诺「这里有个入口，你可以传」。
+
+所以上面四个 `dataGrid` 能力位全是 `false` —— `expandable` / `tree` / `virtualScroll` /
+`stickyHeader` 在 `DataGridProps` 里**根本没有对应的 prop**（三个适配器的 `src/index.ts`
+都写着同一段注释）。声明成 `true` 不是「实现得糙一点」，而是让调用方按能力位分支去传
+`expandable` / `virtualScroll`，拿到的是一条不存在的路。要真支持，得先加 prop、
+三个适配器各实现、再补一致性用例 —— 那是一轮独立设计，不是改一个布尔值。
+
+`feedback` 的 `notification` / `loading` 同理：契约里没有对应实现，就写 `false`。
+`theme` 只有 `darkMode` / `provider` 两个字段（`cssVariables` 已从契约移除）。
 
 ## 3. 导出 UiAdapter
 

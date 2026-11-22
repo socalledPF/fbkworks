@@ -42,8 +42,8 @@
      示例用原生按钮；实际项目里换成你们自己的按钮即可 -->
 <FbkResult status="404">
   <template #actions>
-    <button type="button" class="demo-btn demo-btn--primary" @click="$router.push('/')">返回首页</button>
-    <button type="button" class="demo-btn" @click="reload">重试</button>
+    <button type="button" class="fbk-demo-btn fbk-demo-btn--primary" @click="$router.push('/')">返回首页</button>
+    <button type="button" class="fbk-demo-btn" @click="reload">重试</button>
   </template>
 </FbkResult>
 ```
