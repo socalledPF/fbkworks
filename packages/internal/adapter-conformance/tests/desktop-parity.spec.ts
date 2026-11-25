@@ -18,7 +18,15 @@ import type { UiAdapter } from '@fbkworks/adapter-core'
  * 在环境还活着的时候把它冲掉，比事后 catch 更可靠，也不会掩盖真实错误。
  */
 afterEach(async () => {
-  await new Promise((resolve) => setTimeout(resolve, 16))
+  /* 为什么要等 200ms 而不是一拍：ElTable 的 doLayout 是 **debounce 50ms** 排的活，
+     最低 peer 版本下还会再排一帧。先试过的「等 16ms」在 CI 上仍然漏
+     （compat job：ReferenceError: requestAnimationFrame is not defined，
+      caught after test environment was torn down）。
+     这里连等 4 拍把可能排队的工作全部跑完——34 条用例约多花 7 秒，
+     比「偶发红一次、排查半天」便宜得多。 */
+  for (let i = 0; i < 4; i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
 })
 
 /**
