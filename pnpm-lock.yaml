@@ -459,6 +459,8 @@ importers:
         specifier: workspace:*
         version: link:../components
 
+  packages/schema: {}
+
   packages/screen:
     dependencies:
       '@fbkworks/chart-core':

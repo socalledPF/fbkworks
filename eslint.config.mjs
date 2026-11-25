@@ -1,3 +1,6 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
@@ -79,21 +82,34 @@ const FORBIDDEN_RUNTIME_DEPS = [
 ]
 
 /**
- * 所有发布包（不含内部工具包与适配器）。
+ * 所有发布包（不含内部工具包与适配器）——**从磁盘派生，不手写**。
  *
- * 这份列表必须与 pnpm-workspace.yaml 里的发布包保持同步 ——
- * 上一版漏掉了 chart-core / dashboard / screen，导致三个新包完全不受约束。
+ * 手写清单是记录，事实一变它就变成谎。这条清单已经漏过两次：先漏 chart-core /
+ * dashboard / screen，后漏 resolver —— 后者是真实发布包（0.3.0、没写 private），
+ * 却因此不受下面两条发布包规则约束，等于可以悄悄 import dayjs / axios 而 lint 全绿，
+ * 而且没有任何门禁看得出来（lint 只跑「已经进了清单的包」，看不见自己漏了谁）。
+ *
+ * 判据交给文件系统：`packages/*` 下有 package.json 且 `private !== true`。
+ *
+ * 谓词为什么是 `private !== true` 而不是 `private === false`：本仓库的发布包**省略**
+ * 这个字段，只有不发布的包才显式写 `private: true`。check-runtime-deps /
+ * gen-api-snapshot / gen-size-baseline / publish-all 四道门用的全是这同一个谓词 ——
+ * 这里必须与它们一致，否则又多出一份「发布包清单」各说各话。
+ *
+ * `packages/adapters/*` 与 `packages/internal/*` 不是 `packages/*` 的直接子目录，
+ * 天然排除，正合「不含内部工具包与适配器」的口径。
+ *
+ * 成本：ESLint 配置每个进程执行一次，1 次 readdirSync + 10 次 readFileSync，可忽略。
+ * （本文件没有别的缓存机制，也不需要：守住的是「清单等于事实」，不是启动耗时。）
  */
-const PUBLISHED_PACKAGES = [
-  'packages/tokens',
-  'packages/shared',
-  'packages/adapter-core',
-  'packages/components',
-  'packages/chart-core',
-  'packages/dashboard',
-  'packages/screen',
-  'packages/data',
-]
+const PACKAGES_DIR = fileURLToPath(new URL('./packages/', import.meta.url))
+const PUBLISHED_PACKAGES = readdirSync(PACKAGES_DIR, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && existsSync(join(PACKAGES_DIR, entry.name, 'package.json')))
+  .filter(
+    (entry) => JSON.parse(readFileSync(join(PACKAGES_DIR, entry.name, 'package.json'), 'utf8')).private !== true,
+  )
+  .map((entry) => `packages/${entry.name}`)
+  .sort()
 
 /** 生成 `packages/x/src/**` 形式的 glob */
 const publishedSrcGlobs = PUBLISHED_PACKAGES.map((p) => `${p}/src/**/*.{ts,tsx,vue}`)

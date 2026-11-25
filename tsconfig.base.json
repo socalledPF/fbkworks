@@ -35,6 +35,9 @@
       "@fbkworks/shared": [
         "packages/shared/src/index.ts"
       ],
+      "@fbkworks/schema": [
+        "packages/schema/src/index.ts"
+      ],
       "@fbkworks/adapter-core": [
         "packages/adapter-core/src/index.ts"
       ],

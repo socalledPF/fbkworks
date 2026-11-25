@@ -81,7 +81,7 @@ const ALLOWED_ALWAYS = ['vue']
  * 「数据层可以在 node 里独立用」这条前提当场作废 —— 而上面那条 allowlist 会让它一路绿灯
  * （既不算未声明依赖，也不算禁止依赖），于是一次悄悄的回归没有任何门禁能拦住。
  */
-const VUE_FREE_PACKAGES = ['@fbkworks/data']
+const VUE_FREE_PACKAGES = ['@fbkworks/data', '@fbkworks/schema', '@fbkworks/resolver', '@fbkworks/tokens']
 
 /** 任何形态的 vue 引用：静态 import / re-export / 副作用 import / 动态 import / require / 子路径 */
 const VUE_REF_RE =

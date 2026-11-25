@@ -1,0 +1,37 @@
+{
+  "_note": "由 scripts/gen-api-snapshot.mjs 生成，请勿手改。有意改公开 API 时跑 pnpm gen:api-snapshot，并把 diff 一起提交。",
+  "package": "@fbkworks/schema",
+  "entries": [
+    "."
+  ],
+  "symbols": {
+    "FieldMeta": {
+      "kind": "interface",
+      "text": "interface FieldMeta {\n    name: string;\n    label: string;\n    type: FieldType;\n    views?: FieldView[];\n    options?: unknown;\n    query?: Record<string, unknown>;\n    column?: Record<string, unknown>;\n    form?: Record<string, unknown>;\n}"
+    },
+    "FieldType": {
+      "kind": "type",
+      "text": "type FieldType = 'input' | 'textarea' | 'number' | 'select' | 'date' | 'switch';"
+    },
+    "FieldView": {
+      "kind": "type",
+      "text": "type FieldView = 'query' | 'column' | 'form';"
+    },
+    "defineFields": {
+      "kind": "function",
+      "text": "declare function defineFields<const T extends readonly FieldMeta[]>(fields: T): T;"
+    },
+    "toColumns": {
+      "kind": "function",
+      "text": "declare function toColumns(fields: readonly FieldMeta[]): Record<string, unknown>[];"
+    },
+    "toFormFields": {
+      "kind": "function",
+      "text": "declare function toFormFields(fields: readonly FieldMeta[]): Record<string, unknown>[];"
+    },
+    "toQueryFields": {
+      "kind": "function",
+      "text": "declare function toQueryFields(fields: readonly FieldMeta[]): Record<string, unknown>[];"
+    }
+  }
+}
