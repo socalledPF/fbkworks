@@ -130,6 +130,12 @@ jobs:
       - name: 能力位覆盖（strict）
         run: pnpm check:capabilities
 
+      # 公开契约里「声明了但没人读取」的字段：用户传了它静默无效、还只会怀疑自己写错了。
+      # 开发期由 adapter-core 的 devWarn* 给出可执行提示；这道门禁要求每个这样的字段
+      # 都在登记表里交代「现在该写什么」，并且每个调用点都待在 import.meta.env 守卫内。
+      - name: 开发期 prop 校验（声明了但没人读取的字段）
+        run: pnpm check:dev-warn
+
       # 发布清单与拓扑序：新增发布包却忘了登记进 ORDER，在这里就红，
       # 而不是等到发版时才发现依赖的包从未上架。
       - name: 发布清单与顺序

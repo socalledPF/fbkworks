@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, h, ref, useAttrs, useSlots } from 'vue'
 import type { Slots } from 'vue'
-import { useAdapter } from '@fbkworks/adapter-core'
+import { devWarnRemovedProps, useAdapter } from '@fbkworks/adapter-core'
 import type { SelectOption } from '@fbkworks/adapter-core'
 import { resolveColumns, warnOnce } from '@fbkworks/shared'
 import type { FormField, FormGeneratorExpose, FormGeneratorProps } from './types'
@@ -24,6 +24,18 @@ const props = withDefaults(defineProps<FormGeneratorProps<T>>(), {
 })
 
 const attrs = useAttrs()
+
+/* 开发期 prop 校验：`dependencies` 这类已删字段写在 schema.fields 里时同样静默无效。
+   这里走「按登记表反向检查」而不是 devWarnUnknownProps 的允许清单：FormField 继承
+   QueryField 的十个字段，抄一份允许清单既长又必然过期 —— 抄漏一个，用户传合法字段
+   反而会被报警。
+   生产构建里整块消失（Vite 把 import.meta.env.DEV 折成 false 后 tree-shake）；
+   ?. 是为了非 Vite 消费者里 import.meta.env 为 undefined 时不抛错。 */
+type DevEnv = { env?: { DEV?: boolean } }
+
+if ((import.meta as unknown as DevEnv).env?.DEV === true) {
+  for (const field of props.schema.fields) devWarnRemovedProps('FormField', field)
+}
 
 const emit = defineEmits<{
   'update:modelValue': [values: Record<string, any>]

@@ -45,6 +45,7 @@
     "gen:size-baseline": "node scripts/gen-size-baseline.mjs",
     "check:size": "node scripts/gen-size-baseline.mjs --check",
     "check:capabilities": "node scripts/check-capabilities.mjs",
+    "check:dev-warn": "node scripts/check-dev-warn.mjs",
     "verify:fresh": "node scripts/verify-fresh-clone.mjs",
     "gen:style-index": "node scripts/gen-style-entries.mjs",
     "gen:chart-fixtures": "node scripts/gen-chart-fixtures.mjs",
@@ -53,7 +54,7 @@
     "check:ui-imports": "node scripts/check-ui-imports.mjs",
     "gen:api": "pnpm --filter @fbkworks/docs gen:api",
     "test:watch": "vitest",
-    "verify": "pnpm check:syntax && pnpm lint && pnpm lint:deps && pnpm check:ui-imports && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:size && pnpm check:styles && pnpm check:style-index && pnpm check:package-entries && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
+    "verify": "pnpm check:syntax && pnpm lint && pnpm lint:deps && pnpm check:ui-imports && pnpm typecheck && pnpm test && pnpm build && pnpm check:surface && pnpm check:api-snapshot && pnpm check:size && pnpm check:styles && pnpm check:style-index && pnpm check:package-entries && pnpm check:style-entries && pnpm check:runtime-deps && pnpm check:packages && pnpm check:types && pnpm check:consumer && pnpm check:resolver-map && pnpm check:capabilities && pnpm check:dev-warn && pnpm check:publish-order && pnpm check:diagrams && pnpm docs:build",
     "check:consumer": "pnpm --filter @fbkworks/consumer-smoke typecheck",
     "check:diagrams": "pnpm --filter @fbkworks/docs check:diagrams"
   },

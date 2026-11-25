@@ -1,7 +1,14 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useAttrs, useSlots, watch, watchEffect } from 'vue'
 import type { Slots } from 'vue'
-import { useAdapter, useFbkTheme } from '@fbkworks/adapter-core'
+import {
+  UNIMPLEMENTED_PROPS,
+  devWarnRemovedProps,
+  devWarnUnimplemented,
+  devWarnUnknownProps,
+  useAdapter,
+  useFbkTheme,
+} from '@fbkworks/adapter-core'
 import type { SortState } from '@fbkworks/adapter-core'
 import type { Key, RowKeyGetter } from '@fbkworks/shared'
 import { getRowKey } from '@fbkworks/shared'
@@ -31,6 +38,49 @@ const props = withDefaults(defineProps<ProTableProps<T>>(), {
 })
 
 const attrs = useAttrs()
+
+/* 开发期 prop 校验。为什么要它：`hideInCard` 这类字段删掉之后，用户传了不会报错、
+   也不会生效，只会怀疑自己写错了。这里在开发期把「传了但不生效」变成一条可执行的提示。
+   生产构建里整块消失：Vite 把 import.meta.env.DEV 折成 false 后，这段连同对
+   adapter-core 的四个 import 一起被 tree-shake（packages/components/dist 里搜不到
+   devWarnUnknownProps）。取值用 ?. 而不是 .：非 Vite 消费者（webpack / Node SSR）里
+   import.meta.env 是 undefined，写 .DEV 会在 setup 期抛 TypeError —— 一个 dev 提示
+   不该换掉一个生产可用性。 */
+type DevEnv = { env?: { DEV?: boolean } }
+const isDev = (import.meta as unknown as DevEnv).env?.DEV === true
+
+/* 与 ProTableProps 的字段一一对应（check:dev-warn 会核对）：少写一个，
+   用户传的那个合法 prop 就会被误报成「未声明的 prop」。 */
+const PRO_TABLE_PROP_KEYS = [
+  'columns',
+  'rowKey',
+  'data',
+  'request',
+  'params',
+  'loading',
+  'emptyText',
+  'immediate',
+  'page',
+  'pageSize',
+  'total',
+  'pagination',
+  'selection',
+  'selectedKeys',
+  'uiProps',
+] as const
+
+if (isDev) {
+  devWarnUnknownProps('ProTable', attrs, PRO_TABLE_PROP_KEYS)
+  for (const column of props.columns) {
+    devWarnRemovedProps('ProTableColumn', column)
+    /* `search` 还留在类型里（对已经写了它的业务方，删类型是硬破版），但它从来没有实现过。
+       用 hasOwn 而不是读它的值：读值会让 check:dev-warn 认为「这个字段有人在读」，
+       于是不再要求登记表里有它 —— 那正是这类缺陷复发的方式。 */
+    if (Object.hasOwn(column, 'search')) {
+      devWarnUnimplemented('ProTableColumn', 'search', UNIMPLEMENTED_PROPS['ProTableColumn.search'])
+    }
+  }
+}
 
 const emit = defineEmits<{
   'update:selectedKeys': [keys: Key[]]

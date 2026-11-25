@@ -84,3 +84,13 @@ export type {
 export type { BusinessKitOptions } from './plugin'
 
 export { getCellValue, renderCell } from './render'
+
+/* 开发期 prop 校验。调用点用 `import.meta.env.DEV` 守卫，Vite 生产构建把守卫替换成
+   false 后整块消失（dist 里搜不到这些名字）；登记表同时是 `pnpm check:dev-warn` 的输入。 */
+export {
+  REMOVED_PROPS,
+  UNIMPLEMENTED_PROPS,
+  devWarnRemovedProps,
+  devWarnUnimplemented,
+  devWarnUnknownProps,
+} from './dev-warn'

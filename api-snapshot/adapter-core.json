@@ -180,6 +180,10 @@
       "kind": "type",
       "text": "type PermissionResolver = () => string[];"
     },
+    "REMOVED_PROPS": {
+      "kind": "const",
+      "text": "REMOVED_PROPS: Readonly<Record<string, string>>"
+    },
     "RadioOption": {
       "kind": "interface",
       "text": "interface RadioOption<V = string | number> {\n    label: string;\n    value: V;\n    disabled?: boolean;\n}"
@@ -232,6 +236,10 @@
       "kind": "type",
       "text": "type ThemeMode = 'light' | 'dark' | 'cyber' | 'system';"
     },
+    "UNIMPLEMENTED_PROPS": {
+      "kind": "const",
+      "text": "UNIMPLEMENTED_PROPS: Readonly<Record<string, string>>"
+    },
     "UiAdapter": {
       "kind": "interface",
       "text": "interface UiAdapter {\n    meta: AdapterMeta;\n    capabilities: Capabilities;\n    primitives: UiPrimitives;\n    feedback: FeedbackApi;\n    RootProvider: Component;\n    theme: ThemeBridge;\n}"
@@ -259,6 +267,18 @@
     "createReporter": {
       "kind": "function",
       "text": "declare function createReporter(options?: FbkReporterOptions): FbkReporter;"
+    },
+    "devWarnRemovedProps": {
+      "kind": "function",
+      "text": "declare function devWarnRemovedProps(componentName: string, received: object): void;"
+    },
+    "devWarnUnimplemented": {
+      "kind": "function",
+      "text": "declare function devWarnUnimplemented(componentName: string, prop: string, hint: string): void;"
+    },
+    "devWarnUnknownProps": {
+      "kind": "function",
+      "text": "declare function devWarnUnknownProps(componentName: string, received: Record<string, unknown>, allowed: readonly string[]): void;"
     },
     "getCellValue": {
       "kind": "function",

@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { computed, ref, useAttrs, watch } from 'vue'
-import { toErrorEvent, useReporter } from '@fbkworks/adapter-core'
+import { devWarnUnknownProps, toErrorEvent, useReporter } from '@fbkworks/adapter-core'
 import { useAdapter } from '@fbkworks/adapter-core'
 import { FbkFormGenerator } from '../form-generator'
 import type { FormGeneratorExpose } from '../form-generator'
@@ -33,6 +33,34 @@ const props = withDefaults(defineProps<FormModalProps<T>>(), {
 })
 
 const attrs = useAttrs()
+
+/* 开发期 prop 校验：`autoFocus` 这类已删字段传进来只会落进 attrs，静默无效。
+   生产构建里整块消失（Vite 把 import.meta.env.DEV 折成 false 后 tree-shake）；
+   ?. 是为了非 Vite 消费者里 import.meta.env 为 undefined 时不抛错。 */
+type DevEnv = { env?: { DEV?: boolean } }
+
+/* 与 FormModalProps 的字段一一对应（check:dev-warn 会核对）：少写一个，
+   用户传的那个合法 prop 就会被误报成「未声明的 prop」。 */
+const FORM_MODAL_PROP_KEYS = [
+  'show',
+  'title',
+  'mode',
+  'schema',
+  'initialValues',
+  'defaultValues',
+  'submit',
+  'width',
+  'placement',
+  'closeOnClickModal',
+  'closeOnSuccess',
+  'submitText',
+  'cancelText',
+  'maskClosableWhileSubmitting',
+] as const
+
+if ((import.meta as unknown as DevEnv).env?.DEV === true) {
+  devWarnUnknownProps('FormModal', attrs, FORM_MODAL_PROP_KEYS)
+}
 
 const reporter = useReporter()
 
