@@ -1,0 +1,58 @@
+/* 应用自有样式。只写业务页面自己的东西 ——
+   组件外观由令牌 + 适配器决定，不要在这里覆盖 .fbk-* 的内部结构。 */
+html,
+body {
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: var(--fbk-color-bg-page, #f5f6f8);
+  color: var(--fbk-color-text, #1f2329);
+}
+
+.page {
+  padding: 20px;
+}
+
+.page__head {
+  margin-bottom: 16px;
+}
+
+.page__title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.page__desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--fbk-color-text-secondary, #646a73);
+}
+
+.app-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--fbk-color-border, #dcdfe6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.app-btn--primary {
+  border-color: var(--fbk-color-primary, #2563eb);
+  background: var(--fbk-color-primary, #2563eb);
+  color: #fff;
+}
+
+.app-btn--danger {
+  border-color: var(--fbk-color-danger, #e5484d);
+  color: var(--fbk-color-danger, #e5484d);
+}
+
+.app-hint {
+  margin-left: 8px;
+  font-size: 13px;
+  color: var(--fbk-color-text-secondary, #646a73);
+}

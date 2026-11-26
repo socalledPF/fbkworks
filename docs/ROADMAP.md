@@ -63,6 +63,8 @@ toFormFields(orderFields)    // 导出成 FormGenerator 的 schema.fields
 - **自带能被 `pnpm test` 跑到的冒烟测试**（admin 的用例只能靠 `--config` 单独跑，等于会烂掉）；
 - README 写明「替换 3 处文件即可接自己的后端」+ 一句实测耗时。
 
+**已落地（PR-B）**：`templates/crud-starter` 已进 workspace 与 turbo，冒烟测试由根 `vitest` 覆盖（`pnpm test` 一条命令跑到），新增 `check:template-smoke` 门禁（构建失败 / 缺 README / 无 `dist/index.html` 均红），实测「复制 → 装 → 跑」到列表出现分页为 14 秒。
+
 ### 1.3 开发期 prop 校验
 
 `adapter-core` 加 `devWarnUnknownProps()`，**仅 `import.meta.env.DEV` 生效**：

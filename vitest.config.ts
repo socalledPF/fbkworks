@@ -19,6 +19,7 @@ export default defineConfig({
       /* 下面这几个原先把入口留给 package.json 的 exports —— 也就是 dist。
          本地能过是因为 dist 已经构建过；CI 全新检出没有 dist，Vite 会直接报
          "Failed to resolve entry for package"。测试应该测源码，不是测产物。 */
+      '@fbkworks/schema': r('./packages/schema/src/index.ts'),
       '@fbkworks/data': r('./packages/data/src/index.ts'),
       '@fbkworks/chart-core': r('./packages/chart-core/src/index.ts'),
       '@fbkworks/dashboard': r('./packages/dashboard/src/index.ts'),
@@ -40,7 +41,15 @@ export default defineConfig({
     environmentOptions: { jsdom: { pretendToBeVisual: true } },
     globals: false,
     setupFiles: ['./tests/setup.ts'],
-    include: ['packages/**/tests/**/*.spec.ts', 'packages/**/tests/**/*.spec.tsx'],
+    include: [
+      'packages/**/tests/**/*.spec.ts',
+      'packages/**/tests/**/*.spec.tsx',
+      /* 模板自带的冒烟测试跑在**同一个** runner 里：`pnpm test` 一条命令覆盖到它，
+         不需要第二条命令、也不需要模板自己再配一份 vitest。
+         上面那条 schema alias 是它的前提 —— 模板的字段定义 import @fbkworks/schema，
+         而 verify 里 `pnpm test` 早于 `pnpm build`，此时各包的 dist 还不存在。 */
+      'templates/**/tests/**/*.spec.ts',
+    ],
     exclude: ['**/node_modules/**', '**/dist/**'],
   },
 })

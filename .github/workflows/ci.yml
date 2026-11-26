@@ -79,6 +79,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: 模板可构建（复制即可跑）
+        run: pnpm check:template-smoke
+
       - name: 公开类型面
         run: pnpm check:surface
 
