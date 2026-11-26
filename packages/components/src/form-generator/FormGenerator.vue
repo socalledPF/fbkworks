@@ -215,7 +215,17 @@ const rules = computed(() => {
   const result: Record<string, any> = { ...(props.schema.rules ?? {}) }
   for (const field of props.schema.fields) {
     if (field.required) {
-      result[field.name] = [{ required: true, message: `${field.label}不能为空` }, ...(result[field.name] ?? [])]
+      /* 必须带上类型：async-validator 对不带 type 的规则退回 string 校验，
+         数字字段的 0（以及任何数字）都会被判成空值，红字用的还是 required 的 message。
+         只标 number —— 一律写 'string' 会让日期 / 数组类字段反向出问题。 */
+      result[field.name] = [
+        {
+          required: true,
+          ...(field.type === 'number' ? { type: 'number' as const } : {}),
+          message: `${field.label}不能为空`,
+        },
+        ...(result[field.name] ?? []),
+      ]
     }
     if (field.rules?.length) {
       result[field.name] = [...(result[field.name] ?? []), ...field.rules]

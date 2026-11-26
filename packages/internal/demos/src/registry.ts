@@ -49,6 +49,12 @@ export const demos: Record<string, DemoEntry> = {
     description: '由 schema 驱动生成表单，含字段依赖与禁用联动。',
     component: defineAsyncComponent(() => import('./form-generator/basic.vue')),
   },
+  'form-generator/required-number-zero': {
+    title: '必填数字字段预填 0 被判成没填',
+    group: '表单',
+    description: '数字字段 required + 预填 0：输入框里有 0，红字却说不能为空。左右对照 5 与文本 "0"。',
+    component: defineAsyncComponent(() => import('./form-generator/required-number-zero.vue')),
+  },
   'page-container/basic': {
     title: '页面容器 + 描述列表',
     group: '数据展示',
